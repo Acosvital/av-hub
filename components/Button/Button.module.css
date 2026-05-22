@@ -1,0 +1,70 @@
+/* base */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast),
+    opacity var(--t-fast);
+}
+
+.button:hover {
+  opacity: 0.80;
+}
+
+/* =========================
+   variants
+========================= */
+
+.primary {
+  background-color: var(--primary-button-bg);
+  color: var(--primary-button-fg);
+}
+
+.primary:hover {
+  background-color: var(--primary-button-hover);
+  opacity: 1;
+}
+
+.secondary {
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border-strong);
+}
+
+.secondary:hover {
+  background-color: var(--secondary-button-hover);
+  opacity: 1;
+}
+
+.accent {
+  background-color: var(--av-accent);
+  color: var(--white);
+}
+
+.accent:hover {
+  background-color: var(--primary-button-hover);
+  opacity: 1;
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.ghost:hover {
+  background-color: var(--surface-secondary);
+  opacity: 1;
+}

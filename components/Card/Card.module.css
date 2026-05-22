@@ -1,9 +1,14 @@
 .card {
     display: flex;
     flex-direction: column;
-    background-color: var(--white);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background-color: var(--card-bg);
+    color: var(--forground);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-4) var(--space-5);
     height: 100%;
+}
+
+:global(.dark) :local(.card) {
+    border: 1px solid var(--border);
 }

@@ -1,31 +1,26 @@
-.container {
-    background-color: var(--background);
+.app {
     display: flex;
-    flex-direction: row;
     min-height: 100dvh;
+    background: var(--av-primary)
 }
 
-.content {
+.shell {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: url('/layered-waves.svg')
-    no-repeat center center / cover;
+    background: var(--waves-bg) no-repeat center bottom / cover;
+    min-width: 0;
 }
 
-:global(.dark) :local(.content) {
-    background: url('/layered-waves-dark.svg')
-    no-repeat center center / cover;
-}
-
-.mainContent {
+.mainArea {
+    padding: var(--space-4) var(--space-4);
+    flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 0.5rem 1rem;
 }
 
 @media screen and (max-width: 768px) {
-    .container {
+    .app {
         flex-direction: column;
     }
 }

@@ -1,24 +1,24 @@
 .expanded {
-    background-color: var(--primary);
-    min-width: 220px;
-    padding: 1rem 0;
+    background-color: var(--av-primary);
+    min-width: var(--menu-w-min);
+    padding: var(--space-4) 0;
     display: flex;
     flex-direction: column;
-    width: fit-content;
-    gap: 1rem;
-    transition: min-width 0.3s ease;
+    width: var(--menu-w);
+    gap: var(--space-4);
+    transition: min-width var(--t-base);
     z-index: 110;
 }
 
 .minimized {
-    background-color: var(--primary);
-    min-width: 70px;
-    padding: 1rem 0;
+    background-color: var(--av-primary);
+    min-width: var(--menu-w-min);
+    padding: var(--space-4) 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    transition: min-width 0.3s ease;
+    gap: var(--space-4);
+    transition: min-width var(--t-base);
     z-index: 110;
 }
 
@@ -26,15 +26,22 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    color: var(--text-light);
-    padding: 0 0.5rem;
-    margin-bottom: 1rem;
+    color: var(--neutral-50);
+    padding: 0 var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.logoImg {
+    display: flex;
+    height: 30px;
+    /* width: auto; */
+    margin: var(--space-2) 0;
 }
 
 .hamburger {
     cursor: pointer;
-    font-size: 1.5rem;
-    transition: transform 0.3s ease;
+    font-size: 25px;
+    transition: transform var(--t-base);
 }
 
 .hamburger:hover {
@@ -44,10 +51,10 @@
 .menuContainer {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
     list-style: none;
     padding: 0;
-    margin: 0;    
+    margin: 0;
 }
 
 .menuWrapper {
@@ -56,28 +63,29 @@
 
 .menuCard {
     height: 35px;
-    margin: 0 0.5rem;
-    padding: 0.5rem;
+    margin: 0 var(--space-2);
+    padding: var(--space-2);
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    color: var(--text-light);
-    font-size: 0.875rem;
+    color: var(--neutral-50);
+    font-size: var(----fs-sm);
     cursor: pointer;
-    transition: all 0.2s ease;
-    gap: 0.5rem;
+    transition: all var(--t-base);
+    gap: var(--space-2);
     position: relative;
+    border-left: 1px solid transparent;
 }
 
-.icons {
-    font-size: 1.5rem;
-    flex-shrink: 0;
+.selectedMenu{
+    background-color: var(--av-secondary);
+    border-left: 5px solid var(--av-accent);
 }
 
 .expandIcon {
-    font-size: 1.2rem;
+    height: 25px;
     margin-left: auto;
-    transition: transform 0.3s ease;
+    transition: transform var(--t-base);
     flex-shrink: 0;
 }
 
@@ -85,16 +93,18 @@
     transform: rotate(180deg);
 }
 
-.menuCard p {
+.menuCard span {
     margin: 0;
     white-space: nowrap;
     flex: 1;
+    font-family: var(--font-sans);
+    font-weight: var(--w-bold);
+    color: var(--neutral-50);    
 }
 
 .menuCard:hover {
-    background-color: var(--secondary);
-    border-left: 5px solid var(--text-light);
-    /* width: 100%; */
+    background-color: var(--av-secondary);
+    border-left: 5px solid var(--av-accent);
 }
 
 .submenu {
@@ -103,25 +113,24 @@
     gap: 0;
     list-style: none;
     padding: 0;
-    margin: 0;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-left: 3px solid var(--text-light);
-    animation: slideDown 0.3s ease;
+    margin: 0 var(--space-2);
+    font-family: var(--font-sans);
+    background-color: rgba(0, 0, 0, 0.18);
+    border-left: 3px solid var(--av-accent);
+    animation: slideDown var(--t-base);
 }
 
 .submenuItem {
-    padding: 0.75rem 1rem;
-    margin: 0 0.5rem;
-    color: var(--text-light);
-    font-size: 0.8rem;
+    padding: var(--space-2) var(--space-4);
+    color: var(--neutral-50);
+    font-size: var(--fs-sm);
     cursor: pointer;
-    transition: all 0.2s ease;
-    padding-left: 2.5rem;
+    transition: all var(--t-base);
+    padding-left: var(--space-7);
 }
 
 .submenuItem:hover {
-    background-color: var(--secondary);
-    padding-left: 2.7rem;
+    background-color: var(--av-secondary);
 }
 
 .hidden {
@@ -131,12 +140,6 @@
 .link {
     text-decoration: none;
     color: inherit;
-}
-
-.logoImg {
-    height: 40px;
-    width: auto;
-    margin: 0.5rem 0;
 }
 
 @keyframes slideDown {
@@ -157,18 +160,21 @@
         flex-direction: row;
         flex-wrap: wrap;
     }
-    .expanded, .minimized {
+
+    .expanded,
+    .minimized {
         flex-direction: row;
         justify-content: space-around;
         align-items: center;
         width: 100%;
         height: 80px;
     }
-    .logo > svg {
-        display: none;
-    }    
 
-    .menuCard > p {
+    .logo>svg {
+        display: none;
+    }
+
+    .menuCard>span {
         display: none;
     }
 

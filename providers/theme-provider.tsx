@@ -6,12 +6,12 @@ import {
     ThemeProvider as MuiThemeProvider,
 } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { muiTheme } from '@/theme/theme';
+import { getMuiTheme } from '@/theme/index';
 
 function MuiProvider({ children }: { children: React.ReactNode }) {
     return (
         <AppRouterCacheProvider>
-            <MuiThemeProvider theme={muiTheme}>
+            <MuiThemeProvider theme={getMuiTheme}>
                 <CssBaseline />
                 {children}
             </MuiThemeProvider>

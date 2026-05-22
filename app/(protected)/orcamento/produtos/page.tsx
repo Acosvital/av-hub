@@ -15,77 +15,117 @@ import Card from "@/components/Card/Card";
 import pedidos from "./pedidos_3.json";
 import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import Modal from '@/components/Modal/Modal';
-import { LineChart } from '@mui/x-charts';
 import { dataset, valueFormatter } from './product';
+import Button from '@/components/Button/Button';
+import AppLineChart from '@/components/Charts/AppLineChart';
+import { notify } from '@/lib/toast/toast';
+import { getProdutos } from '@/app/api/services/produtos';
+import { getFamilias } from '@/app/api/services/familias';
+import { getFornecedores } from '@/app/api/services/fornecedores';
 
-type Produto = {
-  id: string;
-  data: string;
-  fornecedor: string;
-  descricao: string;
-  un: string;
-  valorMedio: number;
-  valorMercadoria: number;
-  estado: string;
-  familia: string;
+type ProdutoProps = {
+  "id_produto_omie": string,
+  "codigo_produto": string,
+  "descricao": string,
+  "familia": string,
+  "unidade_medida": string,
+  "ativo": boolean,
+  "id_parceiro_mais_recente": string,
+  "nome_fantasia": string,
+  "cotacao_mais_recente": string,
+  "data_cotacao_mais_recente": string,
+  "estado": string,
+  "preco_medio_ultimas_cotacoes": string,
+  "total_cotacoes": string
 };
+
+type FornecedorProps = {
+  codigo_parceiro_omie: string;
+  email: string;
+  estado: string;
+  nome_fantasia: string;
+  telefone: string;
+}
+
+type FamiliaProdutosProps = {
+  ativo: boolean;
+  codigo_fprodutos: string;
+  nome: string;
+}
 
 export default function Cadastro() {
   const [search, setSearch] = useState("");
-  const [rows, setRows] = useState<Produto[]>([]);
+  const [rows, setRows] = useState<ProdutoProps[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [rowData, setRowData] = useState<Produto>();
+  const [rowData, setRowData] = useState<ProdutoProps>();
+
+  const [fornecedorSelected, setFornecedorSelected] = useState<FornecedorProps | null>(null);
+  const [inputFornecedor, setInputFornecedor] = useState<string>('');
+  const [fornecedor, setFornecedor] = useState<FornecedorProps[]>([]);
 
   const [familiaProdutosSelected, setFamiliaProdutosSelected] = useState('');
-  const [familiaProdutos, setFamiliaProdutos] = useState<{ familia: string }[]>([]);
-
-  const [fornecedorSelected, setFornecedorSelected] = useState<string | null>(null);
-  const [fornecedor, setFornecedor] = useState<string[]>([]);
-  const [inputFornecedor, setInputFornecedor] = useState<string>('');
+  const [familiaProdutos, setFamiliaProdutos] = useState<FamiliaProdutosProps[]>([]);
 
   //Preparação do Array de produtos geral e familia de produtos
+  // useEffect(() => {
+  //   setLoading(true);
+  //   let productfamilies: { familia: string }[] = [];
+  //   let fornecedores: { fornecedor: string }[] = [];
+  //   const parsed: ProdutoProps[] = pedidos.flatMap((pedido) =>
+  //     pedido.produtos.map((produto) => {
+  //       productfamilies.push({
+  //         familia: produto.descricao_familia
+  //       });
+  //       fornecedores.push({
+  //         fornecedor: pedido.fornecedor.nome_fantasia
+  //       });
+  //       return ({
+  //         id: produto.cProduto,
+  //         data: pedido.dIncData,
+  //         fornecedor: pedido.fornecedor.nome_fantasia,
+  //         descricao: produto.cDescricao,
+  //         un: produto.cUnidade,
+  //         valorMedio: 0,
+  //         valorMercadoria: produto.nValUnit,
+  //         estado: pedido.fornecedor.estado,
+  //         familia: produto.descricao_familia
+  //       })
+  //     })
+  //   );
+  //   setRows(parsed);
+  //   setLoading(false);
+  // }, []);
+
+  //Carregamento dos filtros e dados iniciais
   useEffect(() => {
-    setLoading(true);
-    let productfamilies: { familia: string }[] = [];
-    let fornecedores: { fornecedor: string }[] = [];
-    const parsed: Produto[] = pedidos.flatMap((pedido) =>
-      pedido.produtos.map((produto) => {
-        productfamilies.push({
-          familia: produto.descricao_familia
-        });
-        fornecedores.push({
-          fornecedor: pedido.fornecedor.nome_fantasia
-        });
-        return ({
-          id: produto.cProduto,
-          data: pedido.dIncData,
-          fornecedor: pedido.fornecedor.nome_fantasia,
-          descricao: produto.cDescricao,
-          un: produto.cUnidade,
-          valorMedio: 0,
-          valorMercadoria: produto.nValUnit,
-          estado: pedido.fornecedor.estado,
-          familia: produto.descricao_familia
-        })
-      })
-    );
-    const cleanedFamilia = Array.from(
-      new Map(
-        productfamilies.map(item => [item.familia, item])
-      ).values().filter(x => x.familia.trim().length > 0)
-    );
-    const cleanedFornecedor = Array.from(
-      new Map(
-        fornecedores.map(item => [item.fornecedor, item.fornecedor])
-      ).values().filter(x => x.trim().length > 0)
-    );
-    setFamiliaProdutos(cleanedFamilia);
-    setFornecedor(cleanedFornecedor);
-    setRows(parsed);
-    setLoading(false);
+    async function loadAllData() {
+      try {
+        setLoading(true);
+        const [
+          familiaData,
+          fornecedoresData,
+          produtosData
+        ] = await Promise.all([
+          getFamilias(),
+          getFornecedores(),
+          getProdutos(),
+        ]);
+        console.log(produtosData)
+        setFamiliaProdutos(familiaData.filter((el: FamiliaProdutosProps) => el.ativo === true));
+        setFornecedor(fornecedoresData);
+        setRows(produtosData.data)
+
+      } catch (erro) {
+        setError('Erro ao carregar catálogo de produtos');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadAllData();
   }, []);
 
   //Filtragem de resultados através de descrição E/OU familia de produtos E/OU fornecedor
@@ -94,11 +134,12 @@ export default function Cadastro() {
     return rows.filter((row) => {
       const matchDescricao = row.descricao.toLowerCase().includes(term);
       const matchFamilia = !familiaProdutosSelected || row.familia === familiaProdutosSelected;
-      const matchFornecedor = !fornecedorSelected || row.fornecedor === fornecedorSelected;
+      const matchFornecedor = !fornecedorSelected || row.fornecedor === fornecedorSelected.nome_fantasia;
       return matchDescricao && matchFamilia && matchFornecedor;
     });
   }, [search, rows, familiaProdutosSelected, fornecedorSelected]);
 
+  //Paginação
   const paginatedRows = useMemo(() => {
     return filteredRows.slice(
       page * rowsPerPage,
@@ -106,11 +147,12 @@ export default function Cadastro() {
     );
   }, [filteredRows, page, rowsPerPage]);
 
+  //Export
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredRows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Dados");
-    XLSX.writeFile(wb, "exportacao_portal.xlsx");
+    XLSX.writeFile(wb, "catalogoDeProdutos.xlsx");
   };
 
   const limparCampos = () => {
@@ -120,9 +162,11 @@ export default function Cadastro() {
     setInputFornecedor('');
   }
 
+  const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
   return (
     <>
-      <div>
+      <div className={styles.title}>
         <h2 className={styles.title}>Catálogo de produtos</h2>
         <h3 className={styles.subtitle}>
           Consulte os últimos valores praticados pelos produtos
@@ -153,8 +197,8 @@ export default function Cadastro() {
 
                 <MenuItem value=""> </MenuItem>
                 {familiaProdutos.map((familia, index) => (
-                  <MenuItem key={index} value={familia.familia}>
-                    {familia.familia}
+                  <MenuItem key={index} value={familia.nome}>
+                    {familia.nome}
                   </MenuItem>
                 ))}
               </Select>
@@ -163,7 +207,8 @@ export default function Cadastro() {
               sx={{ flex: 1, minWidth: 300 }}
               disablePortal
               options={fornecedor}
-              getOptionLabel={(fornecedor) => fornecedor}
+              getOptionKey={(fornecedor) => fornecedor.codigo_parceiro_omie}
+              getOptionLabel={(fornecedor) => fornecedor.nome_fantasia}
               value={fornecedorSelected}
               inputValue={inputFornecedor}
               renderInput={(params) => <TextField {...params} label="Fornecedores" />}
@@ -172,27 +217,27 @@ export default function Cadastro() {
             />
           </div>
           <div className={styles.cardButtons}>
-            <button onClick={limparCampos} className={styles.buttonExport}>
+            <Button variant='secondary' onClick={limparCampos}>
               Limpar Campos
-            </button>
+            </Button>
           </div>
         </Card>
 
         <Card>
           <div className={styles.cardHeaderActions}>
             <h2 className={styles.cardTitle}>Produtos Encontrados</h2>
-            <button onClick={exportToExcel} className={styles.buttonExport}>
-              <FaFileDownload size={18} /> Exportar
-            </button>
+            <Button variant='primary' onClick={exportToExcel} icon={<FaFileDownload size={18} />}>
+              Exportar
+            </Button>
           </div>
           {loading ? (
             <div className={styles.loading}>Carregando...</div>
           ) : (
             <TableContainer sx={{ maxHeight: 380, overflowX: 'auto' }}>
               <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    {["Data", "Descrição do produto", "Cod. produto", "Família do produto", "Unidade", "Fornecedor", "Estado", "Valor médio", "Ultimo valor",].map((label) => (
+                <TableHead >
+                  <TableRow >
+                    {["Data", "Descrição do produto", "Cod.", "Família", "UN", "Fornecedor", "UF", "Valor médio", "Ultimo valor",].map((label) => (
                       <TableCell key={label} >{label}</TableCell>
                     ))}
                   </TableRow>
@@ -204,16 +249,16 @@ export default function Cadastro() {
                       setRowData(row)
                       setIsOpen(true)
                     }}>
-                      <TableCell>{row.data}</TableCell>
+                      <TableCell>{row.data_cotacao_mais_recente?.split('-').join('/')}</TableCell>
                       <TableCell >{row.descricao}</TableCell>
-                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.codigo_produto}</TableCell>
                       <TableCell>{row.familia}</TableCell>
-                      <TableCell>{row.un}</TableCell>
-                      <TableCell>{row.fornecedor}</TableCell>
+                      <TableCell>{row.unidade_medida}</TableCell>
+                      <TableCell>{row.nome_fantasia}</TableCell>
                       <TableCell>{row.estado}</TableCell>
-                      <TableCell>{row.valorMedio}</TableCell>
+                      <TableCell>{row.preco_medio_ultimas_cotacoes}</TableCell>
                       <TableCell>
-                        {row.valorMercadoria.toLocaleString("pt-BR", {
+                        {Number(row.cotacao_mais_recente).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
                         })}
@@ -242,40 +287,26 @@ export default function Cadastro() {
         </Card>
       </div>
       <Modal
-        title='Detalhes do fornecedor'
+        title='Detalhes do produto'
+        subtitle={rowData?.descricao}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
       >
         {rowData && (
-          <div style={{
-            width: '100%',
-            minWidth: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem'
-          }}>
+          <div className={styles.modalContent}>
+            <dl className={styles.definitionList}>
+              {/* <dt className={styles.definitionTerm}>Fornecedor</dt><dd className={styles.definitionDescription}>{rowData.fornecedor}</dd>
+              <dt className={styles.definitionTerm}>Estado</dt><dd className={styles.definitionDescription}>{rowData.estado}</dd>
+              <dt className={styles.definitionTerm}>Última compra</dt><dd className={styles.definitionDescription} >{rowData.data} · {brl(rowData.valorMercadoria)}</dd>
+              <dt className={styles.definitionTerm}>Valor médio (12m)</dt><dd className={styles.definitionDescription}>{brl(rowData.valorMedio)}</dd> */}
+            </dl>
+            <hr className={styles.divider} />
             <div>
-              <p>Nome: {rowData && rowData.fornecedor}</p>
-              <p>Estado: {rowData && rowData.estado}</p>
-            </div>
-            <hr />
-            <div>
-              <LineChart
-                sx={{ paddingRight: '1rem' }}
-                height={250}
-                dataset={dataset}
-                series={[
-                  {
-                    dataKey: 'valor',
-                    label: `${rowData.descricao}`,
-                    curve: 'natural',
-                    valueFormatter: valueFormatter,
-                    showMark: true
-                  },
-                ]}
-                xAxis={[{ scaleType: 'point', dataKey: 'month' }]}
-                yAxis={[{ valueFormatter: valueFormatter, }]}
-                grid={{ vertical: true, horizontal: true }}
+              <AppLineChart
+                label={rowData.descricao}
+                xLabels={dataset.map(item => item.month)}
+                data={dataset.map(item => item.valor)}
+                valueFormatter={valueFormatter}
               />
             </div>
           </div>

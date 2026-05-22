@@ -1,93 +1,83 @@
 .title {
-  font-size: 2.25rem;
-  color: var(--foreground-secondary);
+  font-size: var(--fs-2xl);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-sm);
   color: var(--foreground-secondary);
+}
+
+.cardTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  color: var(--card-title);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 2rem;
+  padding: var(--space-4);
+  gap: var(--space-5);
   min-width: 0;
 }
 
-.inputContainers{
+.inputContainers {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin: 1rem 0;
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
 }
 
-.cardButtons{
+.cardButtons {
   display: flex;
   justify-content: flex-end;
-}
-
-.search {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0 0.5rem;
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
-}
-
-.select {
-  border-radius: 6px;
-  height: 40px;
-  padding: 0 1rem;
-  flex: 1;
-  min-width: 180px;
-  max-width: 200px;
-}
-
-.searchInput {
-  border: none;
-  outline: none;
-  width: 100%;
-  padding: 0.5rem;
 }
 
 .cardHeaderActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-}
-
-.cardTitle {
-  font-size: 1.25rem;
-  color: var(--primary);
-}
-
-.buttonExport {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--primary);
-  color: var(--text-light);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.buttonExport:hover {
-  background-color: var(--secondary);
+  margin-bottom: var(--space-4);
 }
 
 .loading {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.25rem;
+  padding: var(--space-6);
+  font-size: var(--fs-md);
   color: var(--primary);
+}
+
+/*****************MODAL*********************/
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.definitionList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+}
+
+.definitionTerm {
+  color: var(--foreground);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+}
+
+.definitionDescription {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border)
 }

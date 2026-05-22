@@ -39,7 +39,7 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <h1>Aços Hub</h1>
+      <span className={styles.title}>Aços Hub</span>
       <div className={styles.search}>
         <CiSearch />
         <input

@@ -17,7 +17,6 @@ const Menu = () => {
   const handleMenuItemClick = (menuId: string) => {    
     setExpandedMenu(expandedMenu === menuId ? null : menuId);
   };
-
   return (
     <aside className={isMinimized ? styles.minimized : styles.expanded}>
       <div className={styles.logo}>
@@ -34,7 +33,7 @@ const Menu = () => {
         {menuRole.map((item) => (
           <li key={item.id} className={styles.menuWrapper}>
             <div
-              className={styles.menuCard}
+              className={`${styles.menuCard} ${expandedMenu === item.id && styles.selectedMenu}`}
               onClick={() => {
                 if (isMinimized) setIsMinimized(!isMinimized);
                 if (item.submenu) {
@@ -43,9 +42,9 @@ const Menu = () => {
               }}
             >
               {iconMap[item.id as keyof typeof iconMap]}
-              <p className={isMinimized ? styles.hidden : ""}>
+              <span className={isMinimized ? styles.hidden : ""}>
                 {item.label}
-              </p>
+              </span>
               {item.submenu && (
                 <MdExpandMore
                   className={`${styles.expandIcon} ${expandedMenu === item.id ? styles.rotated : ""} ${isMinimized ? styles.hidden : ""}`}

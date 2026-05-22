@@ -1,50 +1,302 @@
+/* =============================================================
+   Aços Hub — Colors & Type
+   Single source of truth for design tokens.
+   Pulled from arquitetoVital/av-hub (styles/variables.css + theme/theme.ts).
+   ============================================================= */
+
+/* ----- Webfont: Fira Sans (Google Fonts, matches `next/font/google` import) ----- */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700;900&display=swap');
+
 :root {
-    /* backgrounds */
-    --background: #0f172a;
-    --surface: #ffffff;
-    --surface-secondary: #e7e8eb;
+  /* ---------- BRAND PALETTE ---------- */
+  --av-primary: #081437;
+  /* Navy — primary brand, buttons, headings, menu chrome */
+  --av-primary-hover: #131D33;
+  /* hover/pressed shade for primary */
+  --av-secondary: #334155;
+  /* slate — table dividers, secondary surfaces */
+  --av-tertiary: #101424;
+  /* deeper navy for surfaces in dark mode */
+  --av-accent: #C2410C;
+  /* burnt orange — accents, highlights, "danger-warm" CTAs */
 
-    /* text */
-    --foreground: #191c1e;
-    --foreground-secondary: #45464e;
+  /* ---------- EXTENDED NAVY/SLATE SCALE ---------- */
+  --navy-950: #020617;
+  --navy-900: #0f172a;
+  --navy-800: #131D33;
+  --navy-700: #1e293b;
+  --navy-600: #334155;
+  --navy-500: #45464e;
+  --navy-400: #606a77;
+  --navy-300: #64748b;
+  --navy-200: #94a3b8;
+  --navy-100: #cbd5e1;
+  --navy-50: #e2e8f0;
 
-    /* fixed */
-    --text-dark: #191c1e;
-    --text-light: #f8fafc;
-    --text-dark-secondary: #45464e;
-    --text-light-secondary: #cbd5e1;
-    --white: #ffffff;
-    --black: #000000;
+  /* ---------- NEUTRAL ---------- */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8fafc;
+  --neutral-75: #f4f6f9;
+  /* canvas grey from brand notes */
+  --neutral-100: #f3f3f3;
+  /* MUI default background */
+  --neutral-200: #e7e8eb;
+  --neutral-300: #e2e8f0;
+  --neutral-900: #191c1e;
+  /* near-black for text */
+  --neutral-950: #111827;
+  /* deepest neutral from brand notes */
 
-    /* brand */
-    --primary: #081437;
-    --secondary: #334155;
-    --tertiary: #101424;
+  /* ---------- SEMANTIC: SURFACES ---------- */
+  --background: var(--navy-900);
+  /* outer container fill */
+  --surface: var(--neutral-0);
+  /* cards, sheets */
+  --surface-secondary: var(--neutral-200);
 
-    /* borders */
-    --border: #e2e8f0;
+  /* Card / data-surface semantic tokens (theme-aware) */
+  --card-bg: var(--neutral-0);
+  --header-bg: var(--neutral-0);
+  --card-title: var(--av-primary);
+  --input-bg: var(--neutral-0);
+  --input-border: var(--navy-400);
+  --input-label: var(--navy-300);
+  --table-head-bg: var(--neutral-0);
+  --table-head-fg: var(--neutral-900);
+  --table-row-fg: var(--neutral-900);
+  --table-row-hover: var(--neutral-75);
+  --on-primary: #f8fafc;
+  /* foreground for filled-navy buttons */
+  --primary-button-bg: var(--av-primary);
+  --primary-button-fg: #ffffff;
+  --primary-button-hover: var(--av-secondary);
+  --secondary-button-hover: var(--navy-50);
+  --waves-bg: url('../public/layered-waves.svg');
 
-    /* danger */
-    --danger: #dc2626;
+  /* ---------- SEMANTIC: TEXT ---------- */
+  --foreground: var(--neutral-900);
+  --foreground-secondary: var(--navy-500);
+  --text-dark: var(--neutral-900);
+  --text-dark-secondary: var(--navy-500);
+  --text-light: var(--neutral-50);
+  --text-light-secondary: var(--navy-100);
+  --white: #ffffff;
+  --black: #000000;
+
+  /* ---------- SEMANTIC: BORDERS ---------- */
+  --border: var(--navy-50);
+  --border-strong: var(--navy-400);
+
+  /* ---------- SEMANTIC: FEEDBACK ---------- */
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --danger-hover: #b91c1c;
+  --success: #16a34a;
+  --warning: #d97706;
+  --info: #2563eb;
+
+  /* ---------- ELEVATION / SHADOWS ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.18);
+  --shadow-xl: 0 20px 35px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.30);
+  /* matches Card.module.css */
+  --shadow-header: 0 3px 15px color-mix(in srgb, #191c1e, gray 95%);
+  /* Header.module.css */
+  --shadow-login: 0 10px 20px rgba(0, 0, 0, 0.75);
+  /* login card */
+
+  /* ---------- RADII ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  /* MUI shape.borderRadius — default app radius */
+  --radius-xl: 15px;
+  /* login card */
+  --radius-pill: 999px;
+
+  /* ---------- SPACING (matches inline use in the app, 0.25rem base) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+
+  /* ---------- LAYOUT ---------- */
+  --header-h: 60px;
+  --menu-w: 220px;
+  --menu-w-min: 70px;
+  --content-pad: 1rem;
+
+  /* ---------- TRANSITIONS ---------- */
+  --t-fast: 0.15s ease;
+  --t-base: 0.2s ease;
+  --t-slow: 0.3s ease;
+
+  /* ---------- TYPOGRAPHY: FAMILIES ---------- */
+  --font-sans: 'Fira Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-fira-sans: var(--font-sans);
+  /* alias used in MUI theme */
+
+  /* ---------- TYPOGRAPHY: WEIGHTS ---------- */
+  --w-regular: 400;
+  --w-semibold: 600;
+  --w-bold: 700;
+  --w-black: 900;
+
+  /* ---------- TYPOGRAPHY: SIZES (matches in-app usage) ---------- */
+  --fs-xs: 0.75rem;
+  /* 12 — login disclaimer */
+  --fs-sm: 0.875rem;
+  /* 14 — body small, subtitles, menu labels */
+  --fs-base: 1rem;
+  /* 16 — body */
+  --fs-md: 1.15rem;
+  --fs-lg: 1.25rem;
+  /* card titles */
+  --fs-xl: 1.5rem;
+  /* modal title, login title */
+  --fs-2xl: 1.875rem;
+  --fs-3xl: 2.25rem;
+  /* page H1 */
+  --fs-4xl: 3rem;
 }
 
-.dark {
-    /* backgrounds */
-    --background: #020617;
-    --surface: #101424;
-    --surface-secondary: #1e293b;
+/* ----- Dark mode (mirrors styles/variables.css `.dark`) ----- */
+.dark,
+[data-theme="dark"] {
+  --background: var(--navy-950);
+  --surface: var(--av-tertiary);
+  --surface-secondary: var(--navy-700);
 
-    /* text */
-    --foreground: #f8fafc;
-    --foreground-secondary: #cbd5e1;
+  --foreground: var(--neutral-50);
+  --foreground-secondary: var(--navy-100);
 
-    /* brand */
-    --primary: #081437;
-    --secondary: #64748b;
+  --border: var(--navy-600);
+  --border-strong: var(--navy-300);
 
-    /* borders */
-    --border: #334155;
+  --av-secondary: var(--navy-300);
 
-    /* danger */
-    --danger: #ef4444;
+  --danger: #ef4444;
+  --danger-soft: #7f1d1d;
+  --danger-hover: #fca5a5;
+
+  --shadow-card: 0 5px 15px rgba(0, 0, 0, 0.45);
+
+  /* Theme-aware surface overrides — these flip cards, tables, inputs to dark variants */
+  --card-bg: #1e293b;
+  /* slate-700 — cards pop forward */
+  --header-bg: #131D33;
+  /* one tier darker so cards float over the header line */
+  --card-title: var(--neutral-50);
+  --input-bg: #0f172a;
+  /* deepest — inputs recede into the card */
+  --input-border: var(--navy-300);
+  --input-label: var(--navy-100);
+  --table-head-bg: #131D33;
+  --table-head-fg: var(--neutral-50);
+  --table-row-fg: var(--neutral-50);
+  --table-row-hover: #334155;
+  --primary-button-bg: var(--av-accent);
+  /* navy buttons would vanish on a navy bg; surface burnt orange in dark */
+  --primary-button-fg: #ffffff;
+  --primary-button-hover: #9a330a;
+  --secondary-button-hover: var(--navy-300);
+  --waves-bg: url('../public/layered-waves-dark.svg');
+}
+
+/* =============================================================
+   SEMANTIC TYPE — drop-in element styles
+   ============================================================= */
+
+html {
+  font-family: var(--font-sans);
+  color: var(--foreground);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+h1,
+.h1 {
+  font-family: var(--font-sans);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-3xl);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+h2,
+.h2 {
+  font-family: var(--font-sans);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-xl);
+  line-height: 1.2;
+  color: var(--av-primary);
+}
+
+h3,
+.h3 {
+  font-family: var(--font-sans);
+  font-weight: var(--w-semibold);
+  font-size: var(--fs-lg);
+  line-height: 1.3;
+  color: var(--foreground);
+}
+
+h4,
+.h4 {
+  font-family: var(--font-sans);
+  font-weight: var(--w-semibold);
+  font-size: var(--fs-base);
+  line-height: 1.35;
+  color: var(--foreground);
+}
+
+p,
+.body {
+  font-family: var(--font-sans);
+  font-weight: var(--w-regular);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+  color: var(--foreground);
+}
+
+.bodySm,
+small {
+  font-family: var(--font-sans);
+  font-weight: var(--w-regular);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+.eyebrow,
+.menuLabel {
+  font-family: var(--font-sans);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.numeric,
+code,
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: var(--av-primary);
+  text-decoration: none;
 }
