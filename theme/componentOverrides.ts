@@ -6,7 +6,7 @@ export const componentOverrides: Components<Theme> = {
   MuiTextField: {},
   MuiOutlinedInput: {
     styleOverrides: {
-      root: {
+      root: {        
         backgroundColor: 'var(--input-bg)',
         color: 'var(--foreground)',
         borderRadius: 'var(--radius-lg)',
@@ -27,6 +27,7 @@ export const componentOverrides: Components<Theme> = {
     styleOverrides: {
       root: {
         color: 'var(--input-label)',
+        fontFamily: 'var(--font-sans)',
         '&.Mui-focused': {
           color: 'var(--foreground)',
           backgroundColor: 'var(--card-bg)'
@@ -66,6 +67,7 @@ export const componentOverrides: Components<Theme> = {
       head: {
         backgroundColor: 'var(--table-head-bg)',
         color: 'var(--table-head-fg)',
+        fontFamily: 'var(--font-sans)',
         fontWeight: 'var(--w-bold)',
         fontSize: 'var(--fs-sm)',
         letterSpacing: '0.02em',
@@ -74,6 +76,7 @@ export const componentOverrides: Components<Theme> = {
       },
       body: {
         borderColor: 'var(--border)',
+        fontFamily: 'var(--font-mono)',
         color: 'var(--table-row-fg)',
         fontSize: 'var(--fs-xs)',
       },

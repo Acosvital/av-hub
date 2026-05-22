@@ -97,6 +97,7 @@
     margin: 0;
     white-space: nowrap;
     flex: 1;
+    font-family: var(--font-sans);
     font-weight: var(--w-bold);
     color: var(--neutral-50);    
 }
@@ -113,6 +114,7 @@
     list-style: none;
     padding: 0;
     margin: 0 var(--space-2);
+    font-family: var(--font-sans);
     background-color: rgba(0, 0, 0, 0.18);
     border-left: 3px solid var(--av-accent);
     animation: slideDown var(--t-base);

@@ -91,7 +91,7 @@ export default function AppLineChart({
                     },
 
                     '& .MuiChartsAxis-tickLabel': {
-                        fill: 'var(--foreground-secondary)',
+                        fill: 'var(--border-strong)',
                         fontSize: 1,
                         fontFamily: 'var(--font-sans)',
                     },

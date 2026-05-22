@@ -17,7 +17,6 @@ const Menu = () => {
   const handleMenuItemClick = (menuId: string) => {    
     setExpandedMenu(expandedMenu === menuId ? null : menuId);
   };
-  console.log(expandedMenu)
   return (
     <aside className={isMinimized ? styles.minimized : styles.expanded}>
       <div className={styles.logo}>
