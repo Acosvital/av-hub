@@ -12,7 +12,6 @@ import * as XLSX from "xlsx";
 import { FaFileDownload } from 'react-icons/fa';
 import styles from "./styles.module.css";
 import Card from "@/components/Card/Card";
-import pedidos from "./pedidos_3.json";
 import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import Modal from '@/components/Modal/Modal';
 import { dataset, valueFormatter } from './product';
@@ -54,51 +53,26 @@ type FamiliaProdutosProps = {
 }
 
 export default function Cadastro() {
-  const [search, setSearch] = useState("");
   const [rows, setRows] = useState<ProdutoProps[]>([]);
+  const [initialRowData, setInitialRowData] = useState<ProdutoProps[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowCount, setRowCont] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [rowData, setRowData] = useState<ProdutoProps>();
 
+  const [descricaoInput, setDescricaoInput] = useState('');
+  const [descricao, setDescricao] = useState('');
+
   const [fornecedorSelected, setFornecedorSelected] = useState<FornecedorProps | null>(null);
   const [inputFornecedor, setInputFornecedor] = useState<string>('');
+  const [initialFornecedor, setInitialFornecedor] = useState<FornecedorProps[]>([]);
   const [fornecedor, setFornecedor] = useState<FornecedorProps[]>([]);
-
+  const [loadingFornecedor, setLoadingFornecedor] = useState(false);
   const [familiaProdutosSelected, setFamiliaProdutosSelected] = useState('');
   const [familiaProdutos, setFamiliaProdutos] = useState<FamiliaProdutosProps[]>([]);
-
-  //Preparação do Array de produtos geral e familia de produtos
-  // useEffect(() => {
-  //   setLoading(true);
-  //   let productfamilies: { familia: string }[] = [];
-  //   let fornecedores: { fornecedor: string }[] = [];
-  //   const parsed: ProdutoProps[] = pedidos.flatMap((pedido) =>
-  //     pedido.produtos.map((produto) => {
-  //       productfamilies.push({
-  //         familia: produto.descricao_familia
-  //       });
-  //       fornecedores.push({
-  //         fornecedor: pedido.fornecedor.nome_fantasia
-  //       });
-  //       return ({
-  //         id: produto.cProduto,
-  //         data: pedido.dIncData,
-  //         fornecedor: pedido.fornecedor.nome_fantasia,
-  //         descricao: produto.cDescricao,
-  //         un: produto.cUnidade,
-  //         valorMedio: 0,
-  //         valorMercadoria: produto.nValUnit,
-  //         estado: pedido.fornecedor.estado,
-  //         familia: produto.descricao_familia
-  //       })
-  //     })
-  //   );
-  //   setRows(parsed);
-  //   setLoading(false);
-  // }, []);
 
   //Carregamento dos filtros e dados iniciais
   useEffect(() => {
@@ -114,11 +88,12 @@ export default function Cadastro() {
           getFornecedores(),
           getProdutos(),
         ]);
-        console.log(produtosData)
-        setFamiliaProdutos(familiaData.filter((el: FamiliaProdutosProps) => el.ativo === true));
+        setFamiliaProdutos(familiaData.filter((el: FamiliaProdutosProps) => el.ativo === true)); //apenas familias Ativas
         setFornecedor(fornecedoresData);
-        setRows(produtosData.data)
-
+        setInitialFornecedor(fornecedoresData);
+        setRows(produtosData.data);
+        setRowCont(produtosData.total)
+        setInitialRowData(produtosData.data);
       } catch (erro) {
         setError('Erro ao carregar catálogo de produtos');
       } finally {
@@ -128,24 +103,50 @@ export default function Cadastro() {
     loadAllData();
   }, []);
 
+  //Autocomplete com debounce e requisições apartir do 3º caractere
+  useEffect(() => {
+    // evita buscar vazio
+    if (inputFornecedor.trim().length < 2) {
+      setFornecedor(initialFornecedor);
+      return;
+    }
+    const timeout = setTimeout(async () => {
+      try {
+        setLoadingFornecedor(true);
+        const data = await getFornecedores(inputFornecedor);
+        setFornecedor(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingFornecedor(false);
+      }
+    }, 500); // debounce
+    return () => clearTimeout(timeout);
+  }, [inputFornecedor]);
+
+  //Debounce para descrição
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDescricao(descricaoInput);
+      setPage(0);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [descricaoInput]);
+
   //Filtragem de resultados através de descrição E/OU familia de produtos E/OU fornecedor
   const filteredRows = useMemo(() => {
-    const term = search.toLowerCase();
+    const term = descricao.toLowerCase();
     return rows.filter((row) => {
       const matchDescricao = row.descricao.toLowerCase().includes(term);
       const matchFamilia = !familiaProdutosSelected || row.familia === familiaProdutosSelected;
-      const matchFornecedor = !fornecedorSelected || row.fornecedor === fornecedorSelected.nome_fantasia;
+      const matchFornecedor = !fornecedorSelected || row.nome_fantasia === fornecedorSelected.nome_fantasia;
       return matchDescricao && matchFamilia && matchFornecedor;
     });
-  }, [search, rows, familiaProdutosSelected, fornecedorSelected]);
+  }, [descricao, rows, familiaProdutosSelected, fornecedorSelected]);
 
   //Paginação
-  const paginatedRows = useMemo(() => {
-    return filteredRows.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
-  }, [filteredRows, page, rowsPerPage]);
+  const paginatedRows = filteredRows;
 
   //Export
   const exportToExcel = () => {
@@ -156,11 +157,52 @@ export default function Cadastro() {
   };
 
   const limparCampos = () => {
-    setSearch('');
+    setDescricao('');
     setFamiliaProdutosSelected('');
     setFornecedorSelected(null);
+    setFornecedor(initialFornecedor);
     setInputFornecedor('');
+    setRows(initialRowData);
+    setPage(0);
   }
+
+  const handleDescricao = async (descricao: string) => {
+    const { data } = await getProdutos(page, rowsPerPage, inputFornecedor, familiaProdutosSelected, descricao);
+    setDescricao(descricao);
+    setRows(data);
+    setPage(0); // reset pagina
+  }
+
+  const handleFornecedor = async (name: FornecedorProps | null) => {
+    console.log('REQ', page, rowsPerPage, name?.nome_fantasia, familiaProdutosSelected, descricao)
+    const { data } = await getProdutos(page, rowsPerPage, name?.nome_fantasia, familiaProdutosSelected, descricao);
+    setFornecedorSelected(name)
+    setRows(data);
+    setPage(0);
+  }
+
+  const handleFamilia = async (name: string) => {
+    const produtos = await getProdutos(page, rowsPerPage, inputFornecedor, name, descricao);
+    setFamiliaProdutosSelected(name)
+    setRowCont(produtos.total)
+    setRows(produtos.data);
+    setPage(0);
+  }
+
+  const handlePage = async (newPage: number) => {
+    const { data } = await getProdutos(newPage + 1, rowsPerPage, inputFornecedor, familiaProdutosSelected, descricao);
+    setPage(newPage)
+    setRows(data);
+  }
+
+  const handleRowsPerPage = async (rows: number) => {
+    const { data } = await getProdutos(page, rows, inputFornecedor, familiaProdutosSelected, descricao);
+    setRowsPerPage(rows)
+    setRows(data);
+    setPage(0);
+  }
+
+
 
   const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -175,16 +217,14 @@ export default function Cadastro() {
       <div className={styles.content}>
         <Card>
           <h2 className={styles.cardTitle}>Consulta de Produtos</h2>
-
           <div className={styles.inputContainers}>
             <TextField sx={{ flex: 1, minWidth: 300 }}
               id="outlined-basic"
               label="Descrição"
               variant="outlined"
-              value={search} onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(0); // reset pagina
-              }} />
+              value={descricao}
+              onChange={(e) => { (e: React.ChangeEvent<HTMLInputElement>) => setDescricaoInput(e.target.value) }}
+            />
             <FormControl sx={{ flex: 1, minWidth: 300 }}>
               <InputLabel id="familia-produto">Família de Produtos</InputLabel>
               <Select
@@ -192,9 +232,8 @@ export default function Cadastro() {
                 id="demo-simple-select"
                 value={familiaProdutosSelected}
                 label="FamiliaProdutos"
-                onChange={(e) => setFamiliaProdutosSelected(e.target.value)}
+                onChange={(e) => handleFamilia(e.target.value)}
               >
-
                 <MenuItem value=""> </MenuItem>
                 {familiaProdutos.map((familia, index) => (
                   <MenuItem key={index} value={familia.nome}>
@@ -206,14 +245,17 @@ export default function Cadastro() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 300 }}
               disablePortal
+              loading={loadingFornecedor}
               options={fornecedor}
+              filterOptions={(x) => x}
               getOptionKey={(fornecedor) => fornecedor.codigo_parceiro_omie}
               getOptionLabel={(fornecedor) => fornecedor.nome_fantasia}
               value={fornecedorSelected}
               inputValue={inputFornecedor}
-              renderInput={(params) => <TextField {...params} label="Fornecedores" />}
-              onChange={(_, newValue) => { setFornecedorSelected(newValue) }}
+              onChange={(_, newValue) => { handleFornecedor(newValue) }}
               onInputChange={(_, newInputValue) => { setInputFornecedor(newInputValue) }}
+              isOptionEqualToValue={(option, value) => option.codigo_parceiro_omie === value.codigo_parceiro_omie}
+              renderInput={(params) => <TextField {...params} label="Fornecedores" />}
             />
           </div>
           <div className={styles.cardButtons}>
@@ -244,8 +286,9 @@ export default function Cadastro() {
                 </TableHead>
 
                 <TableBody>
-                  {paginatedRows.map((row, index) => (
+                  {filteredRows.map((row, index) => (
                     <TableRow hover key={index} onClick={() => {
+                      console.log(row)
                       setRowData(row)
                       setIsOpen(true)
                     }}>
@@ -256,32 +299,25 @@ export default function Cadastro() {
                       <TableCell>{row.unidade_medida}</TableCell>
                       <TableCell>{row.nome_fantasia}</TableCell>
                       <TableCell>{row.estado}</TableCell>
-                      <TableCell>{row.preco_medio_ultimas_cotacoes}</TableCell>
-                      <TableCell>
-                        {Number(row.cotacao_mais_recente).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </TableCell>
+                      <TableCell>{brl(Number(row.preco_medio_ultimas_cotacoes))}</TableCell>
+                      <TableCell>{brl(Number(row.cotacao_mais_recente))}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
           )}
-
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={filteredRows.length}
+            count={rowCount}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage={'Resultados por página'}
-            labelDisplayedRows={({ from, to, count, page }) => { return `${from}-${to} de ${count}` }}
+            labelDisplayedRows={({ from, to, count }) => { return `${from}-${to} de ${count}` }}
             page={page}
-            onPageChange={(_, newPage) => setPage(newPage)}
+            onPageChange={(_, newPage) => handlePage(newPage)}
             onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
-              setPage(0);
+              handleRowsPerPage(+e.target.value);
             }}
           />
         </Card>
