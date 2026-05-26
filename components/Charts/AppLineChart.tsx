@@ -1,7 +1,4 @@
 'use client';
-
-import * as React from 'react';
-
 import {
     LineChart,
 } from '@mui/x-charts/LineChart';
@@ -11,6 +8,7 @@ import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
 interface AppLineChartProps {
     title?: string;
     height?: number;
+    width?: number;
     xLabels: string[];
     data: number[];
     label?: string;
@@ -31,7 +29,8 @@ interface AppLineChartProps {
 }
 
 export default function AppLineChart({
-    height = 250,
+    height = 300,
+    width = 600,
     xLabels,
     data,
     label = 'Valores',
@@ -39,7 +38,7 @@ export default function AppLineChart({
     showArea = false,
     showGrid = true,
     showMark = true,
-    curve = 'catmullRom',
+    curve = 'linear',
     valueFormatter,
 }: AppLineChartProps) {
     const series = [
@@ -57,13 +56,13 @@ export default function AppLineChart({
     return (
         <div
             style={{
-                width: '100%',
                 background: 'var(--card-bg)',
                 paddingRight: 'var(--space-5)',
             }}
         >
             <LineChart
                 height={height}
+                width={width}
                 grid={{
                     horizontal: showGrid,
                     vertical: showGrid,
@@ -83,17 +82,15 @@ export default function AppLineChart({
                     */
 
                     '& .MuiChartsAxis-line': {
-                        stroke: 'var(--border-strong)',
+                        stroke: 'var(--border-strong) !important',
                     },
 
                     '& .MuiChartsAxis-tick': {
-                        stroke: 'var(--border-strong)',
+                        stroke: 'var(--border-strong) !important',
                     },
 
                     '& .MuiChartsAxis-tickLabel': {
-                        fill: 'var(--border-strong)',
-                        fontSize: 1,
-                        fontFamily: 'var(--font-sans)',
+                        fill: 'var(--foreground) !important',
                     },
 
                     /*
@@ -115,6 +112,22 @@ export default function AppLineChart({
 
                     '& .MuiLineElement-root': {
                         strokeWidth: 2.5,
+                        stroke: `${color} !important`,
+                        transition: 'none !important',
+                    },
+
+                    '& .MuiLineHighlightElement-root': {
+                        strokeWidth: 2.5,
+                        stroke: `${color} !important`,
+                        fill: 'none',
+                    },
+
+                    '& .MuiLineElement-root:hover': {
+                        stroke: `${color} !important`,
+                    },
+
+                    '& .MuiLineElement-root:focus': {
+                        stroke: `${color} !important`,
                     },
 
                     /*
@@ -134,7 +147,7 @@ export default function AppLineChart({
                     */
 
                     '& .MuiMarkElement-root': {
-                        fill: 'var(--card-bg)',
+                        fill: 'var(--card-bg) ',
                         stroke: color,
                         strokeWidth: 2,
                     },
