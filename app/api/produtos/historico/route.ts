@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-    const page = req.nextUrl.searchParams.get('page');
-    const limit = req.nextUrl.searchParams.get('limit');
-    const fornecedor = req.nextUrl.searchParams.get('fornecedor');
-    const familia = req.nextUrl.searchParams.get('familia'); 
-    const descricao = req.nextUrl.searchParams.get('descricao'); 
+    const produto = req.nextUrl.searchParams.get('produto');
+    const parceiro = req.nextUrl.searchParams.get('parceiro');
     try {
         const response = await fetch(
-            `http://72.62.137.208:3000/catalogo_de_produtos?page=${page}&limit=${limit}&nome_fantasia=${fornecedor}&familia=${familia}&descricao=${descricao}`,
+            `http://72.62.137.208:3000/historico_precos?id_produto=${produto}&id_parceiro=${parceiro}`,
             {
                 headers: {
                     'x-api-key': process.env.API_KEY!,
@@ -18,7 +15,7 @@ export async function GET(req: NextRequest) {
         );
 
         if (!response.ok) {
-            throw new Error('Erro ao buscar produtos');
+            throw new Error('Erro ao buscar historico de preços');
         }
         const data = await response.json();
         return NextResponse.json(data);
