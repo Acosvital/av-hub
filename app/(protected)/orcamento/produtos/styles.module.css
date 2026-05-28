@@ -1,27 +1,7 @@
-.title {
-  font-size: var(--fs-2xl);
-  font-weight: var(--w-bold);
-  color: var(--foreground);
-  letter-spacing: -0.01em;
-}
-
-.subtitle {
-  font-size: var(--fs-sm);
-  color: var(--foreground-secondary);
-}
-
 .cardTitle {
   font-size: var(--fs-md);
   font-weight: var(--w-bold);
   color: var(--card-title);
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-4);
-  gap: var(--space-5);
-  min-width: 0;
 }
 
 .inputContainers {

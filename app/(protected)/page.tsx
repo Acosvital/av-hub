@@ -1,5 +1,5 @@
 'use client';
-import Card from "@/components/Card/Card";
+import Card from "@/components/Ui/Card/Card";
 import DashboardGrid from "@/components/Dashboards/DashboardGrid/DashboardGrid";
 import styles from "./styles.module.css";
 import DashboardWidget from "@/components/Dashboards/DashboardWidget/DashboardWidget";

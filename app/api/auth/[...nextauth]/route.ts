@@ -16,10 +16,9 @@ const handler = NextAuth({
   ],
   callbacks: {
     //Definir Roles a partir do banco de dados
-    async jwt({ token, user }) {
+    async jwt({ token, account, user, profile }) {
       if (user) {
         const email = user.email;
-
         if (email?.endsWith("@acosvital.com.br")) {
           token.role = "user";
         }
@@ -34,7 +33,9 @@ const handler = NextAuth({
     // Adiciona a role no session para ficar visivel no frontend (session.user.role)
     async session({ session, token }) {
       if (session.user) {
+        session.user.id = token.userId;
         session.user.role = token.role;
+        session.user.permissions = token.permissions;
       }
       return session;
     },

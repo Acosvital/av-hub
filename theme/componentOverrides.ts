@@ -6,7 +6,7 @@ export const componentOverrides: Components<Theme> = {
   MuiTextField: {},
   MuiOutlinedInput: {
     styleOverrides: {
-      root: {        
+      root: {
         backgroundColor: 'var(--input-bg)',
         color: 'var(--foreground)',
         borderRadius: 'var(--radius-lg)',

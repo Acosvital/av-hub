@@ -4,7 +4,7 @@ export async function GET(req: NextRequest) {
     const search = req.nextUrl.searchParams.get('search');
     try {
         const response = await fetch(
-            `http://72.62.137.208:3000/fornecedores_com_produtos?nome_fantasia=${search}`,
+            `${process.env.API_URL}/fornecedores_com_produtos?nome_fantasia=${search}`,
             {
                 headers: {
                     'x-api-key': process.env.API_KEY!,

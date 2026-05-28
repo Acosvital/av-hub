@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
     try {
         const response = await fetch(
-            `http://72.62.137.208:3000/familias_produtos`,
+            `${process.env.API_URL}/familias_produtos`,
             {
                 headers: {
                     'x-api-key': process.env.API_KEY!,
