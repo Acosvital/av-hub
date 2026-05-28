@@ -1,6 +1,6 @@
 import { BiSolidDashboard } from "react-icons/bi";
 import { BsFillBoxFill } from "react-icons/bs";
-import { FaMoneyBill } from "react-icons/fa";
+import { FaCog, FaDatabase, FaMoneyBill } from "react-icons/fa";
 import { MdHomeRepairService } from "react-icons/md";
 import { SiCivicrm } from "react-icons/si";
 import { TbPigMoney } from "react-icons/tb";
@@ -15,7 +15,10 @@ const iconMap = {
     vendas: <FaMoneyBill style={style} />,
     servicos: <MdHomeRepairService style={style} />,
     compras: <BsFillBoxFill style={style} />,
-    orcamento: <TbPigMoney style={style} />
+    orcamento: <TbPigMoney style={style} />,
+    cadastros: <FaDatabase style={style} />,
+    admin: <FaCog style={style} />,
+    pcp: <FaCog style={style} />
 }
 
 export default iconMap;

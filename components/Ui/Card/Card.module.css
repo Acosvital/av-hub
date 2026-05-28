@@ -9,6 +9,12 @@
     height: 100%;
 }
 
+.cardTitle {
+    font-size: var(--fs-md);
+    font-weight: var(--w-bold);
+    color: var(--card-title);
+}
+
 :global(.dark) :local(.card) {
     border: 1px solid var(--border);
 }

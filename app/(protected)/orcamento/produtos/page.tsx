@@ -11,11 +11,11 @@ import TableRow from '@mui/material/TableRow';
 import * as XLSX from "xlsx";
 import { FaFileDownload } from 'react-icons/fa';
 import styles from "./styles.module.css";
-import Card from "@/components/Card/Card";
+import Card from "@/components/Ui/Card/Card";
 import { Autocomplete, CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import Modal from '@/components/Modal/Modal';
-import Button from '@/components/Button/Button';
-import AppLineChart from '@/components/Charts/AppLineChart';
+import Modal from '@/components/Ui/Modal/Modal';
+import Button from '@/components/Ui/Button/Button';
+import AppLineChart from '@/components/Charts/AppLineChart/AppLineChart';
 import { notify } from '@/lib/toast/toast';
 import { getProdutos } from '@/app/api/services/produtos';
 import { getFamilias } from '@/app/api/services/familias';
@@ -25,15 +25,17 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import { getPriceHistory } from '@/app/api/services/historicoPrecos';
+import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
+import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 
-export default function Cadastro() {
+export default function CatalogoDeProdutos() {
   //States utilitarios
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   //States para os dados: Pagina/Modal
   const [rows, setRows] = useState<ProdutoProps[]>([]);
-  const [rowData, setRowData] = useState<ProdutoProps>(); 
+  const [rowData, setRowData] = useState<ProdutoProps>();
   const [priceHistory, setPriceHistory] = useState<PriceHistoryProps[]>([]);
   //States de paginação
   const [page, setPage] = useState(0);
@@ -53,7 +55,7 @@ export default function Cadastro() {
   const [fornecedor, setFornecedor] = useState<FornecedorProps[]>([]);
   const [loadingFornecedor, setLoadingFornecedor] = useState(false);
   //constante de controle da largura do gráfico
-  const chartWidth = Math.max(priceHistory.length * 80, 900);
+  const chartWidth = Math.max(priceHistory.length * 80, 600);
 
   //Notifica erros
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function Cadastro() {
           getFornecedores(),
           getProdutos(),
         ]);
-        setFamiliaProdutos(familiaData.filter((el: FamiliaProdutosProps) => el.ativo === true)); //apenas familias Ativas
+        setFamiliaProdutos(familiaData);
         setFornecedor(fornecedoresData);
         setInitialFornecedor(fornecedoresData);
         setRows(produtosData.data);
@@ -173,15 +175,14 @@ export default function Cadastro() {
 
   return (
     <>
-      <div className={styles.title}>
-        <h2 className={styles.title}>Catálogo de produtos</h2>
-        <h3 className={styles.subtitle}>
-          Consulte os últimos valores praticados pelos produtos
-        </h3>
-      </div>
-      <div className={styles.content}>
-        <Card>
-          <h2 className={styles.cardTitle}>Consulta de Produtos</h2>
+      <PageHeader
+        title='Catálogo de produtos'
+        subtitle='Consulte os últimos valores praticados pelos produtos'
+      />
+      <PageContent>
+        <Card
+          title='Consulta de Produtos'
+        >
           <div className={styles.inputContainers}>
             <TextField sx={{ flex: 1, minWidth: 300 }}
               id="outlined-basic"
@@ -294,7 +295,7 @@ export default function Cadastro() {
             }}
           />
         </Card>
-      </div>
+      </PageContent>
       <Modal
         title='Detalhes do produto'
         subtitle={rowData?.descricao}

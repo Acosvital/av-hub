@@ -1,11 +1,4 @@
-import { BiSolidDashboard } from "react-icons/bi";
-import { SiCivicrm } from "react-icons/si";
-import { FaMoneyBill } from "react-icons/fa";
-import { MdHomeRepairService } from "react-icons/md";
-import { BsFillBoxFill } from "react-icons/bs";
-import { TbPigMoney } from "react-icons/tb";
-
-interface MenuItem {
+export interface MenuItem {
     id: string;
     label: string;
     submenu?: Array<{ id: string; label: string }>;
@@ -20,6 +13,21 @@ const menuItemsAdmin: MenuItem[] = [
             { id: "dash-faturamento", label: "Faturamento" },
             { id: "dash-comissoes", label: "Comissões" },
         ]
+    },
+    {
+        id: "cadastros",
+        label: 'CADASTROS',
+        submenu: [
+            { id: "exemplo", label: "exemplo" },
+            { id: "usuarios", label: "usuarios" },
+        ]
+    },
+    {
+        id: "admin",
+        label: 'PAINEL ADMIN',
+        // submenu: [
+        //     {id: "usuarios", label: "usuarios"},
+        // ]
     },
     {
         id: "crm",
@@ -72,6 +80,13 @@ const menuItemsVendedor: MenuItem[] = [
         label: "DASHBOARDS",
         submenu: [
             { id: "dash-vendas", label: "Vendas" },
+        ]
+    },
+    {
+        id: "pcp",
+        label: "PCP",
+        submenu: [
+            { id: "pcp-consulta", label: "Consulta" },
         ]
     },
     {
