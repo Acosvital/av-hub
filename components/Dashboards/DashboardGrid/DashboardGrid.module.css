@@ -1,6 +1,6 @@
 .dashboardGridLayout {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-auto-rows: minmax(188px,auto);
+    grid-auto-rows: minmax(calc((100dvh - 140px)/4), auto);
     gap: 1rem;
 }

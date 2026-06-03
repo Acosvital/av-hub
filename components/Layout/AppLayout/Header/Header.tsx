@@ -52,7 +52,7 @@ export default function Header() {
         <div className={styles.buttonsContainer}>
           <ThemeToggle />
           <div className={styles.avatarContainer} ref={menuRef}>
-            <Avatar onClick={handleToggleMenu} />
+            <Avatar name={userName} onClick={handleToggleMenu} />
             {isOpen && (
               <div className={styles.configMenu}>
                 <div className={styles.userInfo}>
