@@ -4,6 +4,11 @@ import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
+import Gauge from '@/components/Charts/Gauge/Gauge';
+import toBRL from '@/utils/toBRL';
+import Image from 'next/image';
+import { FaArrowTrendDown, FaArrowTrendUp } from "react-icons/fa6";
+import { ImClock } from 'react-icons/im';
 
 const vendor = (
   <VendorCard
@@ -23,11 +28,11 @@ export default function Usuarios() {
   return (
     <div className={`${styles.dashboardContainer}`}>
       <DashboardGrid>
-        <DashboardWidget cols={5} rows={4}>
+        <DashboardWidget cols={5} rows={6}>
           <div className={styles.card}>
             <div className={styles.cardHead}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span className={styles.rankingSubtitle}>37 vendedores</span>
+              <span>37 vendedores</span>
             </div>
             <div className={styles.fixedRank}>
               Destaques do Pódio
@@ -56,29 +61,82 @@ export default function Usuarios() {
             </div>
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={3} rows={2}>
+        <DashboardWidget cols={2} rows={1}>
+          <div className={styles.logoContainer}>
+            <Image src={'/logo.png'} alt='Aços Vital' width={200} height={43} />
+          </div>
+        </DashboardWidget>
+        <DashboardWidget cols={5} rows={2}>
           <Card>
-            <p>Gauge</p>
+            <p>Ritmo de faturamento</p>
           </Card>
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={2}>
+        <DashboardWidget cols={2} rows={3}>
+          <div className={styles.gaugeContainer}>
+            <Gauge
+              size={250}
+              value={90}
+              color='var(--gold)'
+            />
+            <div className={styles.totalRevenueValues}>
+              <div>
+                <h2 className={styles.defaultTitle}>faturamento total</h2>
+                <h4 className={styles.revenueValue}>{toBRL(23119350)}</h4>
+              </div>
+              <div>
+                <h2 className={styles.defaultTitle}>Meta</h2>
+                <h4 className={styles.meta}>{'30 MI'}</h4>
+              </div>
+            </div>
+            <div className={styles.totalRevenueValues}>
+              {/* <ImClock /> */}
+              <div>
+                <h2 className={styles.defaultSubtitle}>Mês Passado</h2>
+                <h4 className={styles.secondarySubtitle}>{toBRL(23119350)}</h4>
+              </div>
+              <div>
+                <h2 className={styles.defaultSubtitle}>Pedidos M. P.</h2>
+                <h4 className={styles.secondarySubtitle}>{'1029'}</h4>
+              </div>
+            </div>
+          </div>
+        </DashboardWidget>
+        <DashboardWidget cols={5} rows={1}>
+          <div className={styles.goalPaceContainer}>
+            <div className={styles.cardHeader}>
+              <h4>Ritmo de meta</h4>
+              <div className={styles.pill}>
+                <FaArrowTrendDown size={14} />
+                <span>ABAIXO</span>
+              </div>
+            </div>
+            <div className={styles.metaCards}>
+              <div className={styles.metaCard}>
+                <h4 className={styles.smallText}>Meta Diária Ideal</h4>
+                <h3 className={styles.mediumText}>{toBRL(1136363.64)}</h3>
+                <span className={styles.verySmallText}>Base: 22D Úteis</span>
+              </div>
+              <div className={styles.metaCard}>
+                <h4 className={styles.smallText}>Meta Diária Atual</h4>
+                <h3 className={styles.mediumText}>{toBRL(399468.64)}</h3>
+                <span className={styles.verySmallText}>Base: 2D Decorridos</span>
+              </div>
+            </div>
+          </div>
+        </DashboardWidget>
+        <DashboardWidget cols={2} rows={3}>
           <Card>
-            <p>Spot</p>
+            <p>Tipo de faturamento</p>
           </Card>
         </DashboardWidget>
-        <DashboardWidget cols={3} rows={1}>
+        <DashboardWidget cols={3} rows={3}>
           <Card>
-            <p>Fat. diario</p>
+            <p>Situação</p>
           </Card>
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={2}>
+        <DashboardWidget cols={2} rows={2}>
           <Card>
-            <p>ritmo meta</p>
-          </Card>
-        </DashboardWidget>
-        <DashboardWidget cols={3} rows={1}>
-          <Card>
-            <p>vol. pedidos</p>
+            <p>Faturamento Diário</p>
           </Card>
         </DashboardWidget>
       </DashboardGrid>
