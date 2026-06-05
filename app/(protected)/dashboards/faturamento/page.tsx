@@ -30,7 +30,7 @@ export default function Usuarios() {
       <DashboardGrid>
         <DashboardWidget cols={5} rows={6}>
           <div className={styles.card}>
-            <div className={styles.cardHead}>
+            <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
               <span>37 vendedores</span>
             </div>
@@ -103,7 +103,7 @@ export default function Usuarios() {
         </DashboardWidget>
         <DashboardWidget cols={5} rows={1}>
           <div className={styles.goalPaceContainer}>
-            <div className={styles.cardHeader}>
+            <div className={styles.sectionHeader}>
               <h4>Ritmo de meta</h4>
               <div className={styles.pill}>
                 <FaArrowTrendDown size={14} />
@@ -112,14 +112,14 @@ export default function Usuarios() {
             </div>
             <div className={styles.metaCards}>
               <div className={styles.metaCard}>
-                <h4 className={styles.smallText}>Meta Diária Ideal</h4>
-                <h3 className={styles.mediumText}>{toBRL(1136363.64)}</h3>
-                <span className={styles.verySmallText}>Base: 22D Úteis</span>
+                <h4 className={styles.textSm}>Meta Diária Ideal</h4>
+                <h3 className={styles.textLg}>{toBRL(1136363.64)}</h3>
+                <span className={styles.textXs}>Base: 22D Úteis</span>
               </div>
               <div className={styles.metaCard}>
-                <h4 className={styles.smallText}>Meta Diária Atual</h4>
-                <h3 className={styles.mediumText}>{toBRL(399468.64)}</h3>
-                <span className={styles.verySmallText}>Base: 2D Decorridos</span>
+                <h4 className={styles.textSm}>Meta Diária Atual</h4>
+                <h3 className={styles.textLg}>{toBRL(399468.64)}</h3>
+                <span className={styles.textXs}>Base: 2D Decorridos</span>
               </div>
             </div>
           </div>
@@ -135,9 +135,9 @@ export default function Usuarios() {
           </Card>
         </DashboardWidget>
         <DashboardWidget cols={2} rows={2}>
-          <Card>
+          <div>
             <p>Faturamento Diário</p>
-          </Card>
+          </div>
         </DashboardWidget>
       </DashboardGrid>
     </div>

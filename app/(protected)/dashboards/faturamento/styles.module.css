@@ -17,7 +17,7 @@
     height: 100%;
 }
 
-.cardHead {
+.cardHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,6 @@
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     font-family: var(--font-sans);
     height: 10%;
-    text-justify: center;
     font-weight: var(--w-bold);
 }
 
@@ -71,13 +70,14 @@
 }
 
 .defaultRank:hover {
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .autoScroll {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    will-change: transform;
     animation: verticalScroll 10s linear infinite;
 }
 
@@ -107,22 +107,22 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%
+    height: 100%;
 }
 
 /* GAUGE */
 .gaugeContainer {
     display: flex;
     flex-direction: column;
-    align-items: center;
     height: 100%;
-    font-family: var(--fs-sans);
     background-color: var(--card-bg);
     color: var(--foreground);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
     border: 1px solid var(--border);
     padding: var(--space-2);
+    align-items: center;
+    font-family: var(--font-sans);
 }
 
 .totalRevenueValues {
@@ -140,14 +140,14 @@
 
 .defaultTitle {
     font-family: var(--font-sans);
-    font-size: var(--fs-sm);
     text-transform: uppercase;
+    font-size: var(--fs-sm);
 }
 
 .defaultSubtitle {
     font-family: var(--font-sans);
-    font-size: var(--fs-xs);
     text-transform: uppercase;
+    font-size: var(--fs-xs);
 }
 
 .revenueValue {
@@ -179,13 +179,13 @@
     text-transform: uppercase;
 }
 
-.cardHeader {
+.sectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.cardHeader>h4 {
+.sectionHeader > h4 {
     font-size: var(--fs-sm);
 }
 
@@ -225,14 +225,14 @@
     text-align: center;
 }
 
-.smallText {
+.textSm {
     font-size: var(--fs-sm);
 }
 
-.mediumText {
+.textLg {
     font-size: var(--fs-lg);
 }
 
-.verySmallText {
+.textXs {
     font-size: var(--fs-xs);
 }
