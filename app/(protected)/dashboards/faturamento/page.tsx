@@ -24,6 +24,8 @@ const top3 = vendors.slice(0, 3);
 const otherVendors = vendors.slice(3);
 
 export default function Faturamento() {
+  const scrollDuration = `${otherVendors.length * 1.7}s`;
+
   return (
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
@@ -42,8 +44,11 @@ export default function Faturamento() {
               </div>
             </div>
             <div className={styles.defaultRank}>
-              {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho */}
-              <div className={`${vendors.length >= 8 && styles.autoScroll}`}>
+              {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+              <div
+                className={`${vendors.length > 8 && styles.autoScroll}`}
+                style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+              >
                 <div className={styles.vendorGroup}>
                   {otherVendors.map((vendor) => (
                     vendor
@@ -177,7 +182,7 @@ export default function Faturamento() {
                   <span className={styles.billingValue}>488</span>
                 </div>
               </div>
-            </div>            
+            </div>
           </div>
         </DashboardWidget>
       </DashboardGrid>

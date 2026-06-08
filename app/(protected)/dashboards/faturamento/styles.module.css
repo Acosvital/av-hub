@@ -2,7 +2,7 @@
 .dashboardContainer {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .defaultCard {
@@ -36,7 +36,7 @@
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
     border: 1px solid var(--border);
-    max-height: 100%;
+    height: 100%;
 }
 
 .cardHeader {
@@ -95,16 +95,21 @@
     overflow-y: auto;
 }
 
+.defaultRank:hover .autoScroll {
+    animation: none;
+    transform: none;
+}
+
+.defaultRank:hover .autoScroll > div:last-child {
+    display: none;
+}
+
 .autoScroll {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
     will-change: transform;
-    animation: verticalScroll 10s linear infinite;
-}
-
-.autoScroll:hover {
-    animation-play-state: paused;
+    animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
 }
 
 @keyframes verticalScroll {

@@ -4,14 +4,23 @@ import Header from "./Header/Header";
 import Menu from "./Menu/Menu";
 import styles from "./Layout.module.css";
 import { Slide, ToastContainer } from "react-toastify";
+import useLayout from "@/hooks/useLayout";
+import OverlayHeader from "./OverlayHeader/OverlayHeader";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { mode, fullscreen, setMode } = useLayout();
+  const pathname = usePathname();
+  useEffect(() => {
+    setMode(pathname.startsWith('/dashboard') ? 'dashboard' : 'default');
+  }, [pathname]);
 
   return (
     <SessionProvider>
       <div className={styles.app}>
-        <Menu />
+        {!fullscreen && <Menu />}
         <div className={styles.shell}>
-          <Header />
+          {mode === 'dashboard' ? (<OverlayHeader />) : (<Header />)}
           <main className={styles.mainArea}>
             {children}
           </main>

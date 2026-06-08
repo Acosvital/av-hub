@@ -1,6 +1,5 @@
 .vendorCard {
     display: flex;
-    /* flex: 1; */
     min-height: 75px;
     max-height: 75px;
     border-radius: var(--radius-xl);
