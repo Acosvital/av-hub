@@ -5,9 +5,9 @@ import RankingBadge from './RankingBadge/RankingBadge';
 
 interface VendorCardProps {
   name: string;
-  orders: string;
-  meta: string;
-  participation: string;
+  orders: number;
+  meta: number;
+  participation: number;
   totalValue: number;
   rank: number;
 }

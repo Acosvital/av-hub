@@ -1,32 +1,31 @@
 'use client';
-import Card from '@/components/Ui/Card/Card';
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
-import Gauge from '@/components/Charts/Gauge/Gauge';
-import toBRL from '@/utils/toBRL';
+import Card from '@/components/Ui/Card/Card';
+import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
+import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import Image from 'next/image';
-import { FaArrowTrendDown, FaArrowTrendUp } from "react-icons/fa6";
-import { ImClock } from 'react-icons/im';
+import toBRL from '@/utils/toBRL';
 
 const vendor = (
   <VendorCard
     name='HUGO DOS SANTOS GONÇALVES'
-    orders='100'
-    meta='10'
-    participation='34'
+    orders={100}
+    meta={10}
+    participation={34}
     totalValue={3000450}
     rank={1}
   />
-)
-const vendors = new Array(8).fill(vendor);
+);
+const vendors = new Array(9).fill(vendor);
 const top3 = vendors.slice(0, 3);
-const otherVendors = vendors.slice(3, vendors.length);
+const otherVendors = vendors.slice(3);
 
-export default function Usuarios() {
+export default function Faturamento() {
   return (
-    <div className={`${styles.dashboardContainer}`}>
+    <div className={styles.dashboardContainer}>
       <DashboardGrid>
         <DashboardWidget cols={5} rows={6}>
           <div className={styles.card}>
@@ -51,7 +50,7 @@ export default function Usuarios() {
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
-                  {vendors.length >= 8 && (
+                  {vendors.length >= 9 && (
                     otherVendors.map((vendor) => (
                       vendor
                     ))
@@ -63,83 +62,125 @@ export default function Usuarios() {
         </DashboardWidget>
         <DashboardWidget cols={2} rows={1}>
           <div className={styles.logoContainer}>
-            <Image src={'/logo.png'} alt='Aços Vital' width={200} height={43} />
+            <Image src='/logo.png' alt='Aços Vital' width={200} height={43} />
           </div>
         </DashboardWidget>
         <DashboardWidget cols={5} rows={2}>
           <Card>
-            <p>Ritmo de faturamento</p>
+            <h3>Ritmo de faturamento</h3>
           </Card>
         </DashboardWidget>
         <DashboardWidget cols={2} rows={3}>
-          <div className={styles.gaugeContainer}>
-            <Gauge
-              size={250}
-              value={90}
-              color='var(--gold)'
-            />
-            <div className={styles.totalRevenueValues}>
-              <div>
-                <h2 className={styles.defaultTitle}>faturamento total</h2>
-                <h4 className={styles.revenueValue}>{toBRL(23119350)}</h4>
-              </div>
-              <div>
-                <h2 className={styles.defaultTitle}>Meta</h2>
-                <h4 className={styles.meta}>{'30 MI'}</h4>
-              </div>
-            </div>
-            <div className={styles.totalRevenueValues}>
-              {/* <ImClock /> */}
-              <div>
-                <h2 className={styles.defaultSubtitle}>Mês Passado</h2>
-                <h4 className={styles.secondarySubtitle}>{toBRL(23119350)}</h4>
-              </div>
-              <div>
-                <h2 className={styles.defaultSubtitle}>Pedidos M. P.</h2>
-                <h4 className={styles.secondarySubtitle}>{'1029'}</h4>
-              </div>
-            </div>
-          </div>
+          <RevenueGauge
+            value={90}
+            target="30 MI"
+            totalRevenue={23119350}
+            lastMonthRevenue={23119350}
+            lastMonthOrders={1029}
+          />
         </DashboardWidget>
         <DashboardWidget cols={5} rows={1}>
-          <div className={styles.goalPaceContainer}>
-            <div className={styles.sectionHeader}>
-              <h4>Ritmo de meta</h4>
-              <div className={styles.pill}>
-                <FaArrowTrendDown size={14} />
-                <span>ABAIXO</span>
+          <GoalPaceCard
+            status="below"
+            idealDailyTarget={1136363.64}
+            currentDailyTarget={399468.64}
+            workingDays={22}
+            elapsedDays={2}
+          />
+        </DashboardWidget>
+        <DashboardWidget cols={2} rows={3}>
+          <div className={styles.defaultCard}>
+            <h3>Tipo de faturamento</h3>
+            <div className={styles.billings}>
+              <div className={styles.billing}>
+                <h3>SPOT</h3>
+                <span>{toBRL(100136363.64)}</span>
               </div>
-            </div>
-            <div className={styles.metaCards}>
-              <div className={styles.metaCard}>
-                <h4 className={styles.textSm}>Meta Diária Ideal</h4>
-                <h3 className={styles.textLg}>{toBRL(1136363.64)}</h3>
-                <span className={styles.textXs}>Base: 22D Úteis</span>
+              <div className={styles.billing}>
+                <h3>Contrato</h3>
+                <span>{toBRL(100136363.64)}</span>
               </div>
-              <div className={styles.metaCard}>
-                <h4 className={styles.textSm}>Meta Diária Atual</h4>
-                <h3 className={styles.textLg}>{toBRL(399468.64)}</h3>
-                <span className={styles.textXs}>Base: 2D Decorridos</span>
+              <div className={styles.billing}>
+                <h3>Sem Classificação</h3>
+                <span>{toBRL(100136363.64)}</span>
               </div>
             </div>
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={2} rows={3}>
-          <Card>
-            <p>Tipo de faturamento</p>
-          </Card>
-        </DashboardWidget>
         <DashboardWidget cols={3} rows={3}>
-          <Card>
-            <p>Situação</p>
-          </Card>
+          <div className={styles.defaultCard}>
+            <h3>Situação</h3>
+            <div className={styles.situationGroup}>
+              <div className={styles.situationCard}>
+                <div>
+                  <h4 className={styles.situationTitle}>Cancelados</h4>
+                  <span>50</span>
+                </div>
+                <div>
+                  <span>{toBRL(100136363.64)}</span>
+                </div>
+              </div>
+              <div className={styles.situationCard}>
+                <div>
+                  <h4 className={styles.situationTitle}>Devolvidos</h4>
+                  <span>50</span>
+                </div>
+                <div>
+                  <span>{toBRL(100136363.64)}</span>
+                </div>
+              </div>
+              <div className={styles.situationCard}>
+                <div>
+                  <h4 className={styles.situationTitle}>Recusados</h4>
+                  <span>50</span>
+                </div>
+                <div>
+                  <span>{toBRL(100136363.64)}</span>
+                </div>
+              </div>
+              <div className={styles.situationCard}>
+                <div>
+                  <h4 className={styles.situationTitle}>Refaturamento</h4>
+                  <span>50</span>
+                </div>
+                <div>
+                  <span>{toBRL(100136363.64)}</span>
+                </div>
+              </div>
+            </div>
+          </div >
         </DashboardWidget>
         <DashboardWidget cols={2} rows={2}>
-          <div>
-            <p>Faturamento Diário</p>
+          <div className={styles.defaultCard}>
+            <div>
+              <h3>Faturamento Diário</h3>
+              <div className={styles.billingCard}>
+                <div>
+                  <h4 className={styles.billingTitle}>Hoje</h4>
+                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                </div>
+                <div>
+                  <h4 className={styles.billingTitle}>Ontem</h4>
+                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3>Volume de Pedidos</h3>
+              <div className={styles.billingCard}>
+                <div>
+                  <h4 className={styles.billingTitle}>Hoje</h4>
+                  <span className={styles.billingValue}>8400</span>
+                </div>
+                <div>
+                  <h4 className={styles.billingTitle}>Ontem</h4>
+                  <span className={styles.billingValue}>488</span>
+                </div>
+              </div>
+            </div>            
           </div>
         </DashboardWidget>
       </DashboardGrid>
     </div>
-  )
+  );
 }
