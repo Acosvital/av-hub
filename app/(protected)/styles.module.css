@@ -1,5 +1,4 @@
 .dashboardContainer {
-    padding: 1rem;
     width: 100%;
-    min-height: calc(100dvh - var(--header-h));
+    /* min-height: calc(100dvh - var(--header-h)); */
 }

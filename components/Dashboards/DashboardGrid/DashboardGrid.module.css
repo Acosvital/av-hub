@@ -1,6 +1,18 @@
 .dashboardGridLayout {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-auto-rows: minmax(188px,auto);
-    gap: 1rem;
+    grid-auto-rows: calc((100dvh - var(--header-h) - 7 * var(--space-4)) / 6);
+    height: calc(100dvh - var(--header-h) - 2 * var(--space-4));
+    gap: var(--space-4);
+    width: 100%;
+    overflow: hidden;
+    min-width: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .dashboardGridLayout {
+    height: 100%;
+    grid-auto-rows: calc((100dvh - var(--header-h) - 7 * var(--space-4)) / 6, auto);
+    overflow: auto;
+  }
 }

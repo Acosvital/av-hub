@@ -2,6 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { AppThemeProvider } from './theme-provider';
+import { LayoutProvider } from './LayoutProvider';
 
 export default function Providers({
   children,
@@ -11,7 +12,9 @@ export default function Providers({
   return (
     <SessionProvider>
       <AppThemeProvider>
-        {children}
+        <LayoutProvider>
+          {children}
+        </LayoutProvider>
       </AppThemeProvider>
     </SessionProvider>
   );

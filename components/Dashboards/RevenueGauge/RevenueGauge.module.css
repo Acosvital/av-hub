@@ -1,0 +1,52 @@
+.gaugeContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--card-bg);
+    color: var(--foreground);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border);
+    padding: var(--space-2);
+    align-items: center;
+    font-family: var(--font-sans);
+}
+
+.totalRevenueValues {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border);
+}
+
+.totalRevenueValues:last-child {
+    border: none;
+}
+
+.defaultTitle {
+    font-family: var(--font-sans);
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+}
+
+.defaultSubtitle {
+    font-family: var(--font-sans);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+}
+
+.revenueValue {
+    font-size: var(--fs-lg);
+}
+
+.secondarySubtitle {
+    color: var(--foreground-secondary);
+}
+
+.meta {
+    font-size: var(--fs-lg);
+    color: var(--gold);
+    text-shadow: 0 0 10px var(--gold);
+}

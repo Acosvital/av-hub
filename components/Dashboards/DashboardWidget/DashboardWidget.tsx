@@ -1,6 +1,6 @@
 import styles from './DashboardWidget.module.css';
 type GridCols = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-type GridRows = 1 | 2 | 3 | 4;
+type GridRows = 1 | 2 | 3 | 4 | 5 | 6;
 
 interface DashboardWidgetProps {
     cols: GridCols,

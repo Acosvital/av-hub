@@ -9,7 +9,6 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import * as XLSX from "xlsx";
-import { FaFileDownload } from 'react-icons/fa';
 import styles from "./styles.module.css";
 import Card from "@/components/Ui/Card/Card";
 import { Autocomplete, CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
@@ -20,7 +19,7 @@ import { notify } from '@/lib/toast/toast';
 import { getProdutos } from '@/app/api/services/produtos';
 import { getFamilias } from '@/app/api/services/familias';
 import { getFornecedores } from '@/app/api/services/fornecedores';
-import { FamiliaProdutosProps, FornecedorProps, PriceHistoryProps, ProdutoProps } from './types';
+import { FamiliaProdutosProps, FornecedorProps, PriceHistoryProps, PriceProps, ProdutoProps } from './types';
 import { useDebounce } from '@/hooks/useDebouncer';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
@@ -36,7 +35,7 @@ export default function CatalogoDeProdutos() {
   //States para os dados: Pagina/Modal
   const [rows, setRows] = useState<ProdutoProps[]>([]);
   const [rowData, setRowData] = useState<ProdutoProps>();
-  const [priceHistory, setPriceHistory] = useState<PriceHistoryProps[]>([]);
+  const [priceHistory, setPriceHistory] = useState<PriceProps[]>([]);
   //States de paginação
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -76,10 +75,10 @@ export default function CatalogoDeProdutos() {
           getFornecedores(),
           getProdutos(),
         ]);
-        setFamiliaProdutos(familiaData);
-        setFornecedor(fornecedoresData);
-        setInitialFornecedor(fornecedoresData);
-        setRows(produtosData.data);
+        setFamiliaProdutos(familiaData.familias_produtos);
+        setFornecedor(fornecedoresData.fornecedores);
+        setInitialFornecedor(fornecedoresData.fornecedores);
+        setRows(produtosData.catalogo_de_produtos);
         setRowCont(produtosData.total)
       } catch (erro) {
         setError('Erro ao carregar catálogo de produtos');
@@ -99,8 +98,8 @@ export default function CatalogoDeProdutos() {
       }
       try {
         setLoadingFornecedor(true);
-        const data = await getFornecedores(fornecedorDebounced);
-        setFornecedor(data);
+        const {fornecedores} = await getFornecedores(fornecedorDebounced);
+        setFornecedor(fornecedores);
       } catch (error) {
         setError('Erro ao carregar filtro de fornecedores');
       } finally {
@@ -127,7 +126,7 @@ export default function CatalogoDeProdutos() {
       try {
         setLoading(true);
         const response = await getProdutos(page + 1, rowsPerPage, inputFornecedor, familiaProdutosSelected, descricao);
-        setRows(response.data);
+        setRows(response.catalogo_de_produtos);
         setRowCont(response.total)
       } catch (error) {
         console.error(error)
@@ -163,8 +162,8 @@ export default function CatalogoDeProdutos() {
 
   //Carrega dados para o modal ao clicar na linha do grid
   const handleModal = async (produto: string, parceiro: string) => {
-    const prices: PriceHistoryProps[] = await getPriceHistory(produto, parceiro);
-    const parametrized = prices.map((price) => {
+    const {historico_precos}: PriceHistoryProps = await getPriceHistory(produto, parceiro);
+    const parametrized = historico_precos.map((price) => {
       return {
         ...price,
         data_cotacao: dateFormatter(price.data_cotacao)
@@ -236,13 +235,10 @@ export default function CatalogoDeProdutos() {
             </Button>
           </div>
         </Card>
-        <Card>
-          <div className={styles.cardHeaderActions}>
-            <h2 className={styles.cardTitle}>Produtos Encontrados</h2>
-            <Button variant='primary' onClick={exportToExcel} icon={<FaFileDownload size={18} />}>
-              Exportar
-            </Button>
-          </div>
+        <Card
+          title='Produtos Encontrados'
+          download={exportToExcel}
+        >
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />

@@ -10,7 +10,7 @@ const style = {
 }
 
 const iconMap = {
-    dashboard: <BiSolidDashboard style={style} />,
+    dashboards: <BiSolidDashboard style={style} />,
     crm: <SiCivicrm style={style} />,
     vendas: <FaMoneyBill style={style} />,
     servicos: <MdHomeRepairService style={style} />,

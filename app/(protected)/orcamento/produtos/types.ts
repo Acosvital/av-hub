@@ -25,17 +25,25 @@ export type FornecedorProps = {
   estado: string;
   nome_fantasia: string;
   telefone: string;
-}
+};
 
 export type FamiliaProdutosProps = {
   ativo: boolean;
   codigo_fprodutos: string;
   nome: string;
-}
+};
+
+export type PriceProps = {
+  "id_produto": string;
+  "id_parceiro": string;
+  "data_cotacao": string;
+  "valor_unidade": string;
+};
 
 export type PriceHistoryProps = {
-  "id_produto": string,
-  "id_parceiro": string,
-  "data_cotacao": string,
-  "valor_unidade": string
+  "historico_precos": PriceProps[];
+  "limit": number;
+  "page": number;
+  "total": number;
+  "totalPages": number;
 }
