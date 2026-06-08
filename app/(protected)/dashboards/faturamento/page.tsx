@@ -14,12 +14,12 @@ const vendor = (
     name='HUGO DOS SANTOS GONÇALVES'
     orders={100}
     meta={10}
-    participation={34}
+    participation={15}
     totalValue={3000450}
     rank={1}
   />
 );
-const vendors = new Array(9).fill(vendor);
+const vendors = new Array(10).fill(vendor);
 const top3 = vendors.slice(0, 3);
 const otherVendors = vendors.slice(3);
 
@@ -46,7 +46,7 @@ export default function Faturamento() {
             <div className={styles.defaultRank}>
               {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
               <div
-                className={`${vendors.length > 8 && styles.autoScroll}`}
+                className={`${vendors.length > 9 && styles.autoScroll}`}
                 style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
               >
                 <div className={styles.vendorGroup}>
@@ -55,7 +55,7 @@ export default function Faturamento() {
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
-                  {vendors.length >= 9 && (
+                  {vendors.length >= 10 && (
                     otherVendors.map((vendor) => (
                       vendor
                     ))
@@ -77,8 +77,8 @@ export default function Faturamento() {
         </DashboardWidget>
         <DashboardWidget cols={2} rows={3}>
           <RevenueGauge
-            value={90}
-            target="30 MI"
+            value={101}
+            target="40 MI"
             totalRevenue={23119350}
             lastMonthRevenue={23119350}
             lastMonthOrders={1029}
@@ -86,7 +86,7 @@ export default function Faturamento() {
         </DashboardWidget>
         <DashboardWidget cols={5} rows={1}>
           <GoalPaceCard
-            status="below"
+            status="above"
             idealDailyTarget={1136363.64}
             currentDailyTarget={399468.64}
             workingDays={22}
