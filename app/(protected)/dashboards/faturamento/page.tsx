@@ -7,6 +7,7 @@ import Card from '@/components/Ui/Card/Card';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
 
 const vendor = (
@@ -14,7 +15,7 @@ const vendor = (
     name='HUGO DOS SANTOS GONÇALVES'
     orders={100}
     meta={10}
-    participation={15}
+    participation={70}
     totalValue={3000450}
     rank={1}
   />
@@ -25,6 +26,7 @@ const otherVendors = vendors.slice(3);
 
 export default function Faturamento() {
   const scrollDuration = `${otherVendors.length * 1.7}s`;
+  const { resolvedTheme } = useTheme();
 
   return (
     <div className={styles.dashboardContainer}>
@@ -67,7 +69,12 @@ export default function Faturamento() {
         </DashboardWidget>
         <DashboardWidget cols={2} rows={1}>
           <div className={styles.logoContainer}>
-            <Image src='/logo.png' alt='Aços Vital' width={200} height={43} />
+            <Image
+              src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}
+              alt='Aços Vital'
+              width={200}
+              height={43}
+            />
           </div>
         </DashboardWidget>
         <DashboardWidget cols={5} rows={2}>

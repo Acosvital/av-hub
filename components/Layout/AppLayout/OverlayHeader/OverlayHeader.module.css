@@ -41,6 +41,7 @@
   color: var(--foreground);
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: var(--font-sans);
 }
 
 .actionButton {
@@ -66,6 +67,14 @@
 
 .actionButton svg {
   font-size: var(--fs-lg)
+}
+
+.active {
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+}
+.active:hover{
+  color: var(--foreground);
 }
 
 .buttonsContainer {
@@ -150,7 +159,7 @@
   z-index: 50;
 }
 
-.datePickerCard{
+.datePickerCard {
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
@@ -162,7 +171,7 @@
   border-radius: 0 0 8px 8px;
 }
 
-.historic{
+.historic {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -170,11 +179,6 @@
   font-family: var(--font-sans);
   font-weight: var(--w-semi-bold);
   font-size: var(--fs-md);
-}
-
-.historic > input{
-  height: 16px;
-  width: 16px;
 }
 
 @media screen and (max-width: 768px) {

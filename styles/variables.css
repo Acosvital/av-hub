@@ -56,6 +56,7 @@
 
   /* Card / data-surface semantic tokens (theme-aware) */
   --card-bg: var(--neutral-0);
+  --card-bg-secondary: var(--neutral-0);
   --header-bg: var(--neutral-0);
   --card-title: var(--av-primary);
   --input-bg: var(--neutral-0);
@@ -199,6 +200,7 @@
 
   /* Theme-aware surface overrides — these flip cards, tables, inputs to dark variants */
   --card-bg: #1e293b;
+  --card-bg-secondary: var(--navy-800);
   /* slate-700 — cards pop forward */
   --header-bg: #131D33;
   /* one tier darker so cards float over the header line */
