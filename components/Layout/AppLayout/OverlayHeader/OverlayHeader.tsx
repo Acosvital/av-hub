@@ -6,15 +6,21 @@ import ThemeToggle from '../Header/ThemeToggle/ThemeToggle';
 import Avatar from '../Header/Avatar/Avatar';
 import { ImExit } from 'react-icons/im';
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { ptBR } from '@mui/x-date-pickers/locales';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import Card from '@/components/Ui/Card/Card';
+import { FaRegCalendarAlt } from 'react-icons/fa';
 
 const OverlayHeader = () => {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
   const { fullscreen, setFullscreen } = useLayout();
   const menuRef = useRef<HTMLDivElement>(null);
+  const dateFilters = useRef<HTMLDivElement>(null);
   const userName = session?.user?.name ?? '';
   const userEmail = session?.user?.email ?? '';
   const [visible, setVisible] = useState(true);
@@ -60,6 +66,12 @@ const OverlayHeader = () => {
 
   const handleToggleMenu = () => {
     setIsOpen((prev) => !prev);
+    isOpenDatePicker && setIsOpenDatePicker((prev) => !prev);
+  };
+
+  const handleDatePicker = async () => {
+    setIsOpenDatePicker((prev) => !prev);
+    isOpen && setIsOpen((prev) => !prev);
   };
 
   const handleLogout = async () => {
@@ -75,17 +87,45 @@ const OverlayHeader = () => {
 
       {status === 'authenticated' && userName && (
         <div className={styles.buttonsContainer}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {/* <DatePicker
-              label="Years in descending order"
-              openTo="year"
-              views={['year', 'month']}
-              yearsOrder="desc"
-              sx={{ minWidth: 250 }}
-            /> */}
-          </LocalizationProvider>
+          <div className={styles.datePickerContainer} ref={dateFilters}>
+            <button
+              className={`${styles.actionButton}`}
+              onClick={handleDatePicker}
+              aria-label="Filtros de data"
+            >
+              <FaRegCalendarAlt />
+            </button>
+            {isOpenDatePicker && (
+              <div className={styles.datePickerMenu}>
+                <div className={styles.datePickerCard}>
+                  <LocalizationProvider
+                    dateAdapter={AdapterDayjs}
+                    adapterLocale="pt-br"
+                    localeText={ptBR.components.MuiLocalizationProvider.defaultProps.localeText}
+                  >
+                    <DateCalendar
+                      openTo="month"
+                      views={['year', 'month']}
+                      minDate={dayjs('2026-04-01')}
+                      maxDate={dayjs()}
+                      yearsOrder="desc"
+                      sx={{
+                        backgroundColor: 'var(--card-bg)',
+                        border: '1px solid var(--border)',
+                        maxHeight: '280px',
+                      }}
+                    />
+                  </LocalizationProvider>
+                  <div className={styles.historic}>
+                    <label htmlFor="historico">Histórico</label>
+                    <input id="historico" type="checkbox" name="historico"/>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <button
-            className={styles.fullscreen}
+            className={styles.actionButton}
             onClick={() => setFullscreen(!fullscreen)}
             aria-label="Alternar Tela cheia"
           >
