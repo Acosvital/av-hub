@@ -10,6 +10,7 @@ interface VendorCardProps {
   participation: number;
   totalValue: number;
   rank: number;
+  onClick: () => void;
 }
 
 const rankClass: Record<number, string> = {
@@ -18,10 +19,10 @@ const rankClass: Record<number, string> = {
     3: styles.bronze,
 };
 
-const VendorCard = ({ name, orders, meta, participation, totalValue, rank }: VendorCardProps) => {
+const VendorCard = ({ name, orders, meta, participation, totalValue, rank, onClick }: VendorCardProps) => {
   const colorClass = rankClass[rank] ?? styles.default;
   return (
-    <div className={`${styles.vendorCard} ${colorClass}`}>
+    <div className={`${styles.vendorCard} ${colorClass}`} onClick={onClick}>
       <div className={styles.percentageEffect} style={{ width: `${participation}%` }} />
       <div className={styles.vendorRank}>
         <RankingBadge rank={rank} />

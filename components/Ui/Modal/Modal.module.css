@@ -23,14 +23,19 @@
   flex-direction: column;
   gap: var(--space-3);
   border-radius: var(--radius-md);
-  width: 100%;
-  max-width: 720px;
+  width: fit-content;
+  height: fit-content;
+  max-width: 90vw;
   max-height: 90vh;
   animation: scaleIn var(--t-fast);
+  overflow: auto;
 }
 
 :global(.dark) :local(.modalCard){
   border: 1px solid var(--border);
+}
+.backgroundSecondary{
+  background-color: var(--card-bg-secondary);
 }
 
 .modalHeader {
