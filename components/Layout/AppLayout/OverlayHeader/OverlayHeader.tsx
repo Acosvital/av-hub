@@ -24,7 +24,8 @@ const OverlayHeader = () => {
   const dateFilters = useRef<HTMLDivElement>(null);
   const userName = session?.user?.name ?? '';
   const userEmail = session?.user?.email ?? '';
-  const [visible, setVisible] = useState(true);
+  const [mouseVisible, setMouseVisible] = useState(true);
+  const visible = !fullscreen || mouseVisible;
 
   useEffect(() => {
     document.documentElement.style.setProperty('--header-h', visible ? '60px' : '0px');
@@ -32,19 +33,19 @@ const OverlayHeader = () => {
 
   useEffect(() => {
     if (!fullscreen) {
-      setVisible(true);
-      return;
+      const id = setTimeout(() => setMouseVisible(true), 0);
+      return () => clearTimeout(id);
     }
 
     let timeout: NodeJS.Timeout;
 
     const handleMouseMove = () => {
-      setVisible(true);
+      setMouseVisible(true);
       clearTimeout(timeout);
-      timeout = setTimeout(() => setVisible(false), 3000);
+      timeout = setTimeout(() => setMouseVisible(false), 3000);
     };
 
-    timeout = setTimeout(() => setVisible(false), 3000);
+    timeout = setTimeout(() => setMouseVisible(false), 3000);
     window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
@@ -53,17 +54,19 @@ const OverlayHeader = () => {
     };
   }, [fullscreen]);
 
+  async function enterFullscreen() {
+    await document.documentElement.requestFullscreen();
+  }
+
   useEffect(() => {
     if (fullscreen) {
       enterFullscreen()
-    } else {
+    } else if (document.fullscreenElement) {
       document.exitFullscreen();
     }
   }, [fullscreen])
 
-  async function enterFullscreen() {
-    await document.documentElement.requestFullscreen();
-  }
+  
 
   const handleToggleMenu = () => {
     setIsOpen((prev) => !prev);

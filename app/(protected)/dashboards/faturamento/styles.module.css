@@ -298,6 +298,7 @@
   grid-auto-rows: min-content;
   gap: var(--space-4);
   padding: 0 var(--space-4);
+  width: fit-content;
   overflow-y: auto;
 }
 
@@ -305,7 +306,10 @@
   .modalContent {
     display: flex;
     flex-direction: column;
-    max-height: 100%
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-4);
+    max-height: 100%;
   }
 
   .allOrders {

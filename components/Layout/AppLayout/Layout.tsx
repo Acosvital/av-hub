@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   useEffect(() => {
     setMode(pathname.startsWith('/dashboard') ? 'dashboard' : 'default');
-  }, [pathname]);
+  }, [pathname, setMode]);
 
   return (
     <SessionProvider>

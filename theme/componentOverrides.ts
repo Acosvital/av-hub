@@ -30,7 +30,7 @@ export const componentOverrides: Components<Theme> = {
         fontFamily: 'var(--font-sans)',
         '&.Mui-focused': {
           color: 'var(--foreground)',
-          backgroundColor: 'var(--card-bg)'
+          backgroundColor: 'var(--card-bg)',
         },
       },
     },

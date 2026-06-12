@@ -372,3 +372,11 @@ a {
 *::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(in srgb, var(--av-accent) 80%, black);
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important; /* Troque #ffffff pela sua cor */
+    -webkit-text-fill-color: var(--foreground) !important; /* Troque pela cor do seu texto */
+}
