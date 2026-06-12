@@ -24,7 +24,6 @@ export default withAuth(
 //rotas que serão bloqueadas sem autenticação
 export const config = {
   matcher: [
-    "/",
-    "/orcamento/:path*"
+    "/((?!login|api/auth|_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?|ttf|otf)$).*)",
   ],
 };

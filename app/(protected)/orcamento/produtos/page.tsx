@@ -81,6 +81,7 @@ export default function CatalogoDeProdutos() {
         setRows(produtosData.catalogo_de_produtos);
         setRowCont(produtosData.total)
       } catch (erro) {
+        console.error(erro);
         setError('Erro ao carregar catálogo de produtos');
       } finally {
         setLoading(false);
@@ -100,7 +101,8 @@ export default function CatalogoDeProdutos() {
         setLoadingFornecedor(true);
         const {fornecedores} = await getFornecedores(fornecedorDebounced);
         setFornecedor(fornecedores);
-      } catch (error) {
+      } catch (erro) {
+        console.error(erro);
         setError('Erro ao carregar filtro de fornecedores');
       } finally {
         setLoadingFornecedor(false);
@@ -300,7 +302,7 @@ export default function CatalogoDeProdutos() {
       >
         {rowData && (
           <div className={styles.modalContent} style={{ overflow: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className={styles.definitionListContainer}>
               <dl className={styles.definitionList}>
                 <dt className={styles.definitionTerm}>Fornecedor:</dt><dd className={styles.definitionDescription}>{rowData.nome_fantasia}</dd>
                 <dt className={styles.definitionTerm}>Estado:</dt><dd className={styles.definitionDescription}>{rowData.estado}</dd>

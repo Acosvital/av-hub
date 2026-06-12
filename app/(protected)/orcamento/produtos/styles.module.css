@@ -8,7 +8,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  /* margin: var(--space-4) 0; */
 }
 
 .cardButtons {
@@ -20,7 +19,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* margin-bottom: var(--space-4); */
 }
 
 .loading {
@@ -56,6 +54,12 @@
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.definitionListContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4)
 }
 
 .definitionList {

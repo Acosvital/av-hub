@@ -1,5 +1,4 @@
 'use client';
-import { IconBaseProps } from "react-icons";
 import styles from "./Button.module.css";
 
 interface ButtonProps {

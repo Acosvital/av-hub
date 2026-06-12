@@ -68,16 +68,30 @@ const OverlayHeader = () => {
 
   
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+      if (dateFilters.current && !dateFilters.current.contains(event.target as Node)) {
+        setIsOpenDatePicker(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleToggleMenu = () => {
     setIsOpen((prev) => !prev);
-    isOpenDatePicker && setIsOpenDatePicker((prev) => !prev);
+    isOpenDatePicker && setIsOpenDatePicker(false);
   };
 
-  const handleDatePicker = async () => {
+  const handleDatePicker = () => {
     setIsOpenDatePicker((prev) => !prev);
-    isOpen && setIsOpen((prev) => !prev);
+    isOpen && setIsOpen(false);
   };
-  const handleHistoric = async () => {
+
+  const handleHistoric = () => {
     setIsHistoric((prev) => !prev);
   };
 

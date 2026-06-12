@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import styles from './Header.module.css';
-import { CiSearch } from 'react-icons/ci';
 import Avatar from './Avatar/Avatar';
 import { ImExit } from 'react-icons/im';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
@@ -40,14 +39,14 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <span className={styles.title}>Aços Hub</span>
-      <div className={styles.search}>
+      {/* <div className={styles.search}>
         <CiSearch />
         <input
           type="text"
           className={styles.searchInput}
           placeholder="Buscar..."
         />
-      </div>
+      </div> */}
       {status === 'authenticated' && userName && (
         <div className={styles.buttonsContainer}>
           <ThemeToggle />

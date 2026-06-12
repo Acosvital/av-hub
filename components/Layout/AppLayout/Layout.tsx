@@ -1,5 +1,4 @@
 'use client'
-import { SessionProvider } from "next-auth/react";
 import Header from "./Header/Header";
 import Menu from "./Menu/Menu";
 import styles from "./Layout.module.css";
@@ -16,7 +15,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [pathname, setMode]);
 
   return (
-    <SessionProvider>
+    <>
       <div className={styles.app}>
         {!fullscreen && <Menu />}
         <div className={styles.shell}>
@@ -37,7 +36,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         theme="colored"
         transition={Slide}
       />
-    </SessionProvider>
+    </>
   )
 }
 
