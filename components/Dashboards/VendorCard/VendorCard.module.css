@@ -8,7 +8,7 @@
     gap: var(--space-4);
     position: relative;
     overflow: hidden;
-    background-color: var(--navy-800);
+    background-color: var(--card-bg-secondary);
     font-family: var(--font-sans);
 }
 
@@ -28,7 +28,7 @@
     inset: 0;
     width: 300px;
     border-right: 3px solid var(--gold);
-    background-color: var(--navy-600);
+    background-color: var(--border);
     box-shadow: 0 0 10px 1px var(--gold);
     z-index: 1
 }
@@ -52,7 +52,7 @@
     font-weight: var(--w-bold);
     letter-spacing: -0.02em;
     text-transform: uppercase;
-    color: var(--neutral-75);
+    color: var(--foreground);
 }
 
 .vendorDetails {
@@ -65,14 +65,14 @@
 .vendorInfo {
     font-size: var(--fs-md);
     text-transform: uppercase;
-    color: var(--navy-100);
+    color: var(--foreground-secondary);
     letter-spacing: -0.04em;
 }
 
 .vendorTotal{
     font-size: var(--fs-lg);
     font-weight: var(--w-black);
-    color: var(--neutral-75);
+    color: var(--foreground);
     flex: 1;
     align-self: center;
     text-align: end;

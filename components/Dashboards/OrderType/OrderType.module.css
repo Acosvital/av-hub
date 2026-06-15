@@ -1,0 +1,29 @@
+.orderTypeCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    grid-column: span 1;
+    grid-row: span 1;
+    border: 1px solid var(--border-strong);
+    background-color: var(--card-bg);
+    border-radius: var(--radius-md);
+}
+
+.typeCount {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.typeValue {
+    padding: var(--space-2);
+}
+
+.doubleCard {
+    grid-column: span 2;
+    grid-row: span 1;
+}

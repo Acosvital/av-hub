@@ -3,6 +3,7 @@ import styles from './Modal.module.css';
 import { IoMdClose } from "react-icons/io";
 
 interface ModalProps {
+  type?: 'primary' | 'secondary';
   title?: string;
   subtitle?: string;
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface ModalProps {
   children: ReactNode
 }
 
-const Modal = ({ title, subtitle, isOpen, onClose, children, ...props }: ModalProps) => {
+const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, ...props }: ModalProps) => {
 
   useEffect(() => {
     if (isOpen) {
@@ -31,7 +32,7 @@ const Modal = ({ title, subtitle, isOpen, onClose, children, ...props }: ModalPr
       {...props}
       onClick={onClose}
     >
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+      <div className={`${styles.modalCard} ${type === 'secondary' && styles.backgroundSecondary}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
             {title && <h2 className={styles.modalTitle}>{title}</h2>}

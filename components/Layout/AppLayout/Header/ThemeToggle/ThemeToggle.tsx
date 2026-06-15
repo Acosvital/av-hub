@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { MdDarkMode, MdLightMode } from 'react-icons/md';
 import styles from './ThemeToggle.module.css';
 
@@ -11,7 +11,7 @@ export default function ThemeToggle() {
 
   // Evita erro de hidratação no Next
   useEffect(() => {
-    setMounted(true);
+    startTransition(() => setMounted(true));
   }, []);
 
   if (!mounted) return null;

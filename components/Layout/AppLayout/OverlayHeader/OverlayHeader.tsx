@@ -5,19 +5,27 @@ import { signOut, useSession } from 'next-auth/react';
 import ThemeToggle from '../Header/ThemeToggle/ThemeToggle';
 import Avatar from '../Header/Avatar/Avatar';
 import { ImExit } from 'react-icons/im';
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { MdFullscreen, MdFullscreenExit, MdOutlineHistory } from 'react-icons/md';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
+import { ptBR } from '@mui/x-date-pickers/locales';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { FaRegCalendarAlt } from 'react-icons/fa';
 
 const OverlayHeader = () => {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
+  const [isHistoric, setIsHistoric] = useState(false);
   const { fullscreen, setFullscreen } = useLayout();
   const menuRef = useRef<HTMLDivElement>(null);
+  const dateFilters = useRef<HTMLDivElement>(null);
   const userName = session?.user?.name ?? '';
   const userEmail = session?.user?.email ?? '';
-  const [visible, setVisible] = useState(true);
+  const [mouseVisible, setMouseVisible] = useState(true);
+  const visible = !fullscreen || mouseVisible;
 
   useEffect(() => {
     document.documentElement.style.setProperty('--header-h', visible ? '60px' : '0px');
@@ -25,19 +33,19 @@ const OverlayHeader = () => {
 
   useEffect(() => {
     if (!fullscreen) {
-      setVisible(true);
-      return;
+      const id = setTimeout(() => setMouseVisible(true), 0);
+      return () => clearTimeout(id);
     }
 
     let timeout: NodeJS.Timeout;
 
     const handleMouseMove = () => {
-      setVisible(true);
+      setMouseVisible(true);
       clearTimeout(timeout);
-      timeout = setTimeout(() => setVisible(false), 3000);
+      timeout = setTimeout(() => setMouseVisible(false), 3000);
     };
 
-    timeout = setTimeout(() => setVisible(false), 3000);
+    timeout = setTimeout(() => setMouseVisible(false), 3000);
     window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
@@ -46,20 +54,45 @@ const OverlayHeader = () => {
     };
   }, [fullscreen]);
 
-  useEffect(() => {
-    if (fullscreen) {
-      enterFullscreen()
-    } else {
-      document.exitFullscreen();
-    }
-  }, [fullscreen])
-
   async function enterFullscreen() {
     await document.documentElement.requestFullscreen();
   }
 
+  useEffect(() => {
+    if (fullscreen) {
+      enterFullscreen()
+    } else if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }, [fullscreen])
+
+  
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+      if (dateFilters.current && !dateFilters.current.contains(event.target as Node)) {
+        setIsOpenDatePicker(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleToggleMenu = () => {
     setIsOpen((prev) => !prev);
+    isOpenDatePicker && setIsOpenDatePicker(false);
+  };
+
+  const handleDatePicker = () => {
+    setIsOpenDatePicker((prev) => !prev);
+    isOpen && setIsOpen(false);
+  };
+
+  const handleHistoric = () => {
+    setIsHistoric((prev) => !prev);
   };
 
   const handleLogout = async () => {
@@ -75,17 +108,75 @@ const OverlayHeader = () => {
 
       {status === 'authenticated' && userName && (
         <div className={styles.buttonsContainer}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {/* <DatePicker
-              label="Years in descending order"
-              openTo="year"
-              views={['year', 'month']}
-              yearsOrder="desc"
-              sx={{ minWidth: 250 }}
-            /> */}
-          </LocalizationProvider>
           <button
-            className={styles.fullscreen}
+            className={`${styles.actionButton} ${isHistoric && styles.active}`}
+            onClick={handleHistoric}
+            aria-label="Dados históricos"
+          >
+            <MdOutlineHistory />
+          </button>
+          <div className={`${styles.datePickerContainer}`} ref={dateFilters}>
+            <button
+              className={`${styles.actionButton}`}
+              onClick={handleDatePicker}
+              aria-label="Filtros de data"
+            >
+              <FaRegCalendarAlt />
+            </button>
+            {isOpenDatePicker && (
+              <div className={styles.datePickerMenu}>
+                <div className={styles.datePickerCard}>
+                  <LocalizationProvider
+                    dateAdapter={AdapterDayjs}
+                    adapterLocale="pt-br"
+                    localeText={ptBR.components.MuiLocalizationProvider.defaultProps.localeText}
+                  >
+                    <DateCalendar
+                      openTo="month"
+                      views={['year', 'month']}
+                      minDate={dayjs('2026-04-01')}
+                      maxDate={dayjs()}
+                      yearsOrder="desc"
+                      sx={{
+                        backgroundColor: 'var(--card-bg)',
+                        border: '1px solid var(--border)',
+                        maxHeight: '280px',
+                        color: 'var(--foreground)',
+                        '& .MuiPickersCalendarHeader-label': {
+                          color: 'var(--foreground)',
+                          fontFamily: 'var(--font-sans)',
+                        },
+                        '& .MuiPickersArrowSwitcher-button': {
+                          color: 'var(--foreground)',
+                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
+                        },
+                        '& .MuiPickersYear-yearButton': {
+                          color: 'var(--foreground)',
+                          fontFamily: 'var(--font-sans)',
+                          '&.Mui-selected': {
+                            backgroundColor: 'var(--primary-button-bg)',
+                            color: 'var(--primary-button-fg)',
+                          },
+                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
+                        },
+                        '& .MuiPickersMonth-monthButton': {
+                          color: 'var(--foreground)',
+                          fontFamily: 'var(--font-sans)',
+                          '&.Mui-selected': {
+                            backgroundColor: 'var(--primary-button-bg)',
+                            color: 'var(--primary-button-fg)',
+                          },
+                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+            )}
+          </div>
+          <button
+            className={styles.actionButton}
             onClick={() => setFullscreen(!fullscreen)}
             aria-label="Alternar Tela cheia"
           >

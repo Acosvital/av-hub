@@ -1,7 +1,7 @@
 export interface MenuItem {
     id: string;
     label: string;
-    submenu?: Array<{ id: string; label: string }>;
+    submenu?: Array<{ id: string; label: string; submenu?: MenuItem[] }>;
 }
 
 const menuItemsAdmin: MenuItem[] = [

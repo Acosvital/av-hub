@@ -1,5 +1,4 @@
 import Card from '@/components/Ui/Card/Card';
-import styles from './styles.module.css';
 import PageHeader from "@/components/Layout/PageLayout/PageHeader/PageHeader";
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 

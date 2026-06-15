@@ -1,248 +1,320 @@
 /* DEFAULT CLASSES*/
 .dashboardContainer {
-    width: 100%;
-    height: 100%;
-    /* overflow: hidden; */
+  width: 100%;
+  height: 100%;
+  /* overflow: hidden; */
 }
 
 .defaultCard {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    background-color: var(--card-bg);
-    color: var(--foreground);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--border);
-    height: 100%;
-    padding: var(--space-2);
-    gap: var(--space-2);
-    text-transform: uppercase;
-    font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  height: 100%;
+  padding: var(--space-2);
+  gap: var(--space-2);
+  text-transform: uppercase;
+  font-family: var(--font-sans);
 }
 
 .defaultCard>h3,
 .defaultCard>div>h3 {
-    font-size: var(--fs-sm);
-    margin-bottom: var(--space-2);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-2);
 }
 
 /* RANKING */
 .card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--header-bg);
-    color: var(--foreground);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--border);
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-secondary);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  height: 100%;
 }
 
 .cardHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-4) var(--space-6);
-    border-bottom: 1px solid var(--border);
-    background-color: var(--card-bg);
-    color: var(--foreground);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    font-family: var(--font-sans);
-    height: 10%;
-    font-weight: var(--w-bold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  font-family: var(--font-sans);
+  height: 10%;
+  font-weight: var(--w-bold);
 }
 
 .rankingTitle {
-    font-size: var(--fs-2xl);
-    text-transform: uppercase;
+  font-size: var(--fs-2xl);
+  text-transform: uppercase;
 }
 
 .fixedRank {
-    text-align: left;
-    padding: var(--space-2);
-    height: fit-content;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow-xl);
-    font-weight: var(--w-bold);
-    font-family: var(--font-sans);
-    z-index: 1;
+  text-align: left;
+  padding: var(--space-2);
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+  z-index: 1;
 }
 
 .top3Container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    flex: 1;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  height: 100%;
 }
 
 .defaultRank {
-    display: flex;
-    flex-direction: column;
-    font-weight: var(--w-bold);
-    padding: var(--space-2);
-    gap: var(--space-2);
-    height: 60%;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-weight: var(--w-bold);
+  padding: var(--space-2);
+  gap: var(--space-2);
+  height: 60%;
+  overflow: hidden;
 }
 
 .defaultRank:hover {
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .defaultRank:hover .autoScroll {
-    animation: none;
-    transform: none;
+  animation: none;
+  transform: none;
 }
 
-.defaultRank:hover .autoScroll > div:last-child {
-    display: none;
+.defaultRank:hover .autoScroll>div:last-child {
+  display: none;
 }
 
 .autoScroll {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    will-change: transform;
-    animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  will-change: transform;
+  animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
 }
 
 @keyframes verticalScroll {
-    0% {
-        transform: translate3d(0, 0, 0);
-    }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
 
-    100% {
-        /* Desloca exatamente o tamanho do primeiro grupo */
-        transform: translate3d(0, -50%, 0);
-    }
+  100% {
+    /* Desloca exatamente o tamanho do primeiro grupo */
+    transform: translate3d(0, -50%, 0);
+  }
 }
 
 .vendorGroup {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 /* LOGO */
 .logoContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 /* TIPO DE FATURAMENTO */
 .billings {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .billings>div:last-child {
-    border: none;
+  border: none;
 }
 
 .billing {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid var(--border-strong);
+  flex: 1;
 }
 
 .billing>h3 {
-    font-size: var(--fs-lg);
-    color: var(--success);
+  font-size: var(--fs-lg);
+  color: var(--success);
 }
 
 .billing>span {
-    font-size: var(--fs-xl);
+  font-size: var(--fs-xl);
 }
 
 /* SITUAÇÃO */
 .situation>h3 {
-    font-size: var(--fs-sm);
+  font-size: var(--fs-sm);
 }
 
 .situationGroup {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: var(--space-2);
-    height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--space-2);
+  height: 100%;
 }
 
 .situationCard {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    border: 1px solid var(--border);
-    grid-column: span 1;
-    grid-row: span 1;
-    height: 100%;
-    background-color: var(--navy-800);
-    border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid var(--border-strong);
+  grid-column: span 1;
+  grid-row: span 1;
+  height: 100%;
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
 }
 
 .situationCard>div {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-    font-size: var(--fs-md);
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  font-size: var(--fs-md);
 }
 
 .situationCard>div:last-child {
-    border-top: 1px solid var(--border);
-    font-size: var(--fs-lg);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-lg);
 }
 
 .situationTitle {
-    color: var(--danger);
+  color: var(--danger);
 }
 
 /* FATURAMENTO DIÁRIO */
-.billingCard{
-    display: flex;
-    gap: var(--space-2);
-    font-size: var(--fs-sm);
-    background-color: var(--navy-900);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-    border: 1px solid var(--border);
-}
-.billingCard>div{
-    padding: var(--space-2);
-    width: 50%;
-}
-.billingCard>div:first-child{
-    border-right: 1px solid var(--border);
+.billingCard {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  color: var(--foreground);
 }
 
-.billingTitle{
-    color: var(--success);
-    font-size: var(--fs-md);
+.billingCard>div {
+  padding: var(--space-2);
+  width: 50%;
 }
-.billingValue{
-    font-size: var(--fs-sm);
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+.billingCard>div:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.billingTitle {
+  color: var(--success);
+  font-size: var(--fs-md);
+}
+
+.billingValue {
+  font-size: var(--fs-sm);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* MODAL */
+.modalContent {
+  display: flex;
+  flex-direction: row;
+  max-height: 70dvh;
+  height: 100%;
+  padding: 0 var(--space-4);
+}
+
+.VendorDetails {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  gap: var(--space-2);
+}
+
+.quickView {
+  background-color: var(--card-bg-secondary);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.quickViewTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+}
+
+.quickViewValues {
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-4);
+  justify-content: space-between;
+}
+
+.ordersTypesCount {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.allOrders {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: min-content;
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
+  width: fit-content;
+  overflow-y: auto;
 }
 
 @media screen and (max-width: 768px) {
-  .dashboardContainer {
-    /* overflow: auto; */
+  .modalContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-4);
+    max-height: 100%;
+  }
+
+  .allOrders {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }

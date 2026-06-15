@@ -56,6 +56,8 @@
 
   /* Card / data-surface semantic tokens (theme-aware) */
   --card-bg: var(--neutral-0);
+  --card-bg-secondary: var(--neutral-0);
+  --card-bg-tertiary: #3F4857;
   --header-bg: var(--neutral-0);
   --card-title: var(--av-primary);
   --input-bg: var(--neutral-0);
@@ -101,6 +103,40 @@
   --silver: #CAD5E2;
   --bronze: #E17100;
   --default: #1d293d;
+
+  /* ------------- FIXED COLORS ------------- */
+
+  /* Verde */
+  --green-light: #86EFAC;
+  --green: #16A34A;
+
+  /* Azul */
+  --blue-light: #93C5FD;
+  --blue: #2563EB;
+
+  /* Amarelo */
+  --yellow-light: #FDE047;
+  --yellow: #CA8A04;
+
+  /* Vermelho */
+  --red-light: #FCA5A5;
+  --red: #DC2626;
+
+  /* Laranja */
+  --orange-light: #FDBA74;
+  --orange: #EA580C;
+
+  /* Cinza */
+  --gray-light: #D1D5DB;
+  --gray: #4B5563;
+
+  /* Roxo */
+  --purple-light: #D8B4FE;
+  --purple: #7C3AED;
+
+  /* Rosa */
+  --pink-light: #F9A8D4;
+  --pink: #DB2777;
 
 
   /* ---------- ELEVATION / SHADOWS ---------- */
@@ -199,6 +235,7 @@
 
   /* Theme-aware surface overrides — these flip cards, tables, inputs to dark variants */
   --card-bg: #1e293b;
+  --card-bg-secondary: var(--navy-800);
   /* slate-700 — cards pop forward */
   --header-bg: #131D33;
   /* one tier darker so cards float over the header line */
@@ -307,4 +344,39 @@ code,
 a {
   color: var(--av-primary);
   text-decoration: none;
+}
+
+/* =============================================================
+   SCROLLBAR — global custom scrollbar
+   ============================================================= */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--av-accent) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--av-accent);
+  border-radius: var(--radius-pill);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--av-accent) 80%, black);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important; /* Troque #ffffff pela sua cor */
+    -webkit-text-fill-color: var(--foreground) !important; /* Troque pela cor do seu texto */
 }

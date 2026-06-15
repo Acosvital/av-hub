@@ -1,5 +1,5 @@
-import NextAuth from "next-auth";
-import { JWT } from "next-auth/jwt";
+// import NextAuth from "next-auth";
+// import { JWT } from "next-auth/jwt";
 
 //adição de propriedades complementares ao Session e ao JWT no next-auth
 declare module "next-auth" {

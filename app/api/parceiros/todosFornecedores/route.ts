@@ -4,7 +4,7 @@ export async function GET(req: NextRequest) {
     const search = req.nextUrl.searchParams.get('search');
     try {
         const response = await fetch(
-            `${process.env.API_URL}/todos_os_fornecedores?estado=SP`,
+            `${process.env.API_URL}/todos_os_fornecedores?estado=SP&nome=${search}`,
             {
                 headers: {
                     'x-api-key': process.env.API_KEY!,
@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
         const data = await response.json();
         return NextResponse.json(data);
     } catch (error) {
+        console.error(error)
         return NextResponse.json(
             { error: 'Erro interno' },
             { status: 500 }
