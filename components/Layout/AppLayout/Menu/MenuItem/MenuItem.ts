@@ -18,8 +18,16 @@ const menuItemsAdmin: MenuItem[] = [
         id: "cadastros",
         label: 'CADASTROS',
         submenu: [
-            { id: "exemplo", label: "exemplo" },
-            { id: "usuarios", label: "usuarios" },
+            {
+                id: "acessos",
+                label: "Acessos",
+                submenu: [
+                    { id: "usuarios", label: "Usuários" },
+                    { id: "telas", label: "Telas" },
+                    { id: "permissoes", label: "Permissões" },
+                    { id: "exemplo", label: "Exemplo" },
+                ]
+            },
         ]
     },
     {
@@ -53,7 +61,7 @@ const menuItemsUser: MenuItem[] = [
         id: "admin",
         label: 'PAINEL ADMIN',
         submenu: [
-            {id: "usuarios", label: "usuarios"},
+            { id: "usuarios", label: "usuarios" },
         ]
     },
     {

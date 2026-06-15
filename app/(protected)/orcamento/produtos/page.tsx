@@ -99,7 +99,7 @@ export default function CatalogoDeProdutos() {
       }
       try {
         setLoadingFornecedor(true);
-        const {fornecedores} = await getFornecedores(fornecedorDebounced);
+        const { fornecedores } = await getFornecedores(fornecedorDebounced);
         setFornecedor(fornecedores);
       } catch (erro) {
         console.error(erro);
@@ -127,7 +127,13 @@ export default function CatalogoDeProdutos() {
     async function fetchProdutos() {
       try {
         setLoading(true);
-        const response = await getProdutos(page + 1, rowsPerPage, inputFornecedor, familiaProdutosSelected, descricao);
+        const response = await getProdutos({
+          page: page + 1,
+          limit: rowsPerPage,
+          fornecedor: inputFornecedor,
+          familia: familiaProdutosSelected,
+          descricao: descricao
+        });
         setRows(response.catalogo_de_produtos);
         setRowCont(response.total)
       } catch (error) {
@@ -164,7 +170,7 @@ export default function CatalogoDeProdutos() {
 
   //Carrega dados para o modal ao clicar na linha do grid
   const handleModal = async (produto: string, parceiro: string) => {
-    const {historico_precos}: PriceHistoryProps = await getPriceHistory(produto, parceiro);
+    const { historico_precos }: PriceHistoryProps = await getPriceHistory(produto, parceiro);
     const parametrized = historico_precos.map((price) => {
       return {
         ...price,

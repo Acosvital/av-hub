@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-    const page = req.nextUrl.searchParams.get('page');
-    const limit = req.nextUrl.searchParams.get('limit');
-    const fornecedor = req.nextUrl.searchParams.get('fornecedor');
-    const familia = req.nextUrl.searchParams.get('familia'); 
-    const descricao = req.nextUrl.searchParams.get('descricao'); 
+export async function GET(request: NextRequest) {
+    const { searchParams } = request.nextUrl;
+    const params = new URLSearchParams();
+
+    ['page', 'limit', 'fornecedor', 'familia', 'descricao',].forEach((key) => {
+        const value = searchParams.get(key);
+        if (value !== null) params.set(key, value);
+    });
     try {
         const response = await fetch(
-            `${process.env.API_URL}/catalogo_de_produtos?page=${page}&limit=${limit}&nome_fantasia=${fornecedor}&familia=${familia}&descricao=${descricao}`,
+            `${process.env.API_URL}/catalogo_de_produtos?${params}`,
             {
                 headers: {
                     'x-api-key': process.env.API_KEY!,
@@ -24,9 +26,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(data);
     } catch (error) {
         console.error(error);
-        return NextResponse.json(
-            { error: 'Erro interno' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
     }
 }
