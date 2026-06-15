@@ -1,7 +1,5 @@
-// import NextAuth from "next-auth";
-// import { JWT } from "next-auth/jwt";
+export {};
 
-//adição de propriedades complementares ao Session e ao JWT no next-auth
 declare module "next-auth" {
   interface Session {
     user: {
@@ -11,7 +9,7 @@ declare module "next-auth" {
       image?: string | null;
       role?: "admin" | "user" | "vendedor";
       permissions: string[];
-    } & DefaultSession["user"];
+    };
   }
 }
 

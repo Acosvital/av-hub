@@ -77,7 +77,7 @@
     border-left: 1px solid transparent;
 }
 
-.selectedMenu{
+.selectedMenu {
     background-color: var(--av-secondary);
     border-left: 5px solid var(--av-accent);
 }
@@ -99,7 +99,7 @@
     flex: 1;
     font-family: var(--font-sans);
     font-weight: var(--w-bold);
-    color: var(--neutral-50);    
+    color: var(--neutral-50);
 }
 
 .menuCard:hover {
@@ -131,6 +131,40 @@
 
 .submenuItem:hover {
     background-color: var(--av-secondary);
+}
+
+.submenuItemExpandable {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.submenuItemSelected {
+    border-left: 2px solid var(--av-accent);
+    background-color: var(--av-secondary);
+}
+
+.subsubmenu {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    animation: slideDown var(--t-base);
+}
+
+.subsubmenuItem {
+    padding: var(--space-2) var(--space-4);
+    color: var(--neutral-50);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    transition: all var(--t-base);
+    padding-left: var(--space-8);
+}
+
+.subsubmenuItem:hover {
+    background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
 }
 
 .hidden {
