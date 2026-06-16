@@ -1,4 +1,6 @@
+/* Grid column template shared by header and all rows */
 .container {
+  --grid-cols: 65px 1fr 125px 115px 110px 110px 110px 100px;
   display: flex;
   flex-direction: column;
   background-color: var(--card-bg-secondary);
@@ -64,78 +66,111 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* TABLE */
-.tableWrapper {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
+/* GRID ROW — used by header and every data row */
+.gridRow {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--border);
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-sans);
-}
-
-.table thead {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background-color: var(--table-head-bg);
-  box-shadow: 0 1px 0 var(--border);
-}
-
-.table thead th {
+.gridRow > div {
   padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--table-row-fg);
+}
+
+/* COLUMN HEADER ROW */
+.tableHead {
+  background-color: var(--table-head-bg);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.tableHead > div {
   font-size: var(--fs-xs);
   font-weight: var(--w-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--table-head-fg);
-  white-space: nowrap;
 }
 
-.table thead th.rankCol,
-.table thead th.nameCol {
-  text-align: left;
+/* FIXED TOP 3 */
+.fixedSection {
+  flex-shrink: 0;
+  background-color: var(--card-bg);
+  border-bottom: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-xl);
+  z-index: 1;
 }
 
-.table tbody tr {
-  border-bottom: 1px solid var(--border);
-  transition: background-color var(--t-fast);
-}
-
-.table tbody tr:hover {
-  background-color: var(--table-row-hover);
-}
-
-.table tbody tr:last-child {
+.fixedSection .gridRow:last-child {
   border-bottom: none;
 }
 
-.table tbody td {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--fs-xs);
-  font-weight: var(--w-semibold);
-  text-align: right;
-  color: var(--table-row-fg);
-  white-space: nowrap;
+.fixedSection .gridRow:hover {
+  background-color: var(--table-row-hover);
 }
 
-/* COLUMN OVERRIDES */
-.table tbody td.rankCol {
-  text-align: left;
+/* AUTO-SCROLL SECTION */
+.scrollSection {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.table tbody td.nameCol {
-  text-align: left;
-  font-weight: var(--w-bold);
-  font-size: var(--fs-sm);
+.scrollSection:hover {
+  overflow-y: auto;
 }
 
-.table tbody td.faturado   { color: var(--blue-light); }
-.table tbody td.aFaturar   { color: var(--pink-light); }
-.table tbody td.ajudaCusto { color: var(--yellow-light); }
-.table tbody td.comissao   { color: var(--green); }
-.table tbody td.bloqueado  { color: var(--red-light); }
+.scrollSection:hover .autoScroll {
+  animation: none;
+  transform: none;
+}
+
+.scrollSection:hover .autoScroll > .rowGroup:last-child {
+  display: none;
+}
+
+.autoScroll {
+  will-change: transform;
+  animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
+}
+
+@keyframes verticalScroll {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, -50%, 0); }
+}
+
+.rowGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.rowGroup .gridRow:hover {
+  background-color: var(--table-row-hover);
+}
+.rowGroup > div:last-child{
+  border-bottom: 2px solid var(--border-strong);
+}
+
+/* COLUMN OVERRIDES — alignment & colors */
+.rankCol { text-align: left !important; }
+
+.nameCol {
+  text-align: left !important;
+  font-weight: var(--w-bold) !important;
+  font-size: var(--fs-sm) !important;
+}
+
+.faturado   { color: var(--blue-light) !important; }
+.aFaturar   { color: var(--pink-light) !important; }
+.ajudaCusto { color: var(--yellow-light) !important; }
+.comissao   { color: var(--green) !important; }
+.bloqueado  { color: var(--red-light) !important; }
+.total      { color: var(--foreground) !important; }

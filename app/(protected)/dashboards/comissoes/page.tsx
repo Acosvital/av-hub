@@ -36,6 +36,7 @@ const vendors: CommissionRow[] = [
   { rank: 13, name: 'RENAN MIRANDA', faturado: 172517.80, aFaturar: 51840.74, ajudaCusto: 3500.00, comissao: 3426.29, bloqueado: 607.90, total: 6318.39 },
   { rank: 14, name: 'JOARES ALVES', faturado: 598119.23, aFaturar: 365073.88, ajudaCusto: 3500.00, comissao: 3220.63, bloqueado: 1901.12, total: 4819.51 },
   { rank: 15, name: 'TIAGO VIANA', faturado: 90342.30, aFaturar: 866227.56, ajudaCusto: 3500.00, comissao: 1723.85, bloqueado: 23.85, total: 5200.00 },
+  { rank: 16, name: 'MICHAEL JACKSON', faturado: 90342.30, aFaturar: 866227.56, ajudaCusto: 3500.00, comissao: 1723.85, bloqueado: 23.85, total: 5200.00 },
 ];
 
 const managers: CommissionRow[] = [

@@ -23,9 +23,25 @@ interface CommissionRankingTableProps {
 
 const formatValue = (value: number) => (value > 0 ? toBRL(value) : '0');
 
+const Row = ({ row }: { row: CommissionRow }) => (
+  <div className={styles.gridRow}>
+    <div className={styles.rankCol}><RankingBadge rank={row.rank} /></div>
+    <div className={styles.nameCol}>{row.name}</div>
+    <div className={styles.faturado}>{formatValue(row.faturado)}</div>
+    <div className={styles.aFaturar}>{formatValue(row.aFaturar)}</div>
+    <div className={styles.ajudaCusto}>{toBRL(row.ajudaCusto)}</div>
+    <div className={styles.comissao}>{formatValue(row.comissao)}</div>
+    <div className={styles.bloqueado}>{formatValue(row.bloqueado)}</div>
+    <div className={styles.total}>{toBRL(row.total)}</div>
+  </div>
+);
+
 const CommissionRankingTable = ({ vendors, managers }: CommissionRankingTableProps) => {
   const [activeTab, setActiveTab] = useState<'vendedores' | 'gerencia'>('vendedores');
   const rows = activeTab === 'vendedores' ? vendors : managers;
+  const top3 = rows.slice(0, 3);
+  const otherRows = rows.slice(3);
+  const scrollDuration = `${otherRows.length * 1.7}s`;
 
   return (
     <div className={styles.container}>
@@ -49,37 +65,36 @@ const CommissionRankingTable = ({ vendors, managers }: CommissionRankingTablePro
           </button>
         </div>
       </div>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.rankCol}>Rank</th>
-              <th className={styles.nameCol}>Nome do Vendedor</th>
-              <th>Faturado</th>
-              <th>A Faturar</th>
-              <th>Ajuda Custo</th>
-              <th>Comissão</th>
-              <th>Bloqueado</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.rank}>
-                <td className={styles.rankCol}>
-                  <RankingBadge rank={row.rank} />
-                </td>
-                <td className={styles.nameCol}>{row.name}</td>
-                <td className={styles.faturado}>{formatValue(row.faturado)}</td>
-                <td className={styles.aFaturar}>{formatValue(row.aFaturar)}</td>
-                <td className={styles.ajudaCusto}>{toBRL(row.ajudaCusto)}</td>
-                <td className={styles.comissao}>{formatValue(row.comissao)}</td>
-                <td className={styles.bloqueado}>{formatValue(row.bloqueado)}</td>
-                <td className={styles.total}>{toBRL(row.total)}</td>
-              </tr>
+
+      <div className={`${styles.gridRow} ${styles.tableHead}`}>
+        <div className={styles.rankCol}>Rank</div>
+        <div className={styles.nameCol}>Nome do Vendedor</div>
+        <div>Faturado</div>
+        <div>A Faturar</div>
+        <div>Ajuda Custo</div>
+        <div>Comissão</div>
+        <div>Bloqueado</div>
+        <div>Total</div>
+      </div>
+
+      <div className={styles.fixedSection}>
+        {top3.map((row) => <Row key={row.rank} row={row} />)}
+      </div>
+
+      <div className={styles.scrollSection}>
+        <div
+          className={otherRows.length > 6 ? styles.autoScroll : ''}
+          style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+        >
+          <div className={styles.rowGroup}>
+            {otherRows.map((row) => <Row key={row.rank} row={row} />)}
+          </div>
+          <div className={styles.rowGroup} aria-hidden="true">
+            {otherRows.length > 6 && otherRows.map((row) => (
+              <Row key={`${row.rank}-clone`} row={row} />
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     </div>
   );
