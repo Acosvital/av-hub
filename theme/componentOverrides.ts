@@ -20,6 +20,17 @@ export const componentOverrides: Components<Theme> = {
           borderColor: 'var(--border-strong)',
           borderWidth: '2px',
         },
+        '&.Mui-disabled': {
+          backgroundColor: 'var(--input-bg-disabled)',
+          cursor: 'not-allowed',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'var(--input-border-disabled)',
+          },
+          '& .MuiOutlinedInput-input': {
+            color: 'var(--input-text-disabled)',
+            WebkitTextFillColor: 'var(--input-text-disabled)',
+          },
+        },
       },
     },
   },
@@ -31,6 +42,9 @@ export const componentOverrides: Components<Theme> = {
         '&.Mui-focused': {
           color: 'var(--foreground)',
           backgroundColor: 'var(--card-bg)',
+        },
+        '&.Mui-disabled': {
+          color: 'var(--input-label-disabled)',
         },
       },
     },
@@ -96,6 +110,9 @@ export const componentOverrides: Components<Theme> = {
       root: {
         color: 'var(--foreground)',
         fontFamily: 'var(--font-sans)',
+        '&.Mui-disabled': {
+          color: 'var(--input-label-disabled)',
+        },
       },
     },
   },

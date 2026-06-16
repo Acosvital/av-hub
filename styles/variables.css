@@ -63,6 +63,10 @@
   --input-bg: var(--neutral-0);
   --input-border: var(--navy-400);
   --input-label: var(--navy-300);
+  --input-bg-disabled: var(--neutral-75);
+  --input-border-disabled: var(--border);
+  --input-text-disabled: var(--navy-300);
+  --input-label-disabled: var(--navy-200);
   --table-head-bg: var(--neutral-0);
   --table-head-fg: var(--neutral-900);
   --table-row-fg: var(--neutral-900);
@@ -244,6 +248,10 @@
   /* deepest — inputs recede into the card */
   --input-border: var(--navy-300);
   --input-label: var(--navy-100);
+  --input-bg-disabled: var(--navy-800);
+  --input-border-disabled: var(--navy-600);
+  --input-text-disabled: var(--navy-400);
+  --input-label-disabled: var(--navy-300);
   --table-head-bg: #131D33;
   --table-head-fg: var(--neutral-50);
   --table-row-fg: var(--neutral-50);
