@@ -6,6 +6,13 @@
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
     padding: var(--space-4) var(--space-5);
+}
+
+.fit {
+    height: fit-content;
+}
+
+.full {
     height: 100%;
 }
 

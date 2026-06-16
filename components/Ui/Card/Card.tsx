@@ -8,13 +8,15 @@ interface CardProps {
   children: React.ReactNode;
   title?: string;
   className?: string;
+  height?: 'fit' | 'full';
   download?: () => void;
   create?: () => void;
 }
 
-export default function Card({ children, title, className, download, create }: CardProps) {
+export default function Card({ children, title, className, download, create, height = 'full' }: CardProps) {
+  const cardHeight = height === 'fit' ? styles.fit : styles.full;
   return (
-    <div className={clsx(styles.card, className)}>
+    <div className={clsx(styles.card, cardHeight, className)}>
       <div className={styles.titleContainer}>
         {title && (<h2 className={styles.cardTitle}>{title}</h2>)}
         <div>
