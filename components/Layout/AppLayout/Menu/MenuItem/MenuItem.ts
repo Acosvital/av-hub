@@ -11,7 +11,7 @@ const menuItemsAdmin: MenuItem[] = [
     submenu: [
       { id: "dash-vendas", label: "Vendas" },
       { id: "faturamento", label: "Faturamento" },
-      { id: "dash-comissoes", label: "Comissões" },
+      { id: "comissoes", label: "Comissões" },
     ]
   },
   {

@@ -1,0 +1,176 @@
+/* Grid column template shared by header and all rows */
+.container {
+  --grid-cols: 65px 1fr 125px 115px 110px 110px 110px 100px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--card-bg);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-lg);
+  color: var(--foreground);
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+}
+
+.tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  border-radius: var(--radius-sm);
+  transition: color var(--t-base), background-color var(--t-base);
+}
+
+.tab:hover {
+  color: var(--foreground);
+  background-color: var(--card-bg);
+}
+
+.activeTab {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+/* GRID ROW — used by header and every data row */
+.gridRow {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.gridRow > div {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--table-row-fg);
+}
+
+/* COLUMN HEADER ROW */
+.tableHead {
+  background-color: var(--table-head-bg);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.tableHead > div {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--table-head-fg);
+}
+
+/* FIXED TOP 3 */
+.fixedSection {
+  flex-shrink: 0;
+  background-color: var(--card-bg);
+  border-bottom: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-xl);
+  z-index: 1;
+}
+
+.fixedSection .gridRow:last-child {
+  border-bottom: none;
+}
+
+.fixedSection .gridRow:hover {
+  background-color: var(--table-row-hover);
+}
+
+/* AUTO-SCROLL SECTION */
+.scrollSection {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.scrollSection:hover {
+  overflow-y: auto;
+}
+
+.scrollSection:hover .autoScroll {
+  animation: none;
+  transform: none;
+}
+
+.scrollSection:hover .autoScroll > .rowGroup:last-child {
+  display: none;
+}
+
+.autoScroll {
+  will-change: transform;
+  animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
+}
+
+@keyframes verticalScroll {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, -50%, 0); }
+}
+
+.rowGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.rowGroup .gridRow:hover {
+  background-color: var(--table-row-hover);
+}
+.rowGroup > div:last-child{
+  border-bottom: 2px solid var(--border-strong);
+}
+
+/* COLUMN OVERRIDES — alignment & colors */
+.rankCol { text-align: left !important; }
+
+.nameCol {
+  text-align: left !important;
+  font-weight: var(--w-bold) !important;
+  font-size: var(--fs-sm) !important;
+}
+
+.faturado   { color: var(--blue-light) !important; }
+.aFaturar   { color: var(--pink-light) !important; }
+.ajudaCusto { color: var(--yellow-light) !important; }
+.comissao   { color: var(--green) !important; }
+.bloqueado  { color: var(--red-light) !important; }
+.total      { color: var(--foreground) !important; }
