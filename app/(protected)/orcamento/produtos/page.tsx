@@ -188,6 +188,7 @@ export default function CatalogoDeProdutos() {
       />
       <PageContent>
         <Card
+          height='fit'
           title='Consulta de Produtos'
         >
           <div className={styles.inputContainers}>

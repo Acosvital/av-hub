@@ -50,9 +50,10 @@ export default function CatalogoDeProdutos() {
         ] = await Promise.all([
           getTodosFornecedores(),
         ]);
-        console.log('aqui',fornecedorData)
+        console.log('aqui', fornecedorData)
         setRows(fornecedorData.fornecedores);
       } catch (erro) {
+        console.log(erro)
         setError('Erro ao carregar fornecedores');
       } finally {
         setLoading(false);
@@ -85,6 +86,7 @@ export default function CatalogoDeProdutos() {
       />
       <PageContent>
         <Card
+          height='fit'
           title='Consulta de Fornecedores'
         >
           <div>
@@ -121,8 +123,8 @@ export default function CatalogoDeProdutos() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredRows.map((row) => (
-                    <TableRow hover onClick={() => {
+                  {filteredRows.map((row, key) => (
+                    <TableRow key={key} hover onClick={() => {
                       setIsOpen(true)
                     }}>
                       <TableCell>{row.razao_social}</TableCell>

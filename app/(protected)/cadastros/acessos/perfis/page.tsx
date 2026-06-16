@@ -1,0 +1,252 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import { CircularProgress, TextField } from '@mui/material';
+import styles from './styles.module.css';
+import Card from '@/components/Ui/Card/Card';
+import Modal from '@/components/Ui/Modal/Modal';
+import Button from '@/components/Ui/Button/Button';
+import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
+import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import { notify } from '@/lib/toast/toast';
+import { useDebounce } from '@/hooks/useDebouncer';
+import { getPerfis, criarPerfil, editarPerfil } from '@/app/api/services/perfis';
+import { FormPerfil, PerfilProps } from './types';
+
+const FORM_INICIAL: FormPerfil = {
+  nome: '',
+  descricao: '',
+};
+
+export default function Perfis() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const [rows, setRows] = useState<PerfilProps[]>([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [nomeInput, setNomeInput] = useState('');
+  const nome = useDebounce(nomeInput, 500);
+
+  const [form, setForm] = useState<FormPerfil>(FORM_INICIAL);
+
+  useEffect(() => {
+    if (error) notify.error(error);
+  }, [error]);
+
+  useEffect(() => {
+    async function fetchPerfis() {
+      try {
+        setLoading(true);
+        const response = await getPerfis({
+          page: page + 1,
+          limit: rowsPerPage,
+          nome,
+        });
+        setRows(response.perfis ?? []);
+        setRowCount(response.total ?? 0);
+      } catch (err) {
+        console.error(err);
+        setError('Erro ao carregar perfis');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPerfis();
+  }, [page, rowsPerPage, nome, refreshTrigger]);
+
+  const limparFiltros = () => {
+    setNomeInput('');
+    setPage(0);
+  };
+
+  const abrirCriacaoModal = () => {
+    setEditingId(null);
+    setForm(FORM_INICIAL);
+    setIsModalOpen(true);
+  };
+
+  const abrirEdicaoModal = (perfil: PerfilProps) => {
+    setEditingId(perfil.id);
+    setForm({
+      nome: perfil.nome,
+      descricao: perfil.descricao ?? '',
+    });
+    setIsModalOpen(true);
+  };
+
+  const salvarPerfil = async () => {
+    if (!form.nome.trim()) {
+      notify.error('Nome é obrigatório');
+      return;
+    }
+    if (form.nome.length > 50) {
+      notify.error('Nome deve ter no máximo 50 caracteres');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const payload = {
+        nome: form.nome,
+        descricao: form.descricao.trim() || null,
+      };
+
+      if (editingId) {
+        await editarPerfil(editingId, payload);
+        notify.success('Perfil atualizado com sucesso');
+      } else {
+        await criarPerfil(payload);
+        notify.success('Perfil cadastrado com sucesso');
+      }
+
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError(editingId ? 'Erro ao atualizar perfil' : 'Erro ao cadastrar perfil');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const setField = <K extends keyof FormPerfil>(field: K, value: FormPerfil[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <>
+      <PageHeader
+        title='Perfis'
+        subtitle='Gerencie os perfis de acesso dos usuários do sistema'
+      />
+      <PageContent>
+        <Card title='Filtros' height='fit'>
+          <div className={styles.inputContainers}>
+            <TextField
+              sx={{ flex: 1, minWidth: 300 }}
+              label='Nome'
+              variant='outlined'
+              value={nomeInput}
+              onChange={(e) => setNomeInput(e.target.value)}
+            />
+          </div>
+          <div className={styles.cardButtons}>
+            <Button variant='secondary' onClick={limparFiltros}>
+              Limpar Filtros
+            </Button>
+          </div>
+        </Card>
+
+        <Card title='Perfis Cadastrados' create={abrirCriacaoModal}>
+          {loading ? (
+            <div className={styles.loading}>
+              <CircularProgress size={50} />
+              <span>Carregando...</span>
+            </div>
+          ) : (
+            <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
+              <Table stickyHeader size='small'>
+                <TableHead>
+                  <TableRow>
+                    {['Nome', 'Descrição', 'Criado em'].map((label) => (
+                      <TableCell key={label}>{label}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow
+                      hover
+                      key={row.id}
+                      onClick={() => abrirEdicaoModal(row)}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell>{row.nome}</TableCell>
+                      <TableCell>{row.descricao ?? '—'}</TableCell>
+                      <TableCell>
+                        {row.created_at
+                          ? new Date(row.created_at).toLocaleDateString('pt-BR')
+                          : '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component='div'
+            count={rowCount}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            labelRowsPerPage='Resultados por página'
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(+e.target.value);
+              setPage(0);
+            }}
+          />
+        </Card>
+      </PageContent>
+
+      <Modal
+        title={editingId ? 'Editar Perfil' : 'Novo Perfil'}
+        subtitle={editingId ? form.nome : 'Preencha os dados do novo perfil'}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <div className={styles.formModal}>
+          <p className={styles.sectionTitle}>Identificação</p>
+          <hr className={styles.divider} />
+          <div className={styles.formRow}>
+            <TextField
+              sx={{ flex: 1, minWidth: 260 }}
+              label='Nome'
+              required
+              value={form.nome}
+              onChange={(e) => setField('nome', e.target.value)}
+              slotProps={{ htmlInput: { maxLength: 50 } }}
+              helperText={`${form.nome.length}/50`}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <TextField
+              sx={{ flex: 1, minWidth: 260 }}
+              label='Descrição'
+              multiline
+              minRows={3}
+              value={form.descricao}
+              onChange={(e) => setField('descricao', e.target.value)}
+              helperText='Opcional — descreva as permissões ou finalidade deste perfil'
+            />
+          </div>
+
+          <div className={styles.formActions}>
+            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant='primary' onClick={salvarPerfil}>
+              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Perfil'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
