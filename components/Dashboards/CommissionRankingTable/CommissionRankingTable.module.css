@@ -1,0 +1,141 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--card-bg);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-lg);
+  color: var(--foreground);
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+}
+
+.tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  border-radius: var(--radius-sm);
+  transition: color var(--t-base), background-color var(--t-base);
+}
+
+.tab:hover {
+  color: var(--foreground);
+  background-color: var(--card-bg);
+}
+
+.activeTab {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+/* TABLE */
+.tableWrapper {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--table-head-bg);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.table thead th {
+  padding: var(--space-2) var(--space-3);
+  text-align: right;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--table-head-fg);
+  white-space: nowrap;
+}
+
+.table thead th.rankCol,
+.table thead th.nameCol {
+  text-align: left;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color var(--t-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody td {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-align: right;
+  color: var(--table-row-fg);
+  white-space: nowrap;
+}
+
+/* COLUMN OVERRIDES */
+.table tbody td.rankCol {
+  text-align: left;
+}
+
+.table tbody td.nameCol {
+  text-align: left;
+  font-weight: var(--w-bold);
+  font-size: var(--fs-sm);
+}
+
+.table tbody td.faturado   { color: var(--blue-light); }
+.table tbody td.aFaturar   { color: var(--pink-light); }
+.table tbody td.ajudaCusto { color: var(--yellow-light); }
+.table tbody td.comissao   { color: var(--green); }
+.table tbody td.bloqueado  { color: var(--red-light); }
