@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import menuItems, { MenuItem } from "./MenuItem/MenuItem";
 import iconMap from "./MenuItem/iconMap";
+import Image from "next/image";
 
 const containerClass: Partial<Record<number, string>> = {
   1: styles.submenu,
@@ -157,7 +158,7 @@ const Menu = () => {
     <aside className={isMinimized ? styles.minimized : styles.expanded}>
       <div className={styles.logo}>
         <Link href="/" className={styles.link}>
-          <img src="./logo.png" alt="Aços Vital" className={isMinimized ? styles.hidden : styles.logoImg} />
+          <Image  src="/logo.png" alt="Aços Vital" height={30} width={138} className={isMinimized ? styles.hidden : styles.logoImg} />
         </Link>
         <GiHamburgerMenu
           className={styles.hamburger}

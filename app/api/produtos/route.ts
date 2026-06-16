@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = request.nextUrl;
-    const params = new URLSearchParams();
-
-    ['page', 'limit', 'fornecedor', 'familia', 'descricao',].forEach((key) => {
-        const value = searchParams.get(key);
-        if (value !== null) params.set(key, value);
-    });
     try {
+        const { searchParams } = request.nextUrl;
+        const params = new URLSearchParams();
+
+        ['page', 'limit', 'fornecedor', 'familia', 'descricao',].forEach((key) => {
+            const value = searchParams.get(key);
+            if (value !== null) params.set(key, value);
+        });
         const response = await fetch(
             `${process.env.API_URL}/catalogo_de_produtos?${params}`,
             {
