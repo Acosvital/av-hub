@@ -29,7 +29,7 @@ import { getPermissoes, criarPermissao, editarPermissao } from '@/app/api/servic
 import { FormPermissao, PermissaoProps } from './types';
 
 interface PerfilRef { id: string; nome: string; }
-interface TelaRef { id: string; nome: string; }
+interface TelaRef { id: string; id_parent: 'string' | null; nome: string; }
 
 const FORM_INICIAL: FormPermissao = {
   id_perfil: '',

@@ -126,10 +126,11 @@
     cursor: pointer;
     transition: all var(--t-base);
     padding-left: var(--space-7);
+    
 }
 
 .submenuItem:hover {
-    background-color: var(--av-secondary);
+    background-color: color-mix(in srgb, var(--av-secondary) 80%, black)
 }
 
 .submenuItemExpandable {
@@ -141,7 +142,7 @@
 
 .submenuItemSelected {
     border-left: 2px solid var(--av-accent);
-    background-color: var(--av-secondary);
+    background-color: color-mix(in srgb, var(--av-secondary) 80%, black)
 }
 
 .subsubmenu {
@@ -163,7 +164,7 @@
 }
 
 .subsubmenuItem:hover {
-    background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
+    background-color: color-mix(in srgb, var(--av-secondary) 70%, black);
 }
 
 .hidden {
