@@ -90,5 +90,13 @@ export const componentOverrides: Components<Theme> = {
         fontSize: 'var(--fs-sm)',
       },
     },
-  }
+  },
+  MuiFormHelperText: {
+    styleOverrides: {
+      root: {
+        color: 'var(--foreground)',
+        fontFamily: 'var(--font-sans)',
+      },
+    },
+  },
 }

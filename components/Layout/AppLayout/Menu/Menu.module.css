@@ -34,7 +34,6 @@
 .logoImg {
     display: flex;
     height: 30px;
-    /* width: auto; */
     margin: var(--space-2) 0;
 }
 
