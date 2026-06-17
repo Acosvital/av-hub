@@ -28,8 +28,8 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getUsuarios, criarUsuario, editarUsuario } from '@/app/api/services/usuarios';
-import { getCargos, getSetores, getUnidades } from '@/app/api/services/referenciais';
+import { getUsuarios, criarUsuario, editarUsuario } from '@/services/usuarios';
+import { getCargos, getSetores, getUnidades } from '@/services/referenciais';
 import {
   CargoProps,
   FormUsuario,

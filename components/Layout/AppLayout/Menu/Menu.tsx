@@ -131,8 +131,10 @@ const MenuNode = ({
 const Menu = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const session = useSession();
-  const menuRole = menuItems[(session.data?.user?.role as keyof typeof menuItems) || 'vendedor'];
+  const { data: sessionData, status } = useSession();
+  const menuRole = status === 'loading'
+    ? []
+    : menuItems[(sessionData?.user?.role as keyof typeof menuItems) || 'vendedor'];
 
 
   // função de expansão do menu quando é "raiz - primeiro nivel"

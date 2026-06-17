@@ -18,7 +18,7 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { ParceirosProps } from './types';
-import { getTodosFornecedores } from '@/app/api/services/todosFornecedores';
+import { getTodosFornecedores } from '@/services/todosFornecedores';
 
 export default function CatalogoDeProdutos() {
   //States utilitarios

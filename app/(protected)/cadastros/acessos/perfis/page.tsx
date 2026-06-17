@@ -17,7 +17,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getPerfis, criarPerfil, editarPerfil } from '@/app/api/services/perfis';
+import { getPerfis, criarPerfil, editarPerfil } from '@/services/perfis';
 import { FormPerfil, PerfilProps } from './types';
 
 const FORM_INICIAL: FormPerfil = {

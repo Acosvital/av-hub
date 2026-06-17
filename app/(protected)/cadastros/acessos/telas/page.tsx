@@ -28,7 +28,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getTelas, criarTela, editarTela } from '@/app/api/services/telas';
+import { getTelas, criarTela, editarTela } from '@/services/telas';
 import { FormTela, TelaProps } from './types';
 
 const FORM_INICIAL: FormTela = {
