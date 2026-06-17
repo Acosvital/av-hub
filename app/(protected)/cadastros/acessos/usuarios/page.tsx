@@ -108,9 +108,6 @@ export default function Usuarios() {
           getSetores(),
           getUnidades(),
         ]);
-        console.log('cargosData', cargosData)
-        console.log('setoresData', setoresData)
-        console.log('unidadesData', unidadesData)
         setCargos(cargosData.cargos ?? []);
         setSetores(setoresData.setores ?? []);
         setUnidades(unidadesData.unidades ?? []);
