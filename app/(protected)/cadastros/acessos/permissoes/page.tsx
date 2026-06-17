@@ -23,13 +23,13 @@ import Button from '@/components/Ui/Button/Button';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
-import { getPerfis } from '@/app/api/services/perfis';
-import { getTelas } from '@/app/api/services/telas';
-import { getPermissoes, criarPermissao, editarPermissao } from '@/app/api/services/permissoes';
+import { getPerfis } from '@/services/perfis';
+import { getTelas } from '@/services/telas';
+import { getPermissoes, criarPermissao, editarPermissao } from '@/services/permissoes';
 import { FormPermissao, PermissaoProps } from './types';
 
 interface PerfilRef { id: string; nome: string; }
-interface TelaRef { id: string; nome: string; }
+interface TelaRef { id: string; id_parent: 'string' | null; nome: string; }
 
 const FORM_INICIAL: FormPermissao = {
   id_perfil: '',

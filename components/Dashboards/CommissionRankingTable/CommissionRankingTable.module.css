@@ -9,6 +9,7 @@
   box-shadow: var(--shadow-card);
   height: 100%;
   overflow: hidden;
+  font-family: var(--font-sans);
 }
 
 /* HEADER */

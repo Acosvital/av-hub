@@ -9,6 +9,7 @@
   grid-template-rows: repeat(2, 1fr);
   gap: var(--space-3);
   height: 100%;
+  font-family: var(--font-sans);
 }
 
 .kpiCard {

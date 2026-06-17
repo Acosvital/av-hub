@@ -16,14 +16,14 @@ import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import AppLineChart from '@/components/Charts/AppLineChart/AppLineChart';
 import { notify } from '@/lib/toast/toast';
-import { getProdutos } from '@/app/api/services/produtos';
-import { getFamilias } from '@/app/api/services/familias';
-import { getFornecedores } from '@/app/api/services/fornecedores';
+import { getProdutos } from '@/services/produtos';
+import { getFamilias } from '@/services/familias';
+import { getFornecedores } from '@/services/fornecedores';
 import { FamiliaProdutosProps, FornecedorProps, PriceHistoryProps, PriceProps, ProdutoProps } from './types';
 import { useDebounce } from '@/hooks/useDebouncer';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
-import { getPriceHistory } from '@/app/api/services/historicoPrecos';
+import { getPriceHistory } from '@/services/historicoPrecos';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 

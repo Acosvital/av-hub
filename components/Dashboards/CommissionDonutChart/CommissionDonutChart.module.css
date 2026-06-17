@@ -10,6 +10,7 @@
   padding: var(--space-4);
   gap: var(--space-3);
   overflow: hidden;
+  font-family: var(--font-sans);
 }
 
 .title {
