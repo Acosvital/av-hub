@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await request.json();
-
-    const response = await fetch(`${process.env.API_URL}/usuarios/${params.id}`, {
-      method: 'PATCH',
+    const response = await fetch(`${process.env.API_URL}/usuarios/${id}`, {
+      method: 'PUT',
       headers: {
         'x-api-key': process.env.API_KEY!,
         'Content-Type': 'application/json',
