@@ -65,35 +65,44 @@ const CommissionRankingTable = ({ vendors, managers }: CommissionRankingTablePro
           </button>
         </div>
       </div>
+      <div className={styles.largeScreen}>
+        <div className={`${styles.gridRow} ${styles.tableHead}`}>
+          <div className={styles.rankCol}>Rank</div>
+          <div className={styles.nameCol}>Nome do Vendedor</div>
+          <div>Faturado</div>
+          <div>A Faturar</div>
+          <div>Ajuda Custo</div>
+          <div>Comissão</div>
+          <div>Bloqueado</div>
+          <div>Total</div>
+        </div>
 
-      <div className={`${styles.gridRow} ${styles.tableHead}`}>
-        <div className={styles.rankCol}>Rank</div>
-        <div className={styles.nameCol}>Nome do Vendedor</div>
-        <div>Faturado</div>
-        <div>A Faturar</div>
-        <div>Ajuda Custo</div>
-        <div>Comissão</div>
-        <div>Bloqueado</div>
-        <div>Total</div>
-      </div>
+        <div className={styles.fixedSection}>
+          {top3.map((row) => <Row key={row.rank} row={row} />)}
+        </div>
 
-      <div className={styles.fixedSection}>
-        {top3.map((row) => <Row key={row.rank} row={row} />)}
-      </div>
-
-      <div className={styles.scrollSection}>
-        <div
-          className={otherRows.length > 6 ? styles.autoScroll : ''}
-          style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-        >
-          <div className={styles.rowGroup}>
-            {otherRows.map((row) => <Row key={row.rank} row={row} />)}
+        <div className={styles.scrollSection}>
+          <div
+            className={otherRows.length > 6 ? styles.autoScroll : ''}
+            style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+          >
+            <div className={styles.rowGroup}>
+              {otherRows.map((row) => <Row key={row.rank} row={row} />)}
+            </div>
+            <div className={styles.rowGroup} aria-hidden="true">
+              {otherRows.length > 6 && otherRows.map((row) => (
+                <Row key={`${row.rank}-clone`} row={row} />
+              ))}
+            </div>
           </div>
-          <div className={styles.rowGroup} aria-hidden="true">
-            {otherRows.length > 6 && otherRows.map((row) => (
-              <Row key={`${row.rank}-clone`} row={row} />
-            ))}
+        </div>
+      </div>
+      <div className={styles.mobile}>
+        <div className={styles.vendorCard}>
+          <div className={styles.cardHeader}>
+
           </div>
+              {/* {vendors[0].r} */}
         </div>
       </div>
     </div>
