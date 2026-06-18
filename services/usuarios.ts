@@ -39,3 +39,8 @@ export async function editarUsuario(id: string, data: object) {
   if (!res.ok) throw new Error('Erro ao atualizar usuário');
   return res.json();
 }
+
+export async function deletarUsuario(id: string) {
+  const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Erro ao deletar usuário');
+}

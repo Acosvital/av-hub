@@ -27,8 +27,9 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getUsuarios, criarUsuario, editarUsuario } from '@/services/usuarios';
+import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/usuarios';
 import { FormUsuario, UsuarioProps } from './types';
+import Dialog from '@/components/Ui/Dialog/Dialog';
 
 const FORM_INICIAL: FormUsuario = {
   username: '',
@@ -42,6 +43,8 @@ const FORM_INICIAL: FormUsuario = {
 export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -164,6 +167,23 @@ export default function Usuarios() {
       setError(editingId ? 'Erro ao atualizar usuário' : 'Erro ao cadastrar usuário');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const excluirUsuario = async () => {
+    if (!editingId) return;
+    try {
+      setDeleting(true);
+      await deletarUsuario(editingId);
+      notify.success('Usuário excluído com sucesso');
+      setIsDeleteDialogOpen(false);
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao excluir usuário');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -365,16 +385,34 @@ export default function Usuarios() {
             />
           </div>
 
-          <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant='primary' onClick={salvarUsuario}>
-              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
-            </Button>
+          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+            {editingId && (
+              <Button variant='danger' onClick={() => setIsDeleteDialogOpen(true)}>
+                Excluir Usuário
+              </Button>
+            )}
+            <div className={styles.formActionsMain}>
+              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant='primary' onClick={salvarUsuario}>
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
+      <Dialog
+        title='Excluir Usuário'
+        isLoading={deleting}
+        onConfirm={excluirUsuario}
+        isOpen={isDeleteDialogOpen}
+        message='Tem certeza que deseja excluir o usuário? Esta ação não pode ser desfeita.'
+        onClose={() => setIsDeleteDialogOpen(false)}
+        confirmLabel='Excluir'
+        loadingLabel='Excluindo...'
+        confirmVariant='danger'
+      />
     </>
   );
 }
