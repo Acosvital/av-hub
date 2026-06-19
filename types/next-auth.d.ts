@@ -16,6 +16,8 @@ declare module 'next-auth' {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      role: string;
+      authProvider: 'azure' | 'credentials';
       perfis: string[];
       permissoes: PermissaoToken[];
     };
@@ -25,6 +27,9 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id_usuario?: string;
+    role?: string;
+    authProvider?: 'azure' | 'credentials';
+    userType?: string;
     perfis?: string[];
     permissoes?: PermissaoToken[];
   }

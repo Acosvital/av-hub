@@ -66,6 +66,23 @@
     height: var(--space-5);
 }
 
+.divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: var(--space-3);
+    color: var(--text-light);
+    font-size: var(--fs-xs);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
 .loginInfo {
     font-size: var(--fs-xs);
     color: var(--text-light);

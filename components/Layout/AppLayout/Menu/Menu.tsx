@@ -2,10 +2,10 @@
 import styles from "./Menu.module.css";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdExpandMore } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import menuItems, { MenuItem } from "./MenuItem/MenuItem";
+import type { MenuItem } from "./MenuItem/MenuItem";
 import iconMap from "./MenuItem/iconMap";
 import Image from "next/image";
 
@@ -42,7 +42,7 @@ const MenuNode = ({
 }: MenuNodeProps) => {
   const isExpanded = expandedItems.has(path);
   const hasChildren = !!item.submenu?.length;
-  // Se depth === 0, significa que é raiz do menu, ou seja: possui ícone
+
   if (depth === 0) {
     return (
       <li className={styles.menuWrapper}>
@@ -61,7 +61,6 @@ const MenuNode = ({
             />
           )}
         </div>
-        {/* chama o MenuNode recursivamente, mudando o depth e incrementando o path */}
         {hasChildren && isExpanded && !isMinimized && (
           <ul className={styles.submenu}>
             {item.submenu!.map((child) => (
@@ -86,7 +85,6 @@ const MenuNode = ({
   const cssItem = itemClass[depth] ?? styles.subsubmenuItem;
   const cssContainer = containerClass[depth + 1] ?? styles.subsubmenu;
 
-  {/* se possui filho, adiciona o icone de expand*/ }
   if (hasChildren) {
     return (
       <li>
@@ -99,7 +97,6 @@ const MenuNode = ({
             className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ""}`}
           />
         </div>
-        {/* chama o MenuNode recursivamente, mudando o depth e incrementando o path */}
         {isExpanded && (
           <ul className={cssContainer}>
             {item.submenu!.map((child) => (
@@ -120,7 +117,7 @@ const MenuNode = ({
       </li>
     );
   }
-  // Condição de parada da recursão: chegar no Link --> depht !== 0 e !hasChildren
+
   return (
     <Link href={`/${path}`} className={styles.link}>
       <li className={cssItem}>{item.label}</li>
@@ -131,13 +128,21 @@ const MenuNode = ({
 const Menu = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const { data: sessionData, status } = useSession();
-  const menuRole = status === 'loading'
-    ? []
-    : menuItems[(sessionData?.user?.role as keyof typeof menuItems) || 'vendedor'];
+  const [menuData, setMenuData] = useState<MenuItem[]>([]);
+  const { status } = useSession();
 
+  useEffect(() => {
+    if (status !== "authenticated") return;
 
-  // função de expansão do menu quando é "raiz - primeiro nivel"
+    fetch("/api/menu")
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then(setMenuData)
+      .catch(() => setMenuData([]));
+  }, [status]);
+
   const onRootExpand = (key: string) => {
     setExpandedItems((prev) => {
       if (prev.has(key)) {
@@ -146,7 +151,7 @@ const Menu = () => {
       return new Set([key]);
     });
   };
-  // função de expansão do menu para os demais niveis
+
   const toggleItem = (key: string) => {
     setExpandedItems((prev) => {
       if (prev.has(key)) {
@@ -160,7 +165,7 @@ const Menu = () => {
     <aside className={isMinimized ? styles.minimized : styles.expanded}>
       <div className={styles.logo}>
         <Link href="/" className={styles.link}>
-          <Image  src="/logo.png" alt="Aços Vital" height={30} width={138} className={isMinimized ? styles.hidden : styles.logoImg} />
+          <Image src="/logo.png" alt="Aços Vital" height={30} width={138} className={isMinimized ? styles.hidden : styles.logoImg} />
         </Link>
         <GiHamburgerMenu
           className={styles.hamburger}
@@ -169,7 +174,7 @@ const Menu = () => {
         />
       </div>
       <ul className={styles.menuContainer}>
-        {menuRole.map((item) => (
+        {menuData.map((item: MenuItem) => (
           <MenuNode
             key={item.id}
             item={item}

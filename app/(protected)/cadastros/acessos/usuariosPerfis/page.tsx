@@ -21,7 +21,7 @@ import { getPerfis } from '@/services/perfis';
 import { getUsuariosPerfis, criarUsuarioPerfil, deletarUsuarioPerfil } from '@/services/usuariosPerfis';
 import { FormUsuarioPerfil, UsuarioPerfilProps } from './types';
 
-interface UsuarioRef { id: string; nome_completo: string; }
+interface UsuarioRef { id: string; username: string; }
 interface PerfilRef { id: string; nome: string; }
 
 const FORM_INICIAL: FormUsuarioPerfil = {
@@ -83,7 +83,8 @@ export default function UsuariosPerfis() {
           id_usuario: usuarioFiltro?.id,
           id_perfil: perfilFiltro?.id,
         });
-        setRows(response.vinculos ?? []);
+        console.log(response)
+        setRows(response.data ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
         console.error(err);
@@ -168,7 +169,7 @@ export default function UsuariosPerfis() {
   };
 
   const getUsuarioNome = (row: UsuarioPerfilProps) =>
-    row.usuario_nome ?? allUsuarios.find((u) => u.id === row.id_usuario)?.nome_completo ?? '—';
+    row.usuario_nome ?? allUsuarios.find((u) => u.id === row.id_usuario)?.username ?? '—';
 
   const getPerfilNome = (row: UsuarioPerfilProps) =>
     row.perfil_nome ?? allPerfis.find((p) => p.id === row.id_perfil)?.nome ?? '—';
@@ -185,7 +186,7 @@ export default function UsuariosPerfis() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={allUsuarios}
-              getOptionLabel={(u) => u.nome_completo}
+              getOptionLabel={(u) => u.username}
               value={usuarioFiltro}
               onChange={(_, v) => {
                 setUsuarioFiltro(v);
@@ -235,10 +236,10 @@ export default function UsuariosPerfis() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
+                  {rows.map((row,key) => (
                     <TableRow
                       hover
-                      key={row.id}
+                      key={key}
                       onClick={() => abrirEdicaoModal(row)}
                       sx={{ cursor: 'pointer' }}
                     >
@@ -276,7 +277,7 @@ export default function UsuariosPerfis() {
         title={editingId ? 'Detalhes do Vínculo' : 'Novo Vínculo'}
         subtitle={
           editingId && usuarioSelecionado && perfilSelecionado
-            ? `${usuarioSelecionado.nome_completo} — ${perfilSelecionado.nome}`
+            ? `${usuarioSelecionado.username} — ${perfilSelecionado.nome}`
             : 'Associe um perfil de acesso ao usuário'
         }
         isOpen={isModalOpen}
@@ -289,7 +290,7 @@ export default function UsuariosPerfis() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={allUsuarios}
-              getOptionLabel={(u) => u.nome_completo}
+              getOptionLabel={(u) => u.username}
               value={usuarioSelecionado}
               onChange={(_, v) => {
                 setUsuarioSelecionado(v);

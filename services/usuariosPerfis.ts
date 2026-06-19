@@ -13,13 +13,13 @@ export async function getUsuariosPerfis(params: GetUsuariosPerfisParams = {}) {
   if (params.id_usuario) query.set('id_usuario', params.id_usuario);
   if (params.id_perfil) query.set('id_perfil', params.id_perfil);
 
-  const res = await fetch(`/api/usuarios-perfis?${query}`);
+  const res = await fetch(`/api/usuariosPerfis?${query}`);
   if (!res.ok) throw new Error('Erro ao buscar vínculos de usuário e perfil');
   return res.json();
 }
 
 export async function criarUsuarioPerfil(data: object) {
-  const res = await fetch('/api/usuarios-perfis', {
+  const res = await fetch('/api/usuariosPerfis', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -29,7 +29,7 @@ export async function criarUsuarioPerfil(data: object) {
 }
 
 export async function deletarUsuarioPerfil(id: string) {
-  const res = await fetch(`/api/usuarios-perfis/${id}`, {
+  const res = await fetch(`/api/usuariosPerfis/${id}`, {
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Erro ao remover vínculo');
