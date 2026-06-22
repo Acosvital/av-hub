@@ -36,6 +36,41 @@ const Row = ({ row }: { row: CommissionRow }) => (
   </div>
 );
 
+const MobileCard = ({ row }: { row: CommissionRow }) => (
+  <div className={styles.mobileCard}>
+    <div className={styles.mobileCardHeader}>
+      <RankingBadge rank={row.rank} />
+      <span className={styles.mobileCardName}>{row.name}</span>
+    </div>
+    <div className={styles.mobileCardBody}>
+      <div className={styles.mobileField}>
+        <span className={styles.mobileFieldLabel}>Faturado</span>
+        <span className={`${styles.mobileFieldValue} ${styles.faturado}`}>{formatValue(row.faturado)}</span>
+      </div>
+      <div className={styles.mobileField}>
+        <span className={styles.mobileFieldLabel}>A Faturar</span>
+        <span className={`${styles.mobileFieldValue} ${styles.aFaturar}`}>{formatValue(row.aFaturar)}</span>
+      </div>
+      <div className={styles.mobileField}>
+        <span className={styles.mobileFieldLabel}>Comissão</span>
+        <span className={`${styles.mobileFieldValue} ${styles.comissao}`}>{formatValue(row.comissao)}</span>
+      </div>
+      <div className={styles.mobileField}>
+        <span className={styles.mobileFieldLabel}>Bloqueado</span>
+        <span className={`${styles.mobileFieldValue} ${styles.bloqueado}`}>{formatValue(row.bloqueado)}</span>
+      </div>
+      <div className={`${styles.mobileField} ${styles.mobileFieldFull}`}>
+        <span className={styles.mobileFieldLabel}>Ajuda de Custo</span>
+        <span className={`${styles.mobileFieldValue} ${styles.ajudaCusto}`}>{toBRL(row.ajudaCusto)}</span>
+      </div>
+      <div className={`${styles.mobileField} ${styles.mobileFieldFull} ${styles.mobileFieldTotal}`}>
+        <span className={styles.mobileFieldLabel}>Total</span>
+        <span className={`${styles.mobileFieldValue} ${styles.total}`}>{toBRL(row.total)}</span>
+      </div>
+    </div>
+  </div>
+);
+
 const CommissionRankingTable = ({ vendors, managers }: CommissionRankingTableProps) => {
   const [activeTab, setActiveTab] = useState<'vendedores' | 'gerencia'>('vendedores');
   const rows = activeTab === 'vendedores' ? vendors : managers;
@@ -98,12 +133,7 @@ const CommissionRankingTable = ({ vendors, managers }: CommissionRankingTablePro
         </div>
       </div>
       <div className={styles.mobile}>
-        <div className={styles.vendorCard}>
-          <div className={styles.cardHeader}>
-
-          </div>
-              {/* {vendors[0].r} */}
-        </div>
+        {rows.map((row) => <MobileCard key={row.rank} row={row} />)}
       </div>
     </div>
   );

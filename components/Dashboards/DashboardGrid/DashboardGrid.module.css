@@ -11,8 +11,8 @@
 
 @media screen and (max-width: 768px) {
   .dashboardGridLayout {
-    height: 100%;
-    grid-auto-rows: calc((100dvh - var(--header-h) - 7 * var(--space-4)) / 6, auto);
-    overflow: auto;
+    height: auto;
+    grid-auto-rows: auto;
+    overflow: visible;
   }
 }

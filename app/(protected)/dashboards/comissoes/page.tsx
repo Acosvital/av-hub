@@ -51,7 +51,7 @@ export default function Comissoes() {
   return (
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
-        <DashboardWidget cols={4} rows={2}>
+        <DashboardWidget cols={4} rows={2} mobileOrder={1}>
           <div className={styles.kpiGrid}>
             {kpiCards.map((kpi) => (
               <div key={kpi.label} className={styles.kpiCard}>
@@ -63,10 +63,10 @@ export default function Comissoes() {
             ))}
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={8} rows={6}>
+        <DashboardWidget cols={8} rows={6} mobileOrder={3}>
           <CommissionRankingTable vendors={vendors} managers={managers} />
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={4}>
+        <DashboardWidget cols={4} rows={4} mobileOrder={2}>
           <CommissionDonutChart data={donutData} total={total} />
         </DashboardWidget>
       </DashboardGrid>
