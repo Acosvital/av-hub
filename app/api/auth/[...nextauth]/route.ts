@@ -67,7 +67,7 @@ export const authOptions: AuthOptions = {
           );
           if (res.ok) {
             const data = await res.json();
-            const usuario = Array.isArray(data) ? data[0] : data?.data?.[0];
+            const usuario = Array.isArray(data) ? data[0] : (data?.usuarios?.[0] ?? data?.data?.[0]);
             if (usuario?.id) token.id_usuario = usuario.id;
           }
         } catch {
