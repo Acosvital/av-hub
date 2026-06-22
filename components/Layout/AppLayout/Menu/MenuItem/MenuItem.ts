@@ -7,3 +7,13 @@ export interface MenuItem {
   pode_deletar?: boolean;
   submenu?: MenuItem[];
 }
+
+export interface UserSession {
+  usuario: {
+    id: string;
+    email: string;
+    username: string;
+    avatar_url: string | null;
+  },
+  menu: MenuItem[];
+}

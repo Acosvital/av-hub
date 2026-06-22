@@ -1,33 +1,38 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { MenuItem } from "@/components/Layout/AppLayout/Menu/MenuItem/MenuItem";
+import type { MenuItem, UserSession } from "@/components/Layout/AppLayout/Menu/MenuItem/MenuItem";
 
 async function findUserByEmail(email: string): Promise<string | null> {
   try {
-    const res = await fetch(
-      `${process.env.API_URL}/usuarios?email=${encodeURIComponent(email)}`,
-      { headers: { "x-api-key": process.env.API_KEY || "" } }
-    );
+    const res = await fetch(`${process.env.API_URL}/autenticacao/azure`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.API_KEY!,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email
+      })
+    });
     if (!res.ok) return null;
     const data = await res.json();
-    const usuario = Array.isArray(data) ? data[0] : (data?.usuarios?.[0] ?? data?.data?.[0]);
-    return usuario?.id ?? null;
+    return data.id ?? null;
   } catch {
     return null;
   }
 }
 
-async function fetchMenu(id_usuario: string): Promise<MenuItem[]> {
+async function fetchMenu(id_usuario: string): Promise<UserSession | null> {
   try {
     const res = await fetch(
       `${process.env.API_URL}/permissoes_usuario/menu/${id_usuario}`,
       { headers: { "x-api-key": process.env.API_KEY || "" } }
     );
-    if (!res.ok) return [];
+    if (!res.ok) return null;
     return await res.json();
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -53,7 +58,7 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const res = await fetch(`${process.env.API_URL}/auth/login`, {
+          const res = await fetch(`${process.env.API_URL}/autenticacao/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -61,7 +66,7 @@ export const authOptions: AuthOptions = {
             },
             body: JSON.stringify({
               email: credentials.email,
-              password: credentials.password,
+              senha: credentials.password,
             }),
           });
 
@@ -69,7 +74,6 @@ export const authOptions: AuthOptions = {
 
           return await res.json();
         } catch {
-          console.log("erro")
           return null;
         }
       },
@@ -84,15 +88,21 @@ export const authOptions: AuthOptions = {
         token.authProvider = "azure";
         const id_usuario = await findUserByEmail(token.email ?? "");
         if (id_usuario) {
+          const userSession = await fetchMenu(id_usuario);
           token.id_usuario = id_usuario;
-          token.menu = await fetchMenu(id_usuario);
+          token.name = userSession?.usuario.username ?? token.name;
+          token.picture = userSession?.usuario.avatar_url ?? token.picture;
+          token.menu = userSession?.menu ?? [];
         }
       }
 
       if (account?.provider === "credentials" && user) {
         token.authProvider = "credentials";
         token.id_usuario = user.id;
-        token.menu = await fetchMenu(user.id);
+        const userSession = await fetchMenu(user.id);
+        token.name = userSession?.usuario.username ?? token.name;
+        token.picture = userSession?.usuario.avatar_url ?? token.picture;
+        token.menu = userSession?.menu ?? [];
       }
 
       return token;

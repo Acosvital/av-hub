@@ -20,8 +20,8 @@ export async function GET() {
 
     if (!res.ok) throw new Error("Erro ao buscar menu");
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    const data: { menu?: unknown[] } = await res.json();
+    return NextResponse.json(data.menu ?? []);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
