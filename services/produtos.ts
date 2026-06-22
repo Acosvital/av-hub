@@ -1,3 +1,5 @@
+import { apiFetch } from '@/lib/api/fetchHelper';
+
 interface GetProdutosParams {
   page?: number;
   limit?: number;
@@ -13,11 +15,5 @@ export async function getProdutos(params: GetProdutosParams = {}) {
   if (params.fornecedor) query.set('fornecedor', String(params.fornecedor));
   if (params.familia) query.set('familia', String(params.familia));
   if (params.descricao) query.set('descricao', String(params.descricao));
-  const res = await fetch(`/api/produtos?${query}`);
-
-  if (!res.ok) {
-    throw new Error('Erro ao buscar produtos');
-  }
-
-  return res.json();
+  return apiFetch(`/api/produtos?${query}`, 'Erro ao buscar produtos');
 }
