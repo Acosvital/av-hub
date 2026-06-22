@@ -6,8 +6,33 @@ import Button from '@/components/Ui/Button/Button';
 import { useState } from 'react';
 
 export default function Login() {
-  const [login, setLogin] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleCredentialsLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+
+    setLoading(true);
+    setError('');
+
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (!result?.ok) {
+      setError('Email ou senha inválidos.');
+      setLoading(false);
+      return;
+    }
+
+    window.location.href = '/';
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -16,16 +41,18 @@ export default function Login() {
           <h1 className={styles.title}>Bem vindo ao Aços Hub</h1>
           <h2 className={styles.subTitle}>Acesse sua conta corporativa para continuar</h2>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%' }}>
+
+        <form
+          onSubmit={handleCredentialsLogin}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%' }}
+        >
           <TextField
-            label="Login"
+            label="Email"
             variant="outlined"
             type='email'
-            value={login}
-            onChange={(e) => { setLogin(e.target.value) }}
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
             sx={{
               '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
               '& .MuiInputLabel-root': { color: 'var(--white)' },
@@ -37,18 +64,28 @@ export default function Login() {
             variant="outlined"
             type='password'
             value={password}
-            onChange={(e) => { setPassword(e.target.value) }}
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
+            onChange={(e) => setPassword(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
             sx={{
               '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
               '& .MuiInputLabel-root': { color: 'var(--white)' },
               '& .MuiInputLabel-animated': { backgroundColor: 'transparent' }
             }}
           />
-          <Button>Entrar</Button>
+          {error && (
+            <p style={{ color: 'var(--error, #f87171)', fontSize: 'var(--fs-sm)', margin: 0 }}>
+              {error}
+            </p>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Button>
+        </form>
+
+        <div className={styles.divider}>
+          <span>ou</span>
         </div>
+
         <button
           className={styles.loginButton}
           onClick={() => signIn("azure-ad", { prompt: "select_account", callbackUrl: "/" })}
@@ -62,6 +99,7 @@ export default function Login() {
           </svg>
           <span>Entrar com Microsoft</span>
         </button>
+
         <p className={styles.loginInfo}>
           Ao entrar, você concorda que o processamento de dados segue os padrões de conformidade do
           <span> Aços Hub</span>.

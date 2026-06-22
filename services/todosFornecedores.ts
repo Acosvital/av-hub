@@ -1,7 +1,8 @@
+import { apiFetch } from '@/lib/api/fetchHelper';
+
 export async function getTodosFornecedores(nome: string = '') {
-  const res = await fetch(`/api/parceiros/todosFornecedores?nome_fantasia=${nome}`);
-  if (!res.ok) {
-    throw new Error('Erro ao buscar todos fornecedores');
-  }
-  return res.json();
+  return apiFetch(
+    `/api/parceiros/todosFornecedores?nome_fantasia=${nome}`,
+    'Erro ao buscar todos os fornecedores'
+  );
 }

@@ -5,13 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'id_perfil', 'id_tela'].forEach((key) => {
+    ['page', 'limit', 'id_usuario', 'id_perfil'].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });
     const data = await apiFetch(
-      `${process.env.API_URL}/permissoes?${params}`,
-      'Erro ao buscar permissões',
+      `${process.env.API_URL}/usuarios_perfis?${params}`,
+      'Erro ao buscar vínculos de usuário e perfil',
       { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
     );
     return NextResponse.json(data);
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const data = await apiFetch(`${process.env.API_URL}/permissoes`, 'Erro ao criar permissão', {
+    const data = await apiFetch(`${process.env.API_URL}/usuarios_perfis`, 'Erro ao criar vínculo', {
       method: 'POST',
       headers: { 'x-api-key': process.env.API_KEY!, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

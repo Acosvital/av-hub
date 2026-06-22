@@ -9,7 +9,6 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
-  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -28,49 +27,24 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getUsuarios, criarUsuario, editarUsuario } from '@/services/usuarios';
-import { getCargos, getSetores, getUnidades } from '@/services/referenciais';
-import {
-  CargoProps,
-  FormUsuario,
-  SetorProps,
-  UnidadeProps,
-  UsuarioProps,
-} from './types';
+import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/usuarios';
+import { FormUsuario, UsuarioProps } from './types';
+import Dialog from '@/components/Ui/Dialog/Dialog';
 
 const FORM_INICIAL: FormUsuario = {
-  nome_completo: '',
+  username: '',
   email: '',
   senha: '',
-  id_cargo: '',
-  id_setor: '',
-  id_unidade: '',
+  id_funcionario: '',
   avatar_url: '',
-  telefone: '',
-  celular: '',
-  homepage: '',
-  logradouro: '',
-  numero: '',
-  complemento: '',
-  bairro: '',
-  cidade: '',
-  estado: '',
-  cep: '',
-  cpf: '',
-  rg: '',
   ativo: true,
-  contrato_tipo: '',
-  jornada_trabalho: '',
-  data_nascimento: '',
-  data_admissao: '',
-  data_desligamento: '',
-  nvl_permissao: '',
-  nvl_manual: false,
 };
 
 export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -81,43 +55,17 @@ export default function Usuarios() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [nomeInput, setNomeInput] = useState('');
-  const nome = useDebounce(nomeInput, 500);
+  const [usernameInput, setUsernameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
+  const username = useDebounce(usernameInput, 500);
   const email = useDebounce(emailInput, 500);
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
-  const [cargoFiltro, setCargoFiltro] = useState<CargoProps | null>(null);
-  const [setorFiltro, setSetorFiltro] = useState<SetorProps | null>(null);
-  const [unidadeFiltro, setUnidadeFiltro] = useState<UnidadeProps | null>(null);
-
-  const [cargos, setCargos] = useState<CargoProps[]>([]);
-  const [setores, setSetores] = useState<SetorProps[]>([]);
-  const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
 
   const [form, setForm] = useState<FormUsuario>(FORM_INICIAL);
 
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
-
-  useEffect(() => {
-    async function loadReferenciais() {
-      try {
-        const [cargosData, setoresData, unidadesData] = await Promise.all([
-          getCargos(),
-          getSetores(),
-          getUnidades(),
-        ]);
-        setCargos(cargosData.cargos ?? []);
-        setSetores(setoresData.setores ?? []);
-        setUnidades(unidadesData.unidades ?? []);
-      } catch (err) {
-        console.error(err);
-        setError('Erro ao carregar dados de referência');
-      }
-    }
-    loadReferenciais();
-  }, []);
 
   useEffect(() => {
     async function fetchUsuarios() {
@@ -127,12 +75,9 @@ export default function Usuarios() {
         const response = await getUsuarios({
           page: page + 1,
           limit: rowsPerPage,
-          nome,
+          username,
           email,
           ativo,
-          id_cargo: cargoFiltro?.id,
-          id_setor: setorFiltro?.id,
-          id_unidade: unidadeFiltro?.id,
         });
         setRows(response.usuarios ?? []);
         setRowCount(response.total ?? 0);
@@ -144,15 +89,12 @@ export default function Usuarios() {
       }
     }
     fetchUsuarios();
-  }, [page, rowsPerPage, nome, email, statusFiltro, cargoFiltro, setorFiltro, unidadeFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, username, email, statusFiltro, refreshTrigger]);
 
   const limparFiltros = () => {
-    setNomeInput('');
+    setUsernameInput('');
     setEmailInput('');
     setStatusFiltro('todos');
-    setCargoFiltro(null);
-    setSetorFiltro(null);
-    setUnidadeFiltro(null);
     setPage(0);
   };
 
@@ -165,76 +107,50 @@ export default function Usuarios() {
   const abrirEdicaoModal = (usuario: UsuarioProps) => {
     setEditingId(usuario.id);
     setForm({
-      nome_completo: usuario.nome_completo,
+      username: usuario.username,
       email: usuario.email,
       senha: '',
-      id_cargo: usuario.id_cargo,
-      id_setor: usuario.id_setor,
-      id_unidade: usuario.id_unidade,
+      id_funcionario: usuario.id_funcionario ?? '',
       avatar_url: usuario.avatar_url ?? '',
-      telefone: usuario.telefone ?? '',
-      celular: usuario.celular ?? '',
-      homepage: usuario.homepage ?? '',
-      logradouro: usuario.logradouro ?? '',
-      numero: usuario.numero ?? '',
-      complemento: usuario.complemento ?? '',
-      bairro: usuario.bairro ?? '',
-      cidade: usuario.cidade ?? '',
-      estado: usuario.estado ?? '',
-      cep: usuario.cep ?? '',
-      cpf: usuario.cpf ?? '',
-      rg: usuario.rg ?? '',
       ativo: usuario.ativo,
-      contrato_tipo: usuario.contrato_tipo ?? '',
-      jornada_trabalho: usuario.jornada_trabalho ?? '',
-      data_nascimento: usuario.data_nascimento ?? '',
-      data_admissao: usuario.data_admissao ?? '',
-      data_desligamento: usuario.data_desligamento ?? '',
-      nvl_permissao: usuario.nvl_permissao?.toString() ?? '',
-      nvl_manual: usuario.nvl_manual,
     });
     setIsModalOpen(true);
   };
 
   const salvarUsuario = async () => {
-    if (!editingId && !form.senha) {
+    if (!form.username.trim()) {
+      notify.error('Nome de usuário é obrigatório');
+      return;
+    }
+    if (form.username.length > 255) {
+      notify.error('Nome de usuário deve ter no máximo 255 caracteres');
+      return;
+    }
+    if (!form.email.trim()) {
+      notify.error('E-mail é obrigatório');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      notify.error('E-mail inválido');
+      return;
+    }
+    if (!editingId && !form.senha.trim()) {
       notify.error('Senha é obrigatória para novos usuários');
       return;
     }
 
     try {
       setSaving(true);
-      const payload = {
-        nome_completo: form.nome_completo,
-        email: form.email,
-        ...(form.senha && { senha: form.senha }),
-        id_cargo: form.id_cargo,
-        id_setor: form.id_setor,
-        id_unidade: form.id_unidade,
-        avatar_url: form.avatar_url || null,
-        telefone: form.telefone || null,
-        celular: form.celular || null,
-        homepage: form.homepage || null,
-        logradouro: form.logradouro || null,
-        numero: form.numero || null,
-        complemento: form.complemento || null,
-        bairro: form.bairro || null,
-        cidade: form.cidade || null,
-        estado: form.estado || null,
-        cep: form.cep || null,
-        cpf: form.cpf || null,
-        rg: form.rg || null,
+      const payload: Record<string, unknown> = {
+        username: form.username.trim(),
+        email: form.email.trim(),
+        id_funcionario: form.id_funcionario.trim() || null,
+        avatar_url: form.avatar_url.trim() || null,
         ativo: form.ativo,
-        contrato_tipo: form.contrato_tipo || null,
-        jornada_trabalho: form.jornada_trabalho || null,
-        data_nascimento: form.data_nascimento || null,
-        data_admissao: form.data_admissao || null,
-        data_desligamento: form.data_desligamento || null,
-        nvl_manual: form.nvl_manual,
-        ...(form.nvl_manual && form.nvl_permissao && {
-          nvl_permissao: parseInt(form.nvl_permissao),
-        }),
       };
+      if (form.senha.trim()) {
+        payload.senha = form.senha;
+      }
 
       if (editingId) {
         await editarUsuario(editingId, payload);
@@ -254,6 +170,23 @@ export default function Usuarios() {
     }
   };
 
+  const excluirUsuario = async () => {
+    if (!editingId) return;
+    try {
+      setDeleting(true);
+      await deletarUsuario(editingId);
+      notify.success('Usuário excluído com sucesso');
+      setIsDeleteDialogOpen(false);
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao excluir usuário');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const setField = <K extends keyof FormUsuario>(field: K, value: FormUsuario[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -262,20 +195,20 @@ export default function Usuarios() {
     <>
       <PageHeader
         title='Usuários'
-        subtitle='Gerencie os usuários do sistema'
+        subtitle='Gerencie os usuários com acesso ao sistema'
       />
       <PageContent>
-        <Card title='Filtros'>
+        <Card title='Filtros' height='fit'>
           <div className={styles.inputContainers}>
             <TextField
-              sx={{ flex: 1, minWidth: 300 }}
-              label='Nome'
+              sx={{ flex: 1, minWidth: 260 }}
+              label='Nome de usuário'
               variant='outlined'
-              value={nomeInput}
-              onChange={(e) => setNomeInput(e.target.value)}
+              value={usernameInput}
+              onChange={(e) => setUsernameInput(e.target.value)}
             />
             <TextField
-              sx={{ flex: 1, minWidth: 300 }}
+              sx={{ flex: 1, minWidth: 260 }}
               label='E-mail'
               variant='outlined'
               value={emailInput}
@@ -295,36 +228,7 @@ export default function Usuarios() {
                 <MenuItem value='ativo'>Ativo</MenuItem>
                 <MenuItem value='inativo'>Inativo</MenuItem>
               </Select>
-            </FormControl>            
-          </div>
-          <div className={styles.inputContainers}>            
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 200 }}
-              options={cargos}
-              getOptionLabel={(c) => c.nome}
-              value={cargoFiltro}
-              onChange={(_, v) => { setCargoFiltro(v); setPage(0); }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label='Cargo' />}
-            />
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 200 }}
-              options={setores}
-              getOptionLabel={(s) => s.nome}
-              value={setorFiltro}
-              onChange={(_, v) => { setSetorFiltro(v); setPage(0); }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label='Setor' />}
-            />
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 200 }}
-              options={unidades}
-              getOptionLabel={(u) => u.nome_fantasia}
-              value={unidadeFiltro}
-              onChange={(_, v) => { setUnidadeFiltro(v); setPage(0); }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label='Unidade' />}
-            />
+            </FormControl>
           </div>
           <div className={styles.cardButtons}>
             <Button variant='secondary' onClick={limparFiltros}>
@@ -344,7 +248,7 @@ export default function Usuarios() {
               <Table stickyHeader size='small'>
                 <TableHead>
                   <TableRow>
-                    {['Nome', 'E-mail', 'Cargo', 'Setor', 'Unidade', 'Status'].map((label) => (
+                    {['Nome de usuário', 'E-mail', 'Status', 'Criado em'].map((label) => (
                       <TableCell key={label}>{label}</TableCell>
                     ))}
                   </TableRow>
@@ -357,17 +261,19 @@ export default function Usuarios() {
                       onClick={() => abrirEdicaoModal(row)}
                       sx={{ cursor: 'pointer' }}
                     >
-                      <TableCell>{row.nome_completo}</TableCell>
+                      <TableCell>{row.username}</TableCell>
                       <TableCell>{row.email}</TableCell>
-                      <TableCell>{row.cargo_nome ?? '—'}</TableCell>
-                      <TableCell>{row.setor_nome ?? '—'}</TableCell>
-                      <TableCell>{row.unidade_nome ?? '—'}</TableCell>
                       <TableCell>
                         <Chip
                           label={row.ativo ? 'Ativo' : 'Inativo'}
                           color={row.ativo ? 'success' : 'error'}
                           size='small'
                         />
+                      </TableCell>
+                      <TableCell>
+                        {row.created_at
+                          ? new Date(row.created_at).toLocaleDateString('pt-BR')
+                          : '—'}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -394,240 +300,76 @@ export default function Usuarios() {
 
       <Modal
         title={editingId ? 'Editar Usuário' : 'Novo Usuário'}
-        subtitle={editingId ? form.nome_completo : 'Preencha os dados do novo usuário'}
+        subtitle={editingId ? form.username : 'Preencha os dados do novo usuário'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       >
         <div className={styles.formModal}>
 
-          {/* Dados Principais */}
-          <p className={styles.sectionTitle}>Dados Principais</p>
+          {/* Identificação */}
+          <p className={styles.sectionTitle}>Identificação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
             <TextField
-              sx={{ flex: 1, minWidth: 340 }}
-              label='Nome Completo'
+              sx={{ flex: 1, minWidth: 260 }}
+              label='Nome de usuário'
               required
-              value={form.nome_completo}
-              onChange={(e) => setField('nome_completo', e.target.value)}
+              value={form.username}
+              onChange={(e) => setField('username', e.target.value)}
+              slotProps={{ htmlInput: { maxLength: 255 } }}
+              helperText={`${form.username.length}/255`}
             />
           </div>
           <div className={styles.formRow}>
             <TextField
-              sx={{ flex: 1, minWidth: 240 }}
+              sx={{ flex: 1, minWidth: 260 }}
               label='E-mail'
-              type='email'
               required
+              type='email'
               value={form.email}
               onChange={(e) => setField('email', e.target.value)}
             />
+          </div>
+
+          {/* Segurança */}
+          <p className={styles.sectionTitle}>Segurança</p>
+          <hr className={styles.divider} />
+          <div className={styles.formRow}>
             <TextField
-              sx={{ flex: 1, minWidth: 200 }}
-              label={editingId ? 'Nova Senha (opcional)' : 'Senha'}
+              sx={{ flex: 1, minWidth: 260 }}
+              label='Senha'
               type='password'
               required={!editingId}
               value={form.senha}
               onChange={(e) => setField('senha', e.target.value)}
-            />
-          </div>
-          <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Cargo</InputLabel>
-              <Select
-                value={form.id_cargo}
-                label='Cargo'
-                onChange={(e) => setField('id_cargo', e.target.value)}
-              >
-                {cargos.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>{c.nome}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={form.id_setor}
-                label='Setor'
-                onChange={(e) => setField('id_setor', e.target.value)}
-              >
-                {setores.map((s) => (
-                  <MenuItem key={s.id} value={s.id}>{s.nome}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={form.id_unidade}
-                label='Unidade'
-                onChange={(e) => setField('id_unidade', e.target.value)}
-              >
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>{u.nome_fantasia}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-
-          {/* Contato */}
-          <p className={styles.sectionTitle}>Contato</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Telefone'
-              value={form.telefone}
-              onChange={(e) => setField('telefone', e.target.value)}
-              placeholder='(11) 3000-0000'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Celular'
-              value={form.celular}
-              onChange={(e) => setField('celular', e.target.value)}
-              placeholder='(11) 99999-0000'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 240 }}
-              label='Homepage'
-              value={form.homepage}
-              onChange={(e) => setField('homepage', e.target.value)}
-              placeholder='https://...'
+              helperText={editingId ? 'Deixe em branco para manter a senha atual' : undefined}
             />
           </div>
 
-          {/* Dados Pessoais */}
-          <p className={styles.sectionTitle}>Dados Pessoais</p>
+          {/* Vínculos */}
+          <p className={styles.sectionTitle}>Vínculos</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
             <TextField
-              sx={{ flex: 1, minWidth: 160 }}
-              label='CPF'
-              value={form.cpf}
-              onChange={(e) => setField('cpf', e.target.value)}
-              placeholder='12345678901'
-              slotProps={{ htmlInput: { maxLength: 11 } }}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 160 }}
-              label='RG'
-              value={form.rg}
-              onChange={(e) => setField('rg', e.target.value)}
-              placeholder='12.345.678-9'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Data de Nascimento'
-              type='date'
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.data_nascimento}
-              onChange={(e) => setField('data_nascimento', e.target.value)}
+              sx={{ flex: 1, minWidth: 260 }}
+              label='ID do Funcionário'
+              value={form.id_funcionario}
+              onChange={(e) => setField('id_funcionario', e.target.value)}
+              helperText='UUID do funcionário vinculado — opcional'
+              slotProps={{ htmlInput: { pattern: '[0-9a-fA-F-]{36}' } }}
             />
           </div>
 
-          {/* Endereço */}
-          <p className={styles.sectionTitle}>Endereço</p>
+          {/* Configuração */}
+          <p className={styles.sectionTitle}>Configuração</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
             <TextField
-              sx={{ minWidth: 140 }}
-              label='CEP'
-              value={form.cep}
-              onChange={(e) => setField('cep', e.target.value)}
-              placeholder='01001-000'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 240 }}
-              label='Logradouro'
-              value={form.logradouro}
-              onChange={(e) => setField('logradouro', e.target.value)}
-              placeholder='Rua das Flores'
-            />
-            <TextField
-              sx={{ minWidth: 100 }}
-              label='Número'
-              value={form.numero}
-              onChange={(e) => setField('numero', e.target.value)}
-              placeholder='123'
-            />
-          </div>
-          <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Complemento'
-              value={form.complemento}
-              onChange={(e) => setField('complemento', e.target.value)}
-              placeholder='Apto 4B'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 160 }}
-              label='Bairro'
-              value={form.bairro}
-              onChange={(e) => setField('bairro', e.target.value)}
-              placeholder='Centro'
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 160 }}
-              label='Cidade'
-              value={form.cidade}
-              onChange={(e) => setField('cidade', e.target.value)}
-              placeholder='São Paulo'
-            />
-            <TextField
-              sx={{ minWidth: 80 }}
-              label='UF'
-              value={form.estado}
-              onChange={(e) => setField('estado', e.target.value.toUpperCase())}
-              placeholder='SP'
-              slotProps={{ htmlInput: { maxLength: 2 } }}
-            />
-          </div>
-
-          {/* Dados Profissionais */}
-          <p className={styles.sectionTitle}>Dados Profissionais</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 160 }}>
-              <InputLabel>Tipo de Contrato</InputLabel>
-              <Select
-                value={form.contrato_tipo}
-                label='Tipo de Contrato'
-                onChange={(e) => setField('contrato_tipo', e.target.value as FormUsuario['contrato_tipo'])}
-              >
-                <MenuItem value=''>—</MenuItem>
-                <MenuItem value='CLT'>CLT</MenuItem>
-                <MenuItem value='PJ'>PJ</MenuItem>
-                <MenuItem value='Freelancer'>Freelancer</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 160 }}>
-              <InputLabel>Jornada de Trabalho</InputLabel>
-              <Select
-                value={form.jornada_trabalho}
-                label='Jornada de Trabalho'
-                onChange={(e) => setField('jornada_trabalho', e.target.value as FormUsuario['jornada_trabalho'])}
-              >
-                <MenuItem value=''>—</MenuItem>
-                <MenuItem value='Integral'>Integral</MenuItem>
-                <MenuItem value='Meio Período'>Meio Período</MenuItem>
-                <MenuItem value='Flexível'>Flexível</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Data de Admissão'
-              type='date'
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.data_admissao}
-              onChange={(e) => setField('data_admissao', e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label='Data de Desligamento'
-              type='date'
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.data_desligamento}
-              onChange={(e) => setField('data_desligamento', e.target.value)}
+              sx={{ flex: 1, minWidth: 260 }}
+              label='URL do Avatar'
+              value={form.avatar_url}
+              onChange={(e) => setField('avatar_url', e.target.value)}
+              helperText='Link para a imagem de perfil — opcional'
             />
           </div>
           <div className={styles.formRow}>
@@ -636,60 +378,41 @@ export default function Usuarios() {
                 <Switch
                   checked={form.ativo}
                   onChange={(e) => setField('ativo', e.target.checked)}
-                  color={'warning'}
+                  color='warning'
                 />
               }
               label='Usuário Ativo'
             />
           </div>
 
-          {/* Permissões do Sistema */}
-          <p className={styles.sectionTitle}>Permissões do Sistema</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.nvl_manual}
-                  onChange={(e) => setField('nvl_manual', e.target.checked)}
-                  color={'warning'}
-                />
-              }
-              label='Nível manual'
-            />
-            <TextField
-              sx={{ minWidth: 200 }}
-              label='Nível de Permissão'
-              type='number'
-              disabled={!form.nvl_manual}
-              value={form.nvl_permissao}
-              onChange={(e) => setField('nvl_permissao', e.target.value)}
-              helperText={!form.nvl_manual ? 'Gerenciado pelo cargo' : undefined}
-              slotProps={{ htmlInput: { min: 0 } }}
-            />
-          </div>
-
-          {/* Avatar */}
-          <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 300 }}
-              label='URL do Avatar'
-              value={form.avatar_url}
-              onChange={(e) => setField('avatar_url', e.target.value)}
-              placeholder='https://...'
-            />
-          </div>
-
-          <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant='primary' onClick={salvarUsuario}>
-              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
-            </Button>
+          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+            {editingId && (
+              <Button variant='danger' onClick={() => setIsDeleteDialogOpen(true)}>
+                Excluir Usuário
+              </Button>
+            )}
+            <div className={styles.formActionsMain}>
+              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant='primary' onClick={salvarUsuario}>
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
+      <Dialog
+        title='Excluir Usuário'
+        isLoading={deleting}
+        onConfirm={excluirUsuario}
+        isOpen={isDeleteDialogOpen}
+        message='Tem certeza que deseja excluir o usuário? Esta ação não pode ser desfeita.'
+        onClose={() => setIsDeleteDialogOpen(false)}
+        confirmLabel='Excluir'
+        loadingLabel='Excluindo...'
+        confirmVariant='danger'
+      />
     </>
   );
 }

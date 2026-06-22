@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
+import { apiFetch } from '@/lib/api/fetchHelper';
 
 export async function GET() {
   try {
-    const response = await fetch(`${process.env.API_URL}/cargos`, {
-      headers: { 'x-api-key': process.env.API_KEY! },
-      cache: 'no-store',
-    });
-
-    if (!response.ok) throw new Error('Erro ao buscar cargos');
-    const data = await response.json();
+    const data = await apiFetch(
+      `${process.env.API_URL}/cargos`,
+      'Erro ao buscar cargos',
+      { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
+    );
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);

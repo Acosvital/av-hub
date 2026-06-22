@@ -68,3 +68,14 @@
   background-color: var(--surface-secondary);
   opacity: 1;
 }
+
+.danger {
+  background-color: transparent;
+  color: var(--error, #d32f2f);
+  border: 1px solid var(--error, #d32f2f);
+}
+
+.danger:hover {
+  background-color: color-mix(in srgb, var(--error, #d32f2f) 10%, transparent);
+  opacity: 1;
+}

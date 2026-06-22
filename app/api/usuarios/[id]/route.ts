@@ -1,20 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiFetch } from '@/lib/api/fetchHelper';
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const body = await request.json();
+    const { id } = await params;
+    const response = await fetch(`${process.env.API_URL}/usuarios/${id}`, {
+      method: 'DELETE',
+      headers: { 'x-api-key': process.env.API_KEY! },
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => "(sem corpo)");
+      console.error(`Erro ao deletar usuário — status ${response.status}: ${body}`);
+      throw new Error(`Erro ao deletar usuário (status ${response.status})`);
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}
 
-    const response = await fetch(`${process.env.API_URL}/usuarios/${params.id}`, {
-      method: 'PATCH',
-      headers: {
-        'x-api-key': process.env.API_KEY!,
-        'Content-Type': 'application/json',
-      },
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const data = await apiFetch(`${process.env.API_URL}/usuarios/${id}`, 'Erro ao atualizar usuário', {
+      method: 'PUT',
+      headers: { 'x-api-key': process.env.API_KEY!, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-
-    if (!response.ok) throw new Error('Erro ao atualizar usuário');
-    const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);

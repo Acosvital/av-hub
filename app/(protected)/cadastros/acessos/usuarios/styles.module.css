@@ -35,7 +35,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: 780px;
+  width: 600px;
   max-width: 100%;
 }
 
@@ -68,4 +68,19 @@
   padding-top: var(--space-3);
   margin-top: var(--space-1);
   border-top: 1px solid var(--border);
+}
+
+.formActionsWithDelete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
+  border-top: 1px solid var(--border);
+}
+
+.formActionsMain {
+  display: flex;
+  gap: var(--space-3);
 }
