@@ -84,7 +84,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Logo */}
-        <DashboardWidget cols={2} rows={1}>
+        <DashboardWidget cols={2} rows={1} hideOnMobile>
           <div className={styles.logoContainer}>
             <Image
               src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}

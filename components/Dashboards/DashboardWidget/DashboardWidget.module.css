@@ -15,4 +15,8 @@
     .widget {
         grid-column: span var(--mobile-cols);
     }
+
+    .hideOnMobile {
+        display: none;
+    }
 }

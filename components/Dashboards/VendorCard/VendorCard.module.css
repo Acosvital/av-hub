@@ -93,3 +93,54 @@
 .default {
     border: 1px solid var(--default);
 }
+
+@media (max-width: 768px) {
+    .vendorCard {
+        min-height: unset;
+        max-height: unset;
+        padding: var(--space-3);
+        gap: var(--space-2);
+        align-items: flex-start;
+    }
+
+    .vendorRank {
+        zoom: 0.75;
+        flex-shrink: 0;
+        padding-top: var(--space-1);
+        align-self: center;
+    }
+
+    .vendor {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .vendorName {
+        font-size: var(--fs-md);
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .vendorDetails {
+        gap: var(--space-2);
+        flex-wrap: nowrap;
+        margin-top: var(--space-1);
+    }
+
+    .vendorInfo {
+        font-size: var(--fs-sm);
+        white-space: nowrap;
+    }
+
+    .vendorTotal {
+        font-size: var(--fs-sm);
+        font-weight: var(--w-black);
+        flex: unset;
+        flex-shrink: 0;
+        align-self: flex-start;
+        white-space: nowrap;
+        text-align: end;
+    }
+}
