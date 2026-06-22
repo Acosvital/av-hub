@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react"
+import { ReactNode, useEffect, useRef } from "react"
 import styles from './Modal.module.css';
 import { IoMdClose } from "react-icons/io";
 
@@ -12,6 +12,7 @@ interface ModalProps {
 }
 
 const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, ...props }: ModalProps) => {
+  const mouseDownTarget = useRef<EventTarget | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,7 +31,8 @@ const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, .
       role="dialog"
       aria-modal="true"
       {...props}
-      onClick={onClose}
+      onMouseDown={(e) => { mouseDownTarget.current = e.target; }}
+      onClick={(e) => { if (mouseDownTarget.current === e.currentTarget) onClose(); }}
     >
       <div className={`${styles.modalCard} ${type === 'secondary' && styles.backgroundSecondary}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>

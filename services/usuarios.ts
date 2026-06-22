@@ -8,6 +8,17 @@ interface GetUsuariosParams {
   ativo?: boolean;
 }
 
+interface UsuariosResponse {
+  usuarios: { 
+    id: string; 
+    username: string;
+    email: string;
+    id_funcionario: string | null;
+    ativo: boolean;
+   }[];
+  total?: number;
+}
+
 export async function getUsuarios(params: GetUsuariosParams = {}) {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
@@ -15,7 +26,7 @@ export async function getUsuarios(params: GetUsuariosParams = {}) {
   if (params.username) query.set('username', params.username);
   if (params.email) query.set('email', params.email);
   if (params.ativo !== undefined) query.set('ativo', String(params.ativo));
-  return apiFetch(`/api/usuarios?${query}`, 'Erro ao buscar usuários');
+  return apiFetch<UsuariosResponse>(`/api/usuarios?${query}`, 'Erro ao buscar usuários');
 }
 
 export async function criarUsuario(data: object) {

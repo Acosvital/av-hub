@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
+import type { UsuarioPerfilProps } from '@/app/(protected)/cadastros/acessos/usuariosPerfis/types';
 
 interface GetUsuariosPerfisParams {
   page?: number;
@@ -7,13 +8,18 @@ interface GetUsuariosPerfisParams {
   id_perfil?: string;
 }
 
+interface UsuariosPerfisResponse {
+  data: UsuarioPerfilProps[];
+  total: number;
+}
+
 export async function getUsuariosPerfis(params: GetUsuariosPerfisParams = {}) {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.id_usuario) query.set('id_usuario', params.id_usuario);
   if (params.id_perfil) query.set('id_perfil', params.id_perfil);
-  return apiFetch(`/api/usuariosPerfis?${query}`, 'Erro ao buscar vínculos de usuário e perfil');
+  return apiFetch<UsuariosPerfisResponse>(`/api/usuariosPerfis?${query}`, 'Erro ao buscar vínculos de usuário e perfil');
 }
 
 export async function criarUsuarioPerfil(data: object) {
