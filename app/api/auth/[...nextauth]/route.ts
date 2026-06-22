@@ -1,6 +1,35 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { MenuItem } from "@/components/Layout/AppLayout/Menu/MenuItem/MenuItem";
+
+async function findUserByEmail(email: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${process.env.API_URL}/usuarios?email=${encodeURIComponent(email)}`,
+      { headers: { "x-api-key": process.env.API_KEY || "" } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const usuario = Array.isArray(data) ? data[0] : (data?.usuarios?.[0] ?? data?.data?.[0]);
+    return usuario?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchMenu(id_usuario: string): Promise<MenuItem[]> {
+  try {
+    const res = await fetch(
+      `${process.env.API_URL}/permissoes_usuario/menu/${id_usuario}`,
+      { headers: { "x-api-key": process.env.API_KEY || "" } }
+    );
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -10,7 +39,7 @@ export const authOptions: AuthOptions = {
       tenantId: process.env.AZURE_AD_TENANT_ID || "",
       authorization: {
         params: {
-          prompt: "select_account",
+          prompt: "select_account", //Parâmetro para seleção de multiplas contas;
         },
       },
     }),
@@ -38,9 +67,9 @@ export const authOptions: AuthOptions = {
 
           if (!res.ok) return null;
 
-          // Esperado do backend: { id, email, name, role, userType }
           return await res.json();
         } catch {
+          console.log("erro")
           return null;
         }
       },
@@ -53,33 +82,17 @@ export const authOptions: AuthOptions = {
     async jwt({ token, account, user }) {
       if (account?.provider === "azure-ad") {
         token.authProvider = "azure";
-        token.role = "funcionario";
-
-        if (token.email === "robert.stoco@acosvital.com.br") {
-          token.role = "admin";
-        }
-
-        // Busca id_usuario no banco pelo e-mail do Azure
-        try {
-          const res = await fetch(
-            `${process.env.API_URL}/usuarios?email=${encodeURIComponent(token.email ?? "")}`,
-            { headers: { "x-api-key": process.env.API_KEY || "" } }
-          );
-          if (res.ok) {
-            const data = await res.json();
-            const usuario = Array.isArray(data) ? data[0] : (data?.usuarios?.[0] ?? data?.data?.[0]);
-            if (usuario?.id) token.id_usuario = usuario.id;
-          }
-        } catch {
-          // id_usuario fica undefined; menu retornará vazio
+        const id_usuario = await findUserByEmail(token.email ?? "");
+        if (id_usuario) {
+          token.id_usuario = id_usuario;
+          token.menu = await fetchMenu(id_usuario);
         }
       }
 
       if (account?.provider === "credentials" && user) {
         token.authProvider = "credentials";
-        token.id_usuario = (user as any).id;
-        token.role = (user as any).role;
-        token.userType = (user as any).userType;
+        token.id_usuario = user.id;
+        token.menu = await fetchMenu(user.id);
       }
 
       return token;
@@ -88,10 +101,8 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id_usuario = token.id_usuario as string;
-        session.user.role = (token.role ?? "") as string;
         session.user.authProvider = token.authProvider as "azure" | "credentials";
-        session.user.permissoes = token.permissoes ?? [];
-        session.user.perfis = token.perfis ?? [];
+        session.user.menu = (token.menu ?? []) as MenuItem[];
       }
       return session;
     },

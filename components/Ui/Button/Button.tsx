@@ -7,12 +7,13 @@ interface ButtonProps {
     children: React.ReactNode;
     icon?: React.ReactNode;
     disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
 }
 
-export default function Button({ children, variant = 'primary', onClick, icon, disabled }: ButtonProps) {
+export default function Button({ children, variant = 'primary', onClick, icon, disabled, type = 'button' }: ButtonProps) {
     return (
         <button
-            type="button"
+            type={type}
             className={`${styles.button} ${styles[variant]}`}
             onClick={onClick}
             disabled={disabled}
