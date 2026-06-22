@@ -63,6 +63,7 @@ export default function UsuariosPerfis() {
           getUsuarios({ limit: 1000 }),
           getPerfis({ limit: 1000 }),
         ]);
+        console.log(usuariosRes, perfisRes)
         setAllUsuarios(usuariosRes.usuarios ?? []);
         setAllPerfis(perfisRes.perfis ?? []);
       } catch (err) {
@@ -83,7 +84,6 @@ export default function UsuariosPerfis() {
           id_usuario: usuarioFiltro?.id,
           id_perfil: perfilFiltro?.id,
         });
-        console.log(response)
         setRows(response.data ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {

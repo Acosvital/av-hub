@@ -1,17 +1,13 @@
+import { apiFetch } from '@/lib/api/fetchHelper';
+
 export async function getCargos() {
-  const res = await fetch('/api/referenciais/cargos');
-  if (!res.ok) throw new Error('Erro ao buscar cargos');
-  return res.json();
+  return apiFetch('/api/referenciais/cargos', 'Erro ao buscar cargos');
 }
 
 export async function getSetores() {
-  const res = await fetch('/api/referenciais/setores');
-  if (!res.ok) throw new Error('Erro ao buscar setores');
-  return res.json();
+  return apiFetch('/api/referenciais/setores', 'Erro ao buscar setores');
 }
 
 export async function getUnidades() {
-  const res = await fetch('/api/referenciais/unidades');
-  if (!res.ok) throw new Error('Erro ao buscar unidades');
-  return res.json();
+  return apiFetch('/api/referenciais/unidades', 'Erro ao buscar unidades');
 }
