@@ -29,7 +29,7 @@ const RevenueGauge = ({
         </div>
         <div>
           <h2 className={styles.defaultTitle}>Meta</h2>
-          <h4 className={styles.meta}>{target}</h4>
+          <h4 className={styles.meta} style={{color: color, textShadow: `0 0 10px ${color}` }}>{target}</h4>
         </div>
       </div>
       <div className={styles.totalRevenueValues}>

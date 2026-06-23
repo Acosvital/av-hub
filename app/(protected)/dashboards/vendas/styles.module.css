@@ -129,88 +129,6 @@
   gap: var(--space-2);
 }
 
-/********* LOGO *********/
-.logoContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-/********* TIPO DE FATURAMENTO *********/
-.billings {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.billings>div:last-child {
-  border: none;
-}
-
-.billing {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-bottom: 1px solid var(--border-strong);
-  flex: 1;
-}
-
-.billing>h3 {
-  font-size: var(--fs-lg);
-  color: var(--success);
-}
-
-.billing>span {
-  font-size: var(--fs-xl);
-}
-
-/********* SITUAÇÃO *********/
-.situation>h3 {
-  font-size: var(--fs-sm);
-}
-
-.situationGroup {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: var(--space-2);
-  height: 100%;
-}
-
-.situationCard {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  border: 1px solid var(--border-strong);
-  grid-column: span 1;
-  grid-row: span 1;
-  height: 100%;
-  background-color: var(--card-bg-secondary);
-  border-radius: var(--radius-md);
-}
-
-.situationCard>div {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  font-size: var(--fs-md);
-}
-
-.situationCard>div:last-child {
-  border-top: 1px solid var(--border);
-  font-size: var(--fs-lg);
-}
-
-.situationTitle {
-  color: var(--danger);
-}
-
 /********* FATURAMENTO DIÁRIO *********/
 .billingCard {
   display: flex;
@@ -243,26 +161,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-
-/************************************************* MOBILE *************************************************/
-@media screen and (max-width: 768px) {
-  .cardHeader{
-    display: flex;
-    height: fit-content;
-  }
-  .autoScroll {
-    animation: none;
-    transform: none;
-  }
-
-  /* esconde o grupo duplicado que existe só pra loop infinito */
-  .autoScroll > div:last-child {
-    display: none;
-  }
-   .defaultRank {
-    height: fit-content;
-  }
-
 }

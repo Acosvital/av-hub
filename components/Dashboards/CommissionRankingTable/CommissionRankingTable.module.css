@@ -73,6 +73,7 @@
   grid-template-columns: var(--grid-cols);
   align-items: center;
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
 }
 
 .gridRow > div {
@@ -158,6 +159,107 @@
 }
 .rowGroup > div:last-child{
   border-bottom: 2px solid var(--border-strong);
+}
+
+/* LARGE SCREEN / MOBILE VISIBILITY */
+.largeScreen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.mobile {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .largeScreen {
+    display: none;
+  }
+
+  .mobile {
+    display: flex;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+/* MOBILE CARDS */
+.mobileCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.mobileCardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.mobileCardName {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileCardBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.mobileField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.mobileField:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+
+.mobileFieldFull {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobileFieldTotal {
+  border-bottom: none;
+}
+
+.mobileFieldLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--foreground-secondary);
+}
+
+.mobileFieldValue {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  font-variant-numeric: tabular-nums;
 }
 
 /* COLUMN OVERRIDES — alignment & colors */

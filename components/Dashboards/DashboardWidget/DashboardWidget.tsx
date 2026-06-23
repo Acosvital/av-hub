@@ -7,19 +7,21 @@ interface DashboardWidgetProps {
     rows: GridRows,
     tabletCols?: GridCols,
     mobileCols?: GridCols,
+    mobileOrder?: number,
+    hideOnMobile?: boolean,
     children: React.ReactNode
 }
 
-//cria variaveis dinamicas com base no valores de cols e rows para responsividade
-const DashboardWidget = ({ children, cols, rows, tabletCols = cols, mobileCols = 12 }: DashboardWidgetProps) => {
+const DashboardWidget = ({ children, cols, rows, tabletCols = cols, mobileCols = 12, mobileOrder, hideOnMobile }: DashboardWidgetProps) => {
     return (
         <div
-            className={styles.widget}
+            className={`${styles.widget}${hideOnMobile ? ` ${styles.hideOnMobile}` : ''}`}
             style={{
                 ['--cols' as string]: cols,
                 ['--rows' as string]: rows,
                 ['--tablet-cols' as string]: tabletCols ?? cols,
                 ['--mobile-cols' as string]: mobileCols ?? tabletCols ?? cols,
+                ['--mobile-order' as string]: mobileOrder ?? 0,
             }}
         >
             {children}
