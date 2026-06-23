@@ -36,7 +36,6 @@ const FORM_INICIAL: FormUsuario = {
   email: '',
   senha: '',
   id_funcionario: '',
-  avatar_url: '',
   ativo: true,
 };
 
@@ -79,6 +78,7 @@ export default function Usuarios() {
           email,
           ativo,
         });
+        console.log(response)
         setRows(response.usuarios ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -111,7 +111,6 @@ export default function Usuarios() {
       email: usuario.email,
       senha: '',
       id_funcionario: usuario.id_funcionario ?? '',
-      avatar_url: usuario.avatar_url ?? '',
       ativo: usuario.ativo,
     });
     setIsModalOpen(true);
@@ -145,7 +144,6 @@ export default function Usuarios() {
         username: form.username.trim(),
         email: form.email.trim(),
         id_funcionario: form.id_funcionario.trim() || null,
-        avatar_url: form.avatar_url.trim() || null,
         ativo: form.ativo,
       };
       if (form.senha.trim()) {
@@ -361,17 +359,7 @@ export default function Usuarios() {
           </div>
 
           {/* Configuração */}
-          <p className={styles.sectionTitle}>Configuração</p>
           <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label='URL do Avatar'
-              value={form.avatar_url}
-              onChange={(e) => setField('avatar_url', e.target.value)}
-              helperText='Link para a imagem de perfil — opcional'
-            />
-          </div>
           <div className={styles.formRow}>
             <FormControlLabel
               control={

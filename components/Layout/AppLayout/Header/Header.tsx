@@ -38,7 +38,7 @@ export default function Header() {
       callbackUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout',
     });
   };
-
+  console.log(session)
   return (
     <header className={styles.header}>
       <button className={styles.mobileMenuButton} onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menu">

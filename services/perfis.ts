@@ -6,12 +6,17 @@ interface GetPerfisParams {
   nome?: string;
 }
 
+interface PerfisResponse {
+  perfis: { id: string; nome: string }[];
+  total?: number;
+}
+
 export async function getPerfis(params: GetPerfisParams = {}) {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome) query.set('nome', params.nome);
-  return apiFetch(`/api/perfis?${query}`, 'Erro ao buscar perfis');
+  return apiFetch<PerfisResponse>(`/api/perfis?${query}`, 'Erro ao buscar perfis');
 }
 
 export async function criarPerfil(data: object) {
