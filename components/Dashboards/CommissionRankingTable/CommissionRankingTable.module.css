@@ -188,6 +188,10 @@
   }
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 /* MOBILE CARDS */
 .mobileCard {
   background-color: var(--card-bg);
