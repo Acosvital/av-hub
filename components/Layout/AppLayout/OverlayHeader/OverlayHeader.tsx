@@ -6,6 +6,7 @@ import ThemeToggle from '../Header/ThemeToggle/ThemeToggle';
 import Avatar from '../Header/Avatar/Avatar';
 import { ImExit } from 'react-icons/im';
 import { MdFullscreen, MdFullscreenExit, MdOutlineHistory } from 'react-icons/md';
+import { GiHamburgerMenu } from 'react-icons/gi';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -19,7 +20,7 @@ const OverlayHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
   const [isHistoric, setIsHistoric] = useState(false);
-  const { fullscreen, setFullscreen } = useLayout();
+  const { fullscreen, setFullscreen, setMobileMenuOpen } = useLayout();
   const menuRef = useRef<HTMLDivElement>(null);
   const dateFilters = useRef<HTMLDivElement>(null);
   const userName = session?.user?.name ?? '';
@@ -104,6 +105,13 @@ const OverlayHeader = () => {
 
   return (
     <header className={`${styles.header} ${visible ? styles.visible : styles.hidden}`}>
+      <button
+        className={`${styles.actionButton} ${styles.mobileMenuButton}`}
+        onClick={() => setMobileMenuOpen(true)}
+        aria-label="Abrir menu"
+      >
+        <GiHamburgerMenu />
+      </button>
       <span className={styles.title}>Aços Hub</span>
 
       {status === 'authenticated' && userName && (
