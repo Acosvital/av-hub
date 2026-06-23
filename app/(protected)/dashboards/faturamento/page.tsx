@@ -36,7 +36,7 @@ const situations = [
 ];
 
 export default function Faturamento() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
   const accentColor = 'var(--gold)';
 
@@ -58,7 +58,7 @@ export default function Faturamento() {
               Destaques do Pódio
               <div className={styles.top3Container}>
                 {top3.map((v) => (
-                  <VendorCard key={v.id} {...v} onClick={() => setIsOpen(true)} color={accentColor}/>
+                  <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                 ))}
               </div>
             </div>
@@ -70,13 +70,13 @@ export default function Faturamento() {
               >
                 <div className={styles.vendorGroup}>
                   {otherVendors.map((v) => (
-                    <VendorCard key={v.id} {...v} onClick={() => setIsOpen(true)} color={accentColor}/>
+                    <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
                   {mockVendors.length >= 10 && (
                     otherVendors.map((v) => (
-                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setIsOpen(true)} color={accentColor}/>
+                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                     ))
                   )}
                 </div>
@@ -186,11 +186,9 @@ export default function Faturamento() {
         </DashboardWidget>
       </DashboardGrid>
       <VendorDetailsModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        vendorName='HUGO DOS SANTOS GONÇALVES'
-        totalValue={2654843.16}
-        totalOrders={65}
+        isOpen={selectedVendorId !== null}
+        onClose={() => setSelectedVendorId(null)}
+        vendorId={selectedVendorId}
       />
     </div>
   );

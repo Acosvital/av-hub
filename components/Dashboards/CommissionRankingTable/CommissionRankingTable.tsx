@@ -24,7 +24,7 @@ interface CommissionRankingTableProps {
 const formatValue = (value: number) => (value > 0 ? toBRL(value) : '0');
 
 const Row = ({ row }: { row: CommissionRow }) => (
-  <div className={styles.gridRow}>
+  <div className={styles.gridRow} onClick={() => console.log(row)}>
     <div className={styles.rankCol}><RankingBadge rank={row.rank} /></div>
     <div className={styles.nameCol}>{row.name}</div>
     <div className={styles.faturado}>{formatValue(row.faturado)}</div>
