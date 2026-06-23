@@ -35,7 +35,7 @@ export default function Header() {
       callbackUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout',
     });
   };
-
+  console.log(session)
   return (
     <header className={styles.header}>
       <span className={styles.title}>Aços Hub</span>

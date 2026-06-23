@@ -100,6 +100,7 @@ export const authOptions: AuthOptions = {
         token.authProvider = "credentials";
         token.id_usuario = user.id;
         const userSession = await fetchMenu(user.id);
+        token.email = userSession?.usuario.email ?? token.email;
         token.name = userSession?.usuario.username ?? token.name;
         token.picture = userSession?.usuario.avatar_url ?? token.picture;
         token.menu = userSession?.menu ?? [];
