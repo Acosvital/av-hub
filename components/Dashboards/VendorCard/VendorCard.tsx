@@ -11,22 +11,28 @@ interface VendorCardProps {
   totalValue: number;
   rank: number;
   onClick: () => void;
+  color?: string;
 }
 
 const rankClass: Record<number, string> = {
-    1: styles.gold,
-    2: styles.silver,
-    3: styles.bronze,
+  1: styles.gold,
+  2: styles.silver,
+  3: styles.bronze,
 };
 
-const VendorCard = ({ name, orders, meta, participation, totalValue, rank, onClick }: VendorCardProps) => {
+const VendorCard = ({ name, orders, meta, participation, totalValue, rank, onClick, color = 'var(--gold)' }: VendorCardProps) => {
   const colorClass = rankClass[rank] ?? styles.default;
   return (
     <div className={`${styles.vendorCard} ${colorClass}`} onClick={onClick}>
-      <div className={styles.percentageEffect} style={{ width: `${participation}%` }} />
+      <div className={styles.percentageEffect}
+        style={{
+          width: `${participation}%`,
+          borderRight: `3px solid ${color}`,
+          boxShadow: `0 0 10px 1px ${color}`
+        }} />
       <div className={styles.vendorRank}>
         <RankingBadge rank={rank} />
-        <Avatar name={name} border={'var(--gold)'} size={50} />
+        <Avatar name={name} border={`${color}`} size={50} />
       </div>
       <div className={styles.vendor}>
         <h4 className={styles.vendorName}>{name}</h4>

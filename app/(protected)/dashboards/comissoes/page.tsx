@@ -1,10 +1,12 @@
 'use client';
+import { useState } from 'react';
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import toBRL from '@/utils/toBRL';
 import CommissionDonutChart, { DonutItem } from '@/components/Dashboards/CommissionDonutChart/CommissionDonutChart';
 import CommissionRankingTable, { CommissionRow } from '@/components/Dashboards/CommissionRankingTable/CommissionRankingTable';
+import CommissionDetailsModal from '@/components/Dashboards/CommissionDetailsModal/CommissionDetailsModal';
 
 const kpiCards = [
   { label: 'Comissão Vendedores', value: 38024.41, color: 'var(--green-light)' },
@@ -48,10 +50,12 @@ const managers: CommissionRow[] = [
 const total = kpiCards.reduce((sum, kpi) => sum + kpi.value, 0);
 
 export default function Comissoes() {
+  const [selectedVendor, setSelectedVendor] = useState<CommissionRow | null>(null);
+
   return (
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
-        <DashboardWidget cols={4} rows={2}>
+        <DashboardWidget cols={4} rows={2} mobileOrder={1}>
           <div className={styles.kpiGrid}>
             {kpiCards.map((kpi) => (
               <div key={kpi.label} className={styles.kpiCard}>
@@ -63,13 +67,22 @@ export default function Comissoes() {
             ))}
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={8} rows={6}>
-          <CommissionRankingTable vendors={vendors} managers={managers} />
+        <DashboardWidget cols={8} rows={6} mobileOrder={3}>
+          <CommissionRankingTable
+            vendors={vendors}
+            managers={managers}
+            onRowClick={setSelectedVendor}
+          />
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={4}>
+        <DashboardWidget cols={4} rows={4} mobileOrder={2}>
           <CommissionDonutChart data={donutData} total={total} />
         </DashboardWidget>
       </DashboardGrid>
+      <CommissionDetailsModal
+        isOpen={selectedVendor !== null}
+        onClose={() => setSelectedVendor(null)}
+        vendor={selectedVendor}
+      />
     </div>
   );
 }

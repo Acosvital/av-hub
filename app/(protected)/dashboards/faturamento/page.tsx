@@ -36,8 +36,9 @@ const situations = [
 ];
 
 export default function Faturamento() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
+  const accentColor = 'var(--gold)';
 
   const top3 = mockVendors.slice(0, 3);
   const otherVendors = mockVendors.slice(3);
@@ -57,7 +58,7 @@ export default function Faturamento() {
               Destaques do Pódio
               <div className={styles.top3Container}>
                 {top3.map((v) => (
-                  <VendorCard key={v.id} {...v} onClick={() => setIsOpen(true)} />
+                  <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                 ))}
               </div>
             </div>
@@ -69,13 +70,13 @@ export default function Faturamento() {
               >
                 <div className={styles.vendorGroup}>
                   {otherVendors.map((v) => (
-                    <VendorCard key={v.id} {...v} onClick={() => setIsOpen(true)} />
+                    <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
                   {mockVendors.length >= 10 && (
                     otherVendors.map((v) => (
-                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setIsOpen(true)} />
+                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
                     ))
                   )}
                 </div>
@@ -106,6 +107,7 @@ export default function Faturamento() {
             totalRevenue={23119350}
             lastMonthRevenue={23119350}
             lastMonthOrders={1029}
+            color={accentColor}
           />
         </DashboardWidget>
         {/* Ritmo de Meta */}
@@ -184,11 +186,9 @@ export default function Faturamento() {
         </DashboardWidget>
       </DashboardGrid>
       <VendorDetailsModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        vendorName='HUGO DOS SANTOS GONÇALVES'
-        totalValue={2654843.16}
-        totalOrders={65}
+        isOpen={selectedVendorId !== null}
+        onClose={() => setSelectedVendorId(null)}
+        vendorId={selectedVendorId}
       />
     </div>
   );
