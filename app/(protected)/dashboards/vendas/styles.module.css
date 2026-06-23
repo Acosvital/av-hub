@@ -1,0 +1,164 @@
+/********* DEFAULT CLASSES *********/
+.dashboardContainer {
+  width: 100%;
+  height: 100%;
+  /* overflow: hidden; */
+}
+
+.defaultCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  height: 100%;
+  padding: var(--space-2);
+  gap: var(--space-2);
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+}
+
+.defaultCard>h3,
+.defaultCard>div>h3 {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-2);
+}
+
+/********* RANKING *********/
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-secondary);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  height: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  font-family: var(--font-sans);
+  height: 10%;
+  font-weight: var(--w-bold);
+}
+
+.rankingTitle {
+  font-size: var(--fs-2xl);
+  text-transform: uppercase;
+}
+
+.fixedRank {
+  text-align: left;
+  padding: var(--space-2);
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+  z-index: 1;
+}
+
+.top3Container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  height: 100%;
+}
+
+.defaultRank {
+  display: flex;
+  flex-direction: column;
+  font-weight: var(--w-bold);
+  padding: var(--space-2);
+  gap: var(--space-2);
+  height: 60%;
+  overflow: hidden;
+}
+
+.defaultRank:hover {
+  overflow-y: auto;
+}
+
+.defaultRank:hover .autoScroll {
+  animation: none;
+  transform: none;
+}
+
+.defaultRank:hover .autoScroll>div:last-child {
+  display: none;
+}
+
+.autoScroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  will-change: transform;
+  animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
+}
+
+@keyframes verticalScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    /* Desloca exatamente o tamanho do primeiro grupo */
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.vendorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/********* FATURAMENTO DIÁRIO *********/
+.billingCard {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  color: var(--foreground);
+}
+
+.billingCard>div {
+  padding: var(--space-2);
+  width: 50%;
+}
+
+.billingCard>div:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.billingTitle {
+  color: var(--success);
+  font-size: var(--fs-md);
+}
+
+.billingValue {
+  font-size: var(--fs-sm);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
