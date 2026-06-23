@@ -125,8 +125,33 @@
   color: var(--danger-hover);
 }
 
+.mobileMenuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  font-size: var(--fs-lg);
+  color: var(--foreground);
+  transition: background-color var(--t-fast);
+  flex-shrink: 0;
+}
+
+.mobileMenuButton:hover {
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+}
+
 @media screen and (max-width: 768px) {
   .search {
     display: none;
+  }
+
+  .mobileMenuButton {
+    display: flex;
   }
 }

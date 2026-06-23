@@ -10,6 +10,9 @@ export type LayoutContextType = {
 
   fullscreen: boolean;
   setFullscreen: (value: boolean) => void;
+
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (value: boolean) => void;
 };
 
 export const LayoutContext = createContext<

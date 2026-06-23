@@ -6,6 +6,8 @@ import styles from './Header.module.css';
 import Avatar from './Avatar/Avatar';
 import { ImExit } from 'react-icons/im';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import useLayout from '@/hooks/useLayout';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -13,6 +15,7 @@ export default function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
   const userName = session?.user?.name ?? '';
   const userEmail = session?.user?.email ?? '';
+  const { setMobileMenuOpen } = useLayout();
 
   // Fecha o menu caso clique fora do componente
   useEffect(() => {
@@ -38,6 +41,9 @@ export default function Header() {
   console.log(session)
   return (
     <header className={styles.header}>
+      <button className={styles.mobileMenuButton} onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menu">
+        <GiHamburgerMenu />
+      </button>
       <span className={styles.title}>Aços Hub</span>
       {/* <div className={styles.search}>
         <CiSearch />

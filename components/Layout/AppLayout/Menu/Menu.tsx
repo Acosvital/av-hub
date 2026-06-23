@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import type { MenuItem } from "./MenuItem/MenuItem";
 import iconMap from "./MenuItem/iconMap";
 import Image from "next/image";
+import useLayout from "@/hooks/useLayout";
+import { usePathname } from "next/navigation";
 
 const containerClass: Partial<Record<number, string>> = {
   1: styles.submenu,
@@ -130,6 +132,14 @@ const Menu = () => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const { status } = useSession();
+  const { mobileMenuOpen, setMobileMenuOpen } = useLayout();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname, setMobileMenuOpen]);
+
+  const effectiveMinimized = isMinimized && !mobileMenuOpen;
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -162,15 +172,19 @@ const Menu = () => {
   };
 
   return (
-    <aside className={isMinimized ? styles.minimized : styles.expanded}>
+    <>
+      {mobileMenuOpen && (
+        <div className={styles.backdrop} onClick={() => setMobileMenuOpen(false)} />
+      )}
+      <aside className={`${effectiveMinimized ? styles.minimized : styles.expanded} ${mobileMenuOpen ? styles.mobileOpen : ''}`}>
       <div className={styles.logo}>
         <Link href="/" className={styles.link}>
-          <Image src="/logo.png" alt="Aços Vital" height={30} width={138} className={isMinimized ? styles.hidden : styles.logoImg} />
+          <Image src="/logo.png" alt="Aços Vital" height={30} width={138} className={effectiveMinimized ? styles.hidden : styles.logoImg} />
         </Link>
         <GiHamburgerMenu
           className={styles.hamburger}
-          onClick={() => setIsMinimized(!isMinimized)}
-          title={isMinimized ? "Expandir" : "Minimizar"}
+          onClick={() => { setIsMinimized(!isMinimized); setMobileMenuOpen(false); }}
+          title={effectiveMinimized ? "Expandir" : "Minimizar"}
         />
       </div>
       <ul className={styles.menuContainer}>
@@ -180,7 +194,7 @@ const Menu = () => {
             item={item}
             depth={0}
             path={item.id}
-            isMinimized={isMinimized}
+            isMinimized={effectiveMinimized}
             setIsMinimized={setIsMinimized}
             expandedItems={expandedItems}
             toggleItem={toggleItem}
@@ -189,6 +203,7 @@ const Menu = () => {
         ))}
       </ul>
     </aside>
+    </>
   );
 };
 

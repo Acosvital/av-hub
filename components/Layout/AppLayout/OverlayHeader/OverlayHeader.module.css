@@ -181,8 +181,15 @@
   font-size: var(--fs-md);
 }
 
+.mobileMenuButton {
+  display: none;
+}
+
 @media screen and (max-width: 768px) {
-  .search {
+  .mobileMenuButton {
+    display: flex;
+  }
+  .title{
     display: none;
   }
 }
