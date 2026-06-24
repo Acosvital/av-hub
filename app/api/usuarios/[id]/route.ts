@@ -35,3 +35,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const data = await apiFetch(`${process.env.API_URL}/usuarios/${id}/senha`, 'Erro ao alterar senha', {
+      method: 'PATCH',
+      headers: { 'x-api-key': process.env.API_KEY!, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}

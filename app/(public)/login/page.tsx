@@ -33,6 +33,17 @@ export default function Login() {
     window.location.href = '/';
   };
 
+  const inputSx = {
+    '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
+    '& .MuiInputLabel-root': { color: 'var(--white)' },
+    '& .MuiInputLabel-shrink': { backgroundColor: 'var(--navy-900)', padding: '0 4px' },
+    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
+      WebkitBoxShadow: '0 0 0 1000px var(--navy-900) inset',
+      WebkitTextFillColor: 'white',
+      transition: 'background-color 5000s ease-in-out 0s',
+    },
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -53,11 +64,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
-            sx={{
-              '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
-              '& .MuiInputLabel-root': { color: 'var(--white)' },
-              '& .MuiInputLabel-animated': { backgroundColor: 'transparent' }
-            }}
+            sx={inputSx}
           />
           <TextField
             label="Senha"
@@ -66,11 +73,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
-            sx={{
-              '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
-              '& .MuiInputLabel-root': { color: 'var(--white)' },
-              '& .MuiInputLabel-animated': { backgroundColor: 'transparent' }
-            }}
+            sx={inputSx}
           />
           {error && (
             <p style={{ color: 'var(--error, #f87171)', fontSize: 'var(--fs-sm)', margin: 0 }}>

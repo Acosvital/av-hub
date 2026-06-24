@@ -72,7 +72,8 @@ export const authOptions: AuthOptions = {
 
           if (!res.ok) return null;
 
-          return await res.json();
+          const data = await res.json();
+          return { email: credentials.email, ...data };
         } catch {
           return null;
         }
@@ -84,6 +85,9 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, account, user }) {
+      console.log('token', token)
+      console.log('account', account)
+      console.log('user', user)
       if (account?.provider === "azure-ad") {
         token.authProvider = "azure";
         const id_usuario = await findUserByEmail(token.email ?? "");
@@ -101,7 +105,7 @@ export const authOptions: AuthOptions = {
         token.id_usuario = user.id;
         const userSession = await fetchMenu(user.id);
         token.email = userSession?.usuario.email ?? token.email;
-        token.name = userSession?.usuario.username ?? token.name;
+        token.name = userSession?.usuario.username ?? token.name ?? token.email;
         token.picture = userSession?.usuario.avatar_url ?? token.picture;
         token.menu = userSession?.menu ?? [];
       }

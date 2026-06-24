@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './OverlayHeader.module.css';
 import useLayout from '@/hooks/useLayout';
-import { signOut, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import ThemeToggle from '../Header/ThemeToggle/ThemeToggle';
-import Avatar from '../Header/Avatar/Avatar';
-import { ImExit } from 'react-icons/im';
+import UserMenu from '../Header/UserMenu/UserMenu';
 import { MdFullscreen, MdFullscreenExit, MdOutlineHistory } from 'react-icons/md';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -16,15 +15,11 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 
 const OverlayHeader = () => {
-  const { data: session, status } = useSession();
-  const [isOpen, setIsOpen] = useState(false);
+  const { status } = useSession();
   const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
   const [isHistoric, setIsHistoric] = useState(false);
   const { fullscreen, setFullscreen, setMobileMenuOpen } = useLayout();
-  const menuRef = useRef<HTMLDivElement>(null);
   const dateFilters = useRef<HTMLDivElement>(null);
-  const userName = session?.user?.name ?? '';
-  const userEmail = session?.user?.email ?? '';
   const [mouseVisible, setMouseVisible] = useState(true);
   const visible = !fullscreen || mouseVisible;
 
@@ -71,9 +66,6 @@ const OverlayHeader = () => {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
       if (dateFilters.current && !dateFilters.current.contains(event.target as Node)) {
         setIsOpenDatePicker(false);
       }
@@ -82,25 +74,12 @@ const OverlayHeader = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleToggleMenu = () => {
-    setIsOpen((prev) => !prev);
-    isOpenDatePicker && setIsOpenDatePicker(false);
-  };
-
   const handleDatePicker = () => {
     setIsOpenDatePicker((prev) => !prev);
-    isOpen && setIsOpen(false);
   };
 
   const handleHistoric = () => {
     setIsHistoric((prev) => !prev);
-  };
-
-  const handleLogout = async () => {
-    setIsOpen(false);
-    await signOut({
-      callbackUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout',
-    });
   };
 
   return (
@@ -114,7 +93,7 @@ const OverlayHeader = () => {
       </button>
       <span className={styles.title}>Aços Hub</span>
 
-      {status === 'authenticated' && userName && (
+      {status === 'authenticated' && (
         <div className={styles.buttonsContainer}>
           <button
             className={`${styles.actionButton} ${isHistoric && styles.active}`}
@@ -191,22 +170,7 @@ const OverlayHeader = () => {
             {fullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
           </button>
           <ThemeToggle />
-          <div className={styles.avatarContainer} ref={menuRef}>
-            <Avatar name={userName} onClick={handleToggleMenu} />
-            {isOpen && (
-              <div className={styles.configMenu}>
-                <div className={styles.userInfo}>
-                  <span className={styles.userName}>{userName}</span>
-                  <span className={styles.userEmail}>{userEmail}</span>
-                </div>
-                <hr className={styles.divider} />
-                <button className={styles.logoutButton} onClick={handleLogout}>
-                  <ImExit />
-                  Sair
-                </button>
-              </div>
-            )}
-          </div>
+          <UserMenu onOpen={() => setIsOpenDatePicker(false)} />
         </div>
       )}
     </header>

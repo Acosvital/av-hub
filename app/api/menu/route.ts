@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { apiFetch } from "@/lib/api/fetchHelper";
 
 export async function GET() {
   try {
@@ -10,20 +11,14 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const res = await fetch(
+    const data = await apiFetch<{ menu?: unknown[] }>(
       `${process.env.API_URL}/permissoes_usuario/menu/${session.user.id_usuario}`,
-      {
-        headers: { "x-api-key": process.env.API_KEY! },
-        cache: "no-store",
-      }
+      "Erro ao buscar menu",
+      { headers: { "x-api-key": process.env.API_KEY! }, cache: "no-store" }
     );
 
-    if (!res.ok) throw new Error("Erro ao buscar menu");
-
-    const data: { menu?: unknown[] } = await res.json();
     return NextResponse.json(data.menu ?? []);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+  } catch {
+    return NextResponse.json([]);
   }
 }
