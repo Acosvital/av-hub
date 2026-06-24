@@ -45,6 +45,14 @@ export async function editarUsuario(id: string, data: object) {
   });
 }
 
+export async function alterarSenha(id: string, data: { senha_atual: string; senha_nova: string }) {
+  return apiFetch(`/api/usuarios/${id}`, 'Erro ao alterar senha', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
 export async function deletarUsuario(id: string) {
   const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
   if (!res.ok) {

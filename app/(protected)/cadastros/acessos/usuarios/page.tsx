@@ -133,10 +133,7 @@ export default function Usuarios() {
       notify.error('E-mail inválido');
       return;
     }
-    if (!editingId && !form.senha.trim()) {
-      notify.error('Senha é obrigatória para novos usuários');
-      return;
-    }
+
 
     try {
       setSaving(true);
@@ -146,7 +143,7 @@ export default function Usuarios() {
         id_funcionario: form.id_funcionario.trim() || null,
         ativo: form.ativo,
       };
-      if (form.senha.trim()) {
+      if (!editingId && form.senha.trim()) {
         payload.senha = form.senha;
       }
 
@@ -329,20 +326,23 @@ export default function Usuarios() {
             />
           </div>
 
-          {/* Segurança */}
-          <p className={styles.sectionTitle}>Segurança</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label='Senha'
-              type='password'
-              required={!editingId}
-              value={form.senha}
-              onChange={(e) => setField('senha', e.target.value)}
-              helperText={editingId ? 'Deixe em branco para manter a senha atual' : undefined}
-            />
-          </div>
+          {/* Segurança — somente na criação */}
+          {!editingId && (
+            <>
+              <p className={styles.sectionTitle}>Segurança</p>
+              <hr className={styles.divider} />
+              <div className={styles.formRow}>
+                <TextField
+                  sx={{ flex: 1, minWidth: 260 }}
+                  label='Senha inicial'
+                  type='password'
+                  value={form.senha}
+                  onChange={(e) => setField('senha', e.target.value)}
+                  helperText='Opcional — deixe em branco para usuários que acessam via Microsoft'
+                />
+              </div>
+            </>
+          )}
 
           {/* Vínculos */}
           <p className={styles.sectionTitle}>Vínculos</p>
