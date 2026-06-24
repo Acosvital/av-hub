@@ -8,7 +8,19 @@ interface GetTelasParams {
   id_parent?: string | null;
 }
 
-export async function getTelas(params: GetTelasParams = {}) {
+interface TelasResponse {
+  menus: {
+    id: string;
+    nome: string;
+    ativo: boolean;
+    id_parent: string | null;
+    ordem: number;
+    slug: string;
+  }[];
+  total?: number;
+}
+
+export async function getTelas(params: GetTelasParams = {}): Promise<TelasResponse> {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));

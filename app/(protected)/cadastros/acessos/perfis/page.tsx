@@ -17,8 +17,9 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getPerfis, criarPerfil, editarPerfil } from '@/services/perfis';
+import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/perfis';
 import { FormPerfil, PerfilProps } from './types';
+import Dialog from '@/components/Ui/Dialog/Dialog';
 
 const FORM_INICIAL: FormPerfil = {
   nome: '',
@@ -26,11 +27,16 @@ const FORM_INICIAL: FormPerfil = {
 };
 
 export default function Perfis() {
+  //states de loading:
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  //state utilizado para controlar a atualização dos resultados ao criar/editar:
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [rows, setRows] = useState<PerfilProps[]>([]);
@@ -40,13 +46,14 @@ export default function Perfis() {
 
   const [nomeInput, setNomeInput] = useState('');
   const nome = useDebounce(nomeInput, 500);
-
   const [form, setForm] = useState<FormPerfil>(FORM_INICIAL);
 
+  //Função auxiliar para alertar erros;
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
 
+  //Carrega os dados iniciais e ao filtrar;
   useEffect(() => {
     async function fetchPerfis() {
       try {
@@ -56,6 +63,7 @@ export default function Perfis() {
           limit: rowsPerPage,
           nome,
         });
+        console.log(response)
         setRows(response.perfis ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -89,6 +97,7 @@ export default function Perfis() {
   };
 
   const salvarPerfil = async () => {
+    // Validações de preenchimento dos campos:
     if (!form.nome.trim()) {
       notify.error('Nome é obrigatório');
       return;
@@ -102,7 +111,7 @@ export default function Perfis() {
       setSaving(true);
       const payload = {
         nome: form.nome,
-        descricao: form.descricao.trim() || null,
+        descricao: form.descricao?.trim() || null,
       };
 
       if (editingId) {
@@ -122,7 +131,24 @@ export default function Perfis() {
       setSaving(false);
     }
   };
+  const excluirPerfil = async () => {
+    if (!editingId) return;
+    try {
+      setDeleting(true);
+      await deletarPerfil(editingId);
+      notify.success('Perfil excluído com sucesso');
+      setIsDeleteDialogOpen(false);
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao excluir perfil');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
+  //Função utilitária para mapear os tipos aceitos no FormPerfil para o setForm
   const setField = <K extends keyof FormPerfil>(field: K, value: FormPerfil[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -237,16 +263,42 @@ export default function Perfis() {
             />
           </div>
 
-          <div className={styles.formActions}>
+          {/* <div className={styles.formActions}>
             <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
               Cancelar
             </Button>
             <Button variant='primary' onClick={salvarPerfil}>
               {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Perfil'}
             </Button>
+          </div> */}
+          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+            {editingId && (
+              <Button variant='danger' onClick={() => setIsDeleteDialogOpen(true)}>
+                Excluir Perfil
+              </Button>
+            )}
+            <div className={styles.formActionsMain}>
+              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant='primary' onClick={salvarPerfil}>
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Perfil'}
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
+      <Dialog
+        title='Excluir Usuário'
+        isLoading={deleting}
+        onConfirm={excluirPerfil}
+        isOpen={isDeleteDialogOpen}
+        message='Tem certeza que deseja excluir o perfil? Esta ação não pode ser desfeita.'
+        onClose={() => setIsDeleteDialogOpen(false)}
+        confirmLabel='Excluir'
+        loadingLabel='Excluindo...'
+        confirmVariant='danger'
+      />
     </>
   );
 }

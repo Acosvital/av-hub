@@ -1,25 +1,26 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { FormPerfil, PerfilProps } from '@/app/(protected)/cadastros/acessos/perfis/types';
 
-interface GetPerfisParams {
+export interface GetPerfisParams {
   page?: number;
   limit?: number;
   nome?: string;
 }
 
-interface PerfisResponse {
-  perfis: { id: string; nome: string }[];
+export interface PerfisResponse {
+  perfis: PerfilProps[];
   total?: number;
 }
 
-export async function getPerfis(params: GetPerfisParams = {}) {
+export async function getPerfis(params: GetPerfisParams = {}): Promise<PerfisResponse> {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome) query.set('nome', params.nome);
-  return apiFetch<PerfisResponse>(`/api/perfis?${query}`, 'Erro ao buscar perfis');
+  return apiFetch(`/api/perfis?${query}`, 'Erro ao buscar perfis');
 }
 
-export async function criarPerfil(data: object) {
+export async function criarPerfil(data: FormPerfil) {
   return apiFetch('/api/perfis', 'Erro ao criar perfil', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,10 +28,17 @@ export async function criarPerfil(data: object) {
   });
 }
 
-export async function editarPerfil(id: string, data: object) {
+export async function editarPerfil(id: string, data: FormPerfil) {
   return apiFetch(`/api/perfis/${id}`, 'Erro ao atualizar perfil', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+  });
+}
+
+export async function deletarPerfil(id: string) {
+  return apiFetch(`/api/perfis/${id}`, 'Erro ao deletar perfil', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' }
   });
 }
