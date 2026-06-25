@@ -63,7 +63,6 @@ export default function UsuariosPerfis() {
           getUsuarios({ limit: 1000 }),
           getPerfis({ limit: 1000 }),
         ]);
-        console.log(usuariosRes, perfisRes)
         setAllUsuarios(usuariosRes.usuarios ?? []);
         setAllPerfis(perfisRes.perfis ?? []);
       } catch (err) {

@@ -1,5 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
-import type { UsuarioPerfilProps } from '@/app/(protected)/cadastros/acessos/usuariosPerfis/types';
+import type { UsuarioPerfilProps } from '@/app/(protected)/cadastros/acessos/usuariosperfis/types';
+import { PaginatedResponse } from './types';
 
 interface GetUsuariosPerfisParams {
   page?: number;
@@ -8,9 +9,8 @@ interface GetUsuariosPerfisParams {
   id_perfil?: string;
 }
 
-interface UsuariosPerfisResponse {
+interface UsuariosPerfisResponse extends PaginatedResponse {
   data: UsuarioPerfilProps[];
-  total: number;
 }
 
 export async function getUsuariosPerfis(params: GetUsuariosPerfisParams = {}) {

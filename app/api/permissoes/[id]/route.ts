@@ -16,3 +16,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
+
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const data = await apiFetch(`${process.env.API_URL}/permissoes/${id}`, 'Erro ao deletar permissão', {
+      method: 'DELETE',
+      headers: { 'x-api-key': process.env.API_KEY! },
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}

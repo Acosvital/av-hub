@@ -50,10 +50,8 @@ export default function CatalogoDeProdutos() {
         ] = await Promise.all([
           getTodosFornecedores(),
         ]);
-        console.log('aqui', fornecedorData)
         setRows(fornecedorData.fornecedores);
       } catch (erro) {
-        console.log(erro)
         setError('Erro ao carregar fornecedores');
       } finally {
         setLoading(false);

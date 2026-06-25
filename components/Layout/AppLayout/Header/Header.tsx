@@ -10,7 +10,6 @@ import UserMenu from './UserMenu/UserMenu';
 export default function Header() {
   const { status } = useSession();
   const { setMobileMenuOpen } = useLayout();
-
   return (
     <header className={styles.header}>
       <button className={styles.mobileMenuButton} onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menu">

@@ -29,7 +29,7 @@ import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/usuarios';
 import { FormUsuario, UsuarioProps } from './types';
-import Dialog from '@/components/Ui/Dialog/Dialog';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 const FORM_INICIAL: FormUsuario = {
   username: '',
@@ -42,8 +42,6 @@ const FORM_INICIAL: FormUsuario = {
 export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -78,7 +76,6 @@ export default function Usuarios() {
           email,
           ativo,
         });
-        console.log(response)
         setRows(response.usuarios ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -168,19 +165,22 @@ export default function Usuarios() {
   const excluirUsuario = async () => {
     if (!editingId) return;
     try {
-      setDeleting(true);
       await deletarUsuario(editingId);
       notify.success('Usuário excluído com sucesso');
-      setIsDeleteDialogOpen(false);
       setIsModalOpen(false);
       setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
       setError('Erro ao excluir usuário');
-    } finally {
-      setDeleting(false);
+      throw err;
     }
   };
+
+  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
+    onConfirm: excluirUsuario,
+    message: 'Tem certeza que deseja excluir o usuário? Esta ação não pode ser desfeita.',
+    title: 'Excluir Usuário',
+  });
 
   const setField = <K extends keyof FormUsuario>(field: K, value: FormUsuario[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -375,7 +375,7 @@ export default function Usuarios() {
 
           <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
             {editingId && (
-              <Button variant='danger' onClick={() => setIsDeleteDialogOpen(true)}>
+              <Button variant='danger' onClick={openDeleteDialog}>
                 Excluir Usuário
               </Button>
             )}
@@ -390,17 +390,7 @@ export default function Usuarios() {
           </div>
         </div>
       </Modal>
-      <Dialog
-        title='Excluir Usuário'
-        isLoading={deleting}
-        onConfirm={excluirUsuario}
-        isOpen={isDeleteDialogOpen}
-        message='Tem certeza que deseja excluir o usuário? Esta ação não pode ser desfeita.'
-        onClose={() => setIsDeleteDialogOpen(false)}
-        confirmLabel='Excluir'
-        loadingLabel='Excluindo...'
-        confirmVariant='danger'
-      />
+      {deleteDialog}
     </>
   );
 }

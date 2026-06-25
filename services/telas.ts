@@ -1,4 +1,6 @@
+import { TelaProps } from '@/app/(protected)/cadastros/acessos/telas/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { PaginatedResponse } from './types';
 
 interface GetTelasParams {
   page?: number;
@@ -8,7 +10,11 @@ interface GetTelasParams {
   id_parent?: string | null;
 }
 
-export async function getTelas(params: GetTelasParams = {}) {
+interface TelasResponse extends PaginatedResponse {
+  menus: TelaProps[];
+}
+
+export async function getTelas(params: GetTelasParams = {}): Promise<TelasResponse> {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
@@ -32,4 +38,11 @@ export async function editarTela(id: string, data: object) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+}
+
+export async function deletarTela(id: string) {
+  return apiFetch(`/api/telas/${id}`, 'Erro ao excluir tela', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' }
+  })
 }
