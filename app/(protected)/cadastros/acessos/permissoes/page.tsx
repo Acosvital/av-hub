@@ -25,14 +25,22 @@ import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent'
 import { notify } from '@/lib/toast/toast';
 import { getPerfis } from '@/services/perfis';
 import { getTelas } from '@/services/telas';
-import { getPermissoes, criarPermissao, editarPermissao, deletarPermissao } from '@/services/permissoes';
+import {
+  getPermissoes,
+  criarPermissao,
+  editarPermissao,
+  deletarPermissao,
+} from '@/services/permissoes';
 import { FormPermissao, PermissaoProps } from './types';
 import { TelaProps } from '../telas/types';
 import { usePermission } from '@/hooks/usePermission';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 
-interface PerfilRef { id: string; nome: string; }
+interface PerfilRef {
+  id: string;
+  nome: string;
+}
 
 const FORM_INICIAL: FormPermissao = {
   id_perfil: '',
@@ -50,8 +58,8 @@ export default function Permissoes() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
-  const {can} = usePermission();
+
+  const { can } = usePermission();
 
   const [rows, setRows] = useState<PermissaoProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -79,8 +87,8 @@ export default function Permissoes() {
           getPerfis({ limit: 1000 }),
           getTelas({ limit: 1000 }),
         ]);
-        console.log(perfisRes)
-        console.log(telasRes)
+        console.log(perfisRes);
+        console.log(telasRes);
         setAllPerfis(perfisRes.perfis ?? []);
         setAllTelas(telasRes.menus ?? []);
       } catch (err) {
@@ -100,7 +108,7 @@ export default function Permissoes() {
           id_perfil: perfilFiltro?.id,
           id_tela: telaFiltro?.id,
         });
-        console.log(response)
+        console.log(response);
         setRows(response.permissoes ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -214,11 +222,11 @@ export default function Permissoes() {
   return (
     <>
       <PageHeader
-        title='Permissões'
-        subtitle='Gerencie as permissões de acesso dos perfis às telas do sistema'
+        title="Permissões"
+        subtitle="Gerencie as permissões de acesso dos perfis às telas do sistema"
       />
       <PageContent>
-        <Card title='Filtros' height='fit'>
+        <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
@@ -230,9 +238,7 @@ export default function Permissoes() {
                 setPage(0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => (
-                <TextField {...params} label='Perfil' variant='outlined' />
-              )}
+              renderInput={(params) => <TextField {...params} label="Perfil" variant="outlined" />}
             />
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
@@ -244,19 +250,20 @@ export default function Permissoes() {
                 setPage(0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => (
-                <TextField {...params} label='Tela' variant='outlined' />
-              )}
+              renderInput={(params) => <TextField {...params} label="Tela" variant="outlined" />}
             />
           </div>
           <div className={styles.cardButtons}>
-            <Button variant='secondary' onClick={limparFiltros}>
+            <Button variant="secondary" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card title='Permissões Cadastradas' create={can('pode_criar') ? abrirCriacaoModal : undefined}>
+        <Card
+          title="Permissões Cadastradas"
+          create={can('pode_criar') ? abrirCriacaoModal : undefined}
+        >
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -264,7 +271,7 @@ export default function Permissoes() {
             </div>
           ) : (
             <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
-              <Table stickyHeader size='small'>
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     {['Perfil', 'Tela', 'Visualizar', 'Criar', 'Editar', 'Deletar'].map((label) => (
@@ -286,28 +293,28 @@ export default function Permissoes() {
                         <Chip
                           label={row.pode_visualizar ? 'Sim' : 'Não'}
                           color={row.pode_visualizar ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                       <TableCell>
                         <Chip
                           label={row.pode_criar ? 'Sim' : 'Não'}
                           color={row.pode_criar ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                       <TableCell>
                         <Chip
                           label={row.pode_editar ? 'Sim' : 'Não'}
                           color={row.pode_editar ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                       <TableCell>
                         <Chip
                           label={row.pode_deletar ? 'Sim' : 'Não'}
                           color={row.pode_deletar ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                     </TableRow>
@@ -318,11 +325,11 @@ export default function Permissoes() {
           )}
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
-            component='div'
+            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage='Resultados por página'
+            labelRowsPerPage="Resultados por página"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -361,7 +368,7 @@ export default function Permissoes() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Perfil'
+                  label="Perfil"
                   required
                   helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
                 />
@@ -381,7 +388,7 @@ export default function Permissoes() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Tela'
+                  label="Tela"
                   required
                   helperText={editingId ? 'Não pode ser alterada após a criação' : ''}
                 />
@@ -397,20 +404,20 @@ export default function Permissoes() {
                 <Switch
                   checked={form.pode_visualizar}
                   onChange={(e) => setField('pode_visualizar', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Pode Visualizar'
+              label="Pode Visualizar"
             />
             <FormControlLabel
               control={
                 <Switch
                   checked={form.pode_criar}
                   onChange={(e) => setField('pode_criar', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Pode Criar'
+              label="Pode Criar"
             />
           </div>
           <div className={styles.formRow}>
@@ -419,36 +426,40 @@ export default function Permissoes() {
                 <Switch
                   checked={form.pode_editar}
                   onChange={(e) => setField('pode_editar', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Pode Editar'
+              label="Pode Editar"
             />
             <FormControlLabel
               control={
                 <Switch
                   checked={form.pode_deletar}
                   onChange={(e) => setField('pode_deletar', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Pode Deletar'
+              label="Pode Deletar"
             />
           </div>
 
-          <div className={editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions}>
+          <div
+            className={
+              editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions
+            }
+          >
             {editingId && (
-              <PermissionButton acao='pode_deletar' variant='danger' onClick={openDeleteDialog}>
+              <PermissionButton acao="pode_deletar" variant="danger" onClick={openDeleteDialog}>
                 Excluir Permissão
               </PermissionButton>
             )}
             <div className={styles.formActionsMain}>
-              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
               <PermissionButton
                 acao={editingId ? 'pode_editar' : 'pode_criar'}
-                variant='primary'
+                variant="primary"
                 onClick={salvarPermissao}
                 disabled={saving}
               >
