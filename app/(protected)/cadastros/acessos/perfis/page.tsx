@@ -61,7 +61,6 @@ export default function Perfis() {
           limit: rowsPerPage,
           nome,
         });
-        console.log(response)
         setRows(response.perfis ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {

@@ -1,3 +1,4 @@
+import { TelaProps } from '@/app/(protected)/cadastros/acessos/telas/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
 
 interface GetTelasParams {
@@ -9,14 +10,7 @@ interface GetTelasParams {
 }
 
 interface TelasResponse {
-  menus: {
-    id: string;
-    nome: string;
-    ativo: boolean;
-    id_parent: string | null;
-    ordem: number;
-    slug: string;
-  }[];
+  menus: TelaProps[];
   total?: number;
 }
 
@@ -44,4 +38,11 @@ export async function editarTela(id: string, data: object) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+}
+
+export async function deletarTela(id: string) {
+  return apiFetch(`/api/telas/${id}`, 'Erro ao excluir tela', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' }
+  })
 }

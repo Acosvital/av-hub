@@ -28,8 +28,9 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getTelas, criarTela, editarTela } from '@/services/telas';
+import { getTelas, criarTela, editarTela, deletarTela } from '@/services/telas';
 import { FormTela, TelaProps } from './types';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 const FORM_INICIAL: FormTela = {
   nome: '',
@@ -53,8 +54,8 @@ export default function Telas() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
@@ -99,6 +100,7 @@ export default function Telas() {
           nome,
           ativo,
         });
+        console.log(response)
         setRows(response.menus ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -177,6 +179,26 @@ export default function Telas() {
       setSaving(false);
     }
   };
+
+  const excluirTela = async () => {
+    if (!editingId) return;
+    try {
+      await deletarTela(editingId);
+      notify.success('Tela excluída com sucesso');
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao excluir tela');
+      throw err;
+    }
+  };
+
+  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
+    onConfirm: excluirTela,
+    message: 'Tem certeza que deseja excluir a tela? Esta ação não pode ser desfeita.',
+    title: 'Excluir Tela',
+  });
 
   const setField = <K extends keyof FormTela>(field: K, value: FormTela[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -337,6 +359,8 @@ export default function Telas() {
               onChange={(_, v) => {
                 setParentSelecionado(v);
                 setField('id_parent', v?.id ?? null);
+                // ordem do pai ++ ou 0 para raíz:
+                setField('ordem', v ? v.ordem++ : 0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
               renderInput={(params) => (
@@ -346,14 +370,6 @@ export default function Telas() {
                   helperText='Deixe vazio para item raiz do menu'
                 />
               )}
-            />
-            <TextField
-              sx={{ width: 120 }}
-              label='Ordem'
-              type='number'
-              value={form.ordem}
-              onChange={(e) => setField('ordem', parseInt(e.target.value) || 0)}
-              slotProps={{ htmlInput: { min: 0 } }}
             />
           </div>
 
@@ -373,16 +389,24 @@ export default function Telas() {
             />
           </div>
 
-          <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant='primary' onClick={salvarTela}>
-              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Tela'}
-            </Button>
+          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+            {editingId && (
+              <Button variant='danger' onClick={openDeleteDialog}>
+                Excluir Perfil
+              </Button>
+            )}
+            <div className={styles.formActionsMain}>
+              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant='primary' onClick={salvarTela}>
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Tela'}
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
+      {deleteDialog}
     </>
   );
 }
