@@ -11,19 +11,19 @@
   /* ---------- BRAND PALETTE ---------- */
   --av-primary: #081437;
   /* Navy — primary brand, buttons, headings, menu chrome */
-  --av-primary-hover: #131D33;
+  --av-primary-hover: #131d33;
   /* hover/pressed shade for primary */
   --av-secondary: #334155;
   /* slate — table dividers, secondary surfaces */
   --av-tertiary: #101424;
   /* deeper navy for surfaces in dark mode */
-  --av-accent: #C2410C;
+  --av-accent: #c2410c;
   /* burnt orange — accents, highlights, "danger-warm" CTAs */
 
   /* ---------- EXTENDED NAVY/SLATE SCALE ---------- */
   --navy-950: #020617;
   --navy-900: #0f172a;
-  --navy-800: #131D33;
+  --navy-800: #131d33;
   --navy-700: #1e293b;
   --navy-600: #334155;
   --navy-500: #45464e;
@@ -57,7 +57,7 @@
   /* Card / data-surface semantic tokens (theme-aware) */
   --card-bg: var(--neutral-0);
   --card-bg-secondary: var(--neutral-0);
-  --card-bg-tertiary: #3F4857;
+  --card-bg-tertiary: #3f4857;
   --header-bg: var(--neutral-0);
   --card-title: var(--av-primary);
   --input-bg: var(--neutral-0);
@@ -103,52 +103,51 @@
   --info: #2563eb;
 
   /* --------------- DASHBOARD -------------- */
-  --gold: #F0B100;
-  --silver: #CAD5E2;
-  --bronze: #E17100;
+  --gold: #f0b100;
+  --silver: #cad5e2;
+  --bronze: #e17100;
   --default: #1d293d;
 
   /* ------------- FIXED COLORS ------------- */
 
   /* Verde */
-  --green-light: #86EFAC;
-  --green: #16A34A;
+  --green-light: #86efac;
+  --green: #16a34a;
 
   /* Azul */
-  --blue-light: #93C5FD;
-  --blue: #2563EB;
+  --blue-light: #93c5fd;
+  --blue: #2563eb;
 
   /* Amarelo */
-  --yellow-light: #FDE047;
-  --yellow: #CA8A04;
+  --yellow-light: #fde047;
+  --yellow: #ca8a04;
 
   /* Vermelho */
-  --red-light: #FCA5A5;
-  --red: #DC2626;
+  --red-light: #fca5a5;
+  --red: #dc2626;
 
   /* Laranja */
-  --orange-light: #FDBA74;
-  --orange: #EA580C;
+  --orange-light: #fdba74;
+  --orange: #ea580c;
 
   /* Cinza */
-  --gray-light: #D1D5DB;
-  --gray: #4B5563;
+  --gray-light: #d1d5db;
+  --gray: #4b5563;
 
   /* Roxo */
-  --purple-light: #D8B4FE;
-  --purple: #7C3AED;
+  --purple-light: #d8b4fe;
+  --purple: #7c3aed;
 
   /* Rosa */
-  --pink-light: #F9A8D4;
-  --pink: #DB2777;
-
+  --pink-light: #f9a8d4;
+  --pink: #db2777;
 
   /* ---------- ELEVATION / SHADOWS ---------- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.18);
   --shadow-xl: 0 20px 35px rgba(0, 0, 0, 0.28);
-  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.30);
+  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.3);
   /* matches Card.module.css */
   --shadow-header: 0 3px 15px color-mix(in srgb, #191c1e, gray 95%);
   /* Header.module.css */
@@ -218,7 +217,7 @@
 
 /* ----- Dark mode (mirrors styles/variables.css `.dark`) ----- */
 .dark,
-[data-theme="dark"] {
+[data-theme='dark'] {
   --background: var(--navy-950);
   --surface: var(--av-tertiary);
   --surface-secondary: var(--navy-700);
@@ -241,7 +240,7 @@
   --card-bg: #1e293b;
   --card-bg-secondary: var(--navy-800);
   /* slate-700 — cards pop forward */
-  --header-bg: #131D33;
+  --header-bg: #131d33;
   /* one tier darker so cards float over the header line */
   --card-title: var(--neutral-50);
   --input-bg: #0f172a;
@@ -252,7 +251,7 @@
   --input-border-disabled: var(--navy-600);
   --input-text-disabled: var(--navy-400);
   --input-label-disabled: var(--navy-300);
-  --table-head-bg: #131D33;
+  --table-head-bg: #131d33;
   --table-head-fg: var(--neutral-50);
   --table-row-fg: var(--neutral-50);
   --table-row-hover: #334155;
@@ -382,9 +381,9 @@ a {
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important; /* Troque #ffffff pela sua cor */
-    -webkit-text-fill-color: var(--foreground) !important; /* Troque pela cor do seu texto */
+  -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important; /* Troque #ffffff pela sua cor */
+  -webkit-text-fill-color: var(--foreground) !important; /* Troque pela cor do seu texto */
 }

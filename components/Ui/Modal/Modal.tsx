@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useRef } from "react"
+import { ReactNode, useEffect, useRef } from 'react';
 import styles from './Modal.module.css';
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose } from 'react-icons/io';
 
 interface ModalProps {
   type?: 'primary' | 'secondary';
@@ -8,10 +8,18 @@ interface ModalProps {
   subtitle?: string;
   isOpen: boolean;
   onClose: () => void;
-  children: ReactNode
+  children: ReactNode;
 }
 
-const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, ...props }: ModalProps) => {
+const Modal = ({
+  type = 'primary',
+  title,
+  subtitle,
+  isOpen,
+  onClose,
+  children,
+  ...props
+}: ModalProps) => {
   const mouseDownTarget = useRef<EventTarget | null>(null);
 
   useEffect(() => {
@@ -31,10 +39,17 @@ const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, .
       role="dialog"
       aria-modal="true"
       {...props}
-      onMouseDown={(e) => { mouseDownTarget.current = e.target; }}
-      onClick={(e) => { if (mouseDownTarget.current === e.currentTarget) onClose(); }}
+      onMouseDown={(e) => {
+        mouseDownTarget.current = e.target;
+      }}
+      onClick={(e) => {
+        if (mouseDownTarget.current === e.currentTarget) onClose();
+      }}
     >
-      <div className={`${styles.modalCard} ${type === 'secondary' && styles.backgroundSecondary}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.modalCard} ${type === 'secondary' && styles.backgroundSecondary}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.modalHeader}>
           <div>
             {title && <h2 className={styles.modalTitle}>{title}</h2>}
@@ -45,7 +60,7 @@ const Modal = ({ type = 'primary', title, subtitle, isOpen, onClose, children, .
         {children}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Modal;

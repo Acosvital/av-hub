@@ -1,4 +1,4 @@
-import { Gauge as MuiGauge, gaugeClasses } from "@mui/x-charts"
+import { Gauge as MuiGauge, gaugeClasses } from '@mui/x-charts';
 interface GaugeProps {
   size?: number;
   startAngle?: number;
@@ -7,13 +7,7 @@ interface GaugeProps {
   color?: string;
 }
 
-const Gauge = ({
-  size = 300,
-  startAngle = -120,
-  endAngle = 120,
-  value,
-  color
-}: GaugeProps) => {
+const Gauge = ({ size = 300, startAngle = -120, endAngle = 120, value, color }: GaugeProps) => {
   return (
     <div style={{ position: 'relative' }}>
       {/* Injetamos um SVG invisível apenas para carregar a definição do filtro de sombra */}
@@ -40,7 +34,7 @@ const Gauge = ({
         height={size}
         value={value}
         text={({ value }) => `${value}%`}
-        startAngle={value <= 100 ? startAngle: -180}
+        startAngle={value <= 100 ? startAngle : -180}
         endAngle={value <= 100 ? endAngle : 180}
         cornerRadius="50%"
         sx={{
@@ -60,7 +54,7 @@ const Gauge = ({
         }}
       />
     </div>
-  )
+  );
 };
 
 export default Gauge;

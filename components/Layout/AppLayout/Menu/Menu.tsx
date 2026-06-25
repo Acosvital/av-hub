@@ -1,15 +1,15 @@
-"use client"
-import styles from "./Menu.module.css";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { MdExpandMore } from "react-icons/md";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import type { MenuItem } from "./MenuItem/MenuItem";
-import iconMap from "./MenuItem/iconMap";
-import Image from "next/image";
-import useLayout from "@/hooks/useLayout";
-import { usePathname } from "next/navigation";
+'use client';
+import styles from './Menu.module.css';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { MdExpandMore } from 'react-icons/md';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import type { MenuItem } from './MenuItem/MenuItem';
+import iconMap from './MenuItem/iconMap';
+import Image from 'next/image';
+import useLayout from '@/hooks/useLayout';
+import { usePathname } from 'next/navigation';
 
 const containerClass: Partial<Record<number, string>> = {
   1: styles.submenu,
@@ -49,17 +49,17 @@ const MenuNode = ({
     return (
       <li className={styles.menuWrapper}>
         <div
-          className={`${styles.menuCard} ${isExpanded ? styles.selectedMenu : ""}`}
+          className={`${styles.menuCard} ${isExpanded ? styles.selectedMenu : ''}`}
           onClick={() => {
             if (isMinimized) setIsMinimized(false);
             if (hasChildren) onRootExpand(path);
           }}
         >
           {iconMap[item.id as keyof typeof iconMap]}
-          <span className={isMinimized ? styles.hidden : ""}>{item.label}</span>
+          <span className={isMinimized ? styles.hidden : ''}>{item.label}</span>
           {hasChildren && (
             <MdExpandMore
-              className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ""} ${isMinimized ? styles.hidden : ""}`}
+              className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ''} ${isMinimized ? styles.hidden : ''}`}
             />
           )}
         </div>
@@ -91,13 +91,11 @@ const MenuNode = ({
     return (
       <li>
         <div
-          className={`${cssItem} ${styles.submenuItemExpandable} ${isExpanded ? styles.submenuItemSelected : ""}`}
+          className={`${cssItem} ${styles.submenuItemExpandable} ${isExpanded ? styles.submenuItemSelected : ''}`}
           onClick={() => toggleItem(path)}
         >
           {item.label}
-          <MdExpandMore
-            className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ""}`}
-          />
+          <MdExpandMore className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ''}`} />
         </div>
         {isExpanded && (
           <ul className={cssContainer}>
@@ -142,9 +140,9 @@ const Menu = () => {
   const effectiveMinimized = isMinimized && !mobileMenuOpen;
 
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== 'authenticated') return;
 
-    fetch("/api/menu")
+    fetch('/api/menu')
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -156,7 +154,7 @@ const Menu = () => {
   const onRootExpand = (key: string) => {
     setExpandedItems((prev) => {
       if (prev.has(key)) {
-        return new Set([...prev].filter(k => k !== key && !k.startsWith(`${key}/`)));
+        return new Set([...prev].filter((k) => k !== key && !k.startsWith(`${key}/`)));
       }
       return new Set([key]);
     });
@@ -165,7 +163,7 @@ const Menu = () => {
   const toggleItem = (key: string) => {
     setExpandedItems((prev) => {
       if (prev.has(key)) {
-        return new Set([...prev].filter(k => k !== key && !k.startsWith(`${key}/`)));
+        return new Set([...prev].filter((k) => k !== key && !k.startsWith(`${key}/`)));
       }
       return new Set([...prev, key]);
     });
@@ -176,33 +174,44 @@ const Menu = () => {
       {mobileMenuOpen && (
         <div className={styles.backdrop} onClick={() => setMobileMenuOpen(false)} />
       )}
-      <aside className={`${effectiveMinimized ? styles.minimized : styles.expanded} ${mobileMenuOpen ? styles.mobileOpen : ''}`}>
-      <div className={styles.logo}>
-        <Link href="/" className={styles.link}>
-          <Image src="/logo.png" alt="Aços Vital" height={30} width={138} className={effectiveMinimized ? styles.hidden : styles.logoImg} />
-        </Link>
-        <GiHamburgerMenu
-          className={styles.hamburger}
-          onClick={() => { setIsMinimized(!isMinimized); setMobileMenuOpen(false); }}
-          title={effectiveMinimized ? "Expandir" : "Minimizar"}
-        />
-      </div>
-      <ul className={styles.menuContainer}>
-        {menuData.map((item: MenuItem) => (
-          <MenuNode
-            key={item.id}
-            item={item}
-            depth={0}
-            path={item.id}
-            isMinimized={effectiveMinimized}
-            setIsMinimized={setIsMinimized}
-            expandedItems={expandedItems}
-            toggleItem={toggleItem}
-            onRootExpand={onRootExpand}
+      <aside
+        className={`${effectiveMinimized ? styles.minimized : styles.expanded} ${mobileMenuOpen ? styles.mobileOpen : ''}`}
+      >
+        <div className={styles.logo}>
+          <Link href="/" className={styles.link}>
+            <Image
+              src="/logo.png"
+              alt="Aços Vital"
+              height={30}
+              width={138}
+              className={effectiveMinimized ? styles.hidden : styles.logoImg}
+            />
+          </Link>
+          <GiHamburgerMenu
+            className={styles.hamburger}
+            onClick={() => {
+              setIsMinimized(!isMinimized);
+              setMobileMenuOpen(false);
+            }}
+            title={effectiveMinimized ? 'Expandir' : 'Minimizar'}
           />
-        ))}
-      </ul>
-    </aside>
+        </div>
+        <ul className={styles.menuContainer}>
+          {menuData.map((item: MenuItem) => (
+            <MenuNode
+              key={item.id}
+              item={item}
+              depth={0}
+              path={item.id}
+              isMinimized={effectiveMinimized}
+              setIsMinimized={setIsMinimized}
+              expandedItems={expandedItems}
+              toggleItem={toggleItem}
+              onRootExpand={onRootExpand}
+            />
+          ))}
+        </ul>
+      </aside>
     </>
   );
 };

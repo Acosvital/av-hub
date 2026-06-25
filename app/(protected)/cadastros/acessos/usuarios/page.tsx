@@ -131,7 +131,6 @@ export default function Usuarios() {
       return;
     }
 
-
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {
@@ -188,24 +187,21 @@ export default function Usuarios() {
 
   return (
     <>
-      <PageHeader
-        title='Usuários'
-        subtitle='Gerencie os usuários com acesso ao sistema'
-      />
+      <PageHeader title="Usuários" subtitle="Gerencie os usuários com acesso ao sistema" />
       <PageContent>
-        <Card title='Filtros' height='fit'>
+        <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Nome de usuário'
-              variant='outlined'
+              label="Nome de usuário"
+              variant="outlined"
               value={usernameInput}
               onChange={(e) => setUsernameInput(e.target.value)}
             />
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='E-mail'
-              variant='outlined'
+              label="E-mail"
+              variant="outlined"
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
             />
@@ -213,26 +209,26 @@ export default function Usuarios() {
               <InputLabel>Status</InputLabel>
               <Select
                 value={statusFiltro}
-                label='Status'
+                label="Status"
                 onChange={(e) => {
                   setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
                   setPage(0);
                 }}
               >
-                <MenuItem value='todos'>Todos</MenuItem>
-                <MenuItem value='ativo'>Ativo</MenuItem>
-                <MenuItem value='inativo'>Inativo</MenuItem>
+                <MenuItem value="todos">Todos</MenuItem>
+                <MenuItem value="ativo">Ativo</MenuItem>
+                <MenuItem value="inativo">Inativo</MenuItem>
               </Select>
             </FormControl>
           </div>
           <div className={styles.cardButtons}>
-            <Button variant='secondary' onClick={limparFiltros}>
+            <Button variant="secondary" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card title='Usuários Cadastrados' create={abrirCriacaoModal}>
+        <Card title="Usuários Cadastrados" create={abrirCriacaoModal}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -240,7 +236,7 @@ export default function Usuarios() {
             </div>
           ) : (
             <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
-              <Table stickyHeader size='small'>
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     {['Nome de usuário', 'E-mail', 'Status', 'Criado em'].map((label) => (
@@ -262,7 +258,7 @@ export default function Usuarios() {
                         <Chip
                           label={row.ativo ? 'Ativo' : 'Inativo'}
                           color={row.ativo ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                       <TableCell>
@@ -278,11 +274,11 @@ export default function Usuarios() {
           )}
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
-            component='div'
+            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage='Resultados por página'
+            labelRowsPerPage="Resultados por página"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -300,14 +296,13 @@ export default function Usuarios() {
         onClose={() => setIsModalOpen(false)}
       >
         <div className={styles.formModal}>
-
           {/* Identificação */}
           <p className={styles.sectionTitle}>Identificação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Nome de usuário'
+              label="Nome de usuário"
               required
               value={form.username}
               onChange={(e) => setField('username', e.target.value)}
@@ -318,9 +313,9 @@ export default function Usuarios() {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='E-mail'
+              label="E-mail"
               required
-              type='email'
+              type="email"
               value={form.email}
               onChange={(e) => setField('email', e.target.value)}
             />
@@ -334,11 +329,11 @@ export default function Usuarios() {
               <div className={styles.formRow}>
                 <TextField
                   sx={{ flex: 1, minWidth: 260 }}
-                  label='Senha inicial'
-                  type='password'
+                  label="Senha inicial"
+                  type="password"
                   value={form.senha}
                   onChange={(e) => setField('senha', e.target.value)}
-                  helperText='Opcional — deixe em branco para usuários que acessam via Microsoft'
+                  helperText="Opcional — deixe em branco para usuários que acessam via Microsoft"
                 />
               </div>
             </>
@@ -350,10 +345,10 @@ export default function Usuarios() {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='ID do Funcionário'
+              label="ID do Funcionário"
               value={form.id_funcionario}
               onChange={(e) => setField('id_funcionario', e.target.value)}
-              helperText='UUID do funcionário vinculado — opcional'
+              helperText="UUID do funcionário vinculado — opcional"
               slotProps={{ htmlInput: { pattern: '[0-9a-fA-F-]{36}' } }}
             />
           </div>
@@ -366,24 +361,24 @@ export default function Usuarios() {
                 <Switch
                   checked={form.ativo}
                   onChange={(e) => setField('ativo', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Usuário Ativo'
+              label="Usuário Ativo"
             />
           </div>
 
           <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
             {editingId && (
-              <Button variant='danger' onClick={openDeleteDialog}>
+              <Button variant="danger" onClick={openDeleteDialog}>
                 Excluir Usuário
               </Button>
             )}
             <div className={styles.formActionsMain}>
-              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button variant='primary' onClick={salvarUsuario}>
+              <Button variant="primary" onClick={salvarUsuario}>
                 {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
               </Button>
             </div>

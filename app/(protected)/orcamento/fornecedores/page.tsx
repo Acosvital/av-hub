@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import styles from "./styles.module.css";
+import styles from './styles.module.css';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,8 +9,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import * as XLSX from "xlsx";
-import Card from "@/components/Ui/Card/Card";
+import * as XLSX from 'xlsx';
+import Card from '@/components/Ui/Card/Card';
 import { CircularProgress, TextField } from '@mui/material';
 import Modal from '@/components/Ui/Modal/Modal';
 import { notify } from '@/lib/toast/toast';
@@ -37,7 +37,7 @@ export default function CatalogoDeProdutos() {
 
   //Notifica erros
   useEffect(() => {
-    error && notify.error(error)
+    error && notify.error(error);
   }, [error]);
 
   //Carregamento dos filtros e dados iniciais
@@ -45,11 +45,7 @@ export default function CatalogoDeProdutos() {
     async function loadAllData() {
       try {
         setLoading(true);
-        const [
-          fornecedorData,
-        ] = await Promise.all([
-          getTodosFornecedores(),
-        ]);
+        const [fornecedorData] = await Promise.all([getTodosFornecedores()]);
         setRows(fornecedorData.fornecedores);
       } catch (erro) {
         setError('Erro ao carregar fornecedores');
@@ -64,7 +60,7 @@ export default function CatalogoDeProdutos() {
   const filteredRows = useMemo(() => {
     const term = descricao.toLowerCase();
     return rows.filter((row) => {
-      return row
+      return row;
     });
   }, [descricao, rows]);
 
@@ -72,39 +68,34 @@ export default function CatalogoDeProdutos() {
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredRows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Dados");
-    XLSX.writeFile(wb, "fornecedores.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+    XLSX.writeFile(wb, 'fornecedores.xlsx');
   };
 
   return (
     <>
       <PageHeader
-        title='Fornecedores'
-        subtitle='Consulte os últimos valores praticados pelos produtos'
+        title="Fornecedores"
+        subtitle="Consulte os últimos valores praticados pelos produtos"
       />
       <PageContent>
-        <Card
-          height='fit'
-          title='Consulta de Fornecedores'
-        >
+        <Card height="fit" title="Consulta de Fornecedores">
           <div>
-            <TextField sx={{ flex: 1, minWidth: 300 }}
+            <TextField
+              sx={{ flex: 1, minWidth: 300 }}
               id="outlined-basic"
               label="Nome do Fornecedor"
               variant="outlined"
             />
-            <TextField sx={{ flex: 1, minWidth: 300 }}
+            <TextField
+              sx={{ flex: 1, minWidth: 300 }}
               id="outlined-basic"
               label="Estado"
               variant="outlined"
             />
           </div>
         </Card>
-        <Card
-          title='Fornecedores encontrados'
-          download={exportToExcel}
-          create={exportToExcel}
-        >
+        <Card title="Fornecedores encontrados" download={exportToExcel} create={exportToExcel}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -113,18 +104,30 @@ export default function CatalogoDeProdutos() {
           ) : (
             <TableContainer sx={{ maxHeight: 380, overflowX: 'auto' }}>
               <Table stickyHeader size="small">
-                <TableHead >
-                  <TableRow >
-                    {["Razão Social", "Nome Fantasia", "CPF/CNPJ", "Cidade", "UF", "Telefone", "E-mail"].map((label) => (
-                      <TableCell key={label} >{label}</TableCell>
+                <TableHead>
+                  <TableRow>
+                    {[
+                      'Razão Social',
+                      'Nome Fantasia',
+                      'CPF/CNPJ',
+                      'Cidade',
+                      'UF',
+                      'Telefone',
+                      'E-mail',
+                    ].map((label) => (
+                      <TableCell key={label}>{label}</TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredRows.map((row, key) => (
-                    <TableRow key={key} hover onClick={() => {
-                      setIsOpen(true)
-                    }}>
+                    <TableRow
+                      key={key}
+                      hover
+                      onClick={() => {
+                        setIsOpen(true);
+                      }}
+                    >
                       <TableCell>{row.razao_social}</TableCell>
                       <TableCell>{row.nome_fantasia}</TableCell>
                       <TableCell>{row.cpf_cnpj}</TableCell>
@@ -144,7 +147,9 @@ export default function CatalogoDeProdutos() {
             count={rowCount}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage={'Resultados por página'}
-            labelDisplayedRows={({ from, to, count }) => { return `${from}-${to} de ${count}` }}
+            labelDisplayedRows={({ from, to, count }) => {
+              return `${from}-${to} de ${count}`;
+            }}
             page={page}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -154,14 +159,8 @@ export default function CatalogoDeProdutos() {
           />
         </Card>
       </PageContent>
-      <Modal
-        title='Fornecedor'
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-      >
-        <div>
-
-        </div>
+      <Modal title="Fornecedor" isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <div></div>
       </Modal>
     </>
   );

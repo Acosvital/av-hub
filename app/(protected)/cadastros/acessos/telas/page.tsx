@@ -213,7 +213,7 @@ export default function Telas() {
     setSlugManuallyEdited(true);
     setField('slug', value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
   };
-// função que remove a possibilidade de um "pai" virar "filho" dos próprios filhos:
+  // função que remove a possibilidade de um "pai" virar "filho" dos próprios filhos:
   const parentOptions = useMemo(() => {
     if (!editingId) return allTelas;
     const excluded = new Set<string>([editingId]);
@@ -232,17 +232,14 @@ export default function Telas() {
 
   return (
     <>
-      <PageHeader
-        title='Telas'
-        subtitle='Gerencie as telas do sistema para montagem dos menus'
-      />
+      <PageHeader title="Telas" subtitle="Gerencie as telas do sistema para montagem dos menus" />
       <PageContent>
-        <Card title='Filtros'>
+        <Card title="Filtros">
           <div className={styles.inputContainers}>
             <TextField
               sx={{ flex: 1, minWidth: 300 }}
-              label='Nome'
-              variant='outlined'
+              label="Nome"
+              variant="outlined"
               value={nomeInput}
               onChange={(e) => setNomeInput(e.target.value)}
             />
@@ -250,26 +247,26 @@ export default function Telas() {
               <InputLabel>Status</InputLabel>
               <Select
                 value={statusFiltro}
-                label='Status'
+                label="Status"
                 onChange={(e) => {
                   setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
                   setPage(0);
                 }}
               >
-                <MenuItem value='todos'>Todos</MenuItem>
-                <MenuItem value='ativo'>Ativo</MenuItem>
-                <MenuItem value='inativo'>Inativo</MenuItem>
+                <MenuItem value="todos">Todos</MenuItem>
+                <MenuItem value="ativo">Ativo</MenuItem>
+                <MenuItem value="inativo">Inativo</MenuItem>
               </Select>
             </FormControl>
           </div>
           <div className={styles.cardButtons}>
-            <Button variant='secondary' onClick={limparFiltros}>
+            <Button variant="secondary" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card title='Telas Cadastradas' create={abrirCriacaoModal}>
+        <Card title="Telas Cadastradas" create={abrirCriacaoModal}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -277,7 +274,7 @@ export default function Telas() {
             </div>
           ) : (
             <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
-              <Table stickyHeader size='small'>
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     {['Nome', 'Slug', 'Tela Pai', 'Ordem', 'Status'].map((label) => (
@@ -295,13 +292,15 @@ export default function Telas() {
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{row.slug}</TableCell>
-                      <TableCell>{rows.find((parent) => parent.id === row.id_parent)?.nome ?? '—'}</TableCell>
+                      <TableCell>
+                        {rows.find((parent) => parent.id === row.id_parent)?.nome ?? '—'}
+                      </TableCell>
                       <TableCell>{row.ordem}</TableCell>
                       <TableCell>
                         <Chip
                           label={row.ativo ? 'Ativo' : 'Inativo'}
                           color={row.ativo ? 'success' : 'error'}
-                          size='small'
+                          size="small"
                         />
                       </TableCell>
                     </TableRow>
@@ -312,11 +311,11 @@ export default function Telas() {
           )}
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
-            component='div'
+            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage='Resultados por página'
+            labelRowsPerPage="Resultados por página"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -334,14 +333,13 @@ export default function Telas() {
         onClose={() => setIsModalOpen(false)}
       >
         <div className={styles.formModal}>
-
           {/* Identificação */}
           <p className={styles.sectionTitle}>Identificação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Nome'
+              label="Nome"
               required
               value={form.nome}
               onChange={(e) => handleNomeChange(e.target.value)}
@@ -350,11 +348,11 @@ export default function Telas() {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Slug'
+              label="Slug"
               required
               value={form.slug}
               onChange={(e) => handleSlugChange(e.target.value)}
-              helperText='Identificador único para roteamento e permissões'
+              helperText="Identificador único para roteamento e permissões"
               slotProps={{ htmlInput: { pattern: '[a-z0-9-]+' } }}
             />
           </div>
@@ -378,8 +376,8 @@ export default function Telas() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Tela Pai'
-                  helperText='Deixe vazio para item raiz do menu'
+                  label="Tela Pai"
+                  helperText="Deixe vazio para item raiz do menu"
                 />
               )}
             />
@@ -394,24 +392,24 @@ export default function Telas() {
                 <Switch
                   checked={form.ativo}
                   onChange={(e) => setField('ativo', e.target.checked)}
-                  color='warning'
+                  color="warning"
                 />
               }
-              label='Tela Ativa'
+              label="Tela Ativa"
             />
           </div>
 
           <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
             {editingId && (
-              <Button variant='danger' onClick={openDeleteDialog}>
+              <Button variant="danger" onClick={openDeleteDialog}>
                 Excluir Perfil
               </Button>
             )}
             <div className={styles.formActionsMain}>
-              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button variant='primary' onClick={salvarTela}>
+              <Button variant="primary" onClick={salvarTela}>
                 {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Tela'}
               </Button>
             </div>

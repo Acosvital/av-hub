@@ -1,12 +1,12 @@
-'use client'
-import Header from "./Header/Header";
-import Menu from "./Menu/Menu";
-import styles from "./Layout.module.css";
-import { Slide, ToastContainer } from "react-toastify";
-import useLayout from "@/hooks/useLayout";
-import OverlayHeader from "./OverlayHeader/OverlayHeader";
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+'use client';
+import Header from './Header/Header';
+import Menu from './Menu/Menu';
+import styles from './Layout.module.css';
+import { Slide, ToastContainer } from 'react-toastify';
+import useLayout from '@/hooks/useLayout';
+import OverlayHeader from './OverlayHeader/OverlayHeader';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { mode, fullscreen, setMode } = useLayout();
   const pathname = usePathname();
@@ -19,10 +19,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className={styles.app}>
         {!fullscreen && <Menu />}
         <div className={styles.shell}>
-          {mode === 'dashboard' ? (<OverlayHeader />) : (<Header />)}
-          <main className={styles.mainArea}>
-            {children}
-          </main>
+          {mode === 'dashboard' ? <OverlayHeader /> : <Header />}
+          <main className={styles.mainArea}>{children}</main>
         </div>
       </div>
       <ToastContainer
@@ -37,7 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         transition={Slide}
       />
     </>
-  )
-}
+  );
+};
 
 export default Layout;

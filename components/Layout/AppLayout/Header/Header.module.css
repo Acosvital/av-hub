@@ -10,7 +10,9 @@
 }
 
 :global(.dark) :local(.header) {
-  box-shadow: 0 1px 0 var(--navy-600), 0 4px 18px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 1px 0 var(--navy-600),
+    0 4px 18px rgba(0, 0, 0, 0.55);
   border-bottom-color: var(--navy-600);
 }
 
@@ -40,7 +42,7 @@
   opacity: 0.85;
 }
 
-.search>svg {
+.search > svg {
   color: var(--foreground-secondary);
   flex-shrink: 0;
 }
@@ -58,9 +60,8 @@
 
 .buttonsContainer {
   display: flex;
-  gap: var(--space-4)
+  gap: var(--space-4);
 }
-
 
 .mobileMenuButton {
   display: none;

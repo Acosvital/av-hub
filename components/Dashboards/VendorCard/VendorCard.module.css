@@ -1,146 +1,146 @@
 .vendorCard {
-    display: flex;
-    min-height: 75px;
-    max-height: 75px;
-    border-radius: var(--radius-xl);
-    padding: var(--space-4);
-    align-items: center;
-    gap: var(--space-4);
-    position: relative;
-    overflow: hidden;
-    background-color: var(--card-bg-secondary);
-    font-family: var(--font-sans);
+  display: flex;
+  min-height: 75px;
+  max-height: 75px;
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  align-items: center;
+  gap: var(--space-4);
+  position: relative;
+  overflow: hidden;
+  background-color: var(--card-bg-secondary);
+  font-family: var(--font-sans);
 }
 
 .vendorCard > *:not(.percentageEffect) {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
-.vendorCard:hover{
-    cursor: pointer;
-    border: 2px solid var(--gold);
-    transition: border var(--t-slow);
+.vendorCard:hover {
+  cursor: pointer;
+  border: 2px solid var(--gold);
+  transition: border var(--t-slow);
 }
 
-.percentageEffect{
-    position: absolute;
-    inset: 0;
-    width: 300px;
-    border-right: 3px solid var(--gold);
-    background-color: var(--border);
-    box-shadow: 0 0 10px 1px var(--gold);
-    z-index: 1
+.percentageEffect {
+  position: absolute;
+  inset: 0;
+  width: 300px;
+  border-right: 3px solid var(--gold);
+  background-color: var(--border);
+  box-shadow: 0 0 10px 1px var(--gold);
+  z-index: 1;
 }
 
 .vendorRank {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--space-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .vendor {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .vendorName {
-    font-family: var(--font-sans);
-    font-size: var(--fs-lg);
-    font-weight: var(--w-bold);
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-    color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--foreground);
 }
 
 .vendorDetails {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--space-4)
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--space-4);
 }
 
 .vendorInfo {
-    font-size: var(--fs-md);
-    text-transform: uppercase;
-    color: var(--foreground-secondary);
-    letter-spacing: -0.04em;
+  font-size: var(--fs-md);
+  text-transform: uppercase;
+  color: var(--foreground-secondary);
+  letter-spacing: -0.04em;
 }
 
-.vendorTotal{
-    font-size: var(--fs-lg);
-    font-weight: var(--w-black);
-    color: var(--foreground);
-    flex: 1;
-    align-self: center;
-    text-align: end;
+.vendorTotal {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  flex: 1;
+  align-self: center;
+  text-align: end;
 }
 
 .gold {
-    border: 1px solid var(--gold);
+  border: 1px solid var(--gold);
 }
 
 .silver {
-    border: 1px solid var(--silver);
+  border: 1px solid var(--silver);
 }
 
 .bronze {
-    border: 1px solid var(--bronze);
+  border: 1px solid var(--bronze);
 }
 
 .default {
-    border: 1px solid var(--default);
+  border: 1px solid var(--default);
 }
 
 @media (max-width: 768px) {
-    .vendorCard {
-        min-height: unset;
-        max-height: unset;
-        padding: var(--space-3);
-        gap: var(--space-2);
-        align-items: flex-start;
-    }
+  .vendorCard {
+    min-height: unset;
+    max-height: unset;
+    padding: var(--space-3);
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
 
-    .vendorRank {
-        zoom: 0.75;
-        flex-shrink: 0;
-        padding-top: var(--space-1);
-        align-self: center;
-    }
+  .vendorRank {
+    zoom: 0.75;
+    flex-shrink: 0;
+    padding-top: var(--space-1);
+    align-self: center;
+  }
 
-    .vendor {
-        flex: 1;
-        min-width: 0;
-    }
+  .vendor {
+    flex: 1;
+    min-width: 0;
+  }
 
-    .vendorName {
-        font-size: var(--fs-md);
-        white-space: normal;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+  .vendorName {
+    font-size: var(--fs-md);
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-    .vendorDetails {
-        gap: var(--space-2);
-        flex-wrap: nowrap;
-        margin-top: var(--space-1);
-    }
+  .vendorDetails {
+    gap: var(--space-2);
+    flex-wrap: nowrap;
+    margin-top: var(--space-1);
+  }
 
-    .vendorInfo {
-        font-size: var(--fs-sm);
-        white-space: nowrap;
-    }
+  .vendorInfo {
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
 
-    .vendorTotal {
-        font-size: var(--fs-sm);
-        font-weight: var(--w-black);
-        flex: unset;
-        flex-shrink: 0;
-        align-self: flex-start;
-        white-space: nowrap;
-        text-align: end;
-    }
+  .vendorTotal {
+    font-size: var(--fs-sm);
+    font-weight: var(--w-black);
+    flex: unset;
+    flex-shrink: 0;
+    align-self: flex-start;
+    white-space: nowrap;
+    text-align: end;
+  }
 }

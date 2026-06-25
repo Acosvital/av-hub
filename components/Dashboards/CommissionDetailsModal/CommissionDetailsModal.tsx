@@ -27,16 +27,80 @@ interface VendorOrder {
 
 // TODO: remover quando o endpoint estiver disponível
 const MOCK_ORDERS: VendorOrder[] = [
-  { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT' },
-  { id: 24533, date: '11/06/2026', partner: 'NUTRIEN SOLUÇÕES AGRÍCOLAS LTDA.', value: 28450, category: 'CONTRATO' },
-  { id: 24534, date: '12/06/2026', partner: 'YARA BRASIL FERTILIZANTES S.A.', value: 9800, category: 'SPOT', status: 'CANCELADO' },
-  { id: 24535, date: '13/06/2026', partner: 'BUNGE FERTILIZANTES S.A.', value: 42300, category: 'CONTRATO' },
-  { id: 24536, date: '14/06/2026', partner: 'HERINGER FERTILIZANTES S.A.', value: 18750, category: 'SPOT', status: 'DEVOLVIDO' },
-  { id: 24537, date: '15/06/2026', partner: 'COAMO AGROINDUSTRIAL COOP.', value: 33600, category: 'SEM CLASSIFICAÇÃO' },
-  { id: 24538, date: '16/06/2026', partner: 'AGROTERENAS AGROPECUÁRIA LTDA.', value: 22100, category: 'SPOT' },
-  { id: 24539, date: '17/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'CONTRATO', status: 'REFATURAMENTO' },
-  { id: 24540, date: '18/06/2026', partner: 'NUTRIEN SOLUÇÕES AGRÍCOLAS LTDA.', value: 11000, category: 'SPOT', status: 'RECUSADO' },
-  { id: 24541, date: '19/06/2026', partner: 'YARA BRASIL FERTILIZANTES S.A.', value: 56000, category: 'CONTRATO' },
+  {
+    id: 24532,
+    date: '10/06/2026',
+    partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+    value: 15210,
+    category: 'SPOT',
+  },
+  {
+    id: 24533,
+    date: '11/06/2026',
+    partner: 'NUTRIEN SOLUÇÕES AGRÍCOLAS LTDA.',
+    value: 28450,
+    category: 'CONTRATO',
+  },
+  {
+    id: 24534,
+    date: '12/06/2026',
+    partner: 'YARA BRASIL FERTILIZANTES S.A.',
+    value: 9800,
+    category: 'SPOT',
+    status: 'CANCELADO',
+  },
+  {
+    id: 24535,
+    date: '13/06/2026',
+    partner: 'BUNGE FERTILIZANTES S.A.',
+    value: 42300,
+    category: 'CONTRATO',
+  },
+  {
+    id: 24536,
+    date: '14/06/2026',
+    partner: 'HERINGER FERTILIZANTES S.A.',
+    value: 18750,
+    category: 'SPOT',
+    status: 'DEVOLVIDO',
+  },
+  {
+    id: 24537,
+    date: '15/06/2026',
+    partner: 'COAMO AGROINDUSTRIAL COOP.',
+    value: 33600,
+    category: 'SEM CLASSIFICAÇÃO',
+  },
+  {
+    id: 24538,
+    date: '16/06/2026',
+    partner: 'AGROTERENAS AGROPECUÁRIA LTDA.',
+    value: 22100,
+    category: 'SPOT',
+  },
+  {
+    id: 24539,
+    date: '17/06/2026',
+    partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+    value: 15210,
+    category: 'CONTRATO',
+    status: 'REFATURAMENTO',
+  },
+  {
+    id: 24540,
+    date: '18/06/2026',
+    partner: 'NUTRIEN SOLUÇÕES AGRÍCOLAS LTDA.',
+    value: 11000,
+    category: 'SPOT',
+    status: 'RECUSADO',
+  },
+  {
+    id: 24541,
+    date: '19/06/2026',
+    partner: 'YARA BRASIL FERTILIZANTES S.A.',
+    value: 56000,
+    category: 'CONTRATO',
+  },
 ];
 
 const summaryCards = [
@@ -61,7 +125,7 @@ const CommissionDetailsModal = ({ isOpen, onClose, vendor }: CommissionDetailsMo
   }, [isOpen, vendor]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Detalhes de comissão'>
+    <Modal isOpen={isOpen} onClose={onClose} title="Detalhes de comissão">
       {vendor && (
         <div className={styles.modalContent}>
           <div className={styles.vendorDetails}>
@@ -84,7 +148,9 @@ const CommissionDetailsModal = ({ isOpen, onClose, vendor }: CommissionDetailsMo
             <div className={styles.summaryGrid}>
               {summaryCards.map(({ key, label, color }) => (
                 <div key={key} className={styles.summaryCard}>
-                  <span className={styles.summaryLabel} style={{ color }}>{label}</span>
+                  <span className={styles.summaryLabel} style={{ color }}>
+                    {label}
+                  </span>
                   <span className={styles.summaryValue}>{toBRL(vendor[key])}</span>
                 </div>
               ))}

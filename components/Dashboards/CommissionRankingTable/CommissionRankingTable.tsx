@@ -24,9 +24,20 @@ interface CommissionRankingTableProps {
 
 const formatValue = (value: number) => (value > 0 ? toBRL(value) : '0');
 
-const Row = ({ row, onRowClick }: { row: CommissionRow; onRowClick?: (row: CommissionRow) => void }) => (
-  <div className={`${styles.gridRow} ${onRowClick ? styles.clickable : ''}`} onClick={() => onRowClick?.(row)}>
-    <div className={styles.rankCol}><RankingBadge rank={row.rank} /></div>
+const Row = ({
+  row,
+  onRowClick,
+}: {
+  row: CommissionRow;
+  onRowClick?: (row: CommissionRow) => void;
+}) => (
+  <div
+    className={`${styles.gridRow} ${onRowClick ? styles.clickable : ''}`}
+    onClick={() => onRowClick?.(row)}
+  >
+    <div className={styles.rankCol}>
+      <RankingBadge rank={row.rank} />
+    </div>
     <div className={styles.nameCol}>{row.name}</div>
     <div className={styles.faturado}>{formatValue(row.faturado)}</div>
     <div className={styles.aFaturar}>{formatValue(row.aFaturar)}</div>
@@ -37,8 +48,17 @@ const Row = ({ row, onRowClick }: { row: CommissionRow; onRowClick?: (row: Commi
   </div>
 );
 
-const MobileCard = ({ row, onRowClick }: { row: CommissionRow; onRowClick?: (row: CommissionRow) => void }) => (
-  <div className={`${styles.mobileCard} ${onRowClick ? styles.clickable : ''}`} onClick={() => onRowClick?.(row)}>
+const MobileCard = ({
+  row,
+  onRowClick,
+}: {
+  row: CommissionRow;
+  onRowClick?: (row: CommissionRow) => void;
+}) => (
+  <div
+    className={`${styles.mobileCard} ${onRowClick ? styles.clickable : ''}`}
+    onClick={() => onRowClick?.(row)}
+  >
     <div className={styles.mobileCardHeader}>
       <RankingBadge rank={row.rank} />
       <span className={styles.mobileCardName}>{row.name}</span>
@@ -46,23 +66,33 @@ const MobileCard = ({ row, onRowClick }: { row: CommissionRow; onRowClick?: (row
     <div className={styles.mobileCardBody}>
       <div className={styles.mobileField}>
         <span className={styles.mobileFieldLabel}>Faturado</span>
-        <span className={`${styles.mobileFieldValue} ${styles.faturado}`}>{formatValue(row.faturado)}</span>
+        <span className={`${styles.mobileFieldValue} ${styles.faturado}`}>
+          {formatValue(row.faturado)}
+        </span>
       </div>
       <div className={styles.mobileField}>
         <span className={styles.mobileFieldLabel}>A Faturar</span>
-        <span className={`${styles.mobileFieldValue} ${styles.aFaturar}`}>{formatValue(row.aFaturar)}</span>
+        <span className={`${styles.mobileFieldValue} ${styles.aFaturar}`}>
+          {formatValue(row.aFaturar)}
+        </span>
       </div>
       <div className={styles.mobileField}>
         <span className={styles.mobileFieldLabel}>Comissão</span>
-        <span className={`${styles.mobileFieldValue} ${styles.comissao}`}>{formatValue(row.comissao)}</span>
+        <span className={`${styles.mobileFieldValue} ${styles.comissao}`}>
+          {formatValue(row.comissao)}
+        </span>
       </div>
       <div className={styles.mobileField}>
         <span className={styles.mobileFieldLabel}>Bloqueado</span>
-        <span className={`${styles.mobileFieldValue} ${styles.bloqueado}`}>{formatValue(row.bloqueado)}</span>
+        <span className={`${styles.mobileFieldValue} ${styles.bloqueado}`}>
+          {formatValue(row.bloqueado)}
+        </span>
       </div>
       <div className={`${styles.mobileField} ${styles.mobileFieldFull}`}>
         <span className={styles.mobileFieldLabel}>Ajuda de Custo</span>
-        <span className={`${styles.mobileFieldValue} ${styles.ajudaCusto}`}>{toBRL(row.ajudaCusto)}</span>
+        <span className={`${styles.mobileFieldValue} ${styles.ajudaCusto}`}>
+          {toBRL(row.ajudaCusto)}
+        </span>
       </div>
       <div className={`${styles.mobileField} ${styles.mobileFieldFull} ${styles.mobileFieldTotal}`}>
         <span className={styles.mobileFieldLabel}>Total</span>
@@ -114,7 +144,9 @@ const CommissionRankingTable = ({ vendors, managers, onRowClick }: CommissionRan
         </div>
 
         <div className={styles.fixedSection}>
-          {top3.map((row) => <Row key={row.rank} row={row} onRowClick={onRowClick} />)}
+          {top3.map((row) => (
+            <Row key={row.rank} row={row} onRowClick={onRowClick} />
+          ))}
         </div>
 
         <div className={styles.scrollSection}>
@@ -123,18 +155,23 @@ const CommissionRankingTable = ({ vendors, managers, onRowClick }: CommissionRan
             style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
           >
             <div className={styles.rowGroup}>
-              {otherRows.map((row) => <Row key={row.rank} row={row} onRowClick={onRowClick} />)}
+              {otherRows.map((row) => (
+                <Row key={row.rank} row={row} onRowClick={onRowClick} />
+              ))}
             </div>
             <div className={styles.rowGroup} aria-hidden="true">
-              {otherRows.length > 6 && otherRows.map((row) => (
-                <Row key={`${row.rank}-clone`} row={row} onRowClick={onRowClick} />
-              ))}
+              {otherRows.length > 6 &&
+                otherRows.map((row) => (
+                  <Row key={`${row.rank}-clone`} row={row} onRowClick={onRowClick} />
+                ))}
             </div>
           </div>
         </div>
       </div>
       <div className={styles.mobile}>
-        {rows.map((row) => <MobileCard key={row.rank} row={row} onRowClick={onRowClick} />)}
+        {rows.map((row) => (
+          <MobileCard key={row.rank} row={row} onRowClick={onRowClick} />
+        ))}
       </div>
     </div>
   );

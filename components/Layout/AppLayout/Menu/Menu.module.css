@@ -1,234 +1,233 @@
 .expanded {
-    background-color: var(--av-primary);
-    min-width: var(--menu-w-min);
-    padding: var(--space-4) 0;
-    display: flex;
-    flex-direction: column;
-    width: var(--menu-w);
-    gap: var(--space-4);
-    transition: min-width var(--t-base);
-    z-index: 110;
+  background-color: var(--av-primary);
+  min-width: var(--menu-w-min);
+  padding: var(--space-4) 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--menu-w);
+  gap: var(--space-4);
+  transition: min-width var(--t-base);
+  z-index: 110;
 }
 
 .minimized {
-    background-color: var(--av-primary);
-    min-width: var(--menu-w-min);
-    padding: var(--space-4) 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-4);
-    transition: min-width var(--t-base);
-    z-index: 110;
+  background-color: var(--av-primary);
+  min-width: var(--menu-w-min);
+  padding: var(--space-4) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  transition: min-width var(--t-base);
+  z-index: 110;
 }
 
 .logo {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    color: var(--neutral-50);
-    padding: 0 var(--space-2);
-    margin-bottom: var(--space-4);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  color: var(--neutral-50);
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .logoImg {
-    display: flex;
-    height: 30px;
-    margin: var(--space-2) 0;
+  display: flex;
+  height: 30px;
+  margin: var(--space-2) 0;
 }
 
 .hamburger {
-    cursor: pointer;
-    font-size: 25px;
-    transition: transform var(--t-base);
+  cursor: pointer;
+  font-size: 25px;
+  transition: transform var(--t-base);
 }
 
 .hamburger:hover {
-    transform: scale(1.2);
+  transform: scale(1.2);
 }
 
 .menuContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .menuWrapper {
-    list-style: none;
+  list-style: none;
 }
 
 .menuCard {
-    height: 35px;
-    margin: 0 var(--space-2);
-    padding: var(--space-2);
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    color: var(--neutral-50);
-    font-size: var(----fs-sm);
-    cursor: pointer;
-    transition: all var(--t-base);
-    gap: var(--space-2);
-    position: relative;
-    border-left: 1px solid transparent;
+  height: 35px;
+  margin: 0 var(--space-2);
+  padding: var(--space-2);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  color: var(--neutral-50);
+  font-size: var(----fs-sm);
+  cursor: pointer;
+  transition: all var(--t-base);
+  gap: var(--space-2);
+  position: relative;
+  border-left: 1px solid transparent;
 }
 
 .selectedMenu {
-    background-color: var(--av-secondary);
-    border-left: 5px solid var(--av-accent);
+  background-color: var(--av-secondary);
+  border-left: 5px solid var(--av-accent);
 }
 
 .expandIcon {
-    height: 25px;
-    margin-left: auto;
-    transition: transform var(--t-base);
-    flex-shrink: 0;
+  height: 25px;
+  margin-left: auto;
+  transition: transform var(--t-base);
+  flex-shrink: 0;
 }
 
 .expandIcon.rotated {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .menuCard span {
-    margin: 0;
-    white-space: nowrap;
-    flex: 1;
-    font-family: var(--font-sans);
-    font-weight: var(--w-bold);
-    color: var(--neutral-50);
+  margin: 0;
+  white-space: nowrap;
+  flex: 1;
+  font-family: var(--font-sans);
+  font-weight: var(--w-bold);
+  color: var(--neutral-50);
 }
 
 .menuCard:hover {
-    background-color: var(--av-secondary);
-    border-left: 5px solid var(--av-accent);
+  background-color: var(--av-secondary);
+  border-left: 5px solid var(--av-accent);
 }
 
 .submenu {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    list-style: none;
-    padding: 0;
-    margin: 0 var(--space-2);
-    font-family: var(--font-sans);
-    background-color: rgba(0, 0, 0, 0.18);
-    border-left: 3px solid var(--av-accent);
-    animation: slideDown var(--t-base);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0 var(--space-2);
+  font-family: var(--font-sans);
+  background-color: rgba(0, 0, 0, 0.18);
+  border-left: 3px solid var(--av-accent);
+  animation: slideDown var(--t-base);
 }
 
 .submenuItem {
-    padding: var(--space-2) var(--space-4);
-    color: var(--neutral-50);
-    font-size: var(--fs-sm);
-    cursor: pointer;
-    transition: all var(--t-base);
-    padding-left: var(--space-7);
-    
+  padding: var(--space-2) var(--space-4);
+  color: var(--neutral-50);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--t-base);
+  padding-left: var(--space-7);
 }
 
 .submenuItem:hover {
-    background-color: color-mix(in srgb, var(--av-secondary) 80%, black)
+  background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
 }
 
 .submenuItemExpandable {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
 }
 
 .submenuItemSelected {
-    border-left: 2px solid var(--av-accent);
-    background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
-    width: 104%;
+  border-left: 2px solid var(--av-accent);
+  background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
+  width: 104%;
 }
 
 .subsubmenu {
-    display: flex;
-    flex-direction: column;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    animation: slideDown var(--t-base);
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  animation: slideDown var(--t-base);
 }
 
 .subsubmenuItem {
-    padding: var(--space-2) var(--space-4);
-    color: var(--neutral-50);
-    font-size: var(--fs-sm);
-    cursor: pointer;
-    transition: all var(--t-base);
-    padding-left: var(--space-8);
+  padding: var(--space-2) var(--space-4);
+  color: var(--neutral-50);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--t-base);
+  padding-left: var(--space-8);
 }
 
 .subsubmenuItem:hover {
-    background-color: color-mix(in srgb, var(--av-secondary) 70%, black);
+  background-color: color-mix(in srgb, var(--av-secondary) 70%, black);
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .link {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 @keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-    }
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
 
-    to {
-        opacity: 1;
-        max-height: 500px;
-    }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
 }
 
 .backdrop {
-    display: none;
+  display: none;
 }
 
 @media screen and (max-width: 768px) {
-    .expanded,
-    .minimized {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100dvh;
-        width: 280px;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: stretch;
-        transform: translateX(-100%);
-        transition: transform var(--t-base);
-        z-index: 201;
-        overflow-y: auto;
-    }
+  .expanded,
+  .minimized {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 280px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    transform: translateX(-100%);
+    transition: transform var(--t-base);
+    z-index: 201;
+    overflow-y: auto;
+  }
 
-    .mobileOpen {
-        transform: translateX(0) !important;
-    }
+  .mobileOpen {
+    transform: translateX(0) !important;
+  }
 
-    .backdrop {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 200;
-        backdrop-filter: blur(2px);
-    }
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+  }
 
-    .menuContainer {
-        flex-direction: column;
-    }
+  .menuContainer {
+    flex-direction: column;
+  }
 
-    .menuCard>span {
-        display: block;
-    }
+  .menuCard > span {
+    display: block;
+  }
 }

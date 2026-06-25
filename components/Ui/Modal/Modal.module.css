@@ -31,10 +31,10 @@
   overflow: auto;
 }
 
-:global(.dark) :local(.modalCard){
+:global(.dark) :local(.modalCard) {
   border: 1px solid var(--border);
 }
-.backgroundSecondary{
+.backgroundSecondary {
   background-color: var(--card-bg-secondary);
 }
 
@@ -45,7 +45,7 @@
   gap: var(--space-5);
 }
 
-.modalHeader>svg {
+.modalHeader > svg {
   height: 25px;
   width: 25px;
   cursor: pointer;

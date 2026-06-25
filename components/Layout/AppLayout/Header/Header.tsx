@@ -12,7 +12,11 @@ export default function Header() {
   const { setMobileMenuOpen } = useLayout();
   return (
     <header className={styles.header}>
-      <button className={styles.mobileMenuButton} onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menu">
+      <button
+        className={styles.mobileMenuButton}
+        onClick={() => setMobileMenuOpen(true)}
+        aria-label="Abrir menu"
+      >
         <GiHamburgerMenu />
       </button>
       <span className={styles.title}>Aços Hub</span>

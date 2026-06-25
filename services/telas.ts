@@ -20,7 +20,8 @@ export async function getTelas(params: GetTelasParams = {}): Promise<TelasRespon
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome) query.set('nome', params.nome);
   if (params.ativo !== undefined) query.set('ativo', String(params.ativo));
-  if (params.id_parent !== undefined && params.id_parent !== null) query.set('id_parent', params.id_parent);
+  if (params.id_parent !== undefined && params.id_parent !== null)
+    query.set('id_parent', params.id_parent);
   return apiFetch(`/api/telas?${query}`, 'Erro ao buscar telas');
 }
 
@@ -43,6 +44,6 @@ export async function editarTela(id: string, data: object) {
 export async function deletarTela(id: string) {
   return apiFetch(`/api/telas/${id}`, 'Erro ao excluir tela', {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' }
-  })
+    headers: { 'Content-Type': 'application/json' },
+  });
 }

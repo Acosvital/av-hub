@@ -18,11 +18,21 @@ import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent'
 import { notify } from '@/lib/toast/toast';
 import { getUsuarios } from '@/services/usuarios';
 import { getPerfis } from '@/services/perfis';
-import { getUsuariosPerfis, criarUsuarioPerfil, deletarUsuarioPerfil } from '@/services/usuariosPerfis';
+import {
+  getUsuariosPerfis,
+  criarUsuarioPerfil,
+  deletarUsuarioPerfil,
+} from '@/services/usuariosPerfis';
 import { FormUsuarioPerfil, UsuarioPerfilProps } from './types';
 
-interface UsuarioRef { id: string; username: string; }
-interface PerfilRef { id: string; nome: string; }
+interface UsuarioRef {
+  id: string;
+  username: string;
+}
+interface PerfilRef {
+  id: string;
+  nome: string;
+}
 
 const FORM_INICIAL: FormUsuarioPerfil = {
   id_usuario: '',
@@ -176,11 +186,11 @@ export default function UsuariosPerfis() {
   return (
     <>
       <PageHeader
-        title='Usuários × Perfis'
-        subtitle='Gerencie os vínculos entre usuários e perfis de acesso'
+        title="Usuários × Perfis"
+        subtitle="Gerencie os vínculos entre usuários e perfis de acesso"
       />
       <PageContent>
-        <Card title='Filtros' height='fit'>
+        <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
@@ -192,9 +202,7 @@ export default function UsuariosPerfis() {
                 setPage(0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => (
-                <TextField {...params} label='Usuário' variant='outlined' />
-              )}
+              renderInput={(params) => <TextField {...params} label="Usuário" variant="outlined" />}
             />
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
@@ -206,19 +214,17 @@ export default function UsuariosPerfis() {
                 setPage(0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => (
-                <TextField {...params} label='Perfil' variant='outlined' />
-              )}
+              renderInput={(params) => <TextField {...params} label="Perfil" variant="outlined" />}
             />
           </div>
           <div className={styles.cardButtons}>
-            <Button variant='secondary' onClick={limparFiltros}>
+            <Button variant="secondary" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card title='Vínculos Cadastrados' create={abrirCriacaoModal}>
+        <Card title="Vínculos Cadastrados" create={abrirCriacaoModal}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -226,7 +232,7 @@ export default function UsuariosPerfis() {
             </div>
           ) : (
             <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
-              <Table stickyHeader size='small'>
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     {['Usuário', 'Perfil', 'Criado em'].map((label) => (
@@ -235,7 +241,7 @@ export default function UsuariosPerfis() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row,key) => (
+                  {rows.map((row, key) => (
                     <TableRow
                       hover
                       key={key}
@@ -257,11 +263,11 @@ export default function UsuariosPerfis() {
           )}
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
-            component='div'
+            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage='Resultados por página'
+            labelRowsPerPage="Resultados por página"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -300,7 +306,7 @@ export default function UsuariosPerfis() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Usuário'
+                  label="Usuário"
                   required
                   helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
                 />
@@ -320,7 +326,7 @@ export default function UsuariosPerfis() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Perfil'
+                  label="Perfil"
                   required
                   helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
                 />
@@ -329,15 +335,15 @@ export default function UsuariosPerfis() {
           </div>
 
           <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
               Cancelar
             </Button>
             {editingId ? (
-              <Button variant='accent' onClick={removerVinculo}>
+              <Button variant="accent" onClick={removerVinculo}>
                 {saving ? 'Removendo...' : 'Remover Vínculo'}
               </Button>
             ) : (
-              <Button variant='primary' onClick={salvarVinculo}>
+              <Button variant="primary" onClick={salvarVinculo}>
                 {saving ? 'Salvando...' : 'Criar Vínculo'}
               </Button>
             )}

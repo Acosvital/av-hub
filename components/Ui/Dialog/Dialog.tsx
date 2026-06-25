@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import Button from "../Button/Button";
+import { useEffect } from 'react';
+import Button from '../Button/Button';
 import styles from './Dialog.module.css';
 
 interface DialogProps {
@@ -44,7 +44,7 @@ const Dialog = ({
         <h2>{title}</h2>
         <p>{message}</p>
         <div className={styles.dialogButtons}>
-          <Button variant='secondary' onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
           <Button variant={confirmVariant} onClick={onConfirm} disabled={isLoading}>

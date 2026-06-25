@@ -56,13 +56,11 @@ const OverlayHeader = () => {
 
   useEffect(() => {
     if (fullscreen) {
-      enterFullscreen()
+      enterFullscreen();
     } else if (document.fullscreenElement) {
       document.exitFullscreen();
     }
-  }, [fullscreen])
-
-  
+  }, [fullscreen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -174,7 +172,7 @@ const OverlayHeader = () => {
         </div>
       )}
     </header>
-  )
-}
+  );
+};
 
 export default OverlayHeader;

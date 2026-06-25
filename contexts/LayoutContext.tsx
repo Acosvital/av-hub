@@ -1,8 +1,6 @@
 import { createContext } from 'react';
 
-export type LayoutMode =
-  | 'default'
-  | 'dashboard';
+export type LayoutMode = 'default' | 'dashboard';
 
 export type LayoutContextType = {
   mode: LayoutMode;
@@ -15,6 +13,4 @@ export type LayoutContextType = {
   setMobileMenuOpen: (value: boolean) => void;
 };
 
-export const LayoutContext = createContext<
-  LayoutContextType | undefined
->(undefined);
+export const LayoutContext = createContext<LayoutContextType | undefined>(undefined);

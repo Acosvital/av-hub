@@ -4,7 +4,6 @@ import type { ComponentProps } from 'react';
 import { Acao, usePermission } from '@/hooks/usePermission';
 import Button from '@/components/Ui/Button/Button';
 
-
 // extende as props do componente Button, adicionando acao e telaId:
 interface Props extends ComponentProps<typeof Button> {
   acao: Acao;

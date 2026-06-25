@@ -1,5 +1,5 @@
-import { Theme } from "@mui/material/styles";
-import { Components } from "@mui/material/styles";
+import { Theme } from '@mui/material/styles';
+import { Components } from '@mui/material/styles';
 
 export const componentOverrides: Components<Theme> = {
   MuiButton: {},
@@ -66,7 +66,7 @@ export const componentOverrides: Components<Theme> = {
         '&.MuiTableRow-hover:hover': {
           backgroundColor: 'var(--table-row-hover)',
         },
-        cursor: 'pointer'
+        cursor: 'pointer',
       },
       head: {
         cursor: 'default',
@@ -74,7 +74,7 @@ export const componentOverrides: Components<Theme> = {
           backgroundColor: 'transparent',
         },
       },
-    }
+    },
   },
   MuiTableCell: {
     styleOverrides: {
@@ -116,4 +116,4 @@ export const componentOverrides: Components<Theme> = {
       },
     },
   },
-}
+};
