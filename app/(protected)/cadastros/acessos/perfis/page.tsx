@@ -19,7 +19,7 @@ import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/perfis';
 import { FormPerfil, PerfilProps } from './types';
-import Dialog from '@/components/Ui/Dialog/Dialog';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 const FORM_INICIAL: FormPerfil = {
   nome: '',
@@ -30,12 +30,10 @@ export default function Perfis() {
   //states de loading:
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   //state utilizado para controlar a atualização dos resultados ao criar/editar:
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -134,19 +132,22 @@ export default function Perfis() {
   const excluirPerfil = async () => {
     if (!editingId) return;
     try {
-      setDeleting(true);
       await deletarPerfil(editingId);
       notify.success('Perfil excluído com sucesso');
-      setIsDeleteDialogOpen(false);
       setIsModalOpen(false);
       setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
       setError('Erro ao excluir perfil');
-    } finally {
-      setDeleting(false);
+      throw err;
     }
   };
+
+  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
+    onConfirm: excluirPerfil,
+    message: 'Tem certeza que deseja excluir o perfil? Esta ação não pode ser desfeita.',
+    title: 'Excluir Perfil',
+  });
 
   //Função utilitária para mapear os tipos aceitos no FormPerfil para o setForm
   const setField = <K extends keyof FormPerfil>(field: K, value: FormPerfil[K]) => {
@@ -262,18 +263,9 @@ export default function Perfis() {
               helperText='Opcional — descreva as permissões ou finalidade deste perfil'
             />
           </div>
-
-          {/* <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant='primary' onClick={salvarPerfil}>
-              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Perfil'}
-            </Button>
-          </div> */}
           <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
             {editingId && (
-              <Button variant='danger' onClick={() => setIsDeleteDialogOpen(true)}>
+              <Button variant='danger' onClick={openDeleteDialog}>
                 Excluir Perfil
               </Button>
             )}
@@ -288,17 +280,7 @@ export default function Perfis() {
           </div>
         </div>
       </Modal>
-      <Dialog
-        title='Excluir Usuário'
-        isLoading={deleting}
-        onConfirm={excluirPerfil}
-        isOpen={isDeleteDialogOpen}
-        message='Tem certeza que deseja excluir o perfil? Esta ação não pode ser desfeita.'
-        onClose={() => setIsDeleteDialogOpen(false)}
-        confirmLabel='Excluir'
-        loadingLabel='Excluindo...'
-        confirmVariant='danger'
-      />
+      {deleteDialog}
     </>
   );
 }
