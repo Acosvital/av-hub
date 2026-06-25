@@ -14,6 +14,6 @@ export interface UserSession {
     email: string;
     username: string;
     avatar_url: string | null;
-  },
+  };
   menu: MenuItem[];
 }

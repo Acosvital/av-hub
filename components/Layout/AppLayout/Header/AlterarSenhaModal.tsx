@@ -53,36 +53,45 @@ export default function AlterarSenhaModal({ isOpen, onClose, idUsuario }: Altera
   };
 
   return (
-    <Modal title='Alterar Senha' subtitle='Preencha os campos abaixo para alterar sua senha' isOpen={isOpen} onClose={handleClose}>
+    <Modal
+      title="Alterar Senha"
+      subtitle="Preencha os campos abaixo para alterar sua senha"
+      isOpen={isOpen}
+      onClose={handleClose}
+    >
       <div className={styles.form}>
         <TextField
           fullWidth
-          label='Senha atual'
-          type='password'
+          label="Senha atual"
+          type="password"
           value={senhaAtual}
           onChange={(e) => setSenhaAtual(e.target.value)}
         />
         <TextField
           fullWidth
-          label='Nova senha'
-          type='password'
+          label="Nova senha"
+          type="password"
           value={novaSenha}
           onChange={(e) => setNovaSenha(e.target.value)}
         />
         <TextField
           fullWidth
-          label='Confirmar nova senha'
-          type='password'
+          label="Confirmar nova senha"
+          type="password"
           value={confirmacao}
           onChange={(e) => setConfirmacao(e.target.value)}
           error={confirmacao.length > 0 && novaSenha !== confirmacao}
-          helperText={confirmacao.length > 0 && novaSenha !== confirmacao ? 'As senhas não coincidem' : undefined}
+          helperText={
+            confirmacao.length > 0 && novaSenha !== confirmacao
+              ? 'As senhas não coincidem'
+              : undefined
+          }
         />
         <div className={styles.actions}>
-          <Button variant='secondary' onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant='primary' onClick={handleSalvar}>
+          <Button variant="primary" onClick={handleSalvar}>
             {saving ? 'Salvando...' : 'Alterar Senha'}
           </Button>
         </div>

@@ -61,7 +61,10 @@ export default function UserMenu({ onOpen }: UserMenuProps) {
             {isCredentials && idUsuario && (
               <button
                 className={styles.menuButton}
-                onClick={() => { setIsOpen(false); setIsAlterarSenhaOpen(true); }}
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsAlterarSenhaOpen(true);
+                }}
               >
                 <MdLockReset />
                 Alterar Senha

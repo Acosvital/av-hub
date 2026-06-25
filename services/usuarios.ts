@@ -51,7 +51,7 @@ export async function alterarSenha(id: string, data: { senha_atual: string; senh
 export async function deletarUsuario(id: string) {
   const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
   if (!res.ok) {
-    const body = await res.text().catch(() => "(sem corpo)");
+    const body = await res.text().catch(() => '(sem corpo)');
     console.error(`Erro ao deletar usuário — status ${res.status}: ${body}`);
     throw new Error(`Erro ao deletar usuário (status ${res.status})`);
   }

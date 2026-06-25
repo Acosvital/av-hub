@@ -1,22 +1,22 @@
 export type ProdutoProps = {
-  "id_produto_omie": string,
-  "codigo_produto": string,
-  "descricao": string,
-  "familia": string,
-  "unidade_medida": string,
-  "ativo": boolean,
-  "id_parceiro_mais_recente": string,
-  "nome_fantasia": string,
-  "cotacao_mais_recente": string,
-  "data_cotacao_mais_recente": string,
-  "estado": string,
-  "preco_medio_ultimas_cotacoes": string,
-  "total_cotacoes": string,
-  "email": string,
-  "telefone": string,
-  "cidade": string,
-  "logradouro": string,
-  "numero": string,
+  id_produto_omie: string;
+  codigo_produto: string;
+  descricao: string;
+  familia: string;
+  unidade_medida: string;
+  ativo: boolean;
+  id_parceiro_mais_recente: string;
+  nome_fantasia: string;
+  cotacao_mais_recente: string;
+  data_cotacao_mais_recente: string;
+  estado: string;
+  preco_medio_ultimas_cotacoes: string;
+  total_cotacoes: string;
+  email: string;
+  telefone: string;
+  cidade: string;
+  logradouro: string;
+  numero: string;
 };
 
 export type FornecedorProps = {
@@ -34,16 +34,16 @@ export type FamiliaProdutosProps = {
 };
 
 export type PriceProps = {
-  "id_produto": string;
-  "id_parceiro": string;
-  "data_cotacao": string;
-  "valor_unidade": string;
+  id_produto: string;
+  id_parceiro: string;
+  data_cotacao: string;
+  valor_unidade: string;
 };
 
 export type PriceHistoryProps = {
-  "historico_precos": PriceProps[];
-  "limit": number;
-  "page": number;
-  "total": number;
-  "totalPages": number;
-}
+  historico_precos: PriceProps[];
+  limit: number;
+  page: number;
+  total: number;
+  totalPages: number;
+};

@@ -160,29 +160,26 @@ export default function Perfis() {
 
   return (
     <>
-      <PageHeader
-        title='Perfis'
-        subtitle='Gerencie os perfis de acesso dos usuários do sistema'
-      />
+      <PageHeader title="Perfis" subtitle="Gerencie os perfis de acesso dos usuários do sistema" />
       <PageContent>
-        <Card title='Filtros' height='fit'>
+        <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
             <TextField
               sx={{ flex: 1, minWidth: 300 }}
-              label='Nome'
-              variant='outlined'
+              label="Nome"
+              variant="outlined"
               value={nomeInput}
               onChange={(e) => setNomeInput(e.target.value)}
             />
           </div>
           <div className={styles.cardButtons}>
-            <Button variant='secondary' onClick={limparFiltros}>
+            <Button variant="secondary" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card title='Perfis Cadastrados' create={can('pode_criar') ? abrirCriacaoModal : undefined}>
+        <Card title="Perfis Cadastrados" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -190,7 +187,7 @@ export default function Perfis() {
             </div>
           ) : (
             <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
-              <Table stickyHeader size='small'>
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     {['Nome', 'Descrição', 'Criado em'].map((label) => (
@@ -221,11 +218,11 @@ export default function Perfis() {
           )}
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
-            component='div'
+            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage='Resultados por página'
+            labelRowsPerPage="Resultados por página"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
@@ -248,7 +245,7 @@ export default function Perfis() {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Nome'
+              label="Nome"
               required
               value={form.nome}
               onChange={(e) => setField('nome', e.target.value)}
@@ -259,27 +256,31 @@ export default function Perfis() {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label='Descrição'
+              label="Descrição"
               multiline
               minRows={3}
               value={form.descricao}
               onChange={(e) => setField('descricao', e.target.value)}
-              helperText='Opcional — descreva as permissões ou finalidade deste perfil'
+              helperText="Opcional — descreva as permissões ou finalidade deste perfil"
             />
           </div>
-          <div className={editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions}>
+          <div
+            className={
+              editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions
+            }
+          >
             {editingId && (
-              <PermissionButton acao='pode_deletar' variant='danger' onClick={openDeleteDialog}>
+              <PermissionButton acao="pode_deletar" variant="danger" onClick={openDeleteDialog}>
                 Excluir Perfil
               </PermissionButton>
             )}
             <div className={styles.formActionsMain}>
-              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
               <PermissionButton
                 acao={editingId ? 'pode_editar' : 'pode_criar'}
-                variant='primary'
+                variant="primary"
                 onClick={salvarPerfil}
                 disabled={saving}
               >

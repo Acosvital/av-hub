@@ -39,6 +39,6 @@ export async function editarPerfil(id: string, data: FormPerfil) {
 export async function deletarPerfil(id: string) {
   return apiFetch(`/api/perfis/${id}`, 'Erro ao deletar perfil', {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
 }

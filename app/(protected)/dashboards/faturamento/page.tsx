@@ -58,7 +58,12 @@ export default function Faturamento() {
               Destaques do Pódio
               <div className={styles.top3Container}>
                 {top3.map((v) => (
-                  <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
+                  <VendorCard
+                    key={v.id}
+                    {...v}
+                    onClick={() => setSelectedVendorId(v.id)}
+                    color={accentColor}
+                  />
                 ))}
               </div>
             </div>
@@ -70,15 +75,24 @@ export default function Faturamento() {
               >
                 <div className={styles.vendorGroup}>
                   {otherVendors.map((v) => (
-                    <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
+                    <VendorCard
+                      key={v.id}
+                      {...v}
+                      onClick={() => setSelectedVendorId(v.id)}
+                      color={accentColor}
+                    />
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
-                  {mockVendors.length >= 10 && (
+                  {mockVendors.length >= 10 &&
                     otherVendors.map((v) => (
-                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor}/>
-                    ))
-                  )}
+                      <VendorCard
+                        key={`dup-${v.id}`}
+                        {...v}
+                        onClick={() => setSelectedVendorId(v.id)}
+                        color={accentColor}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
@@ -89,7 +103,7 @@ export default function Faturamento() {
           <div className={styles.logoContainer}>
             <Image
               src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}
-              alt='Aços Vital'
+              alt="Aços Vital"
               width={200}
               height={43}
             />

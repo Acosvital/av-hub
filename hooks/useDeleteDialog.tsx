@@ -40,7 +40,7 @@ export function useDeleteDialog({
       onConfirm={handleConfirm}
       isLoading={isDeleting}
       confirmLabel={confirmLabel}
-      confirmVariant='danger'
+      confirmVariant="danger"
     />
   );
 

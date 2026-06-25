@@ -1,22 +1,22 @@
-import type { MenuItem } from "@/components/Layout/AppLayout/Menu/MenuItem/MenuItem";
+import type { MenuItem } from '@/components/Layout/AppLayout/Menu/MenuItem/MenuItem';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id_usuario: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      authProvider: "azure" | "credentials";
+      authProvider: 'azure' | 'credentials';
       menu: MenuItem[];
     };
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     id_usuario?: string;
-    authProvider?: "azure" | "credentials";
+    authProvider?: 'azure' | 'credentials';
     menu?: MenuItem[];
   }
 }

@@ -56,20 +56,112 @@ const MOCK_DETAILS: VendorDetails = {
     { orderType: 'REFATURAMENTO', count: 4859, value: 15269 },
   ],
   orders: [
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'CANCELADO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'DEVOLVIDO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'RECUSADO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'REFATURAMENTO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'CONTRATO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SEM CLASSIFICAÇÃO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'CANCELADO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'DEVOLVIDO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'RECUSADO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT', status: 'REFATURAMENTO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'CONTRATO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SEM CLASSIFICAÇÃO' },
-    { id: 24532, date: '10/06/2026', partner: 'MOSAIC FERTILIZANTES P&K LTDA.', value: 15210, category: 'SPOT' },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'CANCELADO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'DEVOLVIDO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'RECUSADO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'REFATURAMENTO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'CONTRATO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SEM CLASSIFICAÇÃO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'CANCELADO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'DEVOLVIDO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'RECUSADO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+      status: 'REFATURAMENTO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'CONTRATO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SEM CLASSIFICAÇÃO',
+    },
+    {
+      id: 24532,
+      date: '10/06/2026',
+      partner: 'MOSAIC FERTILIZANTES P&K LTDA.',
+      value: 15210,
+      category: 'SPOT',
+    },
   ],
 };
 
@@ -86,7 +178,7 @@ const VendorDetailsModal = ({ isOpen, onClose, vendorId }: VendorDetailsModalPro
   }, [isOpen, vendorId]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Detalhes do vendedor'>
+    <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do vendedor">
       {details && (
         <div className={styles.modalContent}>
           <div className={styles.vendorDetails}>

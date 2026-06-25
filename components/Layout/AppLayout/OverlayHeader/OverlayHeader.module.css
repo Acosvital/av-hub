@@ -7,11 +7,15 @@
   box-shadow: var(--shadow-md);
   padding: var(--space-4);
   z-index: 100;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 :global(.dark) :local(.header) {
-  box-shadow: 0 1px 0 var(--navy-600), 0 4px 18px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 1px 0 var(--navy-600),
+    0 4px 18px rgba(0, 0, 0, 0.55);
   border-bottom-color: var(--navy-600);
 }
 
@@ -66,22 +70,21 @@
 }
 
 .actionButton svg {
-  font-size: var(--fs-lg)
+  font-size: var(--fs-lg);
 }
 
 .active {
   background-color: var(--av-secondary);
   color: var(--neutral-50);
 }
-.active:hover{
+.active:hover {
   color: var(--foreground);
 }
 
 .buttonsContainer {
   display: flex;
-  gap: var(--space-4)
+  gap: var(--space-4);
 }
-
 
 .datePickerContainer {
   position: relative;
@@ -125,7 +128,7 @@
   .mobileMenuButton {
     display: flex;
   }
-  .title{
+  .title {
     display: none;
   }
 }

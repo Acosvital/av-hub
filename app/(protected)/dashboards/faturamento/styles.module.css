@@ -21,8 +21,8 @@
   font-family: var(--font-sans);
 }
 
-.defaultCard>h3,
-.defaultCard>div>h3 {
+.defaultCard > h3,
+.defaultCard > div > h3 {
   font-size: var(--fs-sm);
   margin-bottom: var(--space-2);
 }
@@ -100,7 +100,7 @@
   transform: none;
 }
 
-.defaultRank:hover .autoScroll>div:last-child {
+.defaultRank:hover .autoScroll > div:last-child {
   display: none;
 }
 
@@ -144,7 +144,7 @@
   flex: 1;
 }
 
-.billings>div:last-child {
+.billings > div:last-child {
   border: none;
 }
 
@@ -157,17 +157,17 @@
   flex: 1;
 }
 
-.billing>h3 {
+.billing > h3 {
   font-size: var(--fs-lg);
   color: var(--success);
 }
 
-.billing>span {
+.billing > span {
   font-size: var(--fs-xl);
 }
 
 /********* SITUAÇÃO *********/
-.situation>h3 {
+.situation > h3 {
   font-size: var(--fs-sm);
 }
 
@@ -192,7 +192,7 @@
   border-radius: var(--radius-md);
 }
 
-.situationCard>div {
+.situationCard > div {
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -202,7 +202,7 @@
   font-size: var(--fs-md);
 }
 
-.situationCard>div:last-child {
+.situationCard > div:last-child {
   border-top: 1px solid var(--border);
   font-size: var(--fs-lg);
 }
@@ -223,12 +223,12 @@
   color: var(--foreground);
 }
 
-.billingCard>div {
+.billingCard > div {
   padding: var(--space-2);
   width: 50%;
 }
 
-.billingCard>div:first-child {
+.billingCard > div:first-child {
   border-right: 1px solid var(--border);
 }
 
@@ -245,10 +245,9 @@
   white-space: nowrap;
 }
 
-
 /************************************************* MOBILE *************************************************/
 @media screen and (max-width: 768px) {
-  .cardHeader{
+  .cardHeader {
     display: flex;
     height: fit-content;
   }
@@ -261,8 +260,7 @@
   .autoScroll > div:last-child {
     display: none;
   }
-   .defaultRank {
+  .defaultRank {
     height: fit-content;
   }
-
 }

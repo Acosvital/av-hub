@@ -53,7 +53,9 @@
   font-weight: var(--w-semibold);
   color: var(--foreground-secondary);
   border-radius: var(--radius-sm);
-  transition: color var(--t-base), background-color var(--t-base);
+  transition:
+    color var(--t-base),
+    background-color var(--t-base);
 }
 
 .tab:hover {
@@ -145,8 +147,12 @@
 }
 
 @keyframes verticalScroll {
-  0%   { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(0, -50%, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -50%, 0);
+  }
 }
 
 .rowGroup {
@@ -157,7 +163,7 @@
 .rowGroup .gridRow:hover {
   background-color: var(--table-row-hover);
 }
-.rowGroup > div:last-child{
+.rowGroup > div:last-child {
   border-bottom: 2px solid var(--border-strong);
 }
 
@@ -263,7 +269,9 @@
 }
 
 /* COLUMN OVERRIDES — alignment & colors */
-.rankCol { text-align: left !important; }
+.rankCol {
+  text-align: left !important;
+}
 
 .nameCol {
   text-align: left !important;
@@ -271,9 +279,21 @@
   font-size: var(--fs-sm) !important;
 }
 
-.faturado   { color: var(--blue-light) !important; }
-.aFaturar   { color: var(--pink-light) !important; }
-.ajudaCusto { color: var(--yellow-light) !important; }
-.comissao   { color: var(--green) !important; }
-.bloqueado  { color: var(--red-light) !important; }
-.total      { color: var(--foreground) !important; }
+.faturado {
+  color: var(--blue-light) !important;
+}
+.aFaturar {
+  color: var(--pink-light) !important;
+}
+.ajudaCusto {
+  color: var(--yellow-light) !important;
+}
+.comissao {
+  color: var(--green) !important;
+}
+.bloqueado {
+  color: var(--red-light) !important;
+}
+.total {
+  color: var(--foreground) !important;
+}

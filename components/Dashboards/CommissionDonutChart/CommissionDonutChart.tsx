@@ -36,18 +36,20 @@ const CommissionDonutChart = ({ data, total }: CommissionDonutChartProps) => {
         <PieChart
           width={size.width}
           height={size.height}
-          series={[{
-            data: data.map((item, i) => ({
-              id: i,
-              value: item.value,
-              label: item.label,
-              color: item.color,
-            })),
-            innerRadius: '60%',
-            outerRadius: '85%',
-            paddingAngle: 2,
-            cornerRadius: 4,
-          }]}
+          series={[
+            {
+              data: data.map((item, i) => ({
+                id: i,
+                value: item.value,
+                label: item.label,
+                color: item.color,
+              })),
+              innerRadius: '60%',
+              outerRadius: '85%',
+              paddingAngle: 2,
+              cornerRadius: 4,
+            },
+          ]}
           hideLegend={true}
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         />

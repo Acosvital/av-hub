@@ -19,7 +19,10 @@ export async function getUsuariosPerfis(params: GetUsuariosPerfisParams = {}) {
   if (params.limit) query.set('limit', String(params.limit));
   if (params.id_usuario) query.set('id_usuario', params.id_usuario);
   if (params.id_perfil) query.set('id_perfil', params.id_perfil);
-  return apiFetch<UsuariosPerfisResponse>(`/api/usuariosPerfis?${query}`, 'Erro ao buscar vínculos de usuário e perfil');
+  return apiFetch<UsuariosPerfisResponse>(
+    `/api/usuariosPerfis?${query}`,
+    'Erro ao buscar vínculos de usuário e perfil'
+  );
 }
 
 export async function criarUsuarioPerfil(data: object) {

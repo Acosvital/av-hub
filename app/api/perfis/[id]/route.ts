@@ -17,7 +17,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     const response = await fetch(`${process.env.API_URL}/perfis/${id}`, {
@@ -25,7 +28,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
       headers: { 'x-api-key': process.env.API_KEY! },
     });
     if (!response.ok) {
-      const body = await response.text().catch(() => "(sem corpo)");
+      const body = await response.text().catch(() => '(sem corpo)');
       console.error(`Erro ao deletar perfil — status ${response.status}: ${body}`);
       throw new Error(`Erro ao deletar perfil (status ${response.status})`);
     }

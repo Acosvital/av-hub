@@ -48,7 +48,7 @@ export default function Login() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div>
-          <img src='./logo.png' alt="logo Aços Vital" className={styles.logo} />
+          <img src="./logo.png" alt="logo Aços Vital" className={styles.logo} />
           <h1 className={styles.title}>Bem vindo ao Aços Hub</h1>
           <h2 className={styles.subTitle}>Acesse sua conta corporativa para continuar</h2>
         </div>
@@ -60,7 +60,7 @@ export default function Login() {
           <TextField
             label="Email"
             variant="outlined"
-            type='email'
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
@@ -69,7 +69,7 @@ export default function Login() {
           <TextField
             label="Senha"
             variant="outlined"
-            type='password'
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
@@ -91,9 +91,13 @@ export default function Login() {
 
         <button
           className={styles.loginButton}
-          onClick={() => signIn("azure-ad", { prompt: "select_account", callbackUrl: "/" })}
+          onClick={() => signIn('azure-ad', { prompt: 'select_account', callbackUrl: '/' })}
         >
-          <svg className={styles.microsoftIcon} viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className={styles.microsoftIcon}
+            viewBox="0 0 23 23"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path d="M0 0h23v23H0z" fill="#f3f3f3"></path>
             <path d="M1 1h10v10H1z" fill="#f35325"></path>
             <path d="M12 1h10v10H12z" fill="#81bc06"></path>

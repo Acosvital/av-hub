@@ -20,16 +20,27 @@ const rankClass: Record<number, string> = {
   3: styles.bronze,
 };
 
-const VendorCard = ({ name, orders, meta, participation, totalValue, rank, onClick, color = 'var(--gold)' }: VendorCardProps) => {
+const VendorCard = ({
+  name,
+  orders,
+  meta,
+  participation,
+  totalValue,
+  rank,
+  onClick,
+  color = 'var(--gold)',
+}: VendorCardProps) => {
   const colorClass = rankClass[rank] ?? styles.default;
   return (
     <div className={`${styles.vendorCard} ${colorClass}`} onClick={onClick}>
-      <div className={styles.percentageEffect}
+      <div
+        className={styles.percentageEffect}
         style={{
           width: `${participation}%`,
           borderRight: `3px solid ${color}`,
-          boxShadow: `0 0 10px 1px ${color}`
-        }} />
+          boxShadow: `0 0 10px 1px ${color}`,
+        }}
+      />
       <div className={styles.vendorRank}>
         <RankingBadge rank={rank} />
         <Avatar name={name} border={`${color}`} size={50} />
@@ -42,11 +53,9 @@ const VendorCard = ({ name, orders, meta, participation, totalValue, rank, onCli
           <span className={styles.vendorInfo}>{`${participation}% Part.`}</span>
         </div>
       </div>
-      <div className={styles.vendorTotal}>
-        {toBRL(totalValue)}
-      </div>
+      <div className={styles.vendorTotal}>{toBRL(totalValue)}</div>
     </div>
-  )
+  );
 };
 
 export default VendorCard;

@@ -1,15 +1,11 @@
 import styles from './DashboardGrid.module.css';
 
 interface DashboardGridProps {
-    children: React.ReactNode
+  children: React.ReactNode;
 }
 
-const DashboardGrid = ({ children}: DashboardGridProps) => {
-    return (
-        <div className={styles.dashboardGridLayout}>
-            {children}
-        </div>
-    )
+const DashboardGrid = ({ children }: DashboardGridProps) => {
+  return <div className={styles.dashboardGridLayout}>{children}</div>;
 };
 
 export default DashboardGrid;

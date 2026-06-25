@@ -5,7 +5,6 @@ import type { MenuItem } from '@/components/Layout/AppLayout/Menu/MenuItem/MenuI
 
 export type Acao = 'pode_visualizar' | 'pode_criar' | 'pode_editar' | 'pode_deletar';
 
-
 //Custom hook que verifica as permissões do usuário logado, e tela atual:
 export function usePermission() {
   const { data: session } = useSession();

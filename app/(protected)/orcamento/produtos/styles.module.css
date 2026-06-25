@@ -59,7 +59,7 @@
 .definitionListContainer {
   display: flex;
   justify-content: space-between;
-  gap: var(--space-4)
+  gap: var(--space-4);
 }
 
 .definitionList {
@@ -83,5 +83,5 @@
 
 .divider {
   border: 0;
-  border-top: 1px solid var(--border)
+  border-top: 1px solid var(--border);
 }

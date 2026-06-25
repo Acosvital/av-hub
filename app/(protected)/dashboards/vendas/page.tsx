@@ -16,7 +16,7 @@ const mockVendors = Array.from({ length: 10 }, (_, i) => ({
   name: 'HUGO DOS SANTOS GONÇALVES',
   orders: 100,
   meta: 10,
-  participation: 100 - i * 1.90,
+  participation: 100 - i * 1.9,
   totalValue: 3000450,
   rank: i + 1,
 }));
@@ -68,7 +68,12 @@ const Vendas = () => {
               Destaques do Pódio
               <div className={styles.top3Container}>
                 {top3.map((v) => (
-                  <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor} />
+                  <VendorCard
+                    key={v.id}
+                    {...v}
+                    onClick={() => setSelectedVendorId(v.id)}
+                    color={accentColor}
+                  />
                 ))}
               </div>
             </div>
@@ -80,15 +85,24 @@ const Vendas = () => {
               >
                 <div className={styles.vendorGroup}>
                   {otherVendors.map((v) => (
-                    <VendorCard key={v.id} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor} />
+                    <VendorCard
+                      key={v.id}
+                      {...v}
+                      onClick={() => setSelectedVendorId(v.id)}
+                      color={accentColor}
+                    />
                   ))}
                 </div>
                 <div className={styles.vendorGroup} aria-hidden="true">
-                  {mockVendors.length >= 10 && (
+                  {mockVendors.length >= 10 &&
                     otherVendors.map((v) => (
-                      <VendorCard key={`dup-${v.id}`} {...v} onClick={() => setSelectedVendorId(v.id)} color={accentColor} />
-                    ))
-                  )}
+                      <VendorCard
+                        key={`dup-${v.id}`}
+                        {...v}
+                        onClick={() => setSelectedVendorId(v.id)}
+                        color={accentColor}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
@@ -144,8 +158,7 @@ const Vendas = () => {
         vendorId={selectedVendorId}
       />
     </div>
-
-  )
+  );
 };
 
 export default Vendas;

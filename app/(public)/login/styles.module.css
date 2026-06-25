@@ -1,96 +1,98 @@
 .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: var(--waves-bg) no-repeat center / cover, var(--background)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background:
+    var(--waves-bg) no-repeat center / cover,
+    var(--background);
 }
 
 .card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-xl);
-    background: linear-gradient(-180deg, rgba(8, 20, 55, 1) 0%, rgba(59, 69, 106, 1) 100%);
-    padding: var(--space-6) var(--space-7);
-    gap: var(--space-6);
-    max-width: 400px;
-    width: 100%;
-    box-shadow: var(--shadow-login);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(-180deg, rgba(8, 20, 55, 1) 0%, rgba(59, 69, 106, 1) 100%);
+  padding: var(--space-6) var(--space-7);
+  gap: var(--space-6);
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-login);
 }
-:global(.dark) :local(.card){
-    box-shadow: rgba(225, 225, 225, 0.15) 0px 5px 15px;
+:global(.dark) :local(.card) {
+  box-shadow: rgba(225, 225, 225, 0.15) 0px 5px 15px;
 }
 
 .logo {
-    width: 240px;
-    margin-bottom: var(--space-6);
+  width: 240px;
+  margin-bottom: var(--space-6);
 }
 
 .title {
-    font-size: var(--fs-xl);
-    color: var(--on-primary);
-    font-family: var(--font-sans);
+  font-size: var(--fs-xl);
+  color: var(--on-primary);
+  font-family: var(--font-sans);
 }
 
 .subTitle {
-    color: var(--on-primary);
-    font-size: var(--fs-sm);
-    font-family: var(--font-sans);
+  color: var(--on-primary);
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
 }
 
 .loginButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-2);
-    gap: var(--space-2);
-    border: 0;
-    border-radius: var(--radius-xs);
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    cursor: pointer;
-    color: var(--black);
-    font-weight: var(--w-bold);
-    font-size: var(--fs-sm);
-    width: 100%;
-    background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  gap: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  cursor: pointer;
+  color: var(--black);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-sm);
+  width: 100%;
+  background-color: var(--white);
 }
 
 .loginButton:hover {
-    background: var(--neutral-300);
+  background: var(--neutral-300);
 }
 
 .microsoftIcon {
-    width: var(--space-5);
-    height: var(--space-5);
+  width: var(--space-5);
+  height: var(--space-5);
 }
 
 .divider {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: var(--space-3);
-    color: var(--text-light);
-    font-size: var(--fs-xs);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-3);
+  color: var(--text-light);
+  font-size: var(--fs-xs);
 }
 
 .divider::before,
 .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.15);
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .loginInfo {
-    font-size: var(--fs-xs);
-    color: var(--text-light);
-    font-weight: var(--w-bold);
-    text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-light);
+  font-weight: var(--w-bold);
+  text-align: center;
 }
 
-.loginInfo>span {
-    font-weight: var(--w-black);
-    color: var(--neutral-50);
+.loginInfo > span {
+  font-weight: var(--w-black);
+  color: var(--neutral-50);
 }

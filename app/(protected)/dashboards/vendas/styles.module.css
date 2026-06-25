@@ -21,8 +21,8 @@
   font-family: var(--font-sans);
 }
 
-.defaultCard>h3,
-.defaultCard>div>h3 {
+.defaultCard > h3,
+.defaultCard > div > h3 {
   font-size: var(--fs-sm);
   margin-bottom: var(--space-2);
 }
@@ -100,7 +100,7 @@
   transform: none;
 }
 
-.defaultRank:hover .autoScroll>div:last-child {
+.defaultRank:hover .autoScroll > div:last-child {
   display: none;
 }
 
@@ -141,12 +141,12 @@
   color: var(--foreground);
 }
 
-.billingCard>div {
+.billingCard > div {
   padding: var(--space-2);
   width: 50%;
 }
 
-.billingCard>div:first-child {
+.billingCard > div:first-child {
   border-right: 1px solid var(--border);
 }
 
