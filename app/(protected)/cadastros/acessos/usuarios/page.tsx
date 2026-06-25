@@ -76,7 +76,6 @@ export default function Usuarios() {
           email,
           ativo,
         });
-        console.log(response)
         setRows(response.usuarios ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {

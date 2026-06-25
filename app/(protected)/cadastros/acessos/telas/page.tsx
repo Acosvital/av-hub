@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -100,7 +100,6 @@ export default function Telas() {
           nome,
           ativo,
         });
-        console.log(response)
         setRows(response.menus ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
@@ -161,7 +160,6 @@ export default function Telas() {
         ordem: form.ordem,
         ativo: form.ativo,
       };
-      console.log(payload)
       if (editingId) {
         await editarTela(editingId, payload);
         notify.success('Tela atualizada com sucesso');
@@ -215,8 +213,22 @@ export default function Telas() {
     setSlugManuallyEdited(true);
     setField('slug', value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
   };
-
-  const parentOptions = allTelas.filter((t) => t.id !== editingId);
+// função que remove a possibilidade de um "pai" virar "filho" dos próprios filhos:
+  const parentOptions = useMemo(() => {
+    if (!editingId) return allTelas;
+    const excluded = new Set<string>([editingId]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const t of allTelas) {
+        if (!excluded.has(t.id) && t.id_parent && excluded.has(t.id_parent)) {
+          excluded.add(t.id);
+          changed = true;
+        }
+      }
+    }
+    return allTelas.filter((t) => !excluded.has(t.id));
+  }, [allTelas, editingId]);
 
   return (
     <>
@@ -360,7 +372,7 @@ export default function Telas() {
                 setParentSelecionado(v);
                 setField('id_parent', v?.id ?? null);
                 // ordem do pai ++ ou 0 para raíz:
-                setField('ordem', v ? v.ordem++ : 0);
+                setField('ordem', v ? v.ordem + 1 : 0);
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
               renderInput={(params) => (

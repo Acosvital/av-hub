@@ -85,9 +85,6 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, account, user }) {
-      console.log('token', token)
-      console.log('account', account)
-      console.log('user', user)
       if (account?.provider === "azure-ad") {
         token.authProvider = "azure";
         const id_usuario = await findUserByEmail(token.email ?? "");

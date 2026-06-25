@@ -13,10 +13,12 @@ import styles from './styles.module.css';
 import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
+import { usePermission } from '@/hooks/usePermission';
 import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/perfis';
 import { FormPerfil, PerfilProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
@@ -27,6 +29,9 @@ const FORM_INICIAL: FormPerfil = {
 };
 
 export default function Perfis() {
+  //custom hook que faz a verificação de permissões dos usuários:
+  const { can } = usePermission();
+
   //states de loading:
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -177,7 +182,7 @@ export default function Perfis() {
           </div>
         </Card>
 
-        <Card title='Perfis Cadastrados' create={abrirCriacaoModal}>
+        <Card title='Perfis Cadastrados' create={can('pode_criar') ? abrirCriacaoModal : undefined}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -196,10 +201,10 @@ export default function Perfis() {
                 <TableBody>
                   {rows.map((row) => (
                     <TableRow
-                      hover
+                      hover={can('pode_editar')}
                       key={row.id}
-                      onClick={() => abrirEdicaoModal(row)}
-                      sx={{ cursor: 'pointer' }}
+                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{row.descricao ?? '—'}</TableCell>
@@ -262,19 +267,24 @@ export default function Perfis() {
               helperText='Opcional — descreva as permissões ou finalidade deste perfil'
             />
           </div>
-          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+          <div className={editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions}>
             {editingId && (
-              <Button variant='danger' onClick={openDeleteDialog}>
+              <PermissionButton acao='pode_deletar' variant='danger' onClick={openDeleteDialog}>
                 Excluir Perfil
-              </Button>
+              </PermissionButton>
             )}
             <div className={styles.formActionsMain}>
               <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button variant='primary' onClick={salvarPerfil}>
+              <PermissionButton
+                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                variant='primary'
+                onClick={salvarPerfil}
+                disabled={saving}
+              >
                 {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Perfil'}
-              </Button>
+              </PermissionButton>
             </div>
           </div>
         </div>
