@@ -1,5 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { FormPerfil, PerfilProps } from '@/app/(protected)/cadastros/acessos/perfis/types';
+import { PaginatedResponse } from './types';
 
 export interface GetPerfisParams {
   page?: number;
@@ -7,9 +8,8 @@ export interface GetPerfisParams {
   nome?: string;
 }
 
-export interface PerfisResponse {
+export interface PerfisResponse extends PaginatedResponse {
   perfis: PerfilProps[];
-  total?: number;
 }
 
 export async function getPerfis(params: GetPerfisParams = {}): Promise<PerfisResponse> {

@@ -1,5 +1,6 @@
 import { TelaProps } from '@/app/(protected)/cadastros/acessos/telas/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { PaginatedResponse } from './types';
 
 interface GetTelasParams {
   page?: number;
@@ -9,9 +10,8 @@ interface GetTelasParams {
   id_parent?: string | null;
 }
 
-interface TelasResponse {
+interface TelasResponse extends PaginatedResponse {
   menus: TelaProps[];
-  total?: number;
 }
 
 export async function getTelas(params: GetTelasParams = {}): Promise<TelasResponse> {

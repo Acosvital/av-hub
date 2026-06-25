@@ -1,4 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { UsuarioProps } from '@/app/(protected)/cadastros/acessos/usuarios/types';
+import { PaginatedResponse } from './types';
 
 interface GetUsuariosParams {
   page?: number;
@@ -8,15 +10,8 @@ interface GetUsuariosParams {
   ativo?: boolean;
 }
 
-interface UsuariosResponse {
-  usuarios: { 
-    id: string; 
-    username: string;
-    email: string;
-    id_funcionario: string | null;
-    ativo: boolean;
-   }[];
-  total?: number;
+interface UsuariosResponse extends PaginatedResponse {
+  usuarios: UsuarioProps[];
 }
 
 export async function getUsuarios(params: GetUsuariosParams = {}) {

@@ -27,9 +27,9 @@ import { getPerfis } from '@/services/perfis';
 import { getTelas } from '@/services/telas';
 import { getPermissoes, criarPermissao, editarPermissao } from '@/services/permissoes';
 import { FormPermissao, PermissaoProps } from './types';
+import { TelaProps } from '../telas/types';
 
 interface PerfilRef { id: string; nome: string; }
-interface TelaRef { id: string; id_parent: 'string' | null; nome: string; }
 
 const FORM_INICIAL: FormPermissao = {
   id_perfil: '',
@@ -54,14 +54,14 @@ export default function Permissoes() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [allPerfis, setAllPerfis] = useState<PerfilRef[]>([]);
-  const [allTelas, setAllTelas] = useState<TelaRef[]>([]);
+  const [allTelas, setAllTelas] = useState<TelaProps[]>([]);
 
   const [perfilFiltro, setPerfilFiltro] = useState<PerfilRef | null>(null);
-  const [telaFiltro, setTelaFiltro] = useState<TelaRef | null>(null);
+  const [telaFiltro, setTelaFiltro] = useState<TelaProps | null>(null);
 
   const [form, setForm] = useState<FormPermissao>(FORM_INICIAL);
   const [perfilSelecionado, setPerfilSelecionado] = useState<PerfilRef | null>(null);
-  const [telaSelecionada, setTelaSelecionada] = useState<TelaRef | null>(null);
+  const [telaSelecionada, setTelaSelecionada] = useState<TelaProps | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -74,6 +74,8 @@ export default function Permissoes() {
           getPerfis({ limit: 1000 }),
           getTelas({ limit: 1000 }),
         ]);
+        console.log(perfisRes)
+        console.log(telasRes)
         setAllPerfis(perfisRes.perfis ?? []);
         setAllTelas(telasRes.menus ?? []);
       } catch (err) {
@@ -93,6 +95,7 @@ export default function Permissoes() {
           id_perfil: perfilFiltro?.id,
           id_tela: telaFiltro?.id,
         });
+        console.log(response)
         setRows(response.permissoes ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {

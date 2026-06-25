@@ -1,4 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { PermissaoProps } from '@/app/(protected)/cadastros/acessos/permissoes/types';
+import { PaginatedResponse } from './types';
 
 interface GetPermissoesParams {
   page?: number;
@@ -7,13 +9,17 @@ interface GetPermissoesParams {
   id_tela?: string;
 }
 
+interface PermissoesResponse extends PaginatedResponse {
+  permissoes: PermissaoProps[];
+}
+
 export async function getPermissoes(params: GetPermissoesParams = {}) {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.id_perfil) query.set('id_perfil', params.id_perfil);
   if (params.id_tela) query.set('id_tela', params.id_tela);
-  return apiFetch(`/api/permissoes?${query}`, 'Erro ao buscar permissões');
+  return apiFetch<PermissoesResponse>(`/api/permissoes?${query}`, 'Erro ao buscar permissões');
 }
 
 export async function criarPermissao(data: object) {
