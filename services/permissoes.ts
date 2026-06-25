@@ -37,3 +37,9 @@ export async function editarPermissao(id: string, data: object) {
     body: JSON.stringify(data),
   });
 }
+
+export async function deletarPermissao(id: string) {
+  return apiFetch(`/api/permissoes/${id}`, 'Erro ao deletar permissão', {
+    method: 'DELETE',
+  });
+}

@@ -25,9 +25,12 @@ import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent'
 import { notify } from '@/lib/toast/toast';
 import { getPerfis } from '@/services/perfis';
 import { getTelas } from '@/services/telas';
-import { getPermissoes, criarPermissao, editarPermissao } from '@/services/permissoes';
+import { getPermissoes, criarPermissao, editarPermissao, deletarPermissao } from '@/services/permissoes';
 import { FormPermissao, PermissaoProps } from './types';
 import { TelaProps } from '../telas/types';
+import { usePermission } from '@/hooks/usePermission';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
+import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 
 interface PerfilRef { id: string; nome: string; }
 
@@ -47,6 +50,8 @@ export default function Permissoes() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  const {can} = usePermission();
 
   const [rows, setRows] = useState<PermissaoProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -176,6 +181,26 @@ export default function Permissoes() {
     }
   };
 
+  const excluirPermissao = async () => {
+    if (!editingId) return;
+    try {
+      await deletarPermissao(editingId);
+      notify.success('Permissão excluída com sucesso');
+      setIsModalOpen(false);
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao excluir permissão');
+      throw err;
+    }
+  };
+
+  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
+    onConfirm: excluirPermissao,
+    message: 'Tem certeza que deseja excluir esta permissão? Esta ação não pode ser desfeita.',
+    title: 'Excluir Permissão',
+  });
+
   const setField = <K extends keyof FormPermissao>(field: K, value: FormPermissao[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -231,7 +256,7 @@ export default function Permissoes() {
           </div>
         </Card>
 
-        <Card title='Permissões Cadastradas' create={abrirCriacaoModal}>
+        <Card title='Permissões Cadastradas' create={can('pode_criar') ? abrirCriacaoModal : undefined}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -250,10 +275,10 @@ export default function Permissoes() {
                 <TableBody>
                   {rows.map((row) => (
                     <TableRow
-                      hover
+                      hover={can('pode_editar')}
                       key={row.id}
-                      onClick={() => abrirEdicaoModal(row)}
-                      sx={{ cursor: 'pointer' }}
+                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{getPerfilNome(row)}</TableCell>
                       <TableCell>{getTelaNome(row)}</TableCell>
@@ -411,16 +436,29 @@ export default function Permissoes() {
             />
           </div>
 
-          <div className={styles.formActions}>
-            <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant='primary' onClick={salvarPermissao}>
-              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Permissão'}
-            </Button>
+          <div className={editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions}>
+            {editingId && (
+              <PermissionButton acao='pode_deletar' variant='danger' onClick={openDeleteDialog}>
+                Excluir Permissão
+              </PermissionButton>
+            )}
+            <div className={styles.formActionsMain}>
+              <Button variant='secondary' onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <PermissionButton
+                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                variant='primary'
+                onClick={salvarPermissao}
+                disabled={saving}
+              >
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Permissão'}
+              </PermissionButton>
+            </div>
           </div>
         </div>
       </Modal>
+      {deleteDialog}
     </>
   );
 }
