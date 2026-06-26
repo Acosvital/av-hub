@@ -33,8 +33,8 @@ export async function criarUsuarioPerfil(data: object) {
   });
 }
 
-export async function deletarUsuarioPerfil(id: string) {
-  return apiFetch(`/api/usuariosPerfis/${id}`, 'Erro ao remover vínculo', {
+export async function deletarUsuarioPerfil(id_usuario: string, id_perfil: string) {
+  return apiFetch(`/api/usuariosPerfis/${id_usuario}/${id_perfil}`, 'Erro ao remover vínculo', {
     method: 'DELETE',
   });
 }

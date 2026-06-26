@@ -31,6 +31,8 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import { getTelas, criarTela, editarTela, deletarTela } from '@/services/telas';
 import { FormTela, TelaProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
+import { usePermission } from '@/hooks/usePermission';
+import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 
 const FORM_INICIAL: FormTela = {
   nome: '',
@@ -58,6 +60,8 @@ export default function Telas() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+
+  const { can } = usePermission();
 
   const [rows, setRows] = useState<TelaProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -266,7 +270,7 @@ export default function Telas() {
           </div>
         </Card>
 
-        <Card title="Telas Cadastradas" create={abrirCriacaoModal}>
+        <Card title="Telas Cadastradas" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -285,10 +289,10 @@ export default function Telas() {
                 <TableBody>
                   {rows.map((row) => (
                     <TableRow
-                      hover
+                      hover={can('pode_editar')}
                       key={row.id}
-                      onClick={() => abrirEdicaoModal(row)}
-                      sx={{ cursor: 'pointer' }}
+                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{row.slug}</TableCell>
@@ -399,19 +403,27 @@ export default function Telas() {
             />
           </div>
 
-          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+          <div
+            className={
+              editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions
+            }
+          >
             {editingId && (
-              <Button variant="danger" onClick={openDeleteDialog}>
-                Excluir Perfil
-              </Button>
+              <PermissionButton acao="pode_deletar" variant="danger" onClick={openDeleteDialog}>
+                Excluir Tela
+              </PermissionButton>
             )}
             <div className={styles.formActionsMain}>
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button variant="primary" onClick={salvarTela}>
+              <PermissionButton
+                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                variant="primary"
+                onClick={salvarTela}
+              >
                 {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Tela'}
-              </Button>
+              </PermissionButton>
             </div>
           </div>
         </div>

@@ -7,6 +7,10 @@ interface GetPermissoesParams {
   limit?: number;
   id_perfil?: string;
   id_tela?: string;
+  pode_visualizar?: string;
+  pode_criar?: string;
+  pode_editar?: string;
+  pode_deletar?: string;
 }
 
 interface PermissoesResponse extends PaginatedResponse {
@@ -19,6 +23,10 @@ export async function getPermissoes(params: GetPermissoesParams = {}) {
   if (params.limit) query.set('limit', String(params.limit));
   if (params.id_perfil) query.set('id_perfil', params.id_perfil);
   if (params.id_tela) query.set('id_tela', params.id_tela);
+  if (params.pode_visualizar) query.set('pode_visualizar', params.pode_visualizar);
+  if (params.pode_criar) query.set('pode_criar', params.pode_criar);
+  if (params.pode_editar) query.set('pode_editar', params.pode_editar);
+  if (params.pode_deletar) query.set('pode_deletar', params.pode_deletar);
   return apiFetch<PermissoesResponse>(`/api/permissoes?${query}`, 'Erro ao buscar permissões');
 }
 
