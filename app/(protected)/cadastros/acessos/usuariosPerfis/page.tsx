@@ -24,15 +24,11 @@ import {
   deletarUsuarioPerfil,
 } from '@/services/usuariosPerfis';
 import { FormUsuarioPerfil, UsuarioPerfilProps } from './types';
-
-interface UsuarioRef {
-  id: string;
-  username: string;
-}
-interface PerfilRef {
-  id: string;
-  nome: string;
-}
+import { UsuarioProps } from '../usuarios/types';
+import { PerfilProps } from '../perfis/types';
+import { usePermission } from '@/hooks/usePermission';
+import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 const FORM_INICIAL: FormUsuarioPerfil = {
   id_usuario: '',
@@ -44,23 +40,25 @@ export default function UsuariosPerfis() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const { can } = usePermission();
 
   const [rows, setRows] = useState<UsuarioPerfilProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [allUsuarios, setAllUsuarios] = useState<UsuarioRef[]>([]);
-  const [allPerfis, setAllPerfis] = useState<PerfilRef[]>([]);
+  const [allUsuarios, setAllUsuarios] = useState<UsuarioProps[]>([]);
+  const [allPerfis, setAllPerfis] = useState<PerfilProps[]>([]);
 
-  const [usuarioFiltro, setUsuarioFiltro] = useState<UsuarioRef | null>(null);
-  const [perfilFiltro, setPerfilFiltro] = useState<PerfilRef | null>(null);
+  const [usuarioFiltro, setUsuarioFiltro] = useState<UsuarioProps | null>(null);
+  const [perfilFiltro, setPerfilFiltro] = useState<PerfilProps | null>(null);
 
   const [form, setForm] = useState<FormUsuarioPerfil>(FORM_INICIAL);
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioRef | null>(null);
-  const [perfilSelecionado, setPerfilSelecionado] = useState<PerfilRef | null>(null);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioProps | null>(null);
+  const [perfilSelecionado, setPerfilSelecionado] = useState<PerfilProps | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -112,7 +110,7 @@ export default function UsuariosPerfis() {
   };
 
   const abrirCriacaoModal = () => {
-    setEditingId(null);
+    setIsEditing(false);
     setForm(FORM_INICIAL);
     setUsuarioSelecionado(null);
     setPerfilSelecionado(null);
@@ -120,7 +118,7 @@ export default function UsuariosPerfis() {
   };
 
   const abrirEdicaoModal = (vinculo: UsuarioPerfilProps) => {
-    setEditingId(vinculo.id);
+    setIsEditing(true);
     setForm({
       id_usuario: vinculo.id_usuario,
       id_perfil: vinculo.id_perfil,
@@ -157,21 +155,25 @@ export default function UsuariosPerfis() {
     }
   };
 
-  const removerVinculo = async () => {
-    if (!editingId) return;
+  const excluirUsuarioPerfil = async () => {
     try {
-      setSaving(true);
-      await deletarUsuarioPerfil(editingId);
-      notify.success('Vínculo removido com sucesso');
+      if (!usuarioSelecionado?.id || !perfilSelecionado?.id) return;
+      await deletarUsuarioPerfil(usuarioSelecionado.id, perfilSelecionado.id);
+      notify.success('Vínculo excluído com sucesso');
       setIsModalOpen(false);
       setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
-      setError('Erro ao remover vínculo');
-    } finally {
-      setSaving(false);
+      setError('Erro ao excluir vínculo');
+      throw err;
     }
   };
+
+  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
+    onConfirm: excluirUsuarioPerfil,
+    message: 'Tem certeza que deseja excluir esse Vínculo? Esta ação não pode ser desfeita.',
+    title: 'Excluir Vínculo',
+  });
 
   const setField = <K extends keyof FormUsuarioPerfil>(field: K, value: FormUsuarioPerfil[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -224,7 +226,10 @@ export default function UsuariosPerfis() {
           </div>
         </Card>
 
-        <Card title="Vínculos Cadastrados" create={abrirCriacaoModal}>
+        <Card
+          title="Vínculos Cadastrados"
+          create={can('pode_criar') ? abrirCriacaoModal : undefined}
+        >
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -243,10 +248,10 @@ export default function UsuariosPerfis() {
                 <TableBody>
                   {rows.map((row, key) => (
                     <TableRow
-                      hover
+                      hover={can('pode_editar')}
                       key={key}
-                      onClick={() => abrirEdicaoModal(row)}
-                      sx={{ cursor: 'pointer' }}
+                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{getUsuarioNome(row)}</TableCell>
                       <TableCell>{getPerfilNome(row)}</TableCell>
@@ -279,10 +284,10 @@ export default function UsuariosPerfis() {
       </PageContent>
 
       <Modal
-        title={editingId ? 'Detalhes do Vínculo' : 'Novo Vínculo'}
+        title={isEditing ? 'Detalhes do Vínculo' : 'Novo Vínculo'}
         subtitle={
-          editingId && usuarioSelecionado && perfilSelecionado
-            ? `${usuarioSelecionado.username} — ${perfilSelecionado.nome}`
+          isEditing
+            ? `${usuarioSelecionado?.username} — ${perfilSelecionado?.nome}`
             : 'Associe um perfil de acesso ao usuário'
         }
         isOpen={isModalOpen}
@@ -302,13 +307,13 @@ export default function UsuariosPerfis() {
                 setField('id_usuario', v?.id ?? '');
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              disabled={!!editingId}
+              disabled={!!isEditing}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Usuário"
                   required
-                  helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
+                  helperText={isEditing ? 'Não pode ser alterado após a criação' : ''}
                 />
               )}
             />
@@ -322,13 +327,13 @@ export default function UsuariosPerfis() {
                 setField('id_perfil', v?.id ?? '');
               }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              disabled={!!editingId}
+              disabled={!!isEditing}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Perfil"
                   required
-                  helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
+                  helperText={isEditing ? 'Não pode ser alterado após a criação' : ''}
                 />
               )}
             />
@@ -338,18 +343,17 @@ export default function UsuariosPerfis() {
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
               Cancelar
             </Button>
-            {editingId ? (
-              <Button variant="accent" onClick={removerVinculo}>
-                {saving ? 'Removendo...' : 'Remover Vínculo'}
-              </Button>
-            ) : (
-              <Button variant="primary" onClick={salvarVinculo}>
-                {saving ? 'Salvando...' : 'Criar Vínculo'}
-              </Button>
-            )}
+            <PermissionButton
+              acao={isEditing ? 'pode_deletar' : 'pode_criar'}
+              variant={isEditing ? 'danger' : 'primary'}
+              onClick={isEditing ? openDeleteDialog : salvarVinculo}
+            >
+              {saving ? 'Salvando...' : isEditing ? 'Excluir' : 'Novo Vínculo'}
+            </PermissionButton>
           </div>
         </div>
       </Modal>
+      {deleteDialog}
     </>
   );
 }

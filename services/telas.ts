@@ -6,8 +6,9 @@ interface GetTelasParams {
   page?: number;
   limit?: number;
   nome?: string;
-  ativo?: boolean;
+  slug?: string;
   id_parent?: string | null;
+  ativo?: boolean;
 }
 
 interface TelasResponse extends PaginatedResponse {
@@ -19,9 +20,11 @@ export async function getTelas(params: GetTelasParams = {}): Promise<TelasRespon
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome) query.set('nome', params.nome);
+  if (params.slug) query.set('slug', params.slug);
   if (params.ativo !== undefined) query.set('ativo', String(params.ativo));
-  if (params.id_parent !== undefined && params.id_parent !== null)
+  if (params.id_parent !== undefined && params.id_parent !== null) {
     query.set('id_parent', params.id_parent);
+  }
   return apiFetch(`/api/telas?${query}`, 'Erro ao buscar telas');
 }
 

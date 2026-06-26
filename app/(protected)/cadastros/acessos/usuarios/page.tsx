@@ -30,6 +30,8 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/usuarios';
 import { FormUsuario, UsuarioProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
+import { usePermission } from '@/hooks/usePermission';
+import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 
 const FORM_INICIAL: FormUsuario = {
   username: '',
@@ -46,6 +48,8 @@ export default function Usuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const { can } = usePermission();
 
   const [rows, setRows] = useState<UsuarioProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -228,7 +232,10 @@ export default function Usuarios() {
           </div>
         </Card>
 
-        <Card title="Usuários Cadastrados" create={abrirCriacaoModal}>
+        <Card
+          title="Usuários Cadastrados"
+          create={can('pode_criar') ? abrirCriacaoModal : undefined}
+        >
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -247,10 +254,10 @@ export default function Usuarios() {
                 <TableBody>
                   {rows.map((row) => (
                     <TableRow
-                      hover
+                      hover={can('pode_editar')}
                       key={row.id}
-                      onClick={() => abrirEdicaoModal(row)}
-                      sx={{ cursor: 'pointer' }}
+                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{row.username}</TableCell>
                       <TableCell>{row.email}</TableCell>
@@ -368,19 +375,27 @@ export default function Usuarios() {
             />
           </div>
 
-          <div className={editingId ? styles.formActionsWithDelete : styles.formActions}>
+          <div
+            className={
+              editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions
+            }
+          >
             {editingId && (
-              <Button variant="danger" onClick={openDeleteDialog}>
+              <PermissionButton acao="pode_deletar" variant="danger" onClick={openDeleteDialog}>
                 Excluir Usuário
-              </Button>
+              </PermissionButton>
             )}
             <div className={styles.formActionsMain}>
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button variant="primary" onClick={salvarUsuario}>
+              <PermissionButton
+                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                variant="primary"
+                onClick={salvarUsuario}
+              >
                 {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Usuário'}
-              </Button>
+              </PermissionButton>
             </div>
           </div>
         </div>

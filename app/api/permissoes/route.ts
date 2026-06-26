@@ -5,7 +5,16 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'id_perfil', 'id_tela'].forEach((key) => {
+    [
+      'page',
+      'limit',
+      'id_perfil',
+      'id_tela',
+      'pode_visualizar',
+      'pode_criar',
+      'pode_editar',
+      'pode_deletar',
+    ].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });

@@ -87,8 +87,6 @@ export default function Permissoes() {
           getPerfis({ limit: 1000 }),
           getTelas({ limit: 1000 }),
         ]);
-        console.log(perfisRes);
-        console.log(telasRes);
         setAllPerfis(perfisRes.perfis ?? []);
         setAllTelas(telasRes.menus ?? []);
       } catch (err) {
@@ -108,7 +106,6 @@ export default function Permissoes() {
           id_perfil: perfilFiltro?.id,
           id_tela: telaFiltro?.id,
         });
-        console.log(response);
         setRows(response.permissoes ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
