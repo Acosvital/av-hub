@@ -165,8 +165,23 @@ const MOCK_DETAILS: VendorDetails = {
   ],
 };
 
+const ORDER_CATEGORIES: OrderCategory[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
+
 const VendorDetailsModal = ({ isOpen, onClose, vendorId }: VendorDetailsModalProps) => {
   const [details, setDetails] = useState<VendorDetails | null>(null);
+  const [selectedType, setSelectedType] = useState<OrderTypeKey | null>(null);
+
+  const handleTypeClick = (type: OrderTypeKey) => {
+    setSelectedType(prev => (prev === type ? null : type));
+  };
+
+  const filteredOrders = details?.orders.filter(order => {
+    if (!selectedType) return true;
+    if (ORDER_CATEGORIES.includes(selectedType as OrderCategory)) {
+      return order.category === selectedType;
+    }
+    return order.status === selectedType;
+  }) ?? [];
 
   useEffect(() => {
     if (!isOpen || vendorId === null) return;
@@ -206,12 +221,14 @@ const VendorDetailsModal = ({ isOpen, onClose, vendorId }: VendorDetailsModalPro
                   count={count}
                   value={value}
                   cardType={cardType}
+                  isActive={selectedType === orderType}
+                  onClick={() => handleTypeClick(orderType)}
                 />
               ))}
             </div>
           </div>
           <div className={styles.allOrders}>
-            {details.orders.map((order, i) => (
+            {filteredOrders.map((order, i) => (
               <Order key={i} {...order} />
             ))}
           </div>
