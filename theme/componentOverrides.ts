@@ -81,7 +81,7 @@ export const componentOverrides: Components<Theme> = {
       head: {
         backgroundColor: 'var(--table-head-bg)',
         color: 'var(--table-head-fg)',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'var(--font-mono)',
         fontWeight: 'var(--w-bold)',
         fontSize: 'var(--fs-sm)',
         letterSpacing: '0.02em',
@@ -90,7 +90,7 @@ export const componentOverrides: Components<Theme> = {
       },
       body: {
         borderColor: 'var(--border)',
-        fontFamily: 'var(--font-mono)',
+        fontFamily: 'var(--font-sans)',
         color: 'var(--table-row-fg)',
         fontSize: 'var(--fs-xs)',
       },

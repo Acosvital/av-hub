@@ -27,3 +27,18 @@
   grid-column: span 2;
   grid-row: span 1;
 }
+
+.activeCard {
+  cursor: pointer;
+  border-color: var(--foreground);
+  background-color: var(--hover);
+}
+
+.orderTypeCard:not(.activeCard) {
+  cursor: pointer;
+}
+
+.orderTypeCard:not(.activeCard):hover {
+  border-color: var(--border-strong);
+  background-color: var(--hover);
+}

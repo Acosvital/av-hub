@@ -51,3 +51,22 @@ export async function deletarPermissao(id: string) {
     method: 'DELETE',
   });
 }
+
+export interface BulkPermissaoPayload {
+  id_perfil: string;
+  permissoes: Array<{
+    id_tela: string;
+    pode_visualizar: boolean;
+    pode_criar: boolean;
+    pode_editar: boolean;
+    pode_deletar: boolean;
+  }>;
+}
+
+export async function criarPermissoesBulk(data: BulkPermissaoPayload) {
+  return apiFetch('/api/permissoes/bulk', 'Erro ao criar permissões em lote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}

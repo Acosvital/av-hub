@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -8,77 +8,39 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {
-  Autocomplete,
-  Chip,
-  CircularProgress,
-  FormControlLabel,
-  Switch,
-  TextField,
-} from '@mui/material';
+import { Chip, CircularProgress, TextField } from '@mui/material';
 import styles from './styles.module.css';
 import Card from '@/components/Ui/Card/Card';
-import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { getPerfis } from '@/services/perfis';
 import { getTelas } from '@/services/telas';
-import {
-  getPermissoes,
-  criarPermissao,
-  editarPermissao,
-  deletarPermissao,
-} from '@/services/permissoes';
-import { FormPermissao, PermissaoProps } from './types';
+import { getPermissoes, criarPermissoesBulk } from '@/services/permissoes';
 import { TelaProps } from '../telas/types';
 import { usePermission } from '@/hooks/usePermission';
-import { useDeleteDialog } from '@/hooks/useDeleteDialog';
-import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import BulkPermissaoModal, { BulkPayload } from './BulkPermissaoModal';
 
 interface PerfilRef {
   id: string;
   nome: string;
 }
 
-const FORM_INICIAL: FormPermissao = {
-  id_perfil: '',
-  id_tela: '',
-  pode_visualizar: false,
-  pode_criar: false,
-  pode_editar: false,
-  pode_deletar: false,
-};
-
 export default function Permissoes() {
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const { can } = usePermission();
-
-  const [rows, setRows] = useState<PermissaoProps[]>([]);
-  const [rowCount, setRowCount] = useState(0);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  const [bulkSaving, setBulkSaving] = useState(false);
   const [allPerfis, setAllPerfis] = useState<PerfilRef[]>([]);
   const [allTelas, setAllTelas] = useState<TelaProps[]>([]);
+  const [permissoesPorPerfil, setPermissoesPorPerfil] = useState<Record<string, number>>({});
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filtroNome, setFiltroNome] = useState('');
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [selectedPerfil, setSelectedPerfil] = useState<PerfilRef | null>(null);
 
-  const [perfilFiltro, setPerfilFiltro] = useState<PerfilRef | null>(null);
-  const [telaFiltro, setTelaFiltro] = useState<TelaProps | null>(null);
-
-  const [form, setForm] = useState<FormPermissao>(FORM_INICIAL);
-  const [perfilSelecionado, setPerfilSelecionado] = useState<PerfilRef | null>(null);
-  const [telaSelecionada, setTelaSelecionada] = useState<TelaProps | null>(null);
-
-  useEffect(() => {
-    if (error) notify.error(error);
-  }, [error]);
+  const { can } = usePermission();
 
   useEffect(() => {
     async function loadReferenceData() {
@@ -97,124 +59,54 @@ export default function Permissoes() {
   }, []);
 
   useEffect(() => {
-    async function fetchPermissoes() {
+    async function loadSummary() {
       try {
         setLoading(true);
-        const response = await getPermissoes({
-          page: page + 1,
-          limit: rowsPerPage,
-          id_perfil: perfilFiltro?.id,
-          id_tela: telaFiltro?.id,
+        const res = await getPermissoes({ limit: 1000 });
+        const summary: Record<string, number> = {};
+        (res.permissoes ?? []).forEach((p) => {
+          summary[p.id_perfil] = (summary[p.id_perfil] ?? 0) + 1;
         });
-        setRows(response.permissoes ?? []);
-        setRowCount(response.total ?? 0);
+        setPermissoesPorPerfil(summary);
       } catch (err) {
         console.error(err);
-        setError('Erro ao carregar permissões');
+        notify.error('Erro ao carregar permissões');
       } finally {
         setLoading(false);
       }
     }
-    fetchPermissoes();
-  }, [page, rowsPerPage, perfilFiltro, telaFiltro, refreshTrigger]);
+    loadSummary();
+  }, [refreshTrigger]);
 
-  const limparFiltros = () => {
-    setPerfilFiltro(null);
-    setTelaFiltro(null);
-    setPage(0);
+  const perfisFiltrados = useMemo(
+    () => allPerfis.filter((p) => p.nome.toLowerCase().includes(filtroNome.toLowerCase())),
+    [allPerfis, filtroNome]
+  );
+
+  const perfisPaginados = useMemo(
+    () => perfisFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [perfisFiltrados, page, rowsPerPage]
+  );
+
+  const handlePerfilClick = (perfil: PerfilRef) => {
+    setSelectedPerfil(perfil);
+    setIsBulkModalOpen(true);
   };
 
-  const abrirCriacaoModal = () => {
-    setEditingId(null);
-    setForm(FORM_INICIAL);
-    setPerfilSelecionado(null);
-    setTelaSelecionada(null);
-    setIsModalOpen(true);
-  };
-
-  const abrirEdicaoModal = (permissao: PermissaoProps) => {
-    setEditingId(permissao.id);
-    setForm({
-      id_perfil: permissao.id_perfil,
-      id_tela: permissao.id_tela,
-      pode_visualizar: permissao.pode_visualizar,
-      pode_criar: permissao.pode_criar,
-      pode_editar: permissao.pode_editar,
-      pode_deletar: permissao.pode_deletar,
-    });
-    setPerfilSelecionado(allPerfis.find((p) => p.id === permissao.id_perfil) ?? null);
-    setTelaSelecionada(allTelas.find((t) => t.id === permissao.id_tela) ?? null);
-    setIsModalOpen(true);
-  };
-
-  const salvarPermissao = async () => {
-    if (!form.id_perfil) {
-      notify.error('Perfil é obrigatório');
-      return;
-    }
-    if (!form.id_tela) {
-      notify.error('Tela é obrigatória');
-      return;
-    }
-
+  const salvarPermissoesBulk = async (payload: BulkPayload) => {
     try {
-      setSaving(true);
-      const payload = {
-        id_perfil: form.id_perfil,
-        id_tela: form.id_tela,
-        pode_visualizar: form.pode_visualizar,
-        pode_criar: form.pode_criar,
-        pode_editar: form.pode_editar,
-        pode_deletar: form.pode_deletar,
-      };
-
-      if (editingId) {
-        await editarPermissao(editingId, payload);
-        notify.success('Permissão atualizada com sucesso');
-      } else {
-        await criarPermissao(payload);
-        notify.success('Permissão cadastrada com sucesso');
-      }
-
-      setIsModalOpen(false);
+      setBulkSaving(true);
+      await criarPermissoesBulk(payload);
+      notify.success('Permissões atualizadas com sucesso');
+      setIsBulkModalOpen(false);
       setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
-      setError(editingId ? 'Erro ao atualizar permissão' : 'Erro ao cadastrar permissão');
+      notify.error('Erro ao salvar permissões');
     } finally {
-      setSaving(false);
+      setBulkSaving(false);
     }
   };
-
-  const excluirPermissao = async () => {
-    if (!editingId) return;
-    try {
-      await deletarPermissao(editingId);
-      notify.success('Permissão excluída com sucesso');
-      setIsModalOpen(false);
-      setRefreshTrigger((t) => t + 1);
-    } catch (err) {
-      console.error(err);
-      setError('Erro ao excluir permissão');
-      throw err;
-    }
-  };
-
-  const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
-    onConfirm: excluirPermissao,
-    message: 'Tem certeza que deseja excluir esta permissão? Esta ação não pode ser desfeita.',
-    title: 'Excluir Permissão',
-  });
-
-  const setField = <K extends keyof FormPermissao>(field: K, value: FormPermissao[K]) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const getPerfilNome = (row: PermissaoProps) =>
-    row.perfil_nome ?? allPerfis.find((p) => p.id === row.id_perfil)?.nome ?? '—';
-
-  const getTelaNome = (row: PermissaoProps) =>
-    row.tela_nome ?? allTelas.find((t) => t.id === row.id_tela)?.nome ?? '—';
 
   return (
     <>
@@ -225,42 +117,31 @@ export default function Permissoes() {
       <PageContent>
         <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 260 }}
-              options={allPerfis}
-              getOptionLabel={(p) => p.nome}
-              value={perfilFiltro}
-              onChange={(_, v) => {
-                setPerfilFiltro(v);
+            <TextField
+              label="Buscar por perfil"
+              value={filtroNome}
+              onChange={(e) => {
+                setFiltroNome(e.target.value);
                 setPage(0);
               }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label="Perfil" variant="outlined" />}
-            />
-            <Autocomplete
+              size="small"
               sx={{ flex: 1, minWidth: 260 }}
-              options={allTelas}
-              getOptionLabel={(t) => t.nome}
-              value={telaFiltro}
-              onChange={(_, v) => {
-                setTelaFiltro(v);
-                setPage(0);
-              }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label="Tela" variant="outlined" />}
             />
           </div>
           <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setFiltroNome('');
+                setPage(0);
+              }}
+            >
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        <Card
-          title="Permissões Cadastradas"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
+        <Card title="Permissões por Perfil">
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -271,51 +152,33 @@ export default function Permissoes() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    {['Perfil', 'Tela', 'Visualizar', 'Criar', 'Editar', 'Deletar'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
-                    ))}
+                    <TableCell>Perfil</TableCell>
+                    <TableCell>Telas Configuradas</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      hover={can('pode_editar')}
-                      key={row.id}
-                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
-                    >
-                      <TableCell>{getPerfilNome(row)}</TableCell>
-                      <TableCell>{getTelaNome(row)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.pode_visualizar ? 'Sim' : 'Não'}
-                          color={row.pode_visualizar ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.pode_criar ? 'Sim' : 'Não'}
-                          color={row.pode_criar ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.pode_editar ? 'Sim' : 'Não'}
-                          color={row.pode_editar ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.pode_deletar ? 'Sim' : 'Não'}
-                          color={row.pode_deletar ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {perfisPaginados.map((perfil) => {
+                    const count = permissoesPorPerfil[perfil.id] ?? 0;
+                    return (
+                      <TableRow
+                        hover={can('pode_criar')}
+                        key={perfil.id}
+                        onClick={can('pode_criar') ? () => handlePerfilClick(perfil) : undefined}
+                        sx={{ cursor: can('pode_criar') ? 'pointer' : 'default' }}
+                      >
+                        <TableCell>{perfil.nome}</TableCell>
+                        <TableCell>{count > 0 ? `${count} tela(s)` : '—'}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={count > 0 ? 'Configurado' : 'Sem permissões'}
+                            color={count > 0 ? 'success' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -323,7 +186,7 @@ export default function Permissoes() {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={rowCount}
+            count={perfisFiltrados.length}
             rowsPerPage={rowsPerPage}
             page={page}
             labelRowsPerPage="Resultados por página"
@@ -337,136 +200,15 @@ export default function Permissoes() {
         </Card>
       </PageContent>
 
-      <Modal
-        title={editingId ? 'Editar Permissão' : 'Nova Permissão'}
-        subtitle={
-          editingId && perfilSelecionado && telaSelecionada
-            ? `${perfilSelecionado.nome} — ${telaSelecionada.nome}`
-            : 'Preencha os dados da nova permissão'
-        }
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <div className={styles.formModal}>
-          <p className={styles.sectionTitle}>Vínculo</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 260 }}
-              options={allPerfis}
-              getOptionLabel={(p) => p.nome}
-              value={perfilSelecionado}
-              onChange={(_, v) => {
-                setPerfilSelecionado(v);
-                setField('id_perfil', v?.id ?? '');
-              }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              disabled={!!editingId}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Perfil"
-                  required
-                  helperText={editingId ? 'Não pode ser alterado após a criação' : ''}
-                />
-              )}
-            />
-            <Autocomplete
-              sx={{ flex: 1, minWidth: 260 }}
-              options={allTelas}
-              getOptionLabel={(t) => t.nome}
-              value={telaSelecionada}
-              onChange={(_, v) => {
-                setTelaSelecionada(v);
-                setField('id_tela', v?.id ?? '');
-              }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              disabled={!!editingId}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Tela"
-                  required
-                  helperText={editingId ? 'Não pode ser alterada após a criação' : ''}
-                />
-              )}
-            />
-          </div>
-
-          <p className={styles.sectionTitle}>Permissões</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.pode_visualizar}
-                  onChange={(e) => setField('pode_visualizar', e.target.checked)}
-                  color="warning"
-                />
-              }
-              label="Pode Visualizar"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.pode_criar}
-                  onChange={(e) => setField('pode_criar', e.target.checked)}
-                  color="warning"
-                />
-              }
-              label="Pode Criar"
-            />
-          </div>
-          <div className={styles.formRow}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.pode_editar}
-                  onChange={(e) => setField('pode_editar', e.target.checked)}
-                  color="warning"
-                />
-              }
-              label="Pode Editar"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.pode_deletar}
-                  onChange={(e) => setField('pode_deletar', e.target.checked)}
-                  color="warning"
-                />
-              }
-              label="Pode Deletar"
-            />
-          </div>
-
-          <div
-            className={
-              editingId && can('pode_deletar') ? styles.formActionsWithDelete : styles.formActions
-            }
-          >
-            {editingId && (
-              <PermissionButton acao="pode_deletar" variant="danger" onClick={openDeleteDialog}>
-                Excluir Permissão
-              </PermissionButton>
-            )}
-            <div className={styles.formActionsMain}>
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-                Cancelar
-              </Button>
-              <PermissionButton
-                acao={editingId ? 'pode_editar' : 'pode_criar'}
-                variant="primary"
-                onClick={salvarPermissao}
-                disabled={saving}
-              >
-                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Permissão'}
-              </PermissionButton>
-            </div>
-          </div>
-        </div>
-      </Modal>
-      {deleteDialog}
+      <BulkPermissaoModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        allPerfis={allPerfis}
+        allTelas={allTelas}
+        onSave={salvarPermissoesBulk}
+        saving={bulkSaving}
+        initialPerfil={selectedPerfil}
+      />
     </>
   );
 }

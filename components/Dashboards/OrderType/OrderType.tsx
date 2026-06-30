@@ -16,11 +16,16 @@ interface OrderTypeProps {
   count: number;
   value: number;
   cardType?: 'single' | 'double';
+  isActive?: boolean;
+  onClick?: () => void;
 }
 
-const OrderType = ({ count, orderType, value, cardType = 'single' }: OrderTypeProps) => {
+const OrderType = ({ count, orderType, value, cardType = 'single', isActive, onClick }: OrderTypeProps) => {
   return (
-    <div className={`${styles.orderTypeCard} ${cardType === 'double' && styles.doubleCard}`}>
+    <div
+      className={`${styles.orderTypeCard} ${cardType === 'double' ? styles.doubleCard : ''} ${isActive ? styles.activeCard : ''}`}
+      onClick={onClick}
+    >
       <div className={styles.typeCount}>
         <h4 style={{ color: orderTypes[orderType] }}>{orderType}</h4>
         <h4>{count}</h4>
