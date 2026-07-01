@@ -3,7 +3,7 @@ interface PageHeadProps {
   title: string;
   subtitle: string;
 }
-const PageHead = ({ title, subtitle }: PageHeadProps) => {
+const PageHeader = ({ title, subtitle }: PageHeadProps) => {
   return (
     <div>
       <h2 className={styles.title}>{title}</h2>
@@ -12,4 +12,4 @@ const PageHead = ({ title, subtitle }: PageHeadProps) => {
   );
 };
 
-export default PageHead;
+export default PageHeader;
