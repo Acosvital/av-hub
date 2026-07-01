@@ -24,7 +24,7 @@ import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import AppLineChart from '@/components/Charts/AppLineChart/AppLineChart';
 import { notify } from '@/lib/toast/toast';
-import { getProdutos } from '@/services/produtos';
+import { getProdutos } from '@/services/historicoProdutos';
 import { getFamilias } from '@/services/familias';
 import { getFornecedores } from '@/services/fornecedores';
 import {
