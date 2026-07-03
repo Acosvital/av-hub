@@ -72,7 +72,7 @@ export default function PedidosVenda() {
     async function loadReferenciais() {
       try {
         const [vendedoresData, unidadesData] = await Promise.all([getVendedores(), getUnidades()]);
-        setVendedores(vendedoresData.vendedores);
+        setVendedores(vendedoresData.data);
         setUnidades(unidadesData.unidades);
       } catch {
         notify.error('Erro ao carregar vendedores e unidades');
@@ -93,7 +93,7 @@ export default function PedidosVenda() {
           codigo_vendedor: vendedorFiltro || undefined,
           codigo_empresa: empresaFiltro || undefined,
         });
-        setRows(response.pedidos_venda ?? []);
+        setRows(response.pedidos_vendas ?? []);
         setRowCount(response.total ?? 0);
       } catch (err) {
         console.error(err);
@@ -106,7 +106,7 @@ export default function PedidosVenda() {
   }, [page, rowsPerPage, numero, cliente, vendedorFiltro, empresaFiltro]);
 
   const vendedorLabel = (codigo: string) => {
-    const found = vendedores.find((v) => v.codigo_vendedor === codigo);
+    const found = vendedores.find((v) => v.codigo_vendedor_omie === codigo);
     return found ? found.nome : codigo;
   };
 
@@ -148,7 +148,7 @@ export default function PedidosVenda() {
               value={clienteInput}
               onChange={(e) => setClienteInput(e.target.value)}
             />
-            {/* <FormControl sx={{ minWidth: 220 }}>
+            <FormControl sx={{ minWidth: 220 }}>
               <InputLabel>Vendedor</InputLabel>
               <Select
                 value={vendedorFiltro}
@@ -160,12 +160,12 @@ export default function PedidosVenda() {
               >
                 <MenuItem value="">Todos</MenuItem>
                 {vendedores.map((v) => (
-                  <MenuItem key={v.codigo_vendedor} value={v.codigo_vendedor}>
+                  <MenuItem key={v.codigo_vendedor_omie} value={v.codigo_vendedor_omie}>
                     {v.nome}
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl> */}
+            </FormControl>
             <FormControl sx={{ minWidth: 220 }}>
               <InputLabel>Unidade</InputLabel>
               <Select
@@ -206,9 +206,9 @@ export default function PedidosVenda() {
                     {[
                       'Nº Pedido',
                       'Data Inclusão',
+                      'Etapa',
                       'Cliente',
                       'Vendedor',
-                      'Unidade',
                       'Valor Total',
                       'Situação',
                     ].map((label) => (
@@ -228,9 +228,9 @@ export default function PedidosVenda() {
                       <TableCell>
                         {row.data_inclusao ? dateFormatter(row.data_inclusao) : '—'}
                       </TableCell>
+                      <TableCell>{row.etapa ?? '—'}</TableCell>
                       <TableCell>{row.codigo_cliente ?? '—'}</TableCell>
-                      <TableCell>{vendedorLabel(row.codigo_vendedor)}</TableCell>
-                      <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
+                      <TableCell>{vendedorLabel(row.codigo_vendedor_omie)}</TableCell>
                       <TableCell>{toBRL(row.valor_total_pedido)}</TableCell>
                       <TableCell>
                         <Chip
@@ -292,7 +292,7 @@ export default function PedidosVenda() {
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Vendedor</span>
                 <span className={styles.detailValue}>
-                  {vendedorLabel(selected.codigo_vendedor)}
+                  {vendedorLabel(selected.codigo_vendedor_omie)}
                 </span>
               </div>
               <div className={styles.detailItem}>

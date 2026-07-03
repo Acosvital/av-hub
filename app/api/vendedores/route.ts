@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { apiFetch } from '@/lib/api/fetchHelper';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = request.nextUrl;
+    const params = new URLSearchParams();
+    ['page', 'limit', 'codigo_vendedor_omie', 'nome', 'comissao', 'ativo'].forEach((key) => {
+      const value = searchParams.get(key);
+      if (value !== null) params.set(key, value);
+    });
+    const data = await apiFetch(
+      `${process.env.API_URL}/vendedores?${params}`,
+      'Erro ao buscar vendedores',
+      {
+        headers: { 'x-api-key': process.env.API_KEY! },
+        cache: 'no-store',
+      }
+    );
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const data = await apiFetch(`${process.env.API_URL}/vendedores`, 'Erro ao criar vendedor', {
+      method: 'POST',
+      headers: { 'x-api-key': process.env.API_KEY!, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}

@@ -14,7 +14,7 @@ export interface PedidoVendaProps {
   hora_encerramento: string | null;
   codigo_empresa: string;
   codigo_cliente: string | null;
-  codigo_vendedor: string;
+  codigo_vendedor_omie: string;
   codigo_categoria: string | null;
   codigo_projeto: string | null;
   numero_contrato: string | null;

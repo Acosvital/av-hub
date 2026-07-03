@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       if (value !== null) params.set(key, value);
     });
     const data = await apiFetch(
-      `${process.env.API_URL}/pedidos_venda?${params}`,
+      `${process.env.API_URL}/pedidos_vendas?${params}`,
       'Erro ao buscar pedidos de venda',
       {
         headers: { 'x-api-key': process.env.API_KEY! },

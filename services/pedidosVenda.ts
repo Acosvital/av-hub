@@ -13,7 +13,7 @@ interface GetPedidosVendaParams {
 }
 
 interface PedidosVendaResponse extends PaginatedResponse {
-  pedidos_venda: PedidoVendaProps[];
+  pedidos_vendas: PedidoVendaProps[];
 }
 
 export async function getPedidosVenda(params: GetPedidosVendaParams = {}) {
