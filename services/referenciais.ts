@@ -1,5 +1,14 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 
+export interface UnidadeProps {
+  id: string;
+  nome: string;
+}
+
+interface UnidadesResponse {
+  unidades: UnidadeProps[];
+}
+
 export async function getCargos() {
   return apiFetch('/api/referenciais/cargos', 'Erro ao buscar cargos');
 }
@@ -9,5 +18,5 @@ export async function getSetores() {
 }
 
 export async function getUnidades() {
-  return apiFetch('/api/referenciais/unidades', 'Erro ao buscar unidades');
+  return apiFetch<UnidadesResponse>('/api/referenciais/unidades', 'Erro ao buscar unidades');
 }
