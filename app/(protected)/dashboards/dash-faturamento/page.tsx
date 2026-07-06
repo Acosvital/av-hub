@@ -10,17 +10,10 @@ import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/Vendo
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
-import { useState } from 'react';
-
-const mockVendors = Array.from({ length: 10 }, (_, i) => ({
-  id: i,
-  name: 'HUGO DOS SANTOS GONÇALVES',
-  orders: 100,
-  meta: 10,
-  participation: 10 * i,
-  totalValue: 3000450,
-  rank: i + 1,
-}));
+import { useEffect, useState } from 'react';
+import { SellerRankingProps } from './types';
+import { getRankingVendedores } from '@/services/dashboardFaturamento';
+import { CircularProgress } from '@mui/material';
 
 const billingTypes = [
   { label: 'SPOT', value: 100136363.64 },
@@ -37,12 +30,30 @@ const situations = [
 
 export default function Faturamento() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
+  const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const { resolvedTheme } = useTheme();
   const accentColor = 'var(--gold)';
 
-  const top3 = mockVendors.slice(0, 3);
-  const otherVendors = mockVendors.slice(3);
+  const top3 = sellerRanking.slice(0, 3);
+  const otherVendors = sellerRanking.slice(3);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
+
+  useEffect(() => {
+    async function loadReferenceData() {
+      try {
+        setLoading(true);
+        const [ranking] = await Promise.all([getRankingVendedores({ mes: 7, ano: 2026 })]);
+        setSellerRanking(ranking.data ?? []);
+        console.log(ranking);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReferenceData();
+  }, []);
 
   return (
     <div className={styles.dashboardContainer}>
@@ -52,50 +63,59 @@ export default function Faturamento() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span>37 vendedores</span>
+              <span>{loading ? 0 : sellerRanking.length + 1} vendedores</span>
             </div>
-            <div className={styles.fixedRank}>
-              Destaques do Pódio
-              <div className={styles.top3Container}>
-                {top3.map((v) => (
-                  <VendorCard
-                    key={v.id}
-                    {...v}
-                    onClick={() => setSelectedVendorId(v.id)}
-                    color={accentColor}
-                  />
-                ))}
+            {loading ? (
+              <div className={styles.loading}>
+                <CircularProgress size={50} />
+                <span>Carregando...</span>
               </div>
-            </div>
-            <div className={styles.defaultRank}>
-              {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-              <div
-                className={`${mockVendors.length > 9 && styles.autoScroll}`}
-                style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-              >
-                <div className={styles.vendorGroup}>
-                  {otherVendors.map((v) => (
-                    <VendorCard
-                      key={v.id}
-                      {...v}
-                      onClick={() => setSelectedVendorId(v.id)}
-                      color={accentColor}
-                    />
-                  ))}
-                </div>
-                <div className={styles.vendorGroup} aria-hidden="true">
-                  {mockVendors.length >= 10 &&
-                    otherVendors.map((v) => (
+            ) : (
+              <>
+                <div className={styles.fixedRank}>
+                  Destaques do Pódio
+                  <div className={styles.top3Container}>
+                    {top3.map((v) => (
                       <VendorCard
-                        key={`dup-${v.id}`}
+                        key={v.cod_vendedor}
                         {...v}
-                        onClick={() => setSelectedVendorId(v.id)}
+                        onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
                         color={accentColor}
                       />
                     ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className={styles.defaultRank}>
+                  {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+                  <div
+                    className={`${sellerRanking.length > 9 && styles.autoScroll}`}
+                    style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+                  >
+                    <div className={styles.vendorGroup}>
+                      {otherVendors.map((v) => (
+                        <VendorCard
+                          key={v.cod_vendedor}
+                          {...v}
+                          onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                          color={accentColor}
+                        />
+                      ))}
+                    </div>
+                    <div className={styles.vendorGroup} aria-hidden="true">
+                      {sellerRanking.length >= 10 &&
+                        otherVendors.map((v) => (
+                          <VendorCard
+                            key={`dup-${v.cod_vendedor}`}
+                            {...v}
+                            onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                            color={accentColor}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </DashboardWidget>
         {/* Logo */}
