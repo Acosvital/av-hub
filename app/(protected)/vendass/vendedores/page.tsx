@@ -305,7 +305,7 @@ export default function Vendedores() {
                       <TableCell>
                         <Chip
                           label={row.comissao ? 'Sim' : 'Não'}
-                          color={row.comissao ? 'success' : 'default'}
+                          color={row.comissao ? 'success' : 'warning'}
                           size="small"
                         />
                       </TableCell>

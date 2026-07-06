@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requirePermission('vendedores', 'pode_editar');
+  if (denied) return denied;
   try {
     const { id } = await params;
     const body = await request.json();
@@ -25,6 +28,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requirePermission('vendedores', 'pode_deletar');
+  if (denied) return denied;
   try {
     const { id } = await params;
     const response = await fetch(`${process.env.API_URL}/vendedores/${id}`, {

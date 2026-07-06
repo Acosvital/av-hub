@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id_usuario: string; id_perfil: string }> }
 ) {
+  const denied = await requirePermission('usuarios-perfis', 'pode_deletar');
+  if (denied) return denied;
   try {
     const { id_perfil, id_usuario } = await params;
     const response = await fetch(
