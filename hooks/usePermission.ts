@@ -1,9 +1,9 @@
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { hasPermission } from '@/lib/permissions';
+import { hasPermission, type Acao } from '@/lib/permissions';
 import type { MenuItem } from '@/components/Layout/AppLayout/Menu/MenuItem/MenuItem';
 
-export type Acao = 'pode_visualizar' | 'pode_criar' | 'pode_editar' | 'pode_deletar';
+export type { Acao };
 
 //Custom hook que verifica as permissões do usuário logado, e tela atual:
 export function usePermission() {
