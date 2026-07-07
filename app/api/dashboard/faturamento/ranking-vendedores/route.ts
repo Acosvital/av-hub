@@ -5,13 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'mes', 'ano'].forEach((key) => {
+    ['page', 'limit', 'mes', 'ano', 'cod_vendedor', 'vendedor'].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });
     const data = await apiFetch(
-      `${process.env.API_URL}/dashboard_mensal_faturamento?${params}`,
-      'Erro ao buscar faturamento mensal',
+      `${process.env.API_URL}/ranking_vendedores_faturamento?${params}`,
+      'Erro ao buscar ranking de vendedores',
       { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
     );
     return NextResponse.json(data);

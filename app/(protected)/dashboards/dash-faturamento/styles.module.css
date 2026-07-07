@@ -39,6 +39,7 @@
 }
 
 .loading span {
+  text-transform: none;
   color: var(--foreground);
   font-size: var(--fs-xl);
   font-family: var(--font-sans);

@@ -11,41 +11,80 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
 import { useEffect, useState } from 'react';
-import { SellerRankingProps } from './types';
-import { getRankingVendedores } from '@/services/dashboardFaturamento';
+import {
+  FaturamentoMensalProps,
+  FaturamentoPorTipoProps,
+  RitmoMetaFaturamentoProps,
+  SellerRankingProps,
+  SituacaoPedidosFaturadosProps,
+} from './types';
+import {
+  getFaturamentoMensal,
+  getFaturamentoPorTipo,
+  getRankingVendedores,
+  getRitmoMetaFaturamento,
+  getSituacaoPedidos,
+} from '@/services/dashboardFaturamento';
 import { CircularProgress } from '@mui/material';
+import useDashboardDate from '@/hooks/useDashboardDate';
 
-const billingTypes = [
-  { label: 'SPOT', value: 100136363.64 },
-  { label: 'Contrato', value: 100136363.64 },
-  { label: 'Sem Classificação', value: 100136363.64 },
-];
-
-const situations = [
-  { label: 'Cancelados', count: 50, value: 100136363.64 },
-  { label: 'Devolvidos', count: 50, value: 100136363.64 },
-  { label: 'Recusados', count: 50, value: 100136363.64 },
-  { label: 'Refaturamento', count: 50, value: 100136363.64 },
+const SITUACAO_DEFINITIONS = [
+  { id: 'G1', label: 'Cancelados' },
+  { id: 'G2', label: 'Devolvidos' },
+  { id: 'G3', label: 'Recusados' },
+  { id: 'G6', label: 'Refaturamento' },
 ];
 
 export default function Faturamento() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
+  const [faturamentoMensal, setFaturamentoMensal] = useState<FaturamentoMensalProps | null>(null);
+  const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
+  const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
+  const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
+
   const [loading, setLoading] = useState<boolean>(false);
   const { resolvedTheme } = useTheme();
+  const { completeDate } = useDashboardDate();
   const accentColor = 'var(--gold)';
 
   const top3 = sellerRanking.slice(0, 3);
   const otherVendors = sellerRanking.slice(3);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
+  const gauge = Number(faturamentoMensal?.perc_atingimento);
+  const billingTypes = faturamentoPorTipo.map((tipo) => ({
+    label: tipo.tipo_contrato,
+    value: Number(tipo.faturamento),
+  }));
+  const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
+  const situations = SITUACAO_DEFINITIONS.map(({ id, label }) => {
+    const situacao = situacaoPorGrupo.get(id);
+    return {
+      id,
+      label,
+      count: Number(situacao?.qtd_nfs) || 0,
+      value: Number(situacao?.valor_total) || 0,
+    };
+  });
 
   useEffect(() => {
     async function loadReferenceData() {
       try {
         setLoading(true);
-        const [ranking] = await Promise.all([getRankingVendedores({ mes: 7, ano: 2026 })]);
+        // const periodo = completeDate.startOf('month').format('YYYY-MM-DD');
+        const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes] =
+          await Promise.all([
+            getRankingVendedores({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+            getFaturamentoMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+            getFaturamentoPorTipo({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+            getRitmoMetaFaturamento({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+            getSituacaoPedidos({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          ]);
         setSellerRanking(ranking.data ?? []);
-        console.log(ranking);
+        setFaturamentoMensal(faturamento.data?.[0] ?? []);
+        setFaturamentoPorTipo(faturamentoTipos.data ?? []);
+        setRitmoDeMeta(ritmoMeta.data?.[0] ?? []);
+        setSituacaoPedidos(situacaoPedidosRes.data ?? []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -53,7 +92,7 @@ export default function Faturamento() {
       }
     }
     loadReferenceData();
-  }, []);
+  }, [completeDate]);
 
   return (
     <div className={styles.dashboardContainer}>
@@ -136,36 +175,43 @@ export default function Faturamento() {
         {/* Gauge */}
         <DashboardWidget cols={2} rows={3}>
           <RevenueGauge
-            value={101}
-            target="40 MI"
-            totalRevenue={23119350}
-            lastMonthRevenue={23119350}
-            lastMonthOrders={1029}
+            value={gauge || 0}
+            target={Number(faturamentoMensal?.meta) || 0}
+            totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
+            lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
+            lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
             color={accentColor}
           />
         </DashboardWidget>
         {/* Ritmo de Meta */}
         <DashboardWidget cols={5} rows={1}>
           <GoalPaceCard
-            status="above"
-            idealDailyTarget={1136363.64}
-            currentDailyTarget={399468.64}
-            workingDays={22}
-            elapsedDays={2}
+            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
           />
         </DashboardWidget>
         {/* Tipo de faturamento */}
         <DashboardWidget cols={2} rows={3}>
           <div className={styles.defaultCard}>
             <h3>Tipo de faturamento</h3>
-            <div className={styles.billings}>
-              {billingTypes.map(({ label, value }) => (
-                <div key={label} className={styles.billing}>
-                  <h3>{label}</h3>
-                  <span>{toBRL(value)}</span>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className={styles.loading}>
+                <CircularProgress size={50} />
+                <span>Carregando...</span>
+              </div>
+            ) : (
+              <div className={styles.billings}>
+                {billingTypes.map(({ label, value }) => (
+                  <div key={label} className={styles.billing}>
+                    <h3>{label}</h3>
+                    <span>{toBRL(value)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </DashboardWidget>
         {/* Situação */}
@@ -195,24 +241,32 @@ export default function Faturamento() {
               <div className={styles.billingCard}>
                 <div>
                   <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                  <span className={styles.billingValue}>
+                    {toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+                  </span>
                 </div>
                 <div>
                   <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                  <span className={styles.billingValue}>
+                    {toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
+                  </span>
                 </div>
               </div>
             </div>
             <div>
-              <h3>Volume de Pedidos</h3>
+              <h3>Volume de Notas Fiscais</h3>
               <div className={styles.billingCard}>
                 <div>
                   <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>8400</span>
+                  <span className={styles.billingValue}>
+                    {faturamentoMensal?.pedidos_hoje || 0}
+                  </span>
                 </div>
                 <div>
                   <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>488</span>
+                  <span className={styles.billingValue}>
+                    {faturamentoMensal?.pedidos_ontem || 0}
+                  </span>
                 </div>
               </div>
             </div>

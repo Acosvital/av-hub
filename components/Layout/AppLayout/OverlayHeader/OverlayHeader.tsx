@@ -13,6 +13,7 @@ import 'dayjs/locale/pt-br';
 import { ptBR } from '@mui/x-date-pickers/locales';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { FaRegCalendarAlt } from 'react-icons/fa';
+import useDashboardDate from '@/hooks/useDashboardDate';
 
 const OverlayHeader = () => {
   const { status } = useSession();
@@ -22,6 +23,7 @@ const OverlayHeader = () => {
   const dateFilters = useRef<HTMLDivElement>(null);
   const [mouseVisible, setMouseVisible] = useState(true);
   const visible = !fullscreen || mouseVisible;
+  const { completeDate, setCompleteDate } = useDashboardDate();
 
   useEffect(() => {
     document.documentElement.style.setProperty('--header-h', visible ? '60px' : '0px');
@@ -119,8 +121,14 @@ const OverlayHeader = () => {
                     <DateCalendar
                       openTo="month"
                       views={['year', 'month']}
-                      minDate={dayjs('2026-04-01')}
+                      minDate={dayjs('2026-01-01')}
                       maxDate={dayjs()}
+                      value={completeDate}
+                      onChange={(value) => {
+                        if (!value) return;
+                        setCompleteDate(value);
+                        setIsOpenDatePicker(false);
+                      }}
                       yearsOrder="desc"
                       sx={{
                         backgroundColor: 'var(--card-bg)',

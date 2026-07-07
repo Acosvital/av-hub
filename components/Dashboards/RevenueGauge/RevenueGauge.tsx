@@ -4,7 +4,7 @@ import styles from './RevenueGauge.module.css';
 
 interface RevenueGaugeProps {
   value: number;
-  target: string;
+  target: number;
   totalRevenue: number;
   lastMonthRevenue: number;
   lastMonthOrders: number;
@@ -19,6 +19,9 @@ const RevenueGauge = ({
   lastMonthOrders,
   color = 'var(--gold)',
 }: RevenueGaugeProps) => {
+  const compactMeta = new Intl.NumberFormat('pt-BR', {
+    notation: 'compact',
+  }).format(target);
   return (
     <div className={styles.gaugeContainer}>
       <Gauge size={250} value={value} color={color} />
@@ -30,7 +33,7 @@ const RevenueGauge = ({
         <div>
           <h2 className={styles.defaultTitle}>Meta</h2>
           <h4 className={styles.meta} style={{ color: color, textShadow: `0 0 10px ${color}` }}>
-            {target}
+            {compactMeta}
           </h4>
         </div>
       </div>

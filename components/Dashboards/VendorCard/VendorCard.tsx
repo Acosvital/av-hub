@@ -48,9 +48,9 @@ const VendorCard = ({
       <div className={styles.vendor}>
         <h4 className={styles.vendorName}>{vendedor}</h4>
         <div className={styles.vendorDetails}>
-          <span className={styles.vendorInfo}>{`${qtd_pedidos} pedidos`}</span>
-          <span className={styles.vendorInfo}>{`${perc_meta}% Meta`}</span>
-          <span className={styles.vendorInfo}>{`${perc_participacao}% Part.`}</span>
+          <span className={styles.vendorInfo}>{`${qtd_pedidos || 0} pedidos`}</span>
+          <span className={styles.vendorInfo}>{`${perc_meta || 0}% Meta`}</span>
+          <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
         </div>
       </div>
       <div className={styles.vendorTotal}>{toBRL(faturamento)}</div>
