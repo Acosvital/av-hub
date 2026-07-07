@@ -1,10 +1,16 @@
 'use client';
 import { BarChart } from '@mui/x-charts';
-import Card from '@/components/Ui/Card/Card';
-import { dataset, valueFormatter } from './billingChartData';
+import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
+import { BillingHistoryItem, valueFormatter } from './billingChartData';
+import styles from './BillingHistoryChart.module.css';
 
-const BillingHistoryChart = () => (
-  <Card>
+interface BillingHistoryChartProps {
+  dataset: BillingHistoryItem[];
+}
+
+const BillingHistoryChart = ({ dataset }: BillingHistoryChartProps) => (
+  <div className={styles.defaultCard}>
+    <h3>Histórico de faturamento</h3>
     <BarChart
       dataset={dataset}
       xAxis={[{ dataKey: 'mes' }]}
@@ -12,17 +18,42 @@ const BillingHistoryChart = () => (
         {
           label: 'valor faturado',
           width: 70,
+          tickMinStep: 10_000_000,
           valueFormatter: (value: number) => {
             const mi = value / 1_000_000;
             return `${Number.isInteger(mi) ? mi : mi.toFixed(1)} MI`;
           },
         },
       ]}
-      series={[{ dataKey: 'faturamento', label: 'Meses anteriores', valueFormatter }]}
+      series={[{ dataKey: 'faturamento', label: 'Últimos 6 meses', valueFormatter }]}
+      colors={['var(--gold)']}
       height={200}
       margin={{ left: 0 }}
+      sx={{
+        '& .MuiChartsAxis-line': {
+          stroke: 'var(--border-strong) !important',
+        },
+        '& .MuiChartsAxis-tick': {
+          stroke: 'var(--border-strong) !important',
+        },
+        '& .MuiChartsAxis-tickLabel': {
+          fill: 'var(--foreground) !important',
+        },
+        '& .MuiChartsAxis-label': {
+          fill: 'var(--foreground) !important',
+        },
+        [`& .${chartsGridClasses.line}`]: {
+          stroke: 'var(--border)',
+          strokeDasharray: '5 5',
+        },
+        '& .MuiChartsLegend-label': {
+          color: 'var(--foreground) !important',
+          fontFamily: 'var(--font-sans)',
+          fontWeight: 'var(--w-regular)',
+        },
+      }}
     />
-  </Card>
+  </div>
 );
 
 export default BillingHistoryChart;

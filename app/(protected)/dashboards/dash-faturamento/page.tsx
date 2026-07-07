@@ -10,10 +10,13 @@ import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/Vendo
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 import { useEffect, useState } from 'react';
 import {
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
+  ResumoMensalFaturamentoProps,
   RitmoMetaFaturamentoProps,
   SellerRankingProps,
   SituacaoPedidosFaturadosProps,
@@ -22,6 +25,7 @@ import {
   getFaturamentoMensal,
   getFaturamentoPorTipo,
   getRankingVendedores,
+  getResumoMensalFaturamento,
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
 } from '@/services/dashboardFaturamento';
@@ -42,6 +46,7 @@ export default function Faturamento() {
   const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
+  const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
 
   const [loading, setLoading] = useState<boolean>(false);
   const { resolvedTheme } = useTheme();
@@ -66,25 +71,43 @@ export default function Faturamento() {
       value: Number(situacao?.valor_total) || 0,
     };
   });
+  const billingHistory = [...resumoMensal]
+    .sort((a, b) => a.periodo.localeCompare(b.periodo))
+    .map((item) => ({
+      mes: dayjs(item.periodo).locale('pt-br').format('MMM'),
+      faturamento: Number(item.fat_liquido),
+    }));
 
   useEffect(() => {
     async function loadReferenceData() {
       try {
         setLoading(true);
-        // const periodo = completeDate.startOf('month').format('YYYY-MM-DD');
-        const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes] =
-          await Promise.all([
-            getRankingVendedores({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-            getFaturamentoMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-            getFaturamentoPorTipo({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-            getRitmoMetaFaturamento({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-            getSituacaoPedidos({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          ]);
+        const periodoInicio = completeDate
+          .subtract(5, 'month')
+          .startOf('month')
+          .format('YYYY-MM-DD');
+        const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
+        const [
+          ranking,
+          faturamento,
+          faturamentoTipos,
+          ritmoMeta,
+          situacaoPedidosRes,
+          resumoMensalRes,
+        ] = await Promise.all([
+          getRankingVendedores({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getFaturamentoMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getFaturamentoPorTipo({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getRitmoMetaFaturamento({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getSituacaoPedidos({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getResumoMensalFaturamento({ periodo_inicio: periodoInicio, periodo_fim: periodoFim }),
+        ]);
         setSellerRanking(ranking.data ?? []);
         setFaturamentoMensal(faturamento.data?.[0] ?? []);
         setFaturamentoPorTipo(faturamentoTipos.data ?? []);
         setRitmoDeMeta(ritmoMeta.data?.[0] ?? []);
         setSituacaoPedidos(situacaoPedidosRes.data ?? []);
+        setResumoMensal(resumoMensalRes.data ?? []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -168,9 +191,9 @@ export default function Faturamento() {
             />
           </div>
         </DashboardWidget>
-        {/* Ritmo de faturamento */}
+        {/* Historico de faturamento */}
         <DashboardWidget cols={5} rows={2}>
-          <BillingHistoryChart />
+          <BillingHistoryChart dataset={billingHistory} />
         </DashboardWidget>
         {/* Gauge */}
         <DashboardWidget cols={2} rows={3}>

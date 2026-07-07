@@ -138,7 +138,11 @@ export async function getSituacaoPedidos(params: GetSituacaoPedidosParams = {}) 
 
 /************************* RESUMO MENSAL *************************/
 interface GetResumoMensalFaturamentoParams {
-  periodo: string;
+  periodo?: string;
+  periodo_inicio?: string;
+  periodo_fim?: string;
+  page?: string;
+  limit?: string;
 }
 
 interface ResumoMensalFaturamentoResponse extends PaginatedResponse {
@@ -147,7 +151,11 @@ interface ResumoMensalFaturamentoResponse extends PaginatedResponse {
 
 export async function getResumoMensalFaturamento(params: GetResumoMensalFaturamentoParams) {
   const query = new URLSearchParams();
-  query.set('periodo', params.periodo);
+  if (params.periodo) query.set('periodo', String(params.periodo));
+  if (params.periodo_inicio) query.set('periodo_inicio', String(params.periodo_inicio));
+  if (params.periodo_fim) query.set('periodo_fim', String(params.periodo_fim));
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
   return apiFetch<ResumoMensalFaturamentoResponse>(
     `/api/dashboard/faturamento/resumo-mensal?${query}`,
     'Erro ao buscar resumo mensal de faturamento'

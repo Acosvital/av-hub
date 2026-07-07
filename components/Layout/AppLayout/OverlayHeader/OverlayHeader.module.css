@@ -131,4 +131,10 @@
   .title {
     display: none;
   }
+  .datePickerMenu {
+    position: absolute;
+    top: 125%;
+    right: -150;
+    z-index: 50;
+  }
 }
