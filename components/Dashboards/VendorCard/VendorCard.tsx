@@ -8,7 +8,8 @@ interface VendorCardProps {
   qtd_pedidos: string;
   perc_meta: string;
   perc_participacao: string;
-  faturamento: string;
+  faturamento?: string;
+  vendas?: string;
   posicao: string;
   onClick: () => void;
   color?: string;
@@ -26,6 +27,7 @@ const VendorCard = ({
   perc_meta,
   perc_participacao,
   faturamento,
+  vendas,
   posicao,
   onClick,
   color = 'var(--gold)',
@@ -53,7 +55,7 @@ const VendorCard = ({
           <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
         </div>
       </div>
-      <div className={styles.vendorTotal}>{toBRL(faturamento)}</div>
+      <div className={styles.vendorTotal}>{faturamento ? toBRL(faturamento) : toBRL(vendas)}</div>
     </div>
   );
 };

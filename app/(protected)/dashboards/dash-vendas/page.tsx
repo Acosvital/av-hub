@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import styles from './styles.module.css';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
@@ -10,6 +10,11 @@ import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import toBRL from '@/utils/toBRL';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
+import useDashboardDate from '@/hooks/useDashboardDate';
+import { getRankingVendedores } from '@/services/dashboardFaturamento';
+import { getRankingVendedoresVendas } from '@/services/dashboardVendas';
+import { RankingVendedoresVendasProps } from './types';
+import { CircularProgress } from '@mui/material';
 
 const mockVendors = Array.from({ length: 10 }, (_, i) => ({
   id: i,
@@ -21,27 +26,34 @@ const mockVendors = Array.from({ length: 10 }, (_, i) => ({
   rank: i + 1,
 }));
 
-const billingTypes = [
-  { label: 'SPOT', value: 100136363.64 },
-  { label: 'Contrato', value: 100136363.64 },
-  { label: 'Sem Classificação', value: 100136363.64 },
-];
-
-const situations = [
-  { label: 'Cancelados', count: 50, value: 100136363.64 },
-  { label: 'Devolvidos', count: 50, value: 100136363.64 },
-  { label: 'Recusados', count: 50, value: 100136363.64 },
-  { label: 'Refaturamento', count: 50, value: 100136363.64 },
-];
-
 const Vendas = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
-  const { resolvedTheme } = useTheme();
+  const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const { completeDate } = useDashboardDate();
   const accentColor = 'var(--green)';
 
-  const top3 = mockVendors.slice(0, 3);
-  const otherVendors = mockVendors.slice(3);
+  const top3 = rankingVendedores.slice(0, 3);
+  const otherVendors = rankingVendedores.slice(3);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
+
+  useEffect(() => {
+    async function loadReferenceData() {
+      try {
+        setLoading(true);
+        const [ranking] = await Promise.all([
+          getRankingVendedoresVendas({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+        ]);
+        setRankingVendedores(ranking.data ?? []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReferenceData();
+  }, [completeDate]);
 
   return (
     <div className={styles.dashboardContainer}>
@@ -50,7 +62,7 @@ const Vendas = () => {
         <DashboardWidget cols={6} rows={3}>
           <RevenueGauge
             value={85}
-            target="40 MI"
+            target={200000}
             totalRevenue={23119350}
             lastMonthRevenue={23119350}
             lastMonthOrders={1029}
@@ -64,48 +76,57 @@ const Vendas = () => {
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
               <span>37 vendedores</span>
             </div>
-            <div className={styles.fixedRank}>
-              Destaques do Pódio
-              <div className={styles.top3Container}>
-                {top3.map((v) => (
-                  <VendorCard
-                    key={v.id}
-                    {...v}
-                    onClick={() => setSelectedVendorId(v.id)}
-                    color={accentColor}
-                  />
-                ))}
+            {loading ? (
+              <div className={styles.loading}>
+                <CircularProgress size={50} />
+                <span>Carregando...</span>
               </div>
-            </div>
-            <div className={styles.defaultRank}>
-              {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-              <div
-                className={`${mockVendors.length > 9 && styles.autoScroll}`}
-                style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-              >
-                <div className={styles.vendorGroup}>
-                  {otherVendors.map((v) => (
-                    <VendorCard
-                      key={v.id}
-                      {...v}
-                      onClick={() => setSelectedVendorId(v.id)}
-                      color={accentColor}
-                    />
-                  ))}
-                </div>
-                <div className={styles.vendorGroup} aria-hidden="true">
-                  {mockVendors.length >= 10 &&
-                    otherVendors.map((v) => (
+            ) : (
+              <>
+                <div className={styles.fixedRank}>
+                  Destaques do Pódio
+                  <div className={styles.top3Container}>
+                    {top3.map((v) => (
                       <VendorCard
-                        key={`dup-${v.id}`}
+                        key={Number(v.cod_vendedor)}
                         {...v}
-                        onClick={() => setSelectedVendorId(v.id)}
+                        onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
                         color={accentColor}
                       />
                     ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className={styles.defaultRank}>
+                  {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+                  <div
+                    className={`${mockVendors.length > 9 && styles.autoScroll}`}
+                    style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+                  >
+                    <div className={styles.vendorGroup}>
+                      {otherVendors.map((v) => (
+                        <VendorCard
+                          key={Number(v.cod_vendedor)}
+                          {...v}
+                          onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                          color={accentColor}
+                        />
+                      ))}
+                    </div>
+                    <div className={styles.vendorGroup} aria-hidden="true">
+                      {mockVendors.length >= 10 &&
+                        otherVendors.map((v) => (
+                          <VendorCard
+                            key={`dup-${Number(v.cod_vendedor)}`}
+                            {...v}
+                            onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                            color={accentColor}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </DashboardWidget>
         <DashboardWidget cols={3} rows={1}>
