@@ -121,7 +121,7 @@ export default function Faturamento() {
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
         {/* Ranking */}
-        <DashboardWidget cols={5} rows={6}>
+        <DashboardWidget cols={5} rows={6} mobileOrder={6}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
@@ -192,11 +192,11 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Historico de faturamento */}
-        <DashboardWidget cols={5} rows={2}>
+        <DashboardWidget cols={5} rows={2} mobileOrder={3}>
           <BillingHistoryChart dataset={billingHistory} />
         </DashboardWidget>
         {/* Gauge */}
-        <DashboardWidget cols={2} rows={3}>
+        <DashboardWidget cols={2} rows={3} mobileOrder={1}>
           <RevenueGauge
             value={gauge || 0}
             target={Number(faturamentoMensal?.meta) || 0}
@@ -207,7 +207,7 @@ export default function Faturamento() {
           />
         </DashboardWidget>
         {/* Ritmo de Meta */}
-        <DashboardWidget cols={5} rows={1}>
+        <DashboardWidget cols={5} rows={1} mobileOrder={2}>
           <GoalPaceCard
             status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
             idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
@@ -217,7 +217,7 @@ export default function Faturamento() {
           />
         </DashboardWidget>
         {/* Tipo de faturamento */}
-        <DashboardWidget cols={2} rows={3}>
+        <DashboardWidget cols={2} rows={3} mobileOrder={4}>
           <div className={styles.defaultCard}>
             <h3>Tipo de faturamento</h3>
             {loading ? (
@@ -238,7 +238,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Situação */}
-        <DashboardWidget cols={3} rows={3}>
+        <DashboardWidget cols={3} rows={3} mobileOrder={5}>
           <div className={styles.defaultCard}>
             <h3>Situação</h3>
             <div className={styles.situationGroup}>
@@ -257,7 +257,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Faturamento Diário */}
-        <DashboardWidget cols={2} rows={2}>
+        <DashboardWidget cols={2} rows={2} mobileOrder={2}>
           <div className={styles.defaultCard}>
             <div>
               <h3>Faturamento Diário</h3>
