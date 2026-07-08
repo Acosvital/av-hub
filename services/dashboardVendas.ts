@@ -8,7 +8,11 @@ import {
 } from '@/app/(protected)/dashboards/dash-faturamento/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PaginatedResponse } from './types';
-import { RankingVendedoresVendasProps } from '@/app/(protected)/dashboards/dash-vendas/types';
+import {
+  RankingVendedoresVendasProps,
+  RitmoMetaVendasProps,
+  VendaMensalProps,
+} from '@/app/(protected)/dashboards/dash-vendas/types';
 
 /************************* RANKING VENDEDORES *************************/
 
@@ -38,56 +42,31 @@ export async function getRankingVendedoresVendas(params: GetRankingVendedoresVen
     'Erro ao buscar ranking de vendedores'
   );
 }
-/************************* FATURAMENTO MENSAL *************************/
-interface GetFaturamentoMensalParams {
+/************************* VENDA MENSAL *************************/
+interface GetVendaMensalParams {
   mes?: number;
   ano?: number;
   page?: string;
   limit?: string;
 }
 
-interface FaturamentoMensalResponse extends PaginatedResponse {
-  data: FaturamentoMensalProps[];
+interface VendaMensalResponse extends PaginatedResponse {
+  data: VendaMensalProps[];
 }
 
-export async function getFaturamentoMensal(params: GetFaturamentoMensalParams = {}) {
+export async function getVendaMensal(params: GetVendaMensalParams = {}) {
   const query = new URLSearchParams();
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  return apiFetch<FaturamentoMensalResponse>(
-    `/api/dashboard/faturamento?${query}`,
-    'Erro ao buscar faturamento mensal'
-  );
-}
-/************************* FATURAMENTO POR TIPO *************************/
-interface GetFaturamentoPorTipoParams {
-  mes?: number;
-  ano?: number;
-  tipo_contrato?: string;
-  page?: string;
-  limit?: string;
-}
-
-interface FaturamentoPorTipoResponse extends PaginatedResponse {
-  data: FaturamentoPorTipoProps[];
-}
-
-export async function getFaturamentoPorTipo(params: GetFaturamentoPorTipoParams = {}) {
-  const query = new URLSearchParams();
-  if (params.mes) query.set('mes', String(params.mes));
-  if (params.ano) query.set('ano', String(params.ano));
-  if (params.tipo_contrato) query.set('tipo_contrato', String(params.tipo_contrato));
-  if (params.page) query.set('page', String(params.page));
-  if (params.limit) query.set('limit', String(params.limit));
-  return apiFetch<FaturamentoPorTipoResponse>(
-    `/api/dashboard/faturamento/faturamento-por-tipo?${query}`,
-    'Erro ao buscar faturamento por tipo'
+  return apiFetch<VendaMensalResponse>(
+    `/api/dashboard/vendas?${query}`,
+    'Erro ao buscar vendas mensais'
   );
 }
 /************************* RITMO DE META *************************/
-interface GetRitmoMetaFaturamentoParams {
+interface GetRitmoMetaVendasParams {
   mes?: number;
   ano?: number;
   status_ritmo?: string;
@@ -95,70 +74,19 @@ interface GetRitmoMetaFaturamentoParams {
   limit?: string;
 }
 
-interface RitmoMetaFaturamentoResponse extends PaginatedResponse {
-  data: RitmoMetaFaturamentoProps[];
+interface RitmoMetaVendasResponse extends PaginatedResponse {
+  data: RitmoMetaVendasProps[];
 }
 
-export async function getRitmoMetaFaturamento(params: GetRitmoMetaFaturamentoParams = {}) {
+export async function getRitmoMetaVendas(params: GetRitmoMetaVendasParams = {}) {
   const query = new URLSearchParams();
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
   if (params.status_ritmo) query.set('status_ritmo', String(params.status_ritmo));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  return apiFetch<RitmoMetaFaturamentoResponse>(
-    `/api/dashboard/faturamento/ritmo-de-meta?${query}`,
+  return apiFetch<RitmoMetaVendasResponse>(
+    `/api/dashboard/vendas/ritmo-de-meta?${query}`,
     'Erro ao buscar ritmo de meta'
-  );
-}
-/************************* SITUAÇÃO DOS PEDIDOS *************************/
-interface GetSituacaoPedidosParams {
-  mes?: number;
-  ano?: number;
-  grupo_deducao?: string;
-  page?: string;
-  limit?: string;
-}
-
-interface SituacaoPedidosResponse extends PaginatedResponse {
-  data: SituacaoPedidosFaturadosProps[];
-}
-
-export async function getSituacaoPedidos(params: GetSituacaoPedidosParams = {}) {
-  const query = new URLSearchParams();
-  if (params.mes) query.set('mes', String(params.mes));
-  if (params.ano) query.set('ano', String(params.ano));
-  if (params.grupo_deducao) query.set('grupo_deducao', String(params.grupo_deducao));
-  if (params.page) query.set('page', String(params.page));
-  if (params.limit) query.set('limit', String(params.limit));
-  return apiFetch<SituacaoPedidosResponse>(
-    `/api/dashboard/faturamento/situacao-pedidos?${query}`,
-    'Erro ao buscar situacao dos pedidos'
-  );
-}
-
-/************************* RESUMO MENSAL *************************/
-interface GetResumoMensalFaturamentoParams {
-  periodo?: string;
-  periodo_inicio?: string;
-  periodo_fim?: string;
-  page?: string;
-  limit?: string;
-}
-
-interface ResumoMensalFaturamentoResponse extends PaginatedResponse {
-  data: ResumoMensalFaturamentoProps[];
-}
-
-export async function getResumoMensalFaturamento(params: GetResumoMensalFaturamentoParams) {
-  const query = new URLSearchParams();
-  if (params.periodo) query.set('periodo', String(params.periodo));
-  if (params.periodo_inicio) query.set('periodo_inicio', String(params.periodo_inicio));
-  if (params.periodo_fim) query.set('periodo_fim', String(params.periodo_fim));
-  if (params.page) query.set('page', String(params.page));
-  if (params.limit) query.set('limit', String(params.limit));
-  return apiFetch<ResumoMensalFaturamentoResponse>(
-    `/api/dashboard/faturamento/resumo-mensal?${query}`,
-    'Erro ao buscar resumo mensal de faturamento'
   );
 }

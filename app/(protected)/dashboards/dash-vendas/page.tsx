@@ -3,32 +3,25 @@ import { useEffect, useState } from 'react';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import styles from './styles.module.css';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
-import Card from '@/components/Ui/Card/Card';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
-import { useTheme } from 'next-themes';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import toBRL from '@/utils/toBRL';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
-import { getRankingVendedores } from '@/services/dashboardFaturamento';
-import { getRankingVendedoresVendas } from '@/services/dashboardVendas';
-import { RankingVendedoresVendasProps } from './types';
+import {
+  getRankingVendedoresVendas,
+  getRitmoMetaVendas,
+  getVendaMensal,
+} from '@/services/dashboardVendas';
+import { RankingVendedoresVendasProps, RitmoMetaVendasProps, VendaMensalProps } from './types';
 import { CircularProgress } from '@mui/material';
-
-const mockVendors = Array.from({ length: 10 }, (_, i) => ({
-  id: i,
-  name: 'HUGO DOS SANTOS GONÇALVES',
-  orders: 100,
-  meta: 10,
-  participation: 100 - i * 1.9,
-  totalValue: 3000450,
-  rank: i + 1,
-}));
 
 const Vendas = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
+  const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
+  const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const { completeDate } = useDashboardDate();
@@ -36,16 +29,21 @@ const Vendas = () => {
 
   const top3 = rankingVendedores.slice(0, 3);
   const otherVendors = rankingVendedores.slice(3);
+  const gauge = Number(vendaMensal?.perc_atingimento);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
 
   useEffect(() => {
     async function loadReferenceData() {
       try {
         setLoading(true);
-        const [ranking] = await Promise.all([
+        const [ranking, vendas, ritmoVendas] = await Promise.all([
           getRankingVendedoresVendas({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getVendaMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
+          getRitmoMetaVendas({ mes: completeDate.month() + 1, ano: completeDate.year() }),
         ]);
         setRankingVendedores(ranking.data ?? []);
+        setVendaMensal(vendas.data?.[0] ?? []);
+        setRitmoDeMeta(ritmoVendas.data?.[0] ?? []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -61,11 +59,12 @@ const Vendas = () => {
         {/* Gauge */}
         <DashboardWidget cols={6} rows={3}>
           <RevenueGauge
-            value={85}
-            target={200000}
-            totalRevenue={23119350}
-            lastMonthRevenue={23119350}
-            lastMonthOrders={1029}
+            type="venda"
+            value={gauge || 0}
+            target={Number(vendaMensal?.meta) || 0}
+            totalRevenue={Number(vendaMensal?.vendas_total) || 0}
+            lastMonthRevenue={Number(vendaMensal?.vendas_mes_anterior) || 0}
+            lastMonthOrders={Number(vendaMensal?.qtd_pedidos_mes_anterior) || 0}
             color={accentColor}
           />
         </DashboardWidget>
@@ -74,7 +73,7 @@ const Vendas = () => {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span>37 vendedores</span>
+              <span>{loading ? 0 : rankingVendedores.length + 1} vendedores</span>
             </div>
             {loading ? (
               <div className={styles.loading}>
@@ -99,7 +98,7 @@ const Vendas = () => {
                 <div className={styles.defaultRank}>
                   {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
                   <div
-                    className={`${mockVendors.length > 9 && styles.autoScroll}`}
+                    className={`${rankingVendedores.length > 9 && styles.autoScroll}`}
                     style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
                   >
                     <div className={styles.vendorGroup}>
@@ -113,7 +112,7 @@ const Vendas = () => {
                       ))}
                     </div>
                     <div className={styles.vendorGroup} aria-hidden="true">
-                      {mockVendors.length >= 10 &&
+                      {rankingVendedores.length >= 10 &&
                         otherVendors.map((v) => (
                           <VendorCard
                             key={`dup-${Number(v.cod_vendedor)}`}
@@ -136,11 +135,15 @@ const Vendas = () => {
               <div className={styles.billingCard}>
                 <div>
                   <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                  <span className={styles.billingValue}>
+                    {toBRL(Number(vendaMensal?.vendas_hoje) || 0)}
+                  </span>
                 </div>
                 <div>
                   <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>{toBRL(100136363.64)}</span>
+                  <span className={styles.billingValue}>
+                    {toBRL(Number(vendaMensal?.vendas_ontem) || 0)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -153,11 +156,11 @@ const Vendas = () => {
               <div className={styles.billingCard}>
                 <div>
                   <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>8400</span>
+                  <span className={styles.billingValue}>{vendaMensal?.pedidos_hoje || 0}</span>
                 </div>
                 <div>
                   <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>488</span>
+                  <span className={styles.billingValue}>{vendaMensal?.pedidos_ontem || 0}</span>
                 </div>
               </div>
             </div>
@@ -165,11 +168,11 @@ const Vendas = () => {
         </DashboardWidget>
         <DashboardWidget cols={6} rows={2}>
           <GoalPaceCard
-            status="below"
-            idealDailyTarget={1136363.64}
-            currentDailyTarget={399468.64}
-            workingDays={25}
-            elapsedDays={3}
+            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
           />
         </DashboardWidget>
       </DashboardGrid>
