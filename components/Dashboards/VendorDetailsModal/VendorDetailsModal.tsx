@@ -69,6 +69,7 @@ interface ResumoVendedor {
 }
 
 interface PedidoVendedor {
+  numero_nf: string | null;
   numero_pedido: string | null;
   nome_cliente: string | null;
   data_pedido: string;
@@ -94,7 +95,11 @@ function resolveStatus(situacao: string): OrderStatus | undefined {
     : undefined;
 }
 
-function mapVendorDetails(vendedor: ResumoVendedor, pedidos: PedidoVendedor[]): VendorDetails {
+function mapVendorDetails(
+  dashboard: 'vendas' | 'faturamento',
+  vendedor: ResumoVendedor,
+  pedidos: PedidoVendedor[]
+): VendorDetails {
   return {
     name: vendedor.vendedor ?? '—',
     totalValue: Number(vendedor.valor_total) || 0,
@@ -138,7 +143,7 @@ function mapVendorDetails(vendedor: ResumoVendedor, pedidos: PedidoVendedor[]): 
       },
     ],
     orders: pedidos.map((pedido) => ({
-      id: Number(pedido.numero_pedido) || 0,
+      id: dashboard === 'vendas' ? Number(pedido.numero_pedido) : Number(pedido.numero_nf) || 0,
       date: dayjs(pedido.data_pedido).format('DD/MM/YYYY'),
       partner: pedido.nome_cliente ?? '—',
       value: Number(pedido.valor_pedido) || 0,
@@ -181,7 +186,7 @@ const VendorDetailsModal = ({
         const getDetalheVendedor =
           dashboard === 'vendas' ? getDetalheVendedorVendas : getDetalheVendedorFaturamento;
         const res = await getDetalheVendedor({ cod_vendedor: String(vendorId), mes, ano });
-        setDetails(mapVendorDetails(res.vendedor, res.pedidos));
+        setDetails(mapVendorDetails(dashboard, res.vendedor, res.pedidos));
       } catch (err) {
         console.error(err);
       } finally {
