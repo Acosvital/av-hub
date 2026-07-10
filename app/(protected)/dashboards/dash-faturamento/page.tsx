@@ -300,6 +300,9 @@ export default function Faturamento() {
         isOpen={selectedVendorId !== null}
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
+        dashboard="faturamento"
+        mes={completeDate.month() + 1}
+        ano={completeDate.year()}
       />
     </div>
   );

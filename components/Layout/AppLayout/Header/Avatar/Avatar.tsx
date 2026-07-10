@@ -17,8 +17,9 @@ function stringAvatar(name: string, border: string, size: number) {
   const splitted = name.split(' ');
   return {
     sx: {
-      bgcolor: stringToColor(name),
-      border: border ? `2px solid ${border}` : 'none',
+      // bgcolor: `${stringToColor(name)}`,
+      bgcolor: `color-mix(in srgb, ${stringToColor(name)} 85%, black)`,
+      border: border ? `3px solid ${border}` : 'none',
       height: size ? `${size}px` : '40px',
       width: size ? `${size}px` : '40px',
     },
