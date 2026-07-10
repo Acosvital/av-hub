@@ -41,11 +41,13 @@ export const authOptions: AuthOptions = {
       clientId: process.env.AZURE_AD_CLIENT_ID || '',
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET || '',
       tenantId: process.env.AZURE_AD_TENANT_ID || '',
-      authorization: {
-        params: {
-          prompt: 'select_account', //Parâmetro para seleção de multiplas contas;
-        },
-      },
+      // authorization: {
+      //   params: {
+      //     prompt: 'select_account', //Parâmetro para seleção de multiplas contas;
+      //   },
+      // },
+      // Sem "prompt" fixo: o Azure AD decide o fluxo, permitindo login silencioso
+      // via Seamless SSO quando a sessão do Windows/Kerberos já está autenticada.
     }),
     CredentialsProvider({
       name: 'credentials',
