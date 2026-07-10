@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
+import { CircularProgress } from '@mui/material';
 import Modal from '@/components/Ui/Modal/Modal';
 import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import OrderType from '@/components/Dashboards/OrderType/OrderType';
@@ -157,6 +158,7 @@ const VendorDetailsModal = ({
 }: VendorDetailsModalProps) => {
   const [details, setDetails] = useState<VendorDetails | null>(null);
   const [selectedType, setSelectedType] = useState<OrderTypeKey | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleTypeClick = (type: OrderTypeKey) => {
     setSelectedType((prev) => (prev === type ? null : type));
@@ -173,54 +175,70 @@ const VendorDetailsModal = ({
 
   useEffect(() => {
     if (!isOpen || vendorId === null) return;
-    const getDetalheVendedor =
-      dashboard === 'vendas' ? getDetalheVendedorVendas : getDetalheVendedorFaturamento;
-    getDetalheVendedor({ cod_vendedor: String(vendorId), mes, ano })
-      .then((res) => setDetails(mapVendorDetails(res.vendedor, res.pedidos)))
-      .catch((err) => console.error(err));
+    async function loadVendorDetails() {
+      try {
+        setLoading(true);
+        const getDetalheVendedor =
+          dashboard === 'vendas' ? getDetalheVendedorVendas : getDetalheVendedorFaturamento;
+        const res = await getDetalheVendedor({ cod_vendedor: String(vendorId), mes, ano });
+        setDetails(mapVendorDetails(res.vendedor, res.pedidos));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadVendorDetails();
   }, [isOpen, vendorId, dashboard, mes, ano]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do vendedor">
-      {details && (
-        <div className={styles.modalContent}>
-          <div className={styles.vendorDetails}>
-            <div className={styles.quickView}>
-              <div className={styles.quickViewTitle}>
-                <Avatar name={details.name} size={50} />
-                <h3>{details.name}</h3>
+      {loading ? (
+        <div className={styles.loading}>
+          <CircularProgress size={50} />
+          <span>Carregando...</span>
+        </div>
+      ) : (
+        details && (
+          <div className={styles.modalContent}>
+            <div className={styles.vendorDetails}>
+              <div className={styles.quickView}>
+                <div className={styles.quickViewTitle}>
+                  <Avatar name={details.name} size={50} />
+                  <h3>{details.name}</h3>
+                </div>
+                <div className={styles.quickViewValues}>
+                  <div>
+                    <h4>Valor Total</h4>
+                    <h3>{toBRL(details.totalValue)}</h3>
+                  </div>
+                  <div>
+                    <h4>Total Pedidos</h4>
+                    <h3>{details.totalOrders}</h3>
+                  </div>
+                </div>
               </div>
-              <div className={styles.quickViewValues}>
-                <div>
-                  <h4>Valor Total</h4>
-                  <h3>{toBRL(details.totalValue)}</h3>
-                </div>
-                <div>
-                  <h4>Total Pedidos</h4>
-                  <h3>{details.totalOrders}</h3>
-                </div>
+              <div className={styles.ordersTypesCount}>
+                {details.orderTypes.map(({ orderType, count, value, cardType }) => (
+                  <OrderType
+                    key={orderType}
+                    orderType={orderType}
+                    count={count}
+                    value={value}
+                    cardType={cardType}
+                    isActive={selectedType === orderType}
+                    onClick={() => handleTypeClick(orderType)}
+                  />
+                ))}
               </div>
             </div>
-            <div className={styles.ordersTypesCount}>
-              {details.orderTypes.map(({ orderType, count, value, cardType }) => (
-                <OrderType
-                  key={orderType}
-                  orderType={orderType}
-                  count={count}
-                  value={value}
-                  cardType={cardType}
-                  isActive={selectedType === orderType}
-                  onClick={() => handleTypeClick(orderType)}
-                />
+            <div className={styles.allOrders}>
+              {filteredOrders.map((order, i) => (
+                <Order key={i} {...order} />
               ))}
             </div>
           </div>
-          <div className={styles.allOrders}>
-            {filteredOrders.map((order, i) => (
-              <Order key={i} {...order} />
-            ))}
-          </div>
-        </div>
+        )
       )}
     </Modal>
   );
