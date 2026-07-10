@@ -9,6 +9,8 @@ import {
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PaginatedResponse } from './types';
 import {
+  DetalheVendedorVendasPedidoProps,
+  DetalheVendedorVendasResumoProps,
   RankingVendedoresVendasProps,
   RitmoMetaVendasProps,
   VendaMensalProps,
@@ -88,5 +90,53 @@ export async function getRitmoMetaVendas(params: GetRitmoMetaVendasParams = {}) 
   return apiFetch<RitmoMetaVendasResponse>(
     `/api/dashboard/vendas/ritmo-de-meta?${query}`,
     'Erro ao buscar ritmo de meta'
+  );
+}
+/************************* DETALHE VENDEDOR *************************/
+interface GetDetalheVendedorVendasParams {
+  cod_vendedor: string;
+  mes: number;
+  ano: number;
+  numero_pedido?: string;
+  numero_nf?: string;
+  nome_cliente?: string;
+  tipo_contrato?: string;
+  classificacao?: string;
+  situacao?: string;
+  data_pedido?: string;
+  data_inicio?: string;
+  data_fim?: string;
+  page?: string;
+  limit?: string;
+}
+
+interface DetalheVendedorVendasResponse {
+  vendedor: DetalheVendedorVendasResumoProps;
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  pedidos: DetalheVendedorVendasPedidoProps[];
+}
+
+export async function getDetalheVendedorVendas(params: GetDetalheVendedorVendasParams) {
+  const query = new URLSearchParams();
+  query.set('cod_vendedor', String(params.cod_vendedor));
+  query.set('mes', String(params.mes));
+  query.set('ano', String(params.ano));
+  if (params.numero_pedido) query.set('numero_pedido', String(params.numero_pedido));
+  if (params.numero_nf) query.set('numero_nf', String(params.numero_nf));
+  if (params.nome_cliente) query.set('nome_cliente', String(params.nome_cliente));
+  if (params.tipo_contrato) query.set('tipo_contrato', String(params.tipo_contrato));
+  if (params.classificacao) query.set('classificacao', String(params.classificacao));
+  if (params.situacao) query.set('situacao', String(params.situacao));
+  if (params.data_pedido) query.set('data_pedido', String(params.data_pedido));
+  if (params.data_inicio) query.set('data_inicio', String(params.data_inicio));
+  if (params.data_fim) query.set('data_fim', String(params.data_fim));
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  return apiFetch<DetalheVendedorVendasResponse>(
+    `/api/dashboard/vendas/detalhe-vendedor?${query}`,
+    'Erro ao buscar detalhe do vendedor'
   );
 }

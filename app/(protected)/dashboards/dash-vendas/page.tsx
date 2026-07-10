@@ -180,6 +180,9 @@ const Vendas = () => {
         isOpen={selectedVendorId !== null}
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
+        dashboard="vendas"
+        mes={completeDate.month() + 1}
+        ano={completeDate.year()}
       />
     </div>
   );

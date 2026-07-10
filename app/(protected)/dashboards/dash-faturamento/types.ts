@@ -57,6 +57,42 @@ export interface SituacaoPedidosFaturadosProps {
   valor_total: string;
 }
 
+export interface DetalheVendedorFaturamentoResumoProps {
+  cod_vendedor: string;
+  vendedor: string | null;
+  total_pedidos: string | null;
+  valor_total: string | null;
+  qtd_spot: string | null;
+  valor_spot: string | null;
+  qtd_contrato: string | null;
+  valor_contrato: string | null;
+  qtd_sem_classificacao: string | null;
+  valor_sem_classificacao: string | null;
+  qtd_cancelado: string | null;
+  valor_cancelado: string | null;
+  qtd_devolvido: string | null;
+  valor_devolvido: string | null;
+  qtd_recusado: string | null;
+  valor_recusado: string | null;
+  qtd_refaturamento: string | null;
+  valor_refaturamento: string | null;
+  qtd_outros: string | null;
+  valor_outros: string | null;
+}
+
+export interface DetalheVendedorFaturamentoPedidoProps {
+  mes: number;
+  ano: number;
+  numero_pedido: string | null;
+  numero_nf: string | null;
+  nome_cliente: string | null;
+  data_pedido: string;
+  valor_pedido: string | null;
+  tipo_contrato: string;
+  classificacao: string;
+  situacao: string;
+}
+
 export interface ResumoMensalFaturamentoProps {
   periodo: string;
   fat_bruto: string;

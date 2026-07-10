@@ -39,3 +39,39 @@ export interface RitmoMetaVendasProps {
   meta_diaria_atual: string;
   status_ritmo: string;
 }
+
+export interface DetalheVendedorVendasResumoProps {
+  cod_vendedor: string;
+  vendedor: string;
+  total_pedidos: string;
+  valor_total: string;
+  qtd_spot: string;
+  valor_spot: string | null;
+  qtd_contrato: string;
+  valor_contrato: string | null;
+  qtd_sem_classificacao: string;
+  valor_sem_classificacao: string | null;
+  qtd_cancelado: string;
+  valor_cancelado: string | null;
+  qtd_devolvido: string;
+  valor_devolvido: string | null;
+  qtd_recusado: string;
+  valor_recusado: string | null;
+  qtd_refaturamento: string;
+  valor_refaturamento: string | null;
+  qtd_outros: string;
+  valor_outros: string | null;
+}
+
+export interface DetalheVendedorVendasPedidoProps {
+  mes: number;
+  ano: number;
+  numero_pedido: string;
+  numero_nf: string | null;
+  nome_cliente: string;
+  data_pedido: string;
+  valor_pedido: string;
+  tipo_contrato: string;
+  classificacao: string;
+  situacao: string;
+}
