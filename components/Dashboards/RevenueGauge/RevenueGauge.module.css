@@ -8,7 +8,6 @@
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border);
   padding: var(--space-2);
-  align-items: center;
   font-family: var(--font-sans);
 }
 
