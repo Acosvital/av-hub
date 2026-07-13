@@ -9,7 +9,7 @@ interface GaugeProps {
 
 const Gauge = ({ size = 300, startAngle = -120, endAngle = 120, value, color }: GaugeProps) => {
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', alignSelf: 'center' }}>
       {/* Injetamos um SVG invisível apenas para carregar a definição do filtro de sombra */}
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>

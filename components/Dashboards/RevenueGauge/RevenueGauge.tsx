@@ -3,6 +3,7 @@ import toBRL from '@/utils/toBRL';
 import styles from './RevenueGauge.module.css';
 
 interface RevenueGaugeProps {
+  totalOrders?: string;
   type?: 'venda' | 'faturamento';
   value: number;
   target: number;
@@ -13,6 +14,7 @@ interface RevenueGaugeProps {
 }
 
 const RevenueGauge = ({
+  totalOrders,
   type = 'faturamento',
   value,
   target,
@@ -26,6 +28,12 @@ const RevenueGauge = ({
   }).format(target);
   return (
     <div className={styles.gaugeContainer}>
+      {totalOrders && (
+        <h5>
+          {type === 'faturamento' ? 'Total de NFs: ' : 'Total de Pedidos: '}
+          {totalOrders}{' '}
+        </h5>
+      )}
       <Gauge size={250} value={value} color={color} />
       <div className={styles.totalRevenueValues}>
         <div>

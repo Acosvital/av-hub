@@ -205,6 +205,7 @@ export default function PedidosVenda() {
                   <TableRow>
                     {[
                       'Nº Pedido',
+                      'Sequencial',
                       'Data Inclusão',
                       'Etapa',
                       'Cliente',
@@ -225,6 +226,7 @@ export default function PedidosVenda() {
                       sx={{ cursor: can('pode_visualizar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{row.numero_pedido ?? '—'}</TableCell>
+                      <TableCell>{row.sequencial ?? 0}</TableCell>
                       <TableCell>
                         {row.data_inclusao ? dateFormatter(row.data_inclusao) : '—'}
                       </TableCell>

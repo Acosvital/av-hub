@@ -29,8 +29,8 @@ import {
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
 } from '@/services/dashboardFaturamento';
-import { CircularProgress } from '@mui/material';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 
 const SITUACAO_DEFINITIONS = [
   { id: 'G1', label: 'Cancelados' },
@@ -48,8 +48,16 @@ export default function Faturamento() {
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  //loadings individuais para cada Widget
+  const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
+  const [loadingFaturamentoMensal, setLoadingFaturamentoMensal] = useState<boolean>(false);
+  const [loadingFaturamentoPorTipo, setLoadingFaturamentoPorTipo] = useState<boolean>(false);
+  const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
+  const [loadingSituacaoPedidos, setLoadingSituacaoPedidos] = useState<boolean>(false);
+  const [loadingResumoMensal, setLoadingResumoMensal] = useState<boolean>(false);
+
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--gold)';
 
@@ -78,43 +86,101 @@ export default function Faturamento() {
       faturamento: Number(item.fat_liquido),
     }));
 
+  //state que avisa quando renderizar a Logo, com o tema certo
   useEffect(() => {
-    async function loadReferenceData() {
+    setMounted(true);
+  }, []);
+
+  //Carrega os dados do dashboard a partir do filtro de data
+  useEffect(() => {
+    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+
+    async function loadRanking() {
       try {
-        setLoading(true);
+        setLoadingRanking(true);
+        const ranking = await getRankingVendedores(params);
+        setSellerRanking(ranking.data ?? []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingRanking(false);
+      }
+    }
+
+    async function loadFaturamentoMensal() {
+      try {
+        setLoadingFaturamentoMensal(true);
+        const faturamento = await getFaturamentoMensal(params);
+        setFaturamentoMensal(faturamento.data?.[0] ?? null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingFaturamentoMensal(false);
+      }
+    }
+
+    async function loadFaturamentoPorTipo() {
+      try {
+        setLoadingFaturamentoPorTipo(true);
+        const faturamentoTipos = await getFaturamentoPorTipo(params);
+        setFaturamentoPorTipo(faturamentoTipos.data ?? []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingFaturamentoPorTipo(false);
+      }
+    }
+
+    async function loadRitmoMeta() {
+      try {
+        setLoadingRitmoMeta(true);
+        const ritmoMeta = await getRitmoMetaFaturamento(params);
+        setRitmoDeMeta(ritmoMeta.data?.[0] ?? null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingRitmoMeta(false);
+      }
+    }
+
+    async function loadSituacaoPedidos() {
+      try {
+        setLoadingSituacaoPedidos(true);
+        const situacaoPedidosRes = await getSituacaoPedidos(params);
+        setSituacaoPedidos(situacaoPedidosRes.data ?? []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingSituacaoPedidos(false);
+      }
+    }
+
+    async function loadResumoMensal() {
+      try {
+        setLoadingResumoMensal(true);
         const periodoInicio = completeDate
           .subtract(5, 'month')
           .startOf('month')
           .format('YYYY-MM-DD');
         const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
-        const [
-          ranking,
-          faturamento,
-          faturamentoTipos,
-          ritmoMeta,
-          situacaoPedidosRes,
-          resumoMensalRes,
-        ] = await Promise.all([
-          getRankingVendedores({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getFaturamentoMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getFaturamentoPorTipo({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getRitmoMetaFaturamento({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getSituacaoPedidos({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getResumoMensalFaturamento({ periodo_inicio: periodoInicio, periodo_fim: periodoFim }),
-        ]);
-        setSellerRanking(ranking.data ?? []);
-        setFaturamentoMensal(faturamento.data?.[0] ?? []);
-        setFaturamentoPorTipo(faturamentoTipos.data ?? []);
-        setRitmoDeMeta(ritmoMeta.data?.[0] ?? []);
-        setSituacaoPedidos(situacaoPedidosRes.data ?? []);
+        const resumoMensalRes = await getResumoMensalFaturamento({
+          periodo_inicio: periodoInicio,
+          periodo_fim: periodoFim,
+        });
         setResumoMensal(resumoMensalRes.data ?? []);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        setLoadingResumoMensal(false);
       }
     }
-    loadReferenceData();
+
+    loadRanking();
+    loadFaturamentoMensal();
+    loadFaturamentoPorTipo();
+    loadRitmoMeta();
+    loadSituacaoPedidos();
+    loadResumoMensal();
   }, [completeDate]);
 
   return (
@@ -125,13 +191,10 @@ export default function Faturamento() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span>{loading ? 0 : sellerRanking.length + 1} vendedores</span>
+              <span>{loadingRanking ? 0 : sellerRanking.length} vendedores</span>
             </div>
-            {loading ? (
-              <div className={styles.loading}>
-                <CircularProgress size={50} />
-                <span>Carregando...</span>
-              </div>
+            {loadingRanking ? (
+              <WidgetLoading />
             ) : (
               <>
                 <div className={styles.fixedRank}>
@@ -183,48 +246,66 @@ export default function Faturamento() {
         {/* Logo */}
         <DashboardWidget cols={2} rows={1} hideOnMobile>
           <div className={styles.logoContainer}>
-            <Image
-              src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}
-              alt="Aços Vital"
-              width={200}
-              height={43}
-            />
+            {mounted && (
+              <Image
+                src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}
+                alt="Aços Vital"
+                width={200}
+                height={43}
+              />
+            )}
           </div>
         </DashboardWidget>
         {/* Historico de faturamento */}
         <DashboardWidget cols={5} rows={2} mobileOrder={3}>
-          <BillingHistoryChart dataset={billingHistory} />
+          {loadingResumoMensal ? (
+            <div className={styles.defaultCard}>
+              <WidgetLoading />
+            </div>
+          ) : (
+            <BillingHistoryChart dataset={billingHistory} color={accentColor} />
+          )}
         </DashboardWidget>
         {/* Gauge */}
         <DashboardWidget cols={2} rows={3} mobileOrder={1}>
-          <RevenueGauge
-            value={gauge || 0}
-            target={Number(faturamentoMensal?.meta) || 0}
-            totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
-            lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
-            lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
-            color={accentColor}
-          />
+          {loadingFaturamentoMensal ? (
+            <div className={styles.defaultCard}>
+              <WidgetLoading />
+            </div>
+          ) : (
+            <RevenueGauge
+              totalOrders={faturamentoMensal?.qtd_nfs}
+              value={gauge || 0}
+              target={Number(faturamentoMensal?.meta) || 0}
+              totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
+              lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
+              lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
+              color={accentColor}
+            />
+          )}
         </DashboardWidget>
         {/* Ritmo de Meta */}
         <DashboardWidget cols={5} rows={1} mobileOrder={2}>
-          <GoalPaceCard
-            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-          />
+          {loadingRitmoMeta ? (
+            <div className={styles.defaultCard}>
+              <WidgetLoading />
+            </div>
+          ) : (
+            <GoalPaceCard
+              status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+              idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+              currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+              workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+              elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+            />
+          )}
         </DashboardWidget>
         {/* Tipo de faturamento */}
         <DashboardWidget cols={2} rows={3} mobileOrder={4}>
           <div className={styles.defaultCard}>
             <h3>Tipo de faturamento</h3>
-            {loading ? (
-              <div className={styles.loading}>
-                <CircularProgress size={50} />
-                <span>Carregando...</span>
-              </div>
+            {loadingFaturamentoPorTipo ? (
+              <WidgetLoading />
             ) : (
               <div className={styles.billings}>
                 {billingTypes.map(({ label, value }) => (
@@ -241,58 +322,68 @@ export default function Faturamento() {
         <DashboardWidget cols={3} rows={3} mobileOrder={5}>
           <div className={styles.defaultCard}>
             <h3>Situação</h3>
-            <div className={styles.situationGroup}>
-              {situations.map(({ label, count, value }) => (
-                <div key={label} className={styles.situationCard}>
-                  <div>
-                    <h4 className={styles.situationTitle}>{label}</h4>
-                    <span>{count}</span>
+            {loadingSituacaoPedidos ? (
+              <WidgetLoading />
+            ) : (
+              <div className={styles.situationGroup}>
+                {situations.map(({ label, count, value }) => (
+                  <div key={label} className={styles.situationCard}>
+                    <div>
+                      <h4 className={styles.situationTitle}>{label}</h4>
+                      <span>{count}</span>
+                    </div>
+                    <div>
+                      <span>{toBRL(value)}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span>{toBRL(value)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </DashboardWidget>
         {/* Faturamento Diário */}
         <DashboardWidget cols={2} rows={2} mobileOrder={2}>
           <div className={styles.defaultCard}>
-            <div>
-              <h3>Faturamento Diário</h3>
-              <div className={styles.billingCard}>
+            {loadingFaturamentoMensal ? (
+              <WidgetLoading />
+            ) : (
+              <>
                 <div>
-                  <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>
-                    {toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-                  </span>
+                  <h3>Faturamento Diário</h3>
+                  <div className={styles.billingCard}>
+                    <div>
+                      <h4 className={styles.billingTitle}>Hoje</h4>
+                      <span className={styles.billingValue}>
+                        {toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className={styles.billingTitle}>Ontem</h4>
+                      <span className={styles.billingValue}>
+                        {toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <div>
-                  <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>
-                    {toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-                  </span>
+                  <h3>Volume de Notas Fiscais</h3>
+                  <div className={styles.billingCard}>
+                    <div>
+                      <h4 className={styles.billingTitle}>Hoje</h4>
+                      <span className={styles.billingValue}>
+                        {faturamentoMensal?.pedidos_hoje || 0}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className={styles.billingTitle}>Ontem</h4>
+                      <span className={styles.billingValue}>
+                        {faturamentoMensal?.pedidos_ontem || 0}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div>
-              <h3>Volume de Notas Fiscais</h3>
-              <div className={styles.billingCard}>
-                <div>
-                  <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>
-                    {faturamentoMensal?.pedidos_hoje || 0}
-                  </span>
-                </div>
-                <div>
-                  <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>
-                    {faturamentoMensal?.pedidos_ontem || 0}
-                  </span>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </DashboardWidget>
       </DashboardGrid>

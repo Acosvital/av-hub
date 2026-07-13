@@ -15,7 +15,7 @@ import {
   getVendaMensal,
 } from '@/services/dashboardVendas';
 import { RankingVendedoresVendasProps, RitmoMetaVendasProps, VendaMensalProps } from './types';
-import { CircularProgress } from '@mui/material';
+import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 
 const Vendas = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
@@ -23,7 +23,10 @@ const Vendas = () => {
   const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  //loadings individuais para cada Widget
+  const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
+  const [loadingVendaMensal, setLoadingVendaMensal] = useState<boolean>(false);
+  const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--green)';
 
@@ -33,24 +36,47 @@ const Vendas = () => {
   const scrollDuration = `${otherVendors.length * 1.7}s`;
 
   useEffect(() => {
-    async function loadReferenceData() {
+    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+
+    async function loadRanking() {
       try {
-        setLoading(true);
-        const [ranking, vendas, ritmoVendas] = await Promise.all([
-          getRankingVendedoresVendas({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getVendaMensal({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-          getRitmoMetaVendas({ mes: completeDate.month() + 1, ano: completeDate.year() }),
-        ]);
+        setLoadingRanking(true);
+        const ranking = await getRankingVendedoresVendas(params);
         setRankingVendedores(ranking.data ?? []);
-        setVendaMensal(vendas.data?.[0] ?? []);
-        setRitmoDeMeta(ritmoVendas.data?.[0] ?? []);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        setLoadingRanking(false);
       }
     }
-    loadReferenceData();
+
+    async function loadVendaMensal() {
+      try {
+        setLoadingVendaMensal(true);
+        const vendas = await getVendaMensal(params);
+        setVendaMensal(vendas.data?.[0] ?? null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingVendaMensal(false);
+      }
+    }
+
+    async function loadRitmoMeta() {
+      try {
+        setLoadingRitmoMeta(true);
+        const ritmoVendas = await getRitmoMetaVendas(params);
+        setRitmoDeMeta(ritmoVendas.data?.[0] ?? null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingRitmoMeta(false);
+      }
+    }
+
+    loadRanking();
+    loadVendaMensal();
+    loadRitmoMeta();
   }, [completeDate]);
 
   return (
@@ -58,28 +84,32 @@ const Vendas = () => {
       <DashboardGrid>
         {/* Gauge */}
         <DashboardWidget cols={6} rows={3}>
-          <RevenueGauge
-            type="venda"
-            value={gauge || 0}
-            target={Number(vendaMensal?.meta) || 0}
-            totalRevenue={Number(vendaMensal?.vendas_total) || 0}
-            lastMonthRevenue={Number(vendaMensal?.vendas_mes_anterior) || 0}
-            lastMonthOrders={Number(vendaMensal?.qtd_pedidos_mes_anterior) || 0}
-            color={accentColor}
-          />
+          {loadingVendaMensal ? (
+            <div className={styles.defaultCard}>
+              <WidgetLoading />
+            </div>
+          ) : (
+            <RevenueGauge
+              totalOrders={vendaMensal?.qtd_pedidos}
+              type="venda"
+              value={gauge || 0}
+              target={Number(vendaMensal?.meta) || 0}
+              totalRevenue={Number(vendaMensal?.vendas_total) || 0}
+              lastMonthRevenue={Number(vendaMensal?.vendas_mes_anterior) || 0}
+              lastMonthOrders={Number(vendaMensal?.qtd_pedidos_mes_anterior) || 0}
+              color={accentColor}
+            />
+          )}
         </DashboardWidget>
         {/* Ranking */}
         <DashboardWidget cols={6} rows={6}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span>{loading ? 0 : rankingVendedores.length + 1} vendedores</span>
+              <span>{loadingRanking ? 0 : rankingVendedores.length} vendedores</span>
             </div>
-            {loading ? (
-              <div className={styles.loading}>
-                <CircularProgress size={50} />
-                <span>Carregando...</span>
-              </div>
+            {loadingRanking ? (
+              <WidgetLoading />
             ) : (
               <>
                 <div className={styles.fixedRank}>
@@ -130,50 +160,64 @@ const Vendas = () => {
         </DashboardWidget>
         <DashboardWidget cols={3} rows={1}>
           <div className={styles.defaultCard}>
-            <div>
-              <h3>Venda Diária</h3>
-              <div className={styles.billingCard}>
-                <div>
-                  <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>
-                    {toBRL(Number(vendaMensal?.vendas_hoje) || 0)}
-                  </span>
-                </div>
-                <div>
-                  <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>
-                    {toBRL(Number(vendaMensal?.vendas_ontem) || 0)}
-                  </span>
+            {loadingVendaMensal ? (
+              <WidgetLoading />
+            ) : (
+              <div>
+                <h3>Venda Diária</h3>
+                <div className={styles.billingCard}>
+                  <div>
+                    <h4 className={styles.billingTitle}>Hoje</h4>
+                    <span className={styles.billingValue}>
+                      {toBRL(Number(vendaMensal?.vendas_hoje) || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className={styles.billingTitle}>Ontem</h4>
+                    <span className={styles.billingValue}>
+                      {toBRL(Number(vendaMensal?.vendas_ontem) || 0)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </DashboardWidget>
         <DashboardWidget cols={3} rows={1}>
           <div className={styles.defaultCard}>
-            <div>
-              <h3>Volume de Pedidos</h3>
-              <div className={styles.billingCard}>
-                <div>
-                  <h4 className={styles.billingTitle}>Hoje</h4>
-                  <span className={styles.billingValue}>{vendaMensal?.pedidos_hoje || 0}</span>
-                </div>
-                <div>
-                  <h4 className={styles.billingTitle}>Ontem</h4>
-                  <span className={styles.billingValue}>{vendaMensal?.pedidos_ontem || 0}</span>
+            {loadingVendaMensal ? (
+              <WidgetLoading />
+            ) : (
+              <div>
+                <h3>Volume de Pedidos</h3>
+                <div className={styles.billingCard}>
+                  <div>
+                    <h4 className={styles.billingTitle}>Hoje</h4>
+                    <span className={styles.billingValue}>{vendaMensal?.pedidos_hoje || 0}</span>
+                  </div>
+                  <div>
+                    <h4 className={styles.billingTitle}>Ontem</h4>
+                    <span className={styles.billingValue}>{vendaMensal?.pedidos_ontem || 0}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </DashboardWidget>
         <DashboardWidget cols={6} rows={2}>
-          <GoalPaceCard
-            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-          />
+          {loadingRitmoMeta ? (
+            <div className={styles.defaultCard}>
+              <WidgetLoading />
+            </div>
+          ) : (
+            <GoalPaceCard
+              status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+              idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+              currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+              workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+              elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+            />
+          )}
         </DashboardWidget>
       </DashboardGrid>
       <VendorDetailsModal

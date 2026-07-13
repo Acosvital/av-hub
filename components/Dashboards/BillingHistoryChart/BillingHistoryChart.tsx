@@ -6,9 +6,10 @@ import styles from './BillingHistoryChart.module.css';
 
 interface BillingHistoryChartProps {
   dataset: BillingHistoryItem[];
+  color: string;
 }
 
-const BillingHistoryChart = ({ dataset }: BillingHistoryChartProps) => (
+const BillingHistoryChart = ({ dataset, color = 'var(--gold)' }: BillingHistoryChartProps) => (
   <div className={styles.defaultCard}>
     <h3>Histórico de faturamento</h3>
     <BarChart
@@ -26,7 +27,7 @@ const BillingHistoryChart = ({ dataset }: BillingHistoryChartProps) => (
         },
       ]}
       series={[{ dataKey: 'faturamento', label: 'Últimos 6 meses', valueFormatter }]}
-      colors={['var(--gold)']}
+      colors={[color]}
       height={200}
       margin={{ left: 0 }}
       sx={{
