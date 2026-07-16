@@ -1,11 +1,3 @@
-import {
-  FaturamentoMensalProps,
-  FaturamentoPorTipoProps,
-  ResumoMensalFaturamentoProps,
-  RitmoMetaFaturamentoProps,
-  SellerRankingProps,
-  SituacaoPedidosFaturadosProps,
-} from '@/app/(protected)/dashboards/dash-faturamento/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PaginatedResponse } from './types';
 import {

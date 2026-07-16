@@ -1,0 +1,85 @@
+{
+    "coordenadores": [
+        {
+            "vendedor": "PEDRO HENRIQUE",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 4500.002,
+            "porcentagemComissao": 0.35,
+            "coordenador": true,
+            "pedidos": []
+        },
+        {
+            "vendedor": "JOÃO VITOR",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 4500.001,
+            "porcentagemComissao": 0.35,
+            "coordenador": true,
+            "pedidos": []
+        },
+        {
+            "vendedor": "JOÃO PEDRO",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 4500.003,
+            "porcentagemComissao": 0.35,
+            "coordenador": true,
+            "pedidos": []
+        },
+        {
+            "vendedor": "SERGIO VITAL",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 4500.0044,
+            "porcentagemComissao": 0.35,
+            "coordenador": true,
+            "pedidos": []
+        },
+        {
+            "vendedor": "EUVERALDO OLIVEIRA",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 4500.0045,
+            "porcentagemComissao": 0.35,
+            "coordenador": true,
+            "pedidos": []
+        }
+    ],
+    "excessoes": [
+        {
+            "vendedor": "ANTONIO PAIVA",
+            "totalPedidos": 0,
+            "totalPedidosFaturados": 0,
+            "totalPedidosAFaturar": 0,
+            "valorTotalFaturado": 0,
+            "valorTotalPendente": 0,
+            "valorTotalComissao": 0,
+            "AjudaCusto": 3500.00,
+            "valorBloqueado": 0,
+            "porcentagemComissao": 0.1,
+            "coordenador": true,
+            "pedidos": []
+        }
+    ]
+}
