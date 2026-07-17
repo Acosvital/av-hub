@@ -5,9 +5,9 @@ const orderTypes = {
   SPOT: 'var(--green)',
   CONTRATO: 'var(--purple)',
   'SEM CLASSIFICAÇÃO': 'var(--foreground)',
-  CANCELADO: 'var(--red)',
-  DEVOLVIDO: 'var(--blue)',
-  RECUSADO: 'var(--yellow)',
+  CANCELADOS: 'var(--red)',
+  DEVOLVIDOS: 'var(--blue)',
+  RECUSADOS: 'var(--yellow)',
   REFATURAMENTO: 'var(--orange)',
 };
 
@@ -20,7 +20,14 @@ interface OrderTypeProps {
   onClick?: () => void;
 }
 
-const OrderType = ({ count, orderType, value, cardType = 'single', isActive, onClick }: OrderTypeProps) => {
+const OrderType = ({
+  count,
+  orderType,
+  value,
+  cardType = 'single',
+  isActive,
+  onClick,
+}: OrderTypeProps) => {
   return (
     <div
       className={`${styles.orderTypeCard} ${cardType === 'double' ? styles.doubleCard : ''} ${isActive ? styles.activeCard : ''}`}

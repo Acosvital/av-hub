@@ -15,15 +15,15 @@ const orderTypes = {
     default: 'var(--foreground)',
     light: 'var(--foreground)',
   },
-  CANCELADO: {
+  CANCELADOS: {
     default: 'var(--red)',
     light: 'var(--red-light)',
   },
-  DEVOLVIDO: {
+  DEVOLVIDOS: {
     default: 'var(--blue)',
     light: 'var(--blue-light)',
   },
-  RECUSADO: {
+  RECUSADOS: {
     default: 'var(--yellow)',
     light: 'var(--yellow-light)',
   },
@@ -39,7 +39,7 @@ interface Order {
   partner: string;
   value: number;
   category: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
-  status?: 'CANCELADO' | 'DEVOLVIDO' | 'RECUSADO' | 'REFATURAMENTO';
+  status?: 'CANCELADOS' | 'DEVOLVIDOS' | 'RECUSADOS' | 'REFATURAMENTO';
 }
 
 const Order = ({ id, category, date, partner, value, status }: Order) => {

@@ -21,7 +21,7 @@ interface VendorDetailsModalProps {
 }
 
 type OrderCategory = 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
-type OrderStatus = 'CANCELADO' | 'DEVOLVIDO' | 'RECUSADO' | 'REFATURAMENTO';
+type OrderStatus = 'CANCELADOS' | 'DEVOLVIDOS' | 'RECUSADOS' | 'REFATURAMENTO';
 type OrderTypeKey = OrderCategory | OrderStatus;
 
 interface VendorOrder {
@@ -75,11 +75,11 @@ interface PedidoVendedor {
   data_pedido: string;
   valor_pedido: string | null;
   tipo_contrato: string;
-  situacao: string;
+  classificacao: string;
 }
 
 const ORDER_CATEGORIES: OrderCategory[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
-const ORDER_STATUSES: OrderStatus[] = ['CANCELADO', 'DEVOLVIDO', 'RECUSADO', 'REFATURAMENTO'];
+const ORDER_STATUSES: OrderStatus[] = ['CANCELADOS', 'DEVOLVIDOS', 'RECUSADOS', 'REFATURAMENTO'];
 
 function resolveCategory(tipoContrato: string): OrderCategory {
   const normalized = tipoContrato?.trim().toUpperCase();
@@ -122,17 +122,17 @@ function mapVendorDetails(
         cardType: 'double',
       },
       {
-        orderType: 'CANCELADO',
+        orderType: 'CANCELADOS',
         count: Number(vendedor.qtd_cancelado) || 0,
         value: Number(vendedor.valor_cancelado) || 0,
       },
       {
-        orderType: 'DEVOLVIDO',
+        orderType: 'DEVOLVIDOS',
         count: Number(vendedor.qtd_devolvido) || 0,
         value: Number(vendedor.valor_devolvido) || 0,
       },
       {
-        orderType: 'RECUSADO',
+        orderType: 'RECUSADOS',
         count: Number(vendedor.qtd_recusado) || 0,
         value: Number(vendedor.valor_recusado) || 0,
       },
@@ -148,7 +148,7 @@ function mapVendorDetails(
       partner: pedido.nome_cliente ?? '—',
       value: Number(pedido.valor_pedido) || 0,
       category: resolveCategory(pedido.tipo_contrato),
-      status: resolveStatus(pedido.situacao),
+      status: resolveStatus(pedido.classificacao),
     })),
   };
 }
@@ -224,17 +224,26 @@ const VendorDetailsModal = ({
                 </div>
               </div>
               <div className={styles.ordersTypesCount}>
-                {details.orderTypes.map(({ orderType, count, value, cardType }) => (
-                  <OrderType
-                    key={orderType}
-                    orderType={orderType}
-                    count={count}
-                    value={value}
-                    cardType={cardType}
-                    isActive={selectedType === orderType}
-                    onClick={() => handleTypeClick(orderType)}
-                  />
-                ))}
+                {details.orderTypes.map(({ orderType, count, value, cardType }) => {
+                  if (
+                    dashboard === 'vendas' &&
+                    ['CANCELADOS', 'DEVOLVIDOS', 'RECUSADOS', 'REFATURAMENTO'].some(
+                      (type) => type === orderType
+                    )
+                  )
+                    return;
+                  return (
+                    <OrderType
+                      key={orderType}
+                      orderType={orderType}
+                      count={count}
+                      value={value}
+                      cardType={cardType}
+                      isActive={selectedType === orderType}
+                      onClick={() => handleTypeClick(orderType)}
+                    />
+                  );
+                })}
               </div>
             </div>
             <div className={styles.allOrders}>
