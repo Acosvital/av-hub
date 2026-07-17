@@ -53,7 +53,6 @@ export default function CatalogoDeProdutos() {
   //States de paginação
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [rowCount, setRowCont] = useState(0);
   //Input Descrição
   const [descricaoInput, setDescricaoInput] = useState('');
   const descricao = useDebounce(descricaoInput, 500);
@@ -75,7 +74,7 @@ export default function CatalogoDeProdutos() {
     error && notify.error(error);
   }, [error]);
 
-  //Carregamento dos filtros e dados iniciais
+  //Carregamento dos filtros e dados iniciais (dados mockados — carregados uma única vez)
   useEffect(() => {
     async function loadAllData() {
       try {
@@ -89,7 +88,6 @@ export default function CatalogoDeProdutos() {
         setFornecedor(fornecedoresData.fornecedores);
         setInitialFornecedor(fornecedoresData.fornecedores);
         setRows(produtosData.catalogo_de_produtos);
-        setRowCont(produtosData.total);
       } catch (erro) {
         console.error(erro);
         setError('Erro ao carregar catálogo de produtos');
@@ -133,28 +131,16 @@ export default function CatalogoDeProdutos() {
     });
   }, [descricao, rows, familiaProdutosSelected, fornecedorSelected]);
 
-  //Atualiza Rows conforme filtros
+  //Volta para a primeira página sempre que um filtro muda
   useEffect(() => {
-    async function fetchProdutos() {
-      try {
-        setLoading(true);
-        const response = await getProdutos({
-          page: page + 1,
-          limit: rowsPerPage,
-          fornecedor: inputFornecedor,
-          familia: familiaProdutosSelected,
-          descricao: descricao,
-        });
-        setRows(response.catalogo_de_produtos);
-        setRowCont(response.total);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProdutos();
-  }, [page, rowsPerPage, inputFornecedor, familiaProdutosSelected, descricao]);
+    setPage(0);
+  }, [descricao, familiaProdutosSelected, fornecedorSelected]);
+
+  //Paginação client-side (dados mockados já vêm completos)
+  const pagedRows = useMemo(
+    () => filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [filteredRows, page, rowsPerPage]
+  );
 
   //Funções utilitarias para os botões da página
   const exportToExcel = () => {
@@ -280,7 +266,7 @@ export default function CatalogoDeProdutos() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredRows.map((row, index) => (
+                  {pagedRows.map((row, index) => (
                     <TableRow
                       hover
                       key={index}
@@ -308,7 +294,7 @@ export default function CatalogoDeProdutos() {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={rowCount}
+            count={filteredRows.length}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage={'Resultados por página'}
             labelDisplayedRows={({ from, to, count }) => {

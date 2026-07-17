@@ -1,0 +1,55 @@
+.inputContainers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+
+.cardButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  font-size: var(--fs-md);
+}
+
+.loading span {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+.badgeOk {
+  color: var(--success, #10b981);
+  font-weight: var(--w-bold);
+}
+
+.badgeWarning {
+  color: var(--warning, #d97706);
+  font-weight: var(--w-bold);
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}

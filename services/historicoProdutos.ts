@@ -1,6 +1,6 @@
-import { apiFetch } from '@/lib/api/fetchHelper';
 import { ProdutoProps } from '@/app/(protected)/orcamento/historico-produtos/types';
 import { PaginatedResponse } from './types';
+import produtosData from '@/app/(protected)/orcamento/_data/produtos.json';
 
 interface GetProdutosParams {
   page?: number;
@@ -14,12 +14,16 @@ interface ProdutosResponse extends PaginatedResponse {
   catalogo_de_produtos: ProdutoProps[];
 }
 
-export async function getProdutos(params: GetProdutosParams = {}) {
-  const query = new URLSearchParams();
-  if (params.page) query.set('page', String(params.page));
-  if (params.limit) query.set('limit', String(params.limit));
-  if (params.fornecedor) query.set('fornecedor', String(params.fornecedor));
-  if (params.familia) query.set('familia', String(params.familia));
-  if (params.descricao) query.set('descricao', String(params.descricao));
-  return apiFetch<ProdutosResponse>(`/api/historicoProdutos?${query}`, 'Erro ao buscar produtos');
+const produtos = produtosData as ProdutoProps[];
+
+// Dados mockados (amostra extraída do app legado do setor de orçamento) — sem
+// requisição real até existir uma API própria do módulo de compras.
+export async function getProdutos(params: GetProdutosParams = {}): Promise<ProdutosResponse> {
+  return {
+    catalogo_de_produtos: produtos,
+    total: produtos.length,
+    page: params.page ?? 1,
+    limit: params.limit ?? produtos.length,
+    totalPages: 1,
+  };
 }

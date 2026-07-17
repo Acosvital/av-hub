@@ -1,8 +1,14 @@
-import { apiFetch } from '@/lib/api/fetchHelper';
+import { ParceirosProps } from '@/app/(protected)/orcamento/fornecedores/types';
+import fornecedoresData from '@/app/(protected)/orcamento/_data/fornecedores.json';
 
-export async function getTodosFornecedores(nome: string = '') {
-  return apiFetch(
-    `/api/parceiros/todosFornecedores?nome_fantasia=${nome}`,
-    'Erro ao buscar todos os fornecedores'
-  );
+interface TodosFornecedoresResponse {
+  fornecedores: ParceirosProps[];
+  total: number;
+}
+
+const fornecedores = fornecedoresData as ParceirosProps[];
+
+// Dados mockados — sem requisição real até existir uma API própria do módulo de compras.
+export async function getTodosFornecedores(): Promise<TodosFornecedoresResponse> {
+  return { fornecedores, total: fornecedores.length };
 }
