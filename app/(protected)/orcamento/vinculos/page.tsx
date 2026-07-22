@@ -160,7 +160,7 @@ export default function Vinculos() {
               <span>Carregando...</span>
             </div>
           ) : (
-            <TableContainer sx={{ maxHeight: 380, overflowX: 'auto' }}>
+            <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
@@ -194,6 +194,7 @@ export default function Vinculos() {
             </TableContainer>
           )}
           <TablePagination
+            sx={{ flexShrink: 0 }}
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
             count={filteredRows.length}

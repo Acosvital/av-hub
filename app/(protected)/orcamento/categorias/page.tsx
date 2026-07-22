@@ -89,9 +89,7 @@ export default function Categorias() {
                   <div className={styles.meta}>
                     <span>{comCadastro.length} com cadastro</span>
                     {semCadastro.length > 0 && (
-                      <span className={styles.metaWarning}>
-                        {semCadastro.length} sem cadastro
-                      </span>
+                      <span className={styles.metaWarning}>{semCadastro.length} sem cadastro</span>
                     )}
                   </div>
                   <div className={styles.chips}>
