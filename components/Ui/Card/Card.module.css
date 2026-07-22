@@ -9,11 +9,13 @@
 }
 
 .fit {
+  flex: 0 0 auto;
   height: fit-content;
 }
 
 .full {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .cardTitle {
@@ -34,8 +36,9 @@
 
 .contentContainer {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  flex-wrap: wrap;
   gap: var(--space-4);
   padding: var(--space-4) 0;
+  min-height: 0;
 }

@@ -238,7 +238,7 @@ export default function Telas() {
     <>
       <PageHeader title="Telas" subtitle="Gerencie as telas do sistema para montagem dos menus" />
       <PageContent>
-        <Card title="Filtros">
+        <Card title="Filtros" height="fit">
           <div className={styles.inputContainers}>
             <TextField
               sx={{ flex: 1, minWidth: 300 }}
@@ -277,7 +277,7 @@ export default function Telas() {
               <span>Carregando...</span>
             </div>
           ) : (
-            <TableContainer sx={{ maxHeight: 420, overflowX: 'auto' }}>
+            <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
@@ -314,6 +314,7 @@ export default function Telas() {
             </TableContainer>
           )}
           <TablePagination
+            sx={{ flexShrink: 0 }}
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
             count={rowCount}

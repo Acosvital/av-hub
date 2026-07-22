@@ -21,7 +21,7 @@ export default function Card({
   create,
   height = 'full',
 }: CardProps) {
-  const cardHeight = height === 'fit' ? styles.fit : styles.full;
+  const cardHeight = styles[height];
   return (
     <div className={clsx(styles.card, cardHeight, className)}>
       <div className={styles.titleContainer}>

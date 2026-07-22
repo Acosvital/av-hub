@@ -28,8 +28,11 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  flex: 1;
+  min-height: 0;
+  /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
   gap: var(--space-4);
+  overflow-y: auto;
 }
 
 .card {
@@ -37,6 +40,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
+  background-color: var(--card-bg-secondary);
 }
 
 .cardTitle {
