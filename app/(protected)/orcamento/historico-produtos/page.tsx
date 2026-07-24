@@ -52,7 +52,7 @@ export default function CatalogoDeProdutos() {
   const [priceHistory, setPriceHistory] = useState<PriceProps[]>([]);
   //States de paginação
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   //Input Descrição
   const [descricaoInput, setDescricaoInput] = useState('');
   const descricao = useDebounce(descricaoInput, 500);
@@ -293,7 +293,7 @@ export default function CatalogoDeProdutos() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}

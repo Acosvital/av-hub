@@ -65,7 +65,7 @@ export default function Parceiros() {
   const [rows, setRows] = useState<ParceiroProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [nomeInput, setNomeInput] = useState('');
   const [cpfCnpjInput, setCpfCnpjInput] = useState('');
@@ -290,7 +290,7 @@ export default function Parceiros() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}

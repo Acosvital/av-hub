@@ -34,11 +34,15 @@ import { usePermission } from '@/hooks/usePermission';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 
-const situacaoColor: Record<string, 'success' | 'error' | 'warning' | 'default'> = {
-  faturado: 'success',
-  cancelado: 'error',
-  encerrado: 'default',
-  devolvido: 'warning',
+const situacaoColor: Record<
+  string,
+  'var(--green)' | 'var(--red)' | 'var(--orange)' | 'var(--blue)' | 'var(--gray)'
+> = {
+  faturado: 'var(--green)',
+  cancelado: 'var(--red)',
+  encerrado: 'var(--blue)',
+  devolvido: 'var(--orange)',
+  pendente: 'var(--gray)',
 };
 
 export default function PedidosVenda() {
@@ -52,7 +56,7 @@ export default function PedidosVenda() {
   const [rows, setRows] = useState<PedidoVendaProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [vendedores, setVendedores] = useState<VendedorProps[]>([]);
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
@@ -236,12 +240,13 @@ export default function PedidosVenda() {
                       <TableCell>{toBRL(row.valor_total_pedido)}</TableCell>
                       <TableCell>
                         <Chip
-                          label={row.situacao ?? '—'}
-                          color={
-                            row.situacao
+                          sx={{
+                            backgroundColor: row.situacao
                               ? (situacaoColor[row.situacao.toLowerCase()] ?? 'default')
-                              : 'default'
-                          }
+                              : 'default',
+                            color: 'var(--white)',
+                          }}
+                          label={row.situacao ?? '—'}
                           size="small"
                         />
                       </TableCell>
@@ -253,7 +258,7 @@ export default function PedidosVenda() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}

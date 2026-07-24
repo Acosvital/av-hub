@@ -54,7 +54,7 @@ export default function Usuarios() {
   const [rows, setRows] = useState<UsuarioProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [usernameInput, setUsernameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
@@ -281,7 +281,7 @@ export default function Usuarios() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}

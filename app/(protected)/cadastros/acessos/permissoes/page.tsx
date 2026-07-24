@@ -35,7 +35,7 @@ export default function Permissoes() {
   const [permissoesPorPerfil, setPermissoesPorPerfil] = useState<Record<string, number>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [filtroNome, setFiltroNome] = useState('');
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedPerfil, setSelectedPerfil] = useState<PerfilRef | null>(null);
@@ -185,7 +185,7 @@ export default function Permissoes() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={perfisFiltrados.length}
             rowsPerPage={rowsPerPage}

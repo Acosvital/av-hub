@@ -64,7 +64,7 @@ export default function Produtos() {
   const [rows, setRows] = useState<ProdutoCadastroProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [familias, setFamilias] = useState<FamiliaProdutosProps[]>([]);
 
@@ -347,7 +347,7 @@ export default function Produtos() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}

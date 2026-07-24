@@ -55,7 +55,7 @@ export function useCrudResource<TRow, TForm, TFilters extends object>({
   const [rows, setRows] = useState<TRow[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [form, setForm] = useState<TForm>(initialForm);
 

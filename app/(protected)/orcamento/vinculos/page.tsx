@@ -38,7 +38,7 @@ export default function Vinculos() {
   const [rows, setRows] = useState<VinculoProps[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [statusSelecionado, setStatusSelecionado] = useState<StatusFiltro>('');
@@ -164,11 +164,17 @@ export default function Vinculos() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    {['Categoria', 'Fornecedor', 'Razão Social', 'CNPJ', 'Situação', 'Cidade', 'Status'].map(
-                      (label) => (
-                        <TableCell key={label}>{label}</TableCell>
-                      )
-                    )}
+                    {[
+                      'Categoria',
+                      'Fornecedor',
+                      'Razão Social',
+                      'CNPJ',
+                      'Situação',
+                      'Cidade',
+                      'Status',
+                    ].map((label) => (
+                      <TableCell key={label}>{label}</TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -195,7 +201,7 @@ export default function Vinculos() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}

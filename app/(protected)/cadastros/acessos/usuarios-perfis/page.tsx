@@ -48,7 +48,7 @@ export default function UsuariosPerfis() {
   const [rows, setRows] = useState<UsuarioPerfilProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [allUsuarios, setAllUsuarios] = useState<UsuarioProps[]>([]);
   const [allPerfis, setAllPerfis] = useState<PerfilProps[]>([]);
@@ -268,7 +268,7 @@ export default function UsuariosPerfis() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
