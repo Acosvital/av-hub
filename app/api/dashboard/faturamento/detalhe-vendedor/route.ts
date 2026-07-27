@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const params = new URLSearchParams();
     [
       'cod_vendedor',
+      'codigo_empresa',
       'mes',
       'ano',
       'numero_pedido',

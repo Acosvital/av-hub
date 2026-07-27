@@ -108,7 +108,7 @@ interface DetalheVendedorVendasResponse {
   page: number;
   limit: number;
   total_pages: number;
-  pedidos: DetalheVendedorVendasPedidoProps[];
+  detalhes: DetalheVendedorVendasPedidoProps[];
 }
 
 export async function getDetalheVendedorVendas(params: GetDetalheVendedorVendasParams) {

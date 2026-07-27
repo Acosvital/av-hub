@@ -15,6 +15,7 @@ interface VendorDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   vendorId: number | null;
+  filialId: string | null;
   dashboard: 'vendas' | 'faturamento';
   mes: number;
   ano: number;
@@ -51,6 +52,7 @@ interface VendorDetails {
 interface ResumoVendedor {
   vendedor: string | null;
   total_pedidos: string | null;
+  total_nfs: string | null;
   valor_total: string | null;
   qtd_spot: string | null;
   valor_spot: string | null;
@@ -72,8 +74,10 @@ interface PedidoVendedor {
   numero_nf: string | null;
   numero_pedido: string | null;
   nome_cliente: string | null;
-  data_pedido: string;
+  data_pedido: string | null;
+  data_emissao: string | null;
   valor_pedido: string | null;
+  valor_nf: string | null;
   tipo_contrato: string;
   classificacao: string;
 }
@@ -89,7 +93,7 @@ function resolveCategory(tipoContrato: string): OrderCategory {
 }
 
 function resolveStatus(situacao: string): OrderStatus | undefined {
-  const normalized = situacao?.trim().toUpperCase();
+  const normalized = situacao.split(' ')[0]?.trim().toUpperCase();
   return (ORDER_STATUSES as string[]).includes(normalized)
     ? (normalized as OrderStatus)
     : undefined;
@@ -98,12 +102,15 @@ function resolveStatus(situacao: string): OrderStatus | undefined {
 function mapVendorDetails(
   dashboard: 'vendas' | 'faturamento',
   vendedor: ResumoVendedor,
-  pedidos: PedidoVendedor[]
+  detalhes: PedidoVendedor[]
 ): VendorDetails {
   return {
     name: vendedor.vendedor ?? '—',
     totalValue: Number(vendedor.valor_total) || 0,
-    totalOrders: Number(vendedor.total_pedidos) || 0,
+    totalOrders:
+      dashboard === 'vendas'
+        ? Number(vendedor.total_pedidos) || 0
+        : Number(vendedor.total_nfs) || 0,
     orderTypes: [
       {
         orderType: 'SPOT',
@@ -142,14 +149,20 @@ function mapVendorDetails(
         value: Number(vendedor.valor_refaturamento) || 0,
       },
     ],
-    orders: pedidos.map((pedido) => ({
-      id: dashboard === 'vendas' ? Number(pedido.numero_pedido) : Number(pedido.numero_nf) || 0,
-      date: dayjs(pedido.data_pedido).format('DD/MM/YYYY'),
-      partner: pedido.nome_cliente ?? '—',
-      value: Number(pedido.valor_pedido) || 0,
-      category: resolveCategory(pedido.tipo_contrato),
-      status: resolveStatus(pedido.classificacao),
-    })),
+    orders: detalhes.map((pedido) => {
+      return {
+        id: dashboard === 'vendas' ? Number(pedido.numero_pedido) : Number(pedido.numero_nf) || 0,
+        date:
+          dashboard === 'vendas'
+            ? dayjs(pedido.data_pedido).format('DD/MM/YYYY')
+            : dayjs(pedido.data_emissao).format('DD/MM/YYYY'),
+        partner: pedido.nome_cliente ?? '—',
+        value:
+          dashboard === 'vendas' ? Number(pedido.valor_pedido) || 0 : Number(pedido.valor_nf) || 0,
+        category: resolveCategory(pedido.tipo_contrato),
+        status: dashboard === 'faturamento' ? resolveStatus(pedido.classificacao) : '',
+      };
+    }),
   };
 }
 
@@ -157,6 +170,7 @@ const VendorDetailsModal = ({
   isOpen,
   onClose,
   vendorId,
+  filialId,
   dashboard,
   mes,
   ano,
@@ -185,8 +199,13 @@ const VendorDetailsModal = ({
         setLoading(true);
         const getDetalheVendedor =
           dashboard === 'vendas' ? getDetalheVendedorVendas : getDetalheVendedorFaturamento;
-        const res = await getDetalheVendedor({ cod_vendedor: String(vendorId), mes, ano });
-        setDetails(mapVendorDetails(dashboard, res.vendedor, res.pedidos));
+        const res = await getDetalheVendedor({
+          codigo_empresa: filialId ?? '',
+          cod_vendedor: String(vendorId),
+          mes,
+          ano,
+        });
+        setDetails(mapVendorDetails(dashboard, res.vendedor, res.detalhes));
       } catch (err) {
         console.error(err);
       } finally {
@@ -194,7 +213,7 @@ const VendorDetailsModal = ({
       }
     }
     loadVendorDetails();
-  }, [isOpen, vendorId, dashboard, mes, ano]);
+  }, [isOpen, vendorId, filialId, dashboard, mes, ano]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do vendedor">
