@@ -34,7 +34,7 @@ export default function CatalogoDeFornecedores() {
   const [vinculos, setVinculos] = useState<VinculoProps[]>([]);
   //States de paginação
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   //Input Nome do Fornecedor
   const [nomeInput, setNomeInput] = useState('');
   const nome = useDebounce(nomeInput, 500);
@@ -191,7 +191,7 @@ export default function CatalogoDeFornecedores() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}
@@ -233,9 +233,7 @@ export default function CatalogoDeFornecedores() {
                 <dt className={styles.definitionTerm}>E-mail:</dt>
                 <dd className={styles.definitionDescription}>{rowData.email || '—'}</dd>
                 <dt className={styles.definitionTerm}>Endereço:</dt>
-                <dd className={styles.definitionDescription}>
-                  {rowData.logradouro || '—'}
-                </dd>
+                <dd className={styles.definitionDescription}>{rowData.logradouro || '—'}</dd>
               </dl>
             </div>
             {rowData.observacao && (

@@ -64,7 +64,7 @@ export default function Vendedores() {
   const [rows, setRows] = useState<VendedorCadastroProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [usuarios, setUsuarios] = useState<UsuarioProps[]>([]);
 
@@ -324,7 +324,7 @@ export default function Vendedores() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}

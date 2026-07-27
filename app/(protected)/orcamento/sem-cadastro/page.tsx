@@ -33,7 +33,7 @@ export default function SemCadastro() {
   const [rows, setRows] = useState<VinculoProps[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [buscaInput, setBuscaInput] = useState('');
@@ -155,7 +155,7 @@ export default function SemCadastro() {
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
-            rowsPerPageOptions={[10, 25, 100]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}

@@ -13,6 +13,7 @@ import { getVinculos } from '@/services/vinculosOrcamento';
 import { VinculoProps } from '../vinculos/types';
 import { CategoriaResumoProps } from './types';
 import normalizeText from '@/utils/normalizeText';
+import Button from '@/components/Ui/Button/Button';
 
 export default function Categorias() {
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,10 @@ export default function Categorias() {
       });
   }, [categorias, vinculos, busca]);
 
+  const limparFiltros = () => {
+    setBuscaInput('');
+  };
+
   return (
     <>
       <PageHeader
@@ -73,6 +78,11 @@ export default function Categorias() {
               value={buscaInput}
               onChange={(e) => setBuscaInput(e.target.value)}
             />
+          </div>
+          <div className={styles.cardButtons}>
+            <Button variant="secondary" onClick={limparFiltros}>
+              Limpar Filtros
+            </Button>
           </div>
         </Card>
         <Card title="Categorias">

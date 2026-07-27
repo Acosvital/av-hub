@@ -5,6 +5,11 @@
   margin: var(--space-4) 0;
 }
 
+.cardButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .loading {
   display: flex;
   flex-direction: column;
@@ -30,7 +35,7 @@
   display: grid;
   flex: 1;
   min-height: 0;
-  /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-4);
   overflow-y: auto;
 }
@@ -78,7 +83,7 @@
 }
 
 .chipWarning {
-  background: transparent;
-  border: 1px solid var(--warning, #f59e0b);
-  color: var(--warning, #f59e0b);
+  background: var(--card-bg);
+  border: 1px solid var(--white, #f59e0b);
+  color: var(--white, #f59e0b);
 }
