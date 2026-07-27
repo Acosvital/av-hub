@@ -1,0 +1,86 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  height: 100%;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.title {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--foreground-secondary);
+  align-self: flex-start;
+}
+
+.chartWrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.centerLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.centerTitle {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-secondary);
+}
+
+.centerValue {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  font-weight: var(--w-semibold);
+  letter-spacing: 0.03em;
+}

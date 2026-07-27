@@ -1,0 +1,86 @@
+.modalContainer {
+  position: fixed;
+  inset: 0 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  background-color: rgba(0, 0, 0, 0.8);
+  animation: fadeIn var(--t-fast);
+}
+
+.hidden {
+  display: none;
+}
+
+.modalCard {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-radius: var(--radius-md);
+  width: fit-content;
+  height: fit-content;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: scaleIn var(--t-fast);
+  overflow: auto;
+}
+
+:global(.dark) :local(.modalCard) {
+  border: 1px solid var(--border);
+}
+.backgroundSecondary {
+  background-color: var(--card-bg-secondary);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.modalHeader > svg {
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.modalTitle {
+  font-size: var(--fs-xl);
+  color: var(--card-title);
+  font-weight: var(--w-bold);
+}
+
+.modalSubTitle {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

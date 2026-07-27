@@ -1,18 +1,25 @@
 .widget {
-    height: 100%;
-    min-width: 0;
-    grid-column: span var(--cols);
-    grid-row: span var(--rows);
+  height: 100%;
+  min-width: 0;
+  grid-column: span var(--cols);
+  grid-row: span var(--rows);
 }
 
 @media (max-width: 1024px) {
-    .widget {
-        grid-column: span var(--tablet-cols);
-    }
+  .widget {
+    grid-column: span var(--tablet-cols);
+  }
 }
 
 @media (max-width: 768px) {
-    .widget {
-        grid-column: span var(--mobile-cols);
-    }
+  .widget {
+    grid-column: span var(--mobile-cols);
+    grid-row: auto;
+    height: auto;
+    order: var(--mobile-order, 0);
+  }
+
+  .hideOnMobile {
+    display: none;
+  }
 }

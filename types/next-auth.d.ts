@@ -1,20 +1,22 @@
-import NextAuth from "next-auth";
-import { JWT } from "next-auth/jwt";
+import type { MenuItem } from '@/components/Layout/AppLayout/Menu/MenuItem/MenuItem';
 
-//adição de propriedades complementares ao Session e ao JWT no next-auth
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
+      id_usuario: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      role?: "admin" | "user" | "vendedor";
+      authProvider: 'azure' | 'credentials';
+      menu: MenuItem[];
     };
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
-    role?: "admin" | "user" | "vendedor";
+    id_usuario?: string;
+    authProvider?: 'azure' | 'credentials';
+    menu?: MenuItem[];
   }
 }

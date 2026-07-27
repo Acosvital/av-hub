@@ -1,0 +1,44 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4) var(--space-5);
+}
+
+.fit {
+  flex: 0 0 auto;
+  height: fit-content;
+}
+
+.full {
+  flex: 1;
+  min-height: 0;
+}
+
+.cardTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  color: var(--card-title);
+}
+
+:global(.dark) :local(.card) {
+  border: 1px solid var(--border);
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contentContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  min-height: 0;
+}

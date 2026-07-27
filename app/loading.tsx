@@ -1,3 +1,10 @@
+import { CircularProgress } from '@mui/material';
+
 export default function Loading() {
-    return <p>Loading Page...</p>
+  return (
+    <div>
+      <CircularProgress size={50} />
+      <span>Carregando...</span>
+    </div>
+  );
 }

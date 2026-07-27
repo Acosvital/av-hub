@@ -1,4 +1,4 @@
-import { withAuth } from "next-auth/middleware";
+import { withAuth } from 'next-auth/middleware';
 
 export default withAuth(
   // Caso bloquear acesso através das rotas:
@@ -16,15 +16,14 @@ export default withAuth(
       authorized: ({ token }) => !!token,
     },
     pages: {
-      signIn: "/login",
-    }
-  },
+      signIn: '/login',
+    },
+  }
 );
 
 //rotas que serão bloqueadas sem autenticação
 export const config = {
   matcher: [
-    "/",
-    "/orcamento/:path*"
+    '/((?!login|api/auth|_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?|ttf|otf)$).*)',
   ],
 };

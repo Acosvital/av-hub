@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = request.nextUrl;
+    const params = new URLSearchParams();
+    ['page', 'limit', 'id_usuario', 'id_perfil'].forEach((key) => {
+      const value = searchParams.get(key);
+      if (value !== null) params.set(key, value);
+    });
+    const data = await apiFetch(
+      `${process.env.API_URL}/usuarios_perfis?${params}`,
+      'Erro ao buscar vínculos de usuário e perfil',
+      { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
+    );
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const denied = await requirePermission('usuarios-perfis', 'pode_criar');
+  if (denied) return denied;
+  try {
+    const body = await request.json();
+    const data = await apiFetch(`${process.env.API_URL}/usuarios_perfis`, 'Erro ao criar vínculo', {
+      method: 'POST',
+      headers: { 'x-api-key': process.env.API_KEY!, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}

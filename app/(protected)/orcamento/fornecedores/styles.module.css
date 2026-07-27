@@ -1,0 +1,98 @@
+.cardTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  color: var(--card-title);
+}
+
+.inputContainers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+
+.cardButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cardHeaderActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  font-size: var(--fs-md);
+}
+
+.loading span {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+/*****************MODAL*********************/
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.definitionListContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.definitionList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+}
+
+.definitionTerm {
+  color: var(--foreground);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+}
+
+.definitionDescription {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  background: var(--av-accent);
+  color: var(--white, #fff);
+  border-radius: 20px;
+  padding: 2px 12px;
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+}

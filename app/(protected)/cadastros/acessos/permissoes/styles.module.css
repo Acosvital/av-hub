@@ -1,0 +1,174 @@
+.inputContainers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.cardButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.loading span {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+/***************** BULK MODAL ******************/
+
+.bulkFormModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 880px;
+  max-width: 100%;
+}
+
+.perfilRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitleRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.configuredBadge {
+  font-size: var(--fs-xs);
+  color: var(--av-accent);
+  font-weight: var(--w-semibold);
+}
+
+.telaTree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: var(--space-1);
+}
+
+.telaTree .telaLeafRow:first-child {
+  border-top: 1px solid var(--border-strong);
+}
+.telaTree .telaLeafRow:last-child {
+  border: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.telaLeafRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  gap: var(--space-4);
+  min-height: 44px;
+}
+
+.telaLeafName {
+  font-size: var(--fs-sm);
+  color: var(--foreground);
+  flex: 1;
+  min-width: 0;
+}
+
+.accordionName {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+}
+
+.telaPermSwitches {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.emptyTree {
+  color: var(--foreground-secondary);
+  text-align: center;
+  padding: var(--space-6);
+  font-size: var(--fs-sm);
+}
+
+/***************** MODAL FORM ******************/
+
+.formModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 700px;
+  max-width: 100%;
+}
+
+.sectionTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: var(--space-2) 0 0;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
+  border-top: 1px solid var(--border);
+}
+
+.formActionsWithDelete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
+  border-top: 1px solid var(--border);
+}
+
+.formActionsMain {
+  display: flex;
+  gap: var(--space-3);
+}

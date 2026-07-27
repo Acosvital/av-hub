@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+}
+
+.gold {
+  background-color: var(--gold);
+  box-shadow: 0 0 10px 1px var(--gold);
+  color: var(--av-primary);
+}
+
+.silver {
+  background-color: var(--silver);
+  box-shadow: 0 0 10px 1px var(--silver);
+  color: var(--av-primary);
+}
+
+.bronze {
+  background-color: var(--bronze);
+  box-shadow: 0 0 10px 1px var(--bronze);
+  color: var(--av-primary);
+}
+
+.default {
+  background-color: var(--default);
+  color: var(--neutral-0);
+}

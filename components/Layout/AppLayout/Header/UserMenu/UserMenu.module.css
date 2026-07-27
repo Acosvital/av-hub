@@ -1,0 +1,84 @@
+.avatarContainer {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.configMenu {
+  position: absolute;
+  top: 125%;
+  right: 0;
+  width: 230px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2) 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+
+.userInfo {
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.userName {
+  color: var(--foreground);
+  font-weight: var(--w-bold);
+}
+
+.userEmail {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-2);
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  height: 36px;
+  font-size: var(--fs-md);
+  color: var(--foreground);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--t-fast);
+  width: 100%;
+}
+
+.menuButton:hover {
+  background-color: var(--surface-hover, var(--border));
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  height: 36px;
+  font-size: var(--fs-md);
+  color: var(--danger);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--t-fast);
+}
+
+.logoutButton:hover {
+  background-color: var(--danger-soft);
+  color: var(--danger-hover);
+}

@@ -1,0 +1,62 @@
+.order {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  max-height: 180px;
+  height: fit-content;
+  width: 280px;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  padding: var(--space-2);
+}
+
+.orderPartner {
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-2);
+}
+
+.orderPartner > span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-xs);
+}
+
+.orderPartner > h4 {
+  font-size: var(--fs-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderValues {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: var(--space-2);
+}
+
+.orderTotal {
+  font-size: var(--fs-xs);
+}
+
+.orderStatus {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--fs-sm);
+}
+
+.statusPill {
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-1);
+}

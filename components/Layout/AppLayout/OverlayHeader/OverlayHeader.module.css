@@ -1,0 +1,140 @@
+.header {
+  background-color: var(--header-bg);
+  height: var(--header-h);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  padding: var(--space-4);
+  z-index: 100;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+:global(.dark) :local(.header) {
+  box-shadow:
+    0 1px 0 var(--navy-600),
+    0 4px 18px rgba(0, 0, 0, 0.55);
+  border-bottom-color: var(--navy-600);
+}
+
+.overlayHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.title {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background-color var(--t-base),
+    color var(--t-base),
+    border-color var(--t-base);
+}
+
+.actionButton:hover {
+  background-color: var(--surface-secondary);
+}
+
+.actionButton svg {
+  font-size: var(--fs-lg);
+}
+
+.active {
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+}
+.active:hover {
+  color: var(--foreground);
+}
+
+.buttonsContainer {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.datePickerContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.datePickerMenu {
+  position: absolute;
+  top: 125%;
+  right: 0;
+  z-index: 50;
+}
+
+.datePickerCard {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-4);
+  color: var(--foreground);
+  background-color: var(--header-bg);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.historic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-weight: var(--w-semi-bold);
+  font-size: var(--fs-md);
+}
+
+.mobileMenuButton {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .mobileMenuButton {
+    display: flex;
+  }
+  .title {
+    display: none;
+  }
+  .datePickerMenu {
+    position: absolute;
+    top: 125%;
+    right: -150;
+    z-index: 50;
+  }
+}
