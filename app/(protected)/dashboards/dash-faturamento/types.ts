@@ -3,6 +3,7 @@ export interface SellerRankingProps {
   ano: number;
   posicao: string;
   cod_vendedor: string;
+  codigo_empresa: string;
   vendedor: string;
   faturamento: string;
   qtd_pedidos: string;
@@ -61,6 +62,7 @@ export interface DetalheVendedorFaturamentoResumoProps {
   cod_vendedor: string;
   vendedor: string | null;
   total_pedidos: string | null;
+  total_nfs: string | null;
   valor_total: string | null;
   qtd_spot: string | null;
   valor_spot: string | null;
@@ -86,8 +88,10 @@ export interface DetalheVendedorFaturamentoPedidoProps {
   numero_pedido: string | null;
   numero_nf: string | null;
   nome_cliente: string | null;
-  data_pedido: string;
+  data_pedido: string | null;
+  data_emissao: string | null;
   valor_pedido: string | null;
+  valor_nf: string | null;
   tipo_contrato: string;
   classificacao: string;
   situacao: string;

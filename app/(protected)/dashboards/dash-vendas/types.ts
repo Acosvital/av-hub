@@ -44,6 +44,7 @@ export interface DetalheVendedorVendasResumoProps {
   cod_vendedor: string;
   vendedor: string;
   total_pedidos: string;
+  total_nfs: string;
   valor_total: string;
   qtd_spot: string;
   valor_spot: string | null;
@@ -69,8 +70,10 @@ export interface DetalheVendedorVendasPedidoProps {
   numero_pedido: string;
   numero_nf: string | null;
   nome_cliente: string;
-  data_pedido: string;
-  valor_pedido: string;
+  data_pedido: string | null;
+  data_emissao: string | null;
+  valor_pedido: string | null;
+  valor_nf: string | null;
   tipo_contrato: string;
   classificacao: string;
   situacao: string;
