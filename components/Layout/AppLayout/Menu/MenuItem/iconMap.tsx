@@ -1,6 +1,6 @@
 import { BiSolidDashboard } from 'react-icons/bi';
 import { BsFillBoxFill } from 'react-icons/bs';
-import { FaCog, FaDatabase, FaMoneyBill } from 'react-icons/fa';
+import { FaCog, FaDatabase, FaMoneyBill, FaUsers } from 'react-icons/fa';
 import { MdHomeRepairService } from 'react-icons/md';
 import { SiCivicrm } from 'react-icons/si';
 import { TbPigMoney } from 'react-icons/tb';
@@ -19,6 +19,7 @@ const iconMap = {
   cadastros: <FaDatabase style={style} />,
   admin: <FaCog style={style} />,
   pcp: <FaCog style={style} />,
+  rh: <FaUsers style={style} />,
 };
 
 export default iconMap;
