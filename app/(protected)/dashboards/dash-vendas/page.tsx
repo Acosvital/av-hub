@@ -222,6 +222,7 @@ const Vendas = () => {
       </DashboardGrid>
       <VendorDetailsModal
         isOpen={selectedVendorId !== null}
+        filialId="" //Ajustar Endpoint e colocar id real
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
         dashboard="vendas"

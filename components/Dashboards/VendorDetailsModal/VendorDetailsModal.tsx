@@ -160,7 +160,7 @@ function mapVendorDetails(
         value:
           dashboard === 'vendas' ? Number(pedido.valor_pedido) || 0 : Number(pedido.valor_nf) || 0,
         category: resolveCategory(pedido.tipo_contrato),
-        status: dashboard === 'faturamento' ? resolveStatus(pedido.classificacao) : '',
+        status: dashboard === 'faturamento' ? resolveStatus(pedido.classificacao) : undefined,
       };
     }),
   };
