@@ -1,20 +1,5 @@
 [
   {
-    "id": "1",
-    "data_solicitacao": "2026-07-20",
-    "solicitante": "Nathan Almeida",
-    "setor": "TI",
-    "cargo": "Designer UI/UX",
-    "observacao_motivo": "Pessoa destinada para criar telas do sistema de RH",
-    "quantidade": 1,
-    "tipo_vaga": "CLT",
-    "salario": 4500,
-    "obs": "Vaga com possibilidade de home office híbrido",
-    "insalubridade": 0,
-    "vr": 660,
-    "situacao": "Em Análise"
-  },
-  {
     "id": "2",
     "data_solicitacao": "2026-07-15",
     "solicitante": "Marina Souza",

@@ -38,13 +38,16 @@ import {
 import {
   FormSolicitacaoVaga,
   SITUACOES_VAGA,
+  SetoresProps,
   SituacaoVaga,
   SolicitacaoVagaProps,
   TIPOS_VAGA,
 } from './types';
 import normalizeText from '@/utils/normalizeText';
+import { getSetores } from '@/services/referenciais';
 
 const FORM_INICIAL: FormSolicitacaoVaga = {
+  data_solicitacao: new Date().toISOString().slice(0, 10),
   solicitante: '',
   setor: '',
   cargo: '',
@@ -58,9 +61,8 @@ const FORM_INICIAL: FormSolicitacaoVaga = {
   situacao: 'Pendente',
 };
 
-const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'info' | 'success' | 'error' | 'default'> = {
+const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error' | 'default'> = {
   Pendente: 'warning',
-  'Em Análise': 'info',
   Aprovada: 'success',
   Reprovada: 'error',
   Cancelada: 'default',
@@ -92,16 +94,33 @@ const SolicitacoesDeVagas = () => {
   const cargo = useDebounce(cargoInput, 500);
   const [solicitanteInput, setSolicitanteInput] = useState('');
   const solicitante = useDebounce(solicitanteInput, 500);
+
+  const [setores, setSetores] = useState<SetoresProps[]>([]);
   const [setorInput, setSetorInput] = useState('');
+
   const setor = useDebounce(setorInput, 500);
   const [situacaoFiltro, setSituacaoFiltro] = useState<SituacaoVaga | 'todos'>('todos');
 
   const [form, setForm] = useState<FormSolicitacaoVaga>(FORM_INICIAL);
-  const [dataSolicitacao, setDataSolicitacao] = useState<string | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
+
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const data = await getSetores();
+        setSetores(data?.setores ?? []);
+        console.log(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+      }
+    };
+
+    loadFilters();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -153,13 +172,13 @@ const SolicitacoesDeVagas = () => {
   const abrirCriacaoModal = () => {
     setEditingId(null);
     setForm(FORM_INICIAL);
-    setDataSolicitacao(null);
     setIsModalOpen(true);
   };
 
   const abrirEdicaoModal = (solicitacao: SolicitacaoVagaProps) => {
     setEditingId(solicitacao.id);
     setForm({
+      data_solicitacao: solicitacao.data_solicitacao,
       solicitante: solicitacao.solicitante,
       setor: solicitacao.setor,
       cargo: solicitacao.cargo,
@@ -172,7 +191,6 @@ const SolicitacoesDeVagas = () => {
       vr: solicitacao.vr,
       situacao: solicitacao.situacao,
     });
-    setDataSolicitacao(solicitacao.data_solicitacao);
     setIsModalOpen(true);
   };
 
@@ -229,7 +247,8 @@ const SolicitacoesDeVagas = () => {
 
   const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
     onConfirm: excluirSolicitacao,
-    message: 'Tem certeza que deseja excluir a solicitação de vaga? Esta ação não pode ser desfeita.',
+    message:
+      'Tem certeza que deseja excluir a solicitação de vaga? Esta ação não pode ser desfeita.',
     title: 'Excluir Solicitação',
   });
 
@@ -255,13 +274,24 @@ const SolicitacoesDeVagas = () => {
               value={solicitanteInput}
               onChange={(e) => setSolicitanteInput(e.target.value)}
             />
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="Setor"
-              variant="outlined"
-              value={setorInput}
-              onChange={(e) => setSetorInput(e.target.value)}
-            />
+            <FormControl sx={{ minWidth: 220 }}>
+              <InputLabel>Setor</InputLabel>
+              <Select
+                value={setorInput}
+                label="Setor"
+                onChange={(e) => {
+                  setSetorInput(e.target.value);
+                  setPage(0);
+                }}
+              >
+                <MenuItem value="">Todas</MenuItem>
+                {setores.map((f) => (
+                  <MenuItem key={f.codigo_setor} value={f.id}>
+                    {f.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <FormControl sx={{ flex: 1, minWidth: 220 }}>
               <InputLabel>Situação</InputLabel>
               <Select
@@ -337,7 +367,20 @@ const SolicitacoesDeVagas = () => {
                         {toBRL(row.quantidade * (row.salario + row.insalubridade + row.vr))}
                       </TableCell>
                       <TableCell>
-                        <Chip label={row.situacao} color={SITUACAO_COR[row.situacao]} size="small" />
+                        <Chip
+                          label={row.situacao}
+                          color={SITUACAO_COR[row.situacao]}
+                          sx={
+                            SITUACAO_COR[row.situacao] === 'default'
+                              ? {
+                                  backgroundColor: 'var(--gray)',
+                                  border: '1px solid var(--border)',
+                                  color: 'var(--white)',
+                                }
+                              : {}
+                          }
+                          size="small"
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -372,12 +415,15 @@ const SolicitacoesDeVagas = () => {
           <p className={styles.sectionTitle}>Dados da Solicitação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <div className={styles.infoBox} style={{ flex: 1, minWidth: 200 }}>
-              <span className={styles.infoLabel}>Data da Solicitação</span>
-              <span className={styles.infoValue}>
-                {dataSolicitacao ? dateFormatter(dataSolicitacao) : 'Definida ao salvar'}
-              </span>
-            </div>
+            <TextField
+              sx={{ flex: 1, minWidth: 200 }}
+              label="Data da Solicitação"
+              type="date"
+              required
+              value={form.data_solicitacao}
+              onChange={(e) => setField('data_solicitacao', e.target.value)}
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
             <TextField
               sx={{ flex: 1, minWidth: 240 }}
               label="Solicitante"
@@ -416,7 +462,9 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.tipo_vaga}
                 label="Tipo de Vaga"
-                onChange={(e) => setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])}
+                onChange={(e) =>
+                  setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])
+                }
               >
                 {TIPOS_VAGA.map((tipo) => (
                   <MenuItem key={tipo} value={tipo}>
@@ -479,25 +527,28 @@ const SolicitacoesDeVagas = () => {
               <span className={styles.custoTotalValue}>{toBRL(custoTotal)}</span>
             </div>
           </div>
-
-          <p className={styles.sectionTitle}>Situação</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 220 }}>
-              <InputLabel>Situação</InputLabel>
-              <Select
-                value={form.situacao}
-                label="Situação"
-                onChange={(e) => setField('situacao', e.target.value as SituacaoVaga)}
-              >
-                {SITUACOES_VAGA.map((situacao) => (
-                  <MenuItem key={situacao} value={situacao}>
-                    {situacao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          {can('pode_editar') && (
+            <>
+              <p className={styles.sectionTitle}>Situação</p>
+              <hr className={styles.divider} />
+              <div className={styles.formRow}>
+                <FormControl sx={{ flex: 1, minWidth: 220 }}>
+                  <InputLabel>Situação</InputLabel>
+                  <Select
+                    value={form.situacao}
+                    label="Situação"
+                    onChange={(e) => setField('situacao', e.target.value as SituacaoVaga)}
+                  >
+                    {SITUACOES_VAGA.map((situacao) => (
+                      <MenuItem key={situacao} value={situacao}>
+                        {situacao}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </>
+          )}
 
           <div
             className={

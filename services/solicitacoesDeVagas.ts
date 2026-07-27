@@ -19,11 +19,7 @@ export async function getSolicitacoesDeVagas(): Promise<SolicitacoesDeVagasRespo
 export async function criarSolicitacaoVaga(
   data: FormSolicitacaoVaga
 ): Promise<SolicitacaoVagaProps> {
-  const nova: SolicitacaoVagaProps = {
-    ...data,
-    id: crypto.randomUUID(),
-    data_solicitacao: new Date().toISOString().slice(0, 10),
-  };
+  const nova: SolicitacaoVagaProps = { ...data, id: crypto.randomUUID() };
   solicitacoes = [nova, ...solicitacoes];
   return nova;
 }
@@ -32,12 +28,7 @@ export async function editarSolicitacaoVaga(
   id: string,
   data: FormSolicitacaoVaga
 ): Promise<SolicitacaoVagaProps> {
-  const existente = solicitacoes.find((s) => s.id === id);
-  const atualizada: SolicitacaoVagaProps = {
-    ...data,
-    id,
-    data_solicitacao: existente?.data_solicitacao ?? new Date().toISOString().slice(0, 10),
-  };
+  const atualizada: SolicitacaoVagaProps = { ...data, id };
   solicitacoes = solicitacoes.map((s) => (s.id === id ? atualizada : s));
   return atualizada;
 }

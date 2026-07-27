@@ -1,16 +1,10 @@
 export type TipoVaga = 'CLT' | 'PJ' | 'Estágio' | 'Temporário' | 'Terceirizado';
 
-export type SituacaoVaga = 'Pendente' | 'Em Análise' | 'Aprovada' | 'Reprovada' | 'Cancelada';
+export type SituacaoVaga = 'Pendente' | 'Aprovada' | 'Reprovada' | 'Cancelada';
 
 export const TIPOS_VAGA: TipoVaga[] = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Terceirizado'];
 
-export const SITUACOES_VAGA: SituacaoVaga[] = [
-  'Pendente',
-  'Em Análise',
-  'Aprovada',
-  'Reprovada',
-  'Cancelada',
-];
+export const SITUACOES_VAGA: SituacaoVaga[] = ['Pendente', 'Aprovada', 'Reprovada', 'Cancelada'];
 
 //Dados que virão da requisição
 export interface SolicitacaoVagaProps {
@@ -29,9 +23,9 @@ export interface SolicitacaoVagaProps {
   situacao: SituacaoVaga;
 }
 
-//Dados que serão utilizados no insert/update — a Data da Solicitação não entra aqui:
-//é atribuída automaticamente no cadastro e preservada na edição, como um campo de auditoria.
+//Dados que serão utilizados no insert/update
 export interface FormSolicitacaoVaga {
+  data_solicitacao: string;
   solicitante: string;
   setor: string;
   cargo: string;
@@ -43,4 +37,19 @@ export interface FormSolicitacaoVaga {
   insalubridade: number;
   vr: number;
   situacao: SituacaoVaga;
+}
+
+export interface SetoresProps {
+  id: string;
+  codigo_setor: string;
+  nome: string;
+  descricao: string;
+  ativo: boolean;
+  parent_id: string;
+  nivel: number;
+  sigla: string;
+  cor_setor: string;
+  id_origem: string | null;
+  created_at: string;
+  updated_at: string;
 }
