@@ -41,6 +41,7 @@ const SITUACAO_DEFINITIONS = [
 
 export default function Faturamento() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
+  const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
   const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
   const [faturamentoMensal, setFaturamentoMensal] = useState<FaturamentoMensalProps | null>(null);
   const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
@@ -204,7 +205,10 @@ export default function Faturamento() {
                       <VendorCard
                         key={v.cod_vendedor}
                         {...v}
-                        onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                        onClick={() => {
+                          setSelectedVendorId(Number(v.cod_vendedor));
+                          setSelectedFilialId(v.codigo_empresa);
+                        }}
                         color={accentColor}
                       />
                     ))}
@@ -221,7 +225,10 @@ export default function Faturamento() {
                         <VendorCard
                           key={v.cod_vendedor}
                           {...v}
-                          onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                          onClick={() => {
+                            setSelectedVendorId(Number(v.cod_vendedor));
+                            setSelectedFilialId(v.codigo_empresa);
+                          }}
                           color={accentColor}
                         />
                       ))}
@@ -232,7 +239,10 @@ export default function Faturamento() {
                           <VendorCard
                             key={`dup-${v.cod_vendedor}`}
                             {...v}
-                            onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                            onClick={() => {
+                              setSelectedVendorId(Number(v.cod_vendedor));
+                              setSelectedFilialId(v.codigo_empresa);
+                            }}
                             color={accentColor}
                           />
                         ))}
@@ -391,6 +401,7 @@ export default function Faturamento() {
         isOpen={selectedVendorId !== null}
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
+        filialId={selectedFilialId}
         dashboard="faturamento"
         mes={completeDate.month() + 1}
         ano={completeDate.year()}

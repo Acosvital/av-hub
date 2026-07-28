@@ -43,6 +43,7 @@ interface Order {
 }
 
 const Order = ({ id, category, date, partner, value, status }: Order) => {
+  console.log('status', status);
   return (
     <div
       className={styles.order}

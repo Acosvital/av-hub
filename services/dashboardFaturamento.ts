@@ -167,6 +167,7 @@ export async function getResumoMensalFaturamento(params: GetResumoMensalFaturame
 /************************* DETALHE VENDEDOR *************************/
 interface GetDetalheVendedorFaturamentoParams {
   cod_vendedor: string;
+  codigo_empresa: string;
   mes: number;
   ano: number;
   numero_pedido?: string;
@@ -188,14 +189,13 @@ interface DetalheVendedorFaturamentoResponse {
   page: number;
   limit: number;
   total_pages: number;
-  pedidos: DetalheVendedorFaturamentoPedidoProps[];
+  detalhes: DetalheVendedorFaturamentoPedidoProps[];
 }
 
-export async function getDetalheVendedorFaturamento(
-  params: GetDetalheVendedorFaturamentoParams
-) {
+export async function getDetalheVendedorFaturamento(params: GetDetalheVendedorFaturamentoParams) {
   const query = new URLSearchParams();
   query.set('cod_vendedor', String(params.cod_vendedor));
+  query.set('codigo_empresa', String(params.codigo_empresa));
   query.set('mes', String(params.mes));
   query.set('ano', String(params.ano));
   if (params.numero_pedido) query.set('numero_pedido', String(params.numero_pedido));
