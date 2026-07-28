@@ -61,11 +61,10 @@ const FORM_INICIAL: FormSolicitacaoVaga = {
   situacao: 'pendente',
 };
 
-const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error' | 'default'> = {
+const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error'> = {
   pendente: 'warning',
   aprovado: 'success',
   reprovado: 'error',
-  cancelado: 'default',
 };
 
 function calcularCustoTotal(form: FormSolicitacaoVaga): number {
@@ -353,10 +352,16 @@ const SolicitacoesDeVagas = () => {
                 <TableBody>
                   {rows.map((row) => (
                     <TableRow
-                      hover={can('pode_editar')}
+                      hover={can('pode_editar') || can('pode_deletar')}
                       key={row.id}
-                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      onClick={
+                        can('pode_editar') || can('pode_deletar')
+                          ? () => abrirEdicaoModal(row)
+                          : undefined
+                      }
+                      sx={{
+                        cursor: can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
+                      }}
                     >
                       <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
                       <TableCell>{row.solicitante}</TableCell>
@@ -374,15 +379,6 @@ const SolicitacoesDeVagas = () => {
                         <Chip
                           label={SITUACAO_LABEL[row.situacao]}
                           color={SITUACAO_COR[row.situacao]}
-                          sx={
-                            SITUACAO_COR[row.situacao] === 'default'
-                              ? {
-                                  backgroundColor: 'var(--gray)',
-                                  border: '1px solid var(--border)',
-                                  color: 'var(--white)',
-                                }
-                              : {}
-                          }
                           size="small"
                         />
                       </TableCell>
@@ -424,6 +420,7 @@ const SolicitacoesDeVagas = () => {
               label="Data da Solicitação"
               type="date"
               required
+              disabled={can('pode_editar')}
               value={form.data_solicitacao}
               onChange={(e) => setField('data_solicitacao', e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
@@ -432,6 +429,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 240 }}
               label="Solicitante"
               required
+              disabled={can('pode_editar')}
               value={form.solicitante}
               onChange={(e) => setField('solicitante', e.target.value)}
             />
@@ -440,6 +438,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.id_setor}
                 label="Setor"
+                disabled={can('pode_editar')}
                 onChange={(e) => setField('id_setor', e.target.value)}
               >
                 {setores.map((f) => (
@@ -458,6 +457,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 2, minWidth: 240 }}
               label="Cargo / Vaga"
               required
+              disabled={can('pode_editar')}
               value={form.cargo_vaga}
               onChange={(e) => setField('cargo_vaga', e.target.value)}
             />
@@ -465,6 +465,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 100 }}
               label="Qtd"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 1 } }}
               value={form.quantidade}
               onChange={(e) => setField('quantidade', Math.max(1, Number(e.target.value)))}
@@ -474,6 +475,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.tipo_vaga}
                 label="Tipo de Vaga"
+                disabled={can('pode_editar')}
                 onChange={(e) =>
                   setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])
                 }
@@ -491,6 +493,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 260 }}
               label="Observação / Motivo"
               multiline
+              disabled={can('pode_editar')}
               minRows={2}
               value={form.observacao_motivo}
               onChange={(e) => setField('observacao_motivo', e.target.value)}
@@ -504,6 +507,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="Salário"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.salario}
               onChange={(e) => setField('salario', Math.max(0, Number(e.target.value)))}
@@ -512,6 +516,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="Insalubridade"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.insalubridade}
               onChange={(e) => setField('insalubridade', Math.max(0, Number(e.target.value)))}
@@ -520,6 +525,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="VR"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.vr}
               onChange={(e) => setField('vr', Math.max(0, Number(e.target.value)))}
@@ -530,6 +536,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 260 }}
               label="Obs."
               multiline
+              disabled={can('pode_editar')}
               minRows={2}
               value={form.observacao}
               onChange={(e) => setField('observacao', e.target.value)}
@@ -539,7 +546,7 @@ const SolicitacoesDeVagas = () => {
               <span className={styles.custoTotalValue}>{toBRL(custoTotal)}</span>
             </div>
           </div>
-          {can('pode_editar') && (
+          {editingId && can('pode_editar') && (
             <>
               <p className={styles.sectionTitle}>Situação</p>
               <hr className={styles.divider} />
@@ -577,7 +584,9 @@ const SolicitacoesDeVagas = () => {
                 Cancelar
               </Button>
               <PermissionButton
-                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                acao={
+                  editingId ? (can('pode_deletar') ? 'pode_deletar' : 'pode_editar') : 'pode_criar'
+                }
                 variant="primary"
                 onClick={salvarSolicitacao}
               >

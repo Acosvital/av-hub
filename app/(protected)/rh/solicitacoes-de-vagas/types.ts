@@ -2,15 +2,14 @@ export type TipoVaga = 'CLT' | 'PJ' | 'Estágio' | 'Temporário' | 'Terceirizado
 
 export const TIPOS_VAGA: TipoVaga[] = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Terceirizado'];
 
-export type SituacaoVaga = 'pendente' | 'aprovado' | 'reprovado' | 'cancelado';
+export type SituacaoVaga = 'pendente' | 'aprovado' | 'reprovado';
 
-export const SITUACOES_VAGA: SituacaoVaga[] = ['pendente', 'aprovado', 'reprovado', 'cancelado'];
+export const SITUACOES_VAGA: SituacaoVaga[] = ['pendente', 'aprovado', 'reprovado'];
 
 export const SITUACAO_LABEL: Record<SituacaoVaga, string> = {
   pendente: 'Pendente',
   aprovado: 'Aprovado',
   reprovado: 'Reprovado',
-  cancelado: 'Cancelado',
 };
 
 //Dados que virão da requisição
