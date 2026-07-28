@@ -61,11 +61,10 @@ const FORM_INICIAL: FormSolicitacaoVaga = {
   situacao: 'pendente',
 };
 
-const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error' | 'default'> = {
+const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error'> = {
   pendente: 'warning',
   aprovado: 'success',
   reprovado: 'error',
-  cancelado: 'default',
 };
 
 function calcularCustoTotal(form: FormSolicitacaoVaga): number {
@@ -327,70 +326,139 @@ const SolicitacoesDeVagas = () => {
               <span>Carregando...</span>
             </div>
           ) : (
-            <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    {[
-                      'Data da Solicitação',
-                      'Solicitante',
-                      'Setor',
-                      'Cargo / Vaga',
-                      'Observação / Motivo',
-                      'Qtd',
-                      'Tipo de Vaga',
-                      'Salário',
-                      'Obs.',
-                      'Insalubridade',
-                      'VR',
-                      'Custo Total',
-                      'Situação',
-                    ].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      hover={can('pode_editar')}
-                      key={row.id}
-                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
-                    >
-                      <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
-                      <TableCell>{row.solicitante}</TableCell>
-                      <TableCell>{setorNome(row.id_setor)}</TableCell>
-                      <TableCell>{row.cargo_vaga}</TableCell>
-                      <TableCell>{row.observacao_motivo || '—'}</TableCell>
-                      <TableCell>{row.quantidade}</TableCell>
-                      <TableCell>{row.tipo_vaga || '—'}</TableCell>
-                      <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
-                      <TableCell>{row.observacao || '—'}</TableCell>
-                      <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
-                      <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
-                      <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={SITUACAO_LABEL[row.situacao]}
-                          color={SITUACAO_COR[row.situacao]}
-                          sx={
-                            SITUACAO_COR[row.situacao] === 'default'
-                              ? {
-                                  backgroundColor: 'var(--gray)',
-                                  border: '1px solid var(--border)',
-                                  color: 'var(--white)',
-                                }
-                              : {}
+            <>
+              <div className={styles.tableWrapper}>
+                <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                  <Table stickyHeader size="small">
+                    <TableHead>
+                      <TableRow>
+                        {[
+                          'Data da Solicitação',
+                          'Solicitante',
+                          'Setor',
+                          'Cargo / Vaga',
+                          'Observação / Motivo',
+                          'Qtd',
+                          'Tipo de Vaga',
+                          'Salário',
+                          'Obs.',
+                          'Insalubridade',
+                          'VR',
+                          'Custo Total',
+                          'Situação',
+                        ].map((label) => (
+                          <TableCell key={label}>{label}</TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow
+                          hover={can('pode_editar') || can('pode_deletar')}
+                          key={row.id}
+                          onClick={
+                            can('pode_editar') || can('pode_deletar')
+                              ? () => abrirEdicaoModal(row)
+                              : undefined
                           }
-                          size="small"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          sx={{
+                            cursor:
+                              can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
+                          }}
+                        >
+                          <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
+                          <TableCell>{row.solicitante}</TableCell>
+                          <TableCell>{setorNome(row.id_setor)}</TableCell>
+                          <TableCell>{row.cargo_vaga}</TableCell>
+                          <TableCell>{row.observacao_motivo || '—'}</TableCell>
+                          <TableCell>{row.quantidade}</TableCell>
+                          <TableCell>{row.tipo_vaga || '—'}</TableCell>
+                          <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
+                          <TableCell>{row.observacao || '—'}</TableCell>
+                          <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
+                          <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
+                          <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={SITUACAO_LABEL[row.situacao]}
+                              color={SITUACAO_COR[row.situacao]}
+                              size="small"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+
+              <div className={styles.mobileList}>
+                {rows.length === 0 ? (
+                  <div className={styles.mobileEmpty}>Nenhuma solicitação encontrada.</div>
+                ) : (
+                  rows.map((row) => {
+                    const podeAbrir = can('pode_editar') || can('pode_deletar');
+                    return (
+                      <div
+                        key={row.id}
+                        className={`${styles.mobileCard} ${podeAbrir ? styles.mobileCardClickable : ''}`}
+                        onClick={podeAbrir ? () => abrirEdicaoModal(row) : undefined}
+                      >
+                        <div className={styles.mobileCardHeader}>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldValue}>
+                              {dateFormatter(row.data_solicitacao)}
+                            </span>
+                          </div>
+                          <Chip
+                            label={SITUACAO_LABEL[row.situacao]}
+                            color={SITUACAO_COR[row.situacao]}
+                            size="small"
+                          />
+                        </div>
+                        <div className={styles.mobileCardHeaderMain}>
+                          <span className={styles.mobileCardTitle}>{row.cargo_vaga}</span>
+                          <span className={styles.mobileCardSubtitle}>
+                            {row.solicitante} · {setorNome(row.id_setor)}
+                          </span>
+                        </div>
+
+                        <div className={styles.mobileCardBody}>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Salário</span>
+                            <span className={styles.mobileFieldValue}>
+                              {toBRL(row.salario ?? 0)}
+                            </span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>VR</span>
+                            <span className={styles.mobileFieldValue}>{toBRL(row.vr ?? 0)}</span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Insalubridade</span>
+                            <span className={styles.mobileFieldValue}>
+                              {toBRL(row.insalubridade ?? 0)}
+                            </span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Qtd / Tipo</span>
+                            <span className={styles.mobileFieldValue}>
+                              {row.quantidade} · {row.tipo_vaga || '—'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.mobileCardHighlight}>
+                          <span className={styles.mobileCardHighlightLabel}>Custo Total</span>
+                          <span className={styles.mobileCardHighlightValue}>
+                            {toBRL(row.custo_total ?? 0)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
@@ -424,6 +492,7 @@ const SolicitacoesDeVagas = () => {
               label="Data da Solicitação"
               type="date"
               required
+              disabled={can('pode_editar')}
               value={form.data_solicitacao}
               onChange={(e) => setField('data_solicitacao', e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
@@ -432,6 +501,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 240 }}
               label="Solicitante"
               required
+              disabled={can('pode_editar')}
               value={form.solicitante}
               onChange={(e) => setField('solicitante', e.target.value)}
             />
@@ -440,6 +510,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.id_setor}
                 label="Setor"
+                disabled={can('pode_editar')}
                 onChange={(e) => setField('id_setor', e.target.value)}
               >
                 {setores.map((f) => (
@@ -458,6 +529,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 2, minWidth: 240 }}
               label="Cargo / Vaga"
               required
+              disabled={can('pode_editar')}
               value={form.cargo_vaga}
               onChange={(e) => setField('cargo_vaga', e.target.value)}
             />
@@ -465,6 +537,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 100 }}
               label="Qtd"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 1 } }}
               value={form.quantidade}
               onChange={(e) => setField('quantidade', Math.max(1, Number(e.target.value)))}
@@ -474,6 +547,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.tipo_vaga}
                 label="Tipo de Vaga"
+                disabled={can('pode_editar')}
                 onChange={(e) =>
                   setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])
                 }
@@ -491,6 +565,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 260 }}
               label="Observação / Motivo"
               multiline
+              disabled={can('pode_editar')}
               minRows={2}
               value={form.observacao_motivo}
               onChange={(e) => setField('observacao_motivo', e.target.value)}
@@ -504,6 +579,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="Salário"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.salario}
               onChange={(e) => setField('salario', Math.max(0, Number(e.target.value)))}
@@ -512,6 +588,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="Insalubridade"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.insalubridade}
               onChange={(e) => setField('insalubridade', Math.max(0, Number(e.target.value)))}
@@ -520,6 +597,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="VR"
               type="number"
+              disabled={can('pode_editar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.vr}
               onChange={(e) => setField('vr', Math.max(0, Number(e.target.value)))}
@@ -530,6 +608,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 260 }}
               label="Obs."
               multiline
+              disabled={can('pode_editar')}
               minRows={2}
               value={form.observacao}
               onChange={(e) => setField('observacao', e.target.value)}
@@ -539,7 +618,7 @@ const SolicitacoesDeVagas = () => {
               <span className={styles.custoTotalValue}>{toBRL(custoTotal)}</span>
             </div>
           </div>
-          {can('pode_editar') && (
+          {editingId && can('pode_editar') && (
             <>
               <p className={styles.sectionTitle}>Situação</p>
               <hr className={styles.divider} />
@@ -577,7 +656,9 @@ const SolicitacoesDeVagas = () => {
                 Cancelar
               </Button>
               <PermissionButton
-                acao={editingId ? 'pode_editar' : 'pode_criar'}
+                acao={
+                  editingId ? (can('pode_deletar') ? 'pode_deletar' : 'pode_editar') : 'pode_criar'
+                }
                 variant="primary"
                 onClick={salvarSolicitacao}
               >

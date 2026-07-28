@@ -31,6 +31,158 @@
   color: var(--av-accent);
 }
 
+/***************** RESPONSIVE LIST / MOBILE CARDS ******************/
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.mobileList {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1) 0;
+}
+
+@media screen and (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
+
+  .mobileList {
+    display: flex;
+  }
+}
+
+.mobileEmpty {
+  text-align: center;
+  color: var(--foreground-secondary);
+  padding: var(--space-6);
+}
+
+.mobileCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background-color: var(--card-bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.mobileCardClickable {
+  cursor: pointer;
+}
+
+.mobileCardClickable:active {
+  background-color: var(--table-row-hover, var(--background-secondary));
+}
+
+.mobileCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mobileCardHeaderMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.mobileCardTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  overflow-wrap: break-word;
+}
+
+.mobileCardSubtitle {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.mobileCardHighlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--background-secondary);
+
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.mobileCardHighlightLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--foreground-secondary);
+}
+
+.mobileCardHighlightValue {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  color: var(--av-accent);
+}
+
+.mobileCardBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+
+  padding: var(--space-2) 0;
+
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.mobileField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mobileFieldLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--foreground-secondary);
+}
+
+.mobileFieldValue {
+  font-size: var(--fs-sm);
+  color: var(--foreground);
+  overflow-wrap: break-word;
+}
+
+.mobileCardNotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.mobileCardNotes strong {
+  color: var(--foreground);
+}
+
 /***************** MODAL FORM ******************/
 
 .formModal {
