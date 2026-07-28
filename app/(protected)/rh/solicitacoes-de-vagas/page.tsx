@@ -326,67 +326,139 @@ const SolicitacoesDeVagas = () => {
               <span>Carregando...</span>
             </div>
           ) : (
-            <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    {[
-                      'Data da Solicitação',
-                      'Solicitante',
-                      'Setor',
-                      'Cargo / Vaga',
-                      'Observação / Motivo',
-                      'Qtd',
-                      'Tipo de Vaga',
-                      'Salário',
-                      'Obs.',
-                      'Insalubridade',
-                      'VR',
-                      'Custo Total',
-                      'Situação',
-                    ].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      hover={can('pode_editar') || can('pode_deletar')}
-                      key={row.id}
-                      onClick={
-                        can('pode_editar') || can('pode_deletar')
-                          ? () => abrirEdicaoModal(row)
-                          : undefined
-                      }
-                      sx={{
-                        cursor: can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
-                      }}
-                    >
-                      <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
-                      <TableCell>{row.solicitante}</TableCell>
-                      <TableCell>{setorNome(row.id_setor)}</TableCell>
-                      <TableCell>{row.cargo_vaga}</TableCell>
-                      <TableCell>{row.observacao_motivo || '—'}</TableCell>
-                      <TableCell>{row.quantidade}</TableCell>
-                      <TableCell>{row.tipo_vaga || '—'}</TableCell>
-                      <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
-                      <TableCell>{row.observacao || '—'}</TableCell>
-                      <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
-                      <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
-                      <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={SITUACAO_LABEL[row.situacao]}
-                          color={SITUACAO_COR[row.situacao]}
-                          size="small"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <>
+              <div className={styles.tableWrapper}>
+                <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                  <Table stickyHeader size="small">
+                    <TableHead>
+                      <TableRow>
+                        {[
+                          'Data da Solicitação',
+                          'Solicitante',
+                          'Setor',
+                          'Cargo / Vaga',
+                          'Observação / Motivo',
+                          'Qtd',
+                          'Tipo de Vaga',
+                          'Salário',
+                          'Obs.',
+                          'Insalubridade',
+                          'VR',
+                          'Custo Total',
+                          'Situação',
+                        ].map((label) => (
+                          <TableCell key={label}>{label}</TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow
+                          hover={can('pode_editar') || can('pode_deletar')}
+                          key={row.id}
+                          onClick={
+                            can('pode_editar') || can('pode_deletar')
+                              ? () => abrirEdicaoModal(row)
+                              : undefined
+                          }
+                          sx={{
+                            cursor:
+                              can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
+                          }}
+                        >
+                          <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
+                          <TableCell>{row.solicitante}</TableCell>
+                          <TableCell>{setorNome(row.id_setor)}</TableCell>
+                          <TableCell>{row.cargo_vaga}</TableCell>
+                          <TableCell>{row.observacao_motivo || '—'}</TableCell>
+                          <TableCell>{row.quantidade}</TableCell>
+                          <TableCell>{row.tipo_vaga || '—'}</TableCell>
+                          <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
+                          <TableCell>{row.observacao || '—'}</TableCell>
+                          <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
+                          <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
+                          <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={SITUACAO_LABEL[row.situacao]}
+                              color={SITUACAO_COR[row.situacao]}
+                              size="small"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+
+              <div className={styles.mobileList}>
+                {rows.length === 0 ? (
+                  <div className={styles.mobileEmpty}>Nenhuma solicitação encontrada.</div>
+                ) : (
+                  rows.map((row) => {
+                    const podeAbrir = can('pode_editar') || can('pode_deletar');
+                    return (
+                      <div
+                        key={row.id}
+                        className={`${styles.mobileCard} ${podeAbrir ? styles.mobileCardClickable : ''}`}
+                        onClick={podeAbrir ? () => abrirEdicaoModal(row) : undefined}
+                      >
+                        <div className={styles.mobileCardHeader}>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldValue}>
+                              {dateFormatter(row.data_solicitacao)}
+                            </span>
+                          </div>
+                          <Chip
+                            label={SITUACAO_LABEL[row.situacao]}
+                            color={SITUACAO_COR[row.situacao]}
+                            size="small"
+                          />
+                        </div>
+                        <div className={styles.mobileCardHeaderMain}>
+                          <span className={styles.mobileCardTitle}>{row.cargo_vaga}</span>
+                          <span className={styles.mobileCardSubtitle}>
+                            {row.solicitante} · {setorNome(row.id_setor)}
+                          </span>
+                        </div>
+
+                        <div className={styles.mobileCardBody}>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Salário</span>
+                            <span className={styles.mobileFieldValue}>
+                              {toBRL(row.salario ?? 0)}
+                            </span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>VR</span>
+                            <span className={styles.mobileFieldValue}>{toBRL(row.vr ?? 0)}</span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Insalubridade</span>
+                            <span className={styles.mobileFieldValue}>
+                              {toBRL(row.insalubridade ?? 0)}
+                            </span>
+                          </div>
+                          <div className={styles.mobileField}>
+                            <span className={styles.mobileFieldLabel}>Qtd / Tipo</span>
+                            <span className={styles.mobileFieldValue}>
+                              {row.quantidade} · {row.tipo_vaga || '—'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.mobileCardHighlight}>
+                          <span className={styles.mobileCardHighlightLabel}>Custo Total</span>
+                          <span className={styles.mobileCardHighlightValue}>
+                            {toBRL(row.custo_total ?? 0)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
           )}
           <TablePagination
             sx={{ flexShrink: 0 }}
