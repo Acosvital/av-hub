@@ -14,7 +14,7 @@ interface CommissionDetailsModalProps {
 }
 
 type OrderCategory = 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
-type OrderStatus = 'CANCELADO' | 'DEVOLVIDO' | 'RECUSADO' | 'REFATURAMENTO';
+type OrderStatus = 'CANCELADOS' | 'DEVOLVIDOS' | 'RECUSADOS' | 'REFATURAMENTO';
 
 interface VendorOrder {
   id: number;
@@ -47,7 +47,7 @@ const MOCK_ORDERS: VendorOrder[] = [
     partner: 'YARA BRASIL FERTILIZANTES S.A.',
     value: 9800,
     category: 'SPOT',
-    status: 'CANCELADO',
+    status: 'CANCELADOS',
   },
   {
     id: 24535,
@@ -62,7 +62,7 @@ const MOCK_ORDERS: VendorOrder[] = [
     partner: 'HERINGER FERTILIZANTES S.A.',
     value: 18750,
     category: 'SPOT',
-    status: 'DEVOLVIDO',
+    status: 'DEVOLVIDOS',
   },
   {
     id: 24537,
@@ -92,7 +92,7 @@ const MOCK_ORDERS: VendorOrder[] = [
     partner: 'NUTRIEN SOLUÇÕES AGRÍCOLAS LTDA.',
     value: 11000,
     category: 'SPOT',
-    status: 'RECUSADO',
+    status: 'RECUSADOS',
   },
   {
     id: 24541,
