@@ -1,46 +1,65 @@
 export type TipoVaga = 'CLT' | 'PJ' | 'Estágio' | 'Temporário' | 'Terceirizado';
 
-export type SituacaoVaga = 'Pendente' | 'Em Análise' | 'Aprovada' | 'Reprovada' | 'Cancelada';
-
 export const TIPOS_VAGA: TipoVaga[] = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Terceirizado'];
 
-export const SITUACOES_VAGA: SituacaoVaga[] = [
-  'Pendente',
-  'Em Análise',
-  'Aprovada',
-  'Reprovada',
-  'Cancelada',
-];
+export type SituacaoVaga = 'pendente' | 'aprovado' | 'reprovado' | 'cancelado';
+
+export const SITUACOES_VAGA: SituacaoVaga[] = ['pendente', 'aprovado', 'reprovado', 'cancelado'];
+
+export const SITUACAO_LABEL: Record<SituacaoVaga, string> = {
+  pendente: 'Pendente',
+  aprovado: 'Aprovado',
+  reprovado: 'Reprovado',
+  cancelado: 'Cancelado',
+};
 
 //Dados que virão da requisição
 export interface SolicitacaoVagaProps {
   id: string;
   data_solicitacao: string;
   solicitante: string;
-  setor: string;
-  cargo: string;
+  id_setor: string;
+  cargo_vaga: string;
+  observacao_motivo: string | null;
+  quantidade: number;
+  tipo_vaga: TipoVaga | null;
+  salario: number | null;
+  observacao: string | null;
+  insalubridade: number | null;
+  vr: number | null;
+  custo_total: number | null;
+  situacao: SituacaoVaga;
+  created_at: string;
+  updated_at: string;
+}
+
+//Dados que serão utilizados no insert/update
+export interface FormSolicitacaoVaga {
+  data_solicitacao: string;
+  solicitante: string;
+  id_setor: string;
+  cargo_vaga: string;
   observacao_motivo: string;
   quantidade: number;
   tipo_vaga: TipoVaga;
   salario: number;
-  obs: string;
+  observacao: string;
   insalubridade: number;
   vr: number;
   situacao: SituacaoVaga;
 }
 
-//Dados que serão utilizados no insert/update — a Data da Solicitação não entra aqui:
-//é atribuída automaticamente no cadastro e preservada na edição, como um campo de auditoria.
-export interface FormSolicitacaoVaga {
-  solicitante: string;
-  setor: string;
-  cargo: string;
-  observacao_motivo: string;
-  quantidade: number;
-  tipo_vaga: TipoVaga;
-  salario: number;
-  obs: string;
-  insalubridade: number;
-  vr: number;
-  situacao: SituacaoVaga;
+export interface SetoresProps {
+  id: string;
+  codigo_setor: string;
+  nome: string;
+  descricao: string;
+  ativo: boolean;
+  parent_id: string;
+  nivel: number;
+  sigla: string;
+  cor_setor: string;
+  id_origem: string | null;
+  created_at: string;
+  updated_at: string;
 }

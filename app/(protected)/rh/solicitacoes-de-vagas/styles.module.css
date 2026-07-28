@@ -63,28 +63,6 @@
   align-items: flex-start;
 }
 
-.infoBox {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--background-secondary);
-}
-
-.infoLabel {
-  font-size: var(--fs-sm);
-  color: var(--foreground-secondary);
-}
-
-.infoValue {
-  font-size: var(--fs-md);
-  font-weight: var(--w-semibold);
-  color: var(--foreground);
-}
-
 .custoTotalBox {
   display: flex;
   flex-direction: column;

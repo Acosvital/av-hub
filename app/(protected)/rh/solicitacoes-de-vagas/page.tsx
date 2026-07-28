@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
@@ -37,33 +37,35 @@ import {
 } from '@/services/solicitacoesDeVagas';
 import {
   FormSolicitacaoVaga,
+  SITUACAO_LABEL,
   SITUACOES_VAGA,
+  SetoresProps,
   SituacaoVaga,
   SolicitacaoVagaProps,
   TIPOS_VAGA,
 } from './types';
-import normalizeText from '@/utils/normalizeText';
+import { getSetores } from '@/services/referenciais';
 
 const FORM_INICIAL: FormSolicitacaoVaga = {
+  data_solicitacao: new Date().toISOString().slice(0, 10),
   solicitante: '',
-  setor: '',
-  cargo: '',
+  id_setor: '',
+  cargo_vaga: '',
   observacao_motivo: '',
   quantidade: 1,
   tipo_vaga: 'CLT',
   salario: 0,
-  obs: '',
+  observacao: '',
   insalubridade: 0,
   vr: 0,
-  situacao: 'Pendente',
+  situacao: 'pendente',
 };
 
-const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'info' | 'success' | 'error' | 'default'> = {
-  Pendente: 'warning',
-  'Em Análise': 'info',
-  Aprovada: 'success',
-  Reprovada: 'error',
-  Cancelada: 'default',
+const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error' | 'default'> = {
+  pendente: 'warning',
+  aprovado: 'success',
+  reprovado: 'error',
+  cancelado: 'default',
 };
 
 function calcularCustoTotal(form: FormSolicitacaoVaga): number {
@@ -85,6 +87,7 @@ const SolicitacoesDeVagas = () => {
   const { can } = usePermission();
 
   const [rows, setRows] = useState<SolicitacaoVagaProps[]>([]);
+  const [rowCount, setRowCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
@@ -92,23 +95,45 @@ const SolicitacoesDeVagas = () => {
   const cargo = useDebounce(cargoInput, 500);
   const [solicitanteInput, setSolicitanteInput] = useState('');
   const solicitante = useDebounce(solicitanteInput, 500);
-  const [setorInput, setSetorInput] = useState('');
-  const setor = useDebounce(setorInput, 500);
+
+  const [setores, setSetores] = useState<SetoresProps[]>([]);
+  const [setorFiltro, setSetorFiltro] = useState('');
   const [situacaoFiltro, setSituacaoFiltro] = useState<SituacaoVaga | 'todos'>('todos');
 
   const [form, setForm] = useState<FormSolicitacaoVaga>(FORM_INICIAL);
-  const [dataSolicitacao, setDataSolicitacao] = useState<string | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
 
   useEffect(() => {
+    const loadSetores = async () => {
+      try {
+        const data = await getSetores();
+        setSetores(data?.setores ?? []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadSetores();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getSolicitacoesDeVagas();
-        setRows(response.solicitacoes ?? []);
+        const situacao = situacaoFiltro === 'todos' ? undefined : situacaoFiltro;
+        const response = await getSolicitacoesDeVagas({
+          page: page + 1,
+          limit: rowsPerPage,
+          cargo_vaga: cargo || undefined,
+          solicitante: solicitante || undefined,
+          id_setor: setorFiltro || undefined,
+          situacao,
+        });
+        setRows(response.vagas ?? []);
+        setRowCount(response.total ?? 0);
       } catch (err) {
         console.error(err);
         setError('Erro ao carregar as solicitações de vagas.');
@@ -117,35 +142,18 @@ const SolicitacoesDeVagas = () => {
       }
     };
     fetchData();
-  }, [refreshTrigger]);
-
-  const filteredRows = useMemo(() => {
-    const termoCargo = normalizeText(cargo);
-    const termoSolicitante = normalizeText(solicitante);
-    const termoSetor = normalizeText(setor);
-    return rows.filter((row) => {
-      const matchCargo = !termoCargo || normalizeText(row.cargo).includes(termoCargo);
-      const matchSolicitante =
-        !termoSolicitante || normalizeText(row.solicitante).includes(termoSolicitante);
-      const matchSetor = !termoSetor || normalizeText(row.setor).includes(termoSetor);
-      const matchSituacao = situacaoFiltro === 'todos' || row.situacao === situacaoFiltro;
-      return matchCargo && matchSolicitante && matchSetor && matchSituacao;
-    });
-  }, [rows, cargo, solicitante, setor, situacaoFiltro]);
+  }, [page, rowsPerPage, cargo, solicitante, setorFiltro, situacaoFiltro, refreshTrigger]);
 
   useEffect(() => {
     setPage(0);
-  }, [cargo, solicitante, setor, situacaoFiltro]);
+  }, [cargo, solicitante, setorFiltro, situacaoFiltro]);
 
-  const pagedRows = useMemo(
-    () => filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [filteredRows, page, rowsPerPage]
-  );
+  const setorNome = (id: string) => setores.find((s) => s.id === id)?.nome ?? '—';
 
   const limparFiltros = () => {
     setCargoInput('');
     setSolicitanteInput('');
-    setSetorInput('');
+    setSetorFiltro('');
     setSituacaoFiltro('todos');
     setPage(0);
   };
@@ -153,26 +161,25 @@ const SolicitacoesDeVagas = () => {
   const abrirCriacaoModal = () => {
     setEditingId(null);
     setForm(FORM_INICIAL);
-    setDataSolicitacao(null);
     setIsModalOpen(true);
   };
 
   const abrirEdicaoModal = (solicitacao: SolicitacaoVagaProps) => {
     setEditingId(solicitacao.id);
     setForm({
+      data_solicitacao: solicitacao.data_solicitacao,
       solicitante: solicitacao.solicitante,
-      setor: solicitacao.setor,
-      cargo: solicitacao.cargo,
-      observacao_motivo: solicitacao.observacao_motivo,
+      id_setor: solicitacao.id_setor,
+      cargo_vaga: solicitacao.cargo_vaga,
+      observacao_motivo: solicitacao.observacao_motivo ?? '',
       quantidade: solicitacao.quantidade,
-      tipo_vaga: solicitacao.tipo_vaga,
-      salario: solicitacao.salario,
-      obs: solicitacao.obs,
-      insalubridade: solicitacao.insalubridade,
-      vr: solicitacao.vr,
+      tipo_vaga: solicitacao.tipo_vaga ?? 'CLT',
+      salario: solicitacao.salario ?? 0,
+      observacao: solicitacao.observacao ?? '',
+      insalubridade: solicitacao.insalubridade ?? 0,
+      vr: solicitacao.vr ?? 0,
       situacao: solicitacao.situacao,
     });
-    setDataSolicitacao(solicitacao.data_solicitacao);
     setIsModalOpen(true);
   };
 
@@ -188,18 +195,38 @@ const SolicitacoesDeVagas = () => {
       notify.error('Solicitante é obrigatório');
       return;
     }
-    if (!form.cargo.trim()) {
+    if (!form.cargo_vaga.trim()) {
       notify.error('Cargo / Vaga é obrigatório');
+      return;
+    }
+    if (!form.id_setor) {
+      notify.error('Setor é obrigatório');
       return;
     }
 
     try {
       setSaving(true);
+      const payload = {
+        data_solicitacao: form.data_solicitacao,
+        solicitante: form.solicitante.trim(),
+        id_setor: form.id_setor,
+        cargo_vaga: form.cargo_vaga.trim(),
+        observacao_motivo: form.observacao_motivo.trim() || null,
+        quantidade: form.quantidade,
+        tipo_vaga: form.tipo_vaga || null,
+        salario: form.salario,
+        observacao: form.observacao.trim() || null,
+        insalubridade: form.insalubridade,
+        vr: form.vr,
+        custo_total: calcularCustoTotal(form),
+        situacao: form.situacao,
+      };
+
       if (editingId) {
-        await editarSolicitacaoVaga(editingId, form);
+        await editarSolicitacaoVaga(editingId, payload);
         notify.success('Solicitação atualizada com sucesso');
       } else {
-        await criarSolicitacaoVaga(form);
+        await criarSolicitacaoVaga(payload);
         notify.success('Solicitação cadastrada com sucesso');
       }
 
@@ -229,7 +256,8 @@ const SolicitacoesDeVagas = () => {
 
   const { openDialog: openDeleteDialog, dialog: deleteDialog } = useDeleteDialog({
     onConfirm: excluirSolicitacao,
-    message: 'Tem certeza que deseja excluir a solicitação de vaga? Esta ação não pode ser desfeita.',
+    message:
+      'Tem certeza que deseja excluir a solicitação de vaga? Esta ação não pode ser desfeita.',
     title: 'Excluir Solicitação',
   });
 
@@ -255,13 +283,21 @@ const SolicitacoesDeVagas = () => {
               value={solicitanteInput}
               onChange={(e) => setSolicitanteInput(e.target.value)}
             />
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="Setor"
-              variant="outlined"
-              value={setorInput}
-              onChange={(e) => setSetorInput(e.target.value)}
-            />
+            <FormControl sx={{ minWidth: 220 }}>
+              <InputLabel>Setor</InputLabel>
+              <Select
+                value={setorFiltro}
+                label="Setor"
+                onChange={(e) => setSetorFiltro(e.target.value)}
+              >
+                <MenuItem value="">Todas</MenuItem>
+                {setores.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>
+                    {f.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <FormControl sx={{ flex: 1, minWidth: 220 }}>
               <InputLabel>Situação</InputLabel>
               <Select
@@ -272,7 +308,7 @@ const SolicitacoesDeVagas = () => {
                 <MenuItem value="todos">Todas</MenuItem>
                 {SITUACOES_VAGA.map((situacao) => (
                   <MenuItem key={situacao} value={situacao}>
-                    {situacao}
+                    {SITUACAO_LABEL[situacao]}
                   </MenuItem>
                 ))}
               </Select>
@@ -315,7 +351,7 @@ const SolicitacoesDeVagas = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {pagedRows.map((row) => (
+                  {rows.map((row) => (
                     <TableRow
                       hover={can('pode_editar')}
                       key={row.id}
@@ -324,20 +360,31 @@ const SolicitacoesDeVagas = () => {
                     >
                       <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
                       <TableCell>{row.solicitante}</TableCell>
-                      <TableCell>{row.setor}</TableCell>
-                      <TableCell>{row.cargo}</TableCell>
+                      <TableCell>{setorNome(row.id_setor)}</TableCell>
+                      <TableCell>{row.cargo_vaga}</TableCell>
                       <TableCell>{row.observacao_motivo || '—'}</TableCell>
                       <TableCell>{row.quantidade}</TableCell>
-                      <TableCell>{row.tipo_vaga}</TableCell>
-                      <TableCell>{toBRL(row.salario)}</TableCell>
-                      <TableCell>{row.obs || '—'}</TableCell>
-                      <TableCell>{toBRL(row.insalubridade)}</TableCell>
-                      <TableCell>{toBRL(row.vr)}</TableCell>
+                      <TableCell>{row.tipo_vaga || '—'}</TableCell>
+                      <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
+                      <TableCell>{row.observacao || '—'}</TableCell>
+                      <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
+                      <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
+                      <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
                       <TableCell>
-                        {toBRL(row.quantidade * (row.salario + row.insalubridade + row.vr))}
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={row.situacao} color={SITUACAO_COR[row.situacao]} size="small" />
+                        <Chip
+                          label={SITUACAO_LABEL[row.situacao]}
+                          color={SITUACAO_COR[row.situacao]}
+                          sx={
+                            SITUACAO_COR[row.situacao] === 'default'
+                              ? {
+                                  backgroundColor: 'var(--gray)',
+                                  border: '1px solid var(--border)',
+                                  color: 'var(--white)',
+                                }
+                              : {}
+                          }
+                          size="small"
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -349,7 +396,7 @@ const SolicitacoesDeVagas = () => {
             sx={{ flexShrink: 0 }}
             rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
-            count={filteredRows.length}
+            count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
             labelRowsPerPage="Resultados por página"
@@ -364,7 +411,7 @@ const SolicitacoesDeVagas = () => {
       </PageContent>
       <Modal
         title={editingId ? 'Editar Solicitação' : 'Nova Solicitação de Vaga'}
-        subtitle={editingId ? form.cargo : 'Preencha os dados da nova vaga'}
+        subtitle={editingId ? form.cargo_vaga : 'Preencha os dados da nova vaga'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       >
@@ -372,12 +419,15 @@ const SolicitacoesDeVagas = () => {
           <p className={styles.sectionTitle}>Dados da Solicitação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <div className={styles.infoBox} style={{ flex: 1, minWidth: 200 }}>
-              <span className={styles.infoLabel}>Data da Solicitação</span>
-              <span className={styles.infoValue}>
-                {dataSolicitacao ? dateFormatter(dataSolicitacao) : 'Definida ao salvar'}
-              </span>
-            </div>
+            <TextField
+              sx={{ flex: 1, minWidth: 200 }}
+              label="Data da Solicitação"
+              type="date"
+              required
+              value={form.data_solicitacao}
+              onChange={(e) => setField('data_solicitacao', e.target.value)}
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
             <TextField
               sx={{ flex: 1, minWidth: 240 }}
               label="Solicitante"
@@ -385,12 +435,20 @@ const SolicitacoesDeVagas = () => {
               value={form.solicitante}
               onChange={(e) => setField('solicitante', e.target.value)}
             />
-            <TextField
-              sx={{ flex: 1, minWidth: 200 }}
-              label="Setor"
-              value={form.setor}
-              onChange={(e) => setField('setor', e.target.value)}
-            />
+            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
+              <InputLabel>Setor</InputLabel>
+              <Select
+                value={form.id_setor}
+                label="Setor"
+                onChange={(e) => setField('id_setor', e.target.value)}
+              >
+                {setores.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>
+                    {f.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
 
           <p className={styles.sectionTitle}>Vaga</p>
@@ -400,8 +458,8 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 2, minWidth: 240 }}
               label="Cargo / Vaga"
               required
-              value={form.cargo}
-              onChange={(e) => setField('cargo', e.target.value)}
+              value={form.cargo_vaga}
+              onChange={(e) => setField('cargo_vaga', e.target.value)}
             />
             <TextField
               sx={{ flex: 1, minWidth: 100 }}
@@ -416,7 +474,9 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.tipo_vaga}
                 label="Tipo de Vaga"
-                onChange={(e) => setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])}
+                onChange={(e) =>
+                  setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])
+                }
               >
                 {TIPOS_VAGA.map((tipo) => (
                   <MenuItem key={tipo} value={tipo}>
@@ -471,33 +531,36 @@ const SolicitacoesDeVagas = () => {
               label="Obs."
               multiline
               minRows={2}
-              value={form.obs}
-              onChange={(e) => setField('obs', e.target.value)}
+              value={form.observacao}
+              onChange={(e) => setField('observacao', e.target.value)}
             />
             <div className={styles.custoTotalBox} style={{ flex: 1, minWidth: 200 }}>
               <span className={styles.custoTotalLabel}>Custo Total</span>
               <span className={styles.custoTotalValue}>{toBRL(custoTotal)}</span>
             </div>
           </div>
-
-          <p className={styles.sectionTitle}>Situação</p>
-          <hr className={styles.divider} />
-          <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 220 }}>
-              <InputLabel>Situação</InputLabel>
-              <Select
-                value={form.situacao}
-                label="Situação"
-                onChange={(e) => setField('situacao', e.target.value as SituacaoVaga)}
-              >
-                {SITUACOES_VAGA.map((situacao) => (
-                  <MenuItem key={situacao} value={situacao}>
-                    {situacao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          {can('pode_editar') && (
+            <>
+              <p className={styles.sectionTitle}>Situação</p>
+              <hr className={styles.divider} />
+              <div className={styles.formRow}>
+                <FormControl sx={{ flex: 1, minWidth: 220 }}>
+                  <InputLabel>Situação</InputLabel>
+                  <Select
+                    value={form.situacao}
+                    label="Situação"
+                    onChange={(e) => setField('situacao', e.target.value as SituacaoVaga)}
+                  >
+                    {SITUACOES_VAGA.map((situacao) => (
+                      <MenuItem key={situacao} value={situacao}>
+                        {SITUACAO_LABEL[situacao]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </>
+          )}
 
           <div
             className={
