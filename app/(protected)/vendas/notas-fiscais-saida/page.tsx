@@ -44,7 +44,6 @@ const NotasFiscaisSaida = () => {
         });
         setRows(response.nota_fiscal_saida ?? []);
         setRowCount(response.total ?? 0);
-        console.log(response);
       } catch (error) {
         console.error(error);
         setError('Erro ao carregar as notas fiscais de saída.');

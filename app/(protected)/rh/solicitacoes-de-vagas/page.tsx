@@ -126,9 +126,9 @@ const SolicitacoesDeVagas = () => {
         const response = await getSolicitacoesDeVagas({
           page: page + 1,
           limit: rowsPerPage,
-          cargo_vaga: cargo || undefined,
+          cargo: cargo || undefined,
           solicitante: solicitante || undefined,
-          id_setor: setorFiltro || undefined,
+          setor: setorFiltro || undefined,
           situacao,
         });
         setRows(response.vagas ?? []);
@@ -467,7 +467,7 @@ const SolicitacoesDeVagas = () => {
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
+            labelRowsPerPage=""
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={(e) => {
