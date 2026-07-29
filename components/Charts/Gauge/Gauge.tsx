@@ -40,7 +40,7 @@ const Gauge = ({ size = 300, startAngle = -120, endAngle = 120, value, color }: 
         sx={{
           '& text': {
             fill: 'var(--foreground) !important',
-            fontSize: 'var(--fs-4xl) !important',
+            fontSize: 'var(--fs-2xl) !important',
             fontFamily: 'var(--font-sans) !important',
             fontWeight: 'var(--w-semibold) !important',
           },

@@ -83,7 +83,7 @@ const Vendas = () => {
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
         {/* Gauge */}
-        <DashboardWidget cols={6} rows={3}>
+        <DashboardWidget cols={6} rows={3} tabletCols={12}>
           {loadingVendaMensal ? (
             <div className={styles.defaultCard}>
               <WidgetLoading />
@@ -102,7 +102,7 @@ const Vendas = () => {
           )}
         </DashboardWidget>
         {/* Ranking */}
-        <DashboardWidget cols={6} rows={6}>
+        <DashboardWidget cols={6} rows={6} tabletCols={12}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
@@ -158,7 +158,7 @@ const Vendas = () => {
             )}
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={3} rows={1}>
+        <DashboardWidget cols={3} rows={1} tabletCols={6}>
           <div className={styles.defaultCard}>
             {loadingVendaMensal ? (
               <WidgetLoading />
@@ -183,7 +183,7 @@ const Vendas = () => {
             )}
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={3} rows={1}>
+        <DashboardWidget cols={3} rows={1} tabletCols={6}>
           <div className={styles.defaultCard}>
             {loadingVendaMensal ? (
               <WidgetLoading />
@@ -204,7 +204,7 @@ const Vendas = () => {
             )}
           </div>
         </DashboardWidget>
-        <DashboardWidget cols={6} rows={2}>
+        <DashboardWidget cols={6} rows={2} tabletCols={12}>
           {loadingRitmoMeta ? (
             <div className={styles.defaultCard}>
               <WidgetLoading />

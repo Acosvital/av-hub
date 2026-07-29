@@ -2,15 +2,14 @@ export type TipoVaga = 'CLT' | 'PJ' | 'Estágio' | 'Temporário' | 'Terceirizado
 
 export const TIPOS_VAGA: TipoVaga[] = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Terceirizado'];
 
-export type SituacaoVaga = 'pendente' | 'aprovado' | 'reprovado' | 'cancelado';
+export type SituacaoVaga = 'pendente' | 'aprovado' | 'reprovado';
 
-export const SITUACOES_VAGA: SituacaoVaga[] = ['pendente', 'aprovado', 'reprovado', 'cancelado'];
+export const SITUACOES_VAGA: SituacaoVaga[] = ['pendente', 'aprovado', 'reprovado'];
 
 export const SITUACAO_LABEL: Record<SituacaoVaga, string> = {
   pendente: 'Pendente',
   aprovado: 'Aprovado',
   reprovado: 'Reprovado',
-  cancelado: 'Cancelado',
 };
 
 //Dados que virão da requisição
@@ -29,6 +28,7 @@ export interface SolicitacaoVagaProps {
   vr: number | null;
   custo_total: number | null;
   situacao: SituacaoVaga;
+  observacao_situacao: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,11 +42,12 @@ export interface FormSolicitacaoVaga {
   observacao_motivo: string;
   quantidade: number;
   tipo_vaga: TipoVaga;
-  salario: number;
+  salario: number | '';
   observacao: string;
-  insalubridade: number;
-  vr: number;
+  insalubridade: number | '';
+  vr: number | '';
   situacao: SituacaoVaga;
+  observacao_situacao: string;
 }
 
 export interface SetoresProps {

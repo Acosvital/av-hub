@@ -9,10 +9,11 @@
   min-width: 0;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .dashboardGridLayout {
     height: auto;
     grid-auto-rows: auto;
+    grid-auto-flow: dense;
     overflow: visible;
   }
 }

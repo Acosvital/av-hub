@@ -16,5 +16,14 @@ export function usePermission() {
   const can = (acao: Acao, telaIdOverride?: string): boolean =>
     hasPermission(menu, telaIdOverride ?? telaId, acao);
 
-  return { can, telaId };
+  // Retorna true somente se o usuário tiver exatamente as ações informadas (nem mais, nem menos).
+  // Ex: canOnly('pode_editar', 'pode_visualizar') é false para quem também tem pode_criar/pode_deletar.
+  const canOnly = (...acoes: Acao[]): boolean => {
+    const TODAS_ACOES: Acao[] = ['pode_visualizar', 'pode_criar', 'pode_editar', 'pode_deletar'];
+    return TODAS_ACOES.every((acao) =>
+      acoes.includes(acao) ? can(acao) : !can(acao),
+    );
+  };
+
+  return { can, canOnly, telaId };
 }

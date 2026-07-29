@@ -267,8 +267,8 @@
   white-space: nowrap;
 }
 
-/************************************************* MOBILE *************************************************/
-@media screen and (max-width: 768px) {
+/************************************************* MOBILE / TABLET *************************************************/
+@media screen and (max-width: 1024px) {
   .cardHeader {
     display: flex;
     height: fit-content;

@@ -6,8 +6,8 @@ interface GetSolicitacoesDeVagasParams {
   page?: number;
   limit?: number;
   solicitante?: string;
-  cargo_vaga?: string;
-  id_setor?: string;
+  cargo?: string;
+  setor?: string;
   situacao?: string;
 }
 
@@ -20,8 +20,8 @@ export async function getSolicitacoesDeVagas(params: GetSolicitacoesDeVagasParam
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.solicitante) query.set('solicitante', params.solicitante);
-  if (params.cargo_vaga) query.set('cargo_vaga', params.cargo_vaga);
-  if (params.id_setor) query.set('id_setor', params.id_setor);
+  if (params.cargo) query.set('cargo', params.cargo);
+  if (params.setor) query.set('setor', params.setor);
   if (params.situacao) query.set('situacao', params.situacao);
   return apiFetch<SolicitacoesDeVagasResponse>(
     `/api/vagas?${query}`,

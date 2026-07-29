@@ -6,8 +6,10 @@ interface DashboardWidgetProps {
   cols: GridCols;
   rows: GridRows;
   tabletCols?: GridCols;
+  tabletOrder?: number;
   mobileCols?: GridCols;
   mobileOrder?: number;
+  hideOnTablet?: boolean;
   hideOnMobile?: boolean;
   children: React.ReactNode;
 }
@@ -17,17 +19,20 @@ const DashboardWidget = ({
   cols,
   rows,
   tabletCols = cols,
+  tabletOrder,
   mobileCols = 12,
   mobileOrder,
   hideOnMobile,
+  hideOnTablet,
 }: DashboardWidgetProps) => {
   return (
     <div
-      className={`${styles.widget}${hideOnMobile ? ` ${styles.hideOnMobile}` : ''}`}
+      className={`${styles.widget}${hideOnMobile ? ` ${styles.hideOnMobile}` : ''} ${hideOnTablet ? ` ${styles.hideOnTablet}` : ''}`}
       style={{
         ['--cols' as string]: cols,
         ['--rows' as string]: rows,
         ['--tablet-cols' as string]: tabletCols ?? cols,
+        ['--tablet-order' as string]: tabletOrder ?? 0,
         ['--mobile-cols' as string]: mobileCols ?? tabletCols ?? cols,
         ['--mobile-order' as string]: mobileOrder ?? 0,
       }}
