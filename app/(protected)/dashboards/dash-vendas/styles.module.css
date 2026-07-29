@@ -184,3 +184,23 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/************************************************* MOBILE / TABLET *************************************************/
+@media screen and (max-width: 1024px) {
+  .cardHeader {
+    display: flex;
+    height: fit-content;
+  }
+  .autoScroll {
+    animation: none;
+    transform: none;
+  }
+
+  /* esconde o grupo duplicado que existe só pra loop infinito */
+  .autoScroll > div:last-child {
+    display: none;
+  }
+  .defaultRank {
+    height: fit-content;
+  }
+}

@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--space-3);
+  padding: var(--space-2);
   border-bottom: 1px solid var(--border);
 }
 
@@ -45,7 +45,7 @@
 }
 
 .meta {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   color: var(--gold);
   text-shadow: 0 0 10px var(--gold);
 }

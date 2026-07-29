@@ -136,7 +136,7 @@ export default function Comissoes() {
   return (
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
-        <DashboardWidget cols={4} rows={2} mobileOrder={1}>
+        <DashboardWidget cols={4} rows={2} tabletCols={12} mobileOrder={1} tabletOrder={1}>
           {loading ? (
             <WidgetLoading />
           ) : (
@@ -152,7 +152,7 @@ export default function Comissoes() {
             </div>
           )}
         </DashboardWidget>
-        <DashboardWidget cols={8} rows={6} mobileOrder={3}>
+        <DashboardWidget cols={8} rows={6} tabletCols={12} mobileOrder={3} tabletOrder={3}>
           {loading ? (
             <WidgetLoading />
           ) : (
@@ -163,7 +163,7 @@ export default function Comissoes() {
             />
           )}
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={4} mobileOrder={2}>
+        <DashboardWidget cols={4} rows={4} tabletCols={12} mobileOrder={2} tabletOrder={2}>
           {loading ? <WidgetLoading /> : <CommissionDonutChart data={donutData} total={total} />}
         </DashboardWidget>
       </DashboardGrid>

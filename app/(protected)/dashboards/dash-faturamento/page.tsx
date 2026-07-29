@@ -188,7 +188,7 @@ export default function Faturamento() {
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
         {/* Ranking */}
-        <DashboardWidget cols={5} rows={6} mobileOrder={6}>
+        <DashboardWidget cols={5} rows={6} tabletCols={12} mobileOrder={6} tabletOrder={3}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
@@ -254,7 +254,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Logo */}
-        <DashboardWidget cols={2} rows={1} hideOnMobile>
+        <DashboardWidget cols={2} rows={1} tabletCols={4} hideOnMobile hideOnTablet>
           <div className={styles.logoContainer}>
             {mounted && (
               <Image
@@ -267,7 +267,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Historico de faturamento */}
-        <DashboardWidget cols={5} rows={2} mobileOrder={3}>
+        <DashboardWidget cols={5} rows={2} tabletCols={8} mobileOrder={3} tabletOrder={2}>
           {loadingResumoMensal ? (
             <div className={styles.defaultCard}>
               <WidgetLoading />
@@ -277,7 +277,7 @@ export default function Faturamento() {
           )}
         </DashboardWidget>
         {/* Gauge */}
-        <DashboardWidget cols={2} rows={3} mobileOrder={1}>
+        <DashboardWidget cols={2} rows={3} tabletCols={4} mobileOrder={1} tabletOrder={1}>
           {loadingFaturamentoMensal ? (
             <div className={styles.defaultCard}>
               <WidgetLoading />
@@ -295,7 +295,7 @@ export default function Faturamento() {
           )}
         </DashboardWidget>
         {/* Ritmo de Meta */}
-        <DashboardWidget cols={5} rows={1} mobileOrder={2}>
+        <DashboardWidget cols={5} rows={1} tabletCols={12} mobileOrder={2} tabletOrder={4}>
           {loadingRitmoMeta ? (
             <div className={styles.defaultCard}>
               <WidgetLoading />
@@ -311,7 +311,7 @@ export default function Faturamento() {
           )}
         </DashboardWidget>
         {/* Tipo de faturamento */}
-        <DashboardWidget cols={2} rows={3} mobileOrder={4}>
+        <DashboardWidget cols={2} rows={3} tabletCols={6} mobileOrder={4} tabletOrder={5}>
           <div className={styles.defaultCard}>
             <h3>Tipo de faturamento</h3>
             {loadingFaturamentoPorTipo ? (
@@ -329,7 +329,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Situação */}
-        <DashboardWidget cols={3} rows={3} mobileOrder={5}>
+        <DashboardWidget cols={3} rows={3} tabletCols={6} mobileOrder={5} tabletOrder={6}>
           <div className={styles.defaultCard}>
             <h3>Situação</h3>
             {loadingSituacaoPedidos ? (
@@ -352,7 +352,7 @@ export default function Faturamento() {
           </div>
         </DashboardWidget>
         {/* Faturamento Diário */}
-        <DashboardWidget cols={2} rows={2} mobileOrder={2}>
+        <DashboardWidget cols={2} rows={2} tabletCols={6} mobileOrder={2} tabletOrder={7}>
           <div className={styles.defaultCard}>
             {loadingFaturamentoMensal ? (
               <WidgetLoading />

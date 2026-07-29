@@ -8,14 +8,18 @@
 @media (max-width: 1024px) {
   .widget {
     grid-column: span var(--tablet-cols);
+    /* grid-row: auto;
+    height: auto; */
+    order: var(--tablet-order, 0);
+  }
+  .hideOnTablet {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
   .widget {
     grid-column: span var(--mobile-cols);
-    grid-row: auto;
-    height: auto;
     order: var(--mobile-order, 0);
   }
 
