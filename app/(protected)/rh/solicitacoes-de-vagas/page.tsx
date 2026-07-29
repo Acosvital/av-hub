@@ -54,11 +54,12 @@ const FORM_INICIAL: FormSolicitacaoVaga = {
   observacao_motivo: '',
   quantidade: 1,
   tipo_vaga: 'CLT',
-  salario: 0,
+  salario: '',
   observacao: '',
-  insalubridade: 0,
-  vr: 0,
+  insalubridade: '',
+  vr: '',
   situacao: 'pendente',
+  observacao_situacao: '',
 };
 
 const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error'> = {
@@ -83,7 +84,7 @@ const SolicitacoesDeVagas = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const { can } = usePermission();
+  const { can, canOnly } = usePermission();
 
   const [rows, setRows] = useState<SolicitacaoVagaProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -173,11 +174,12 @@ const SolicitacoesDeVagas = () => {
       observacao_motivo: solicitacao.observacao_motivo ?? '',
       quantidade: solicitacao.quantidade,
       tipo_vaga: solicitacao.tipo_vaga ?? 'CLT',
-      salario: solicitacao.salario ?? 0,
+      salario: solicitacao.salario ?? '',
       observacao: solicitacao.observacao ?? '',
-      insalubridade: solicitacao.insalubridade ?? 0,
-      vr: solicitacao.vr ?? 0,
+      insalubridade: solicitacao.insalubridade ?? '',
+      vr: solicitacao.vr ?? '',
       situacao: solicitacao.situacao,
+      observacao_situacao: solicitacao.observacao_situacao ?? '',
     });
     setIsModalOpen(true);
   };
@@ -213,12 +215,13 @@ const SolicitacoesDeVagas = () => {
         observacao_motivo: form.observacao_motivo.trim() || null,
         quantidade: form.quantidade,
         tipo_vaga: form.tipo_vaga || null,
-        salario: form.salario,
+        salario: form.salario === '' ? null : form.salario,
         observacao: form.observacao.trim() || null,
-        insalubridade: form.insalubridade,
-        vr: form.vr,
+        insalubridade: form.insalubridade === '' ? null : form.insalubridade,
+        vr: form.vr === '' ? null : form.vr,
         custo_total: calcularCustoTotal(form),
         situacao: form.situacao,
+        observacao_situacao: form.observacao_situacao,
       };
 
       if (editingId) {
@@ -337,7 +340,7 @@ const SolicitacoesDeVagas = () => {
                           'Solicitante',
                           'Setor',
                           'Cargo / Vaga',
-                          'Observação / Motivo',
+                          'Obs. Motivo',
                           'Qtd',
                           'Tipo de Vaga',
                           'Salário',
@@ -346,6 +349,7 @@ const SolicitacoesDeVagas = () => {
                           'VR',
                           'Custo Total',
                           'Situação',
+                          'Obs. status',
                         ].map((label) => (
                           <TableCell key={label}>{label}</TableCell>
                         ))}
@@ -385,6 +389,7 @@ const SolicitacoesDeVagas = () => {
                               size="small"
                             />
                           </TableCell>
+                          <TableCell>{row.observacao_situacao || '—'}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -492,7 +497,7 @@ const SolicitacoesDeVagas = () => {
               label="Data da Solicitação"
               type="date"
               required
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               value={form.data_solicitacao}
               onChange={(e) => setField('data_solicitacao', e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
@@ -501,7 +506,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 240 }}
               label="Solicitante"
               required
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               value={form.solicitante}
               onChange={(e) => setField('solicitante', e.target.value)}
             />
@@ -510,7 +515,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.id_setor}
                 label="Setor"
-                disabled={can('pode_editar')}
+                disabled={canOnly('pode_editar', 'pode_visualizar')}
                 onChange={(e) => setField('id_setor', e.target.value)}
               >
                 {setores.map((f) => (
@@ -529,7 +534,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 2, minWidth: 240 }}
               label="Cargo / Vaga"
               required
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               value={form.cargo_vaga}
               onChange={(e) => setField('cargo_vaga', e.target.value)}
             />
@@ -537,7 +542,7 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 100 }}
               label="Qtd"
               type="number"
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               slotProps={{ htmlInput: { min: 1 } }}
               value={form.quantidade}
               onChange={(e) => setField('quantidade', Math.max(1, Number(e.target.value)))}
@@ -547,7 +552,7 @@ const SolicitacoesDeVagas = () => {
               <Select
                 value={form.tipo_vaga}
                 label="Tipo de Vaga"
-                disabled={can('pode_editar')}
+                disabled={canOnly('pode_editar', 'pode_visualizar')}
                 onChange={(e) =>
                   setField('tipo_vaga', e.target.value as FormSolicitacaoVaga['tipo_vaga'])
                 }
@@ -563,9 +568,9 @@ const SolicitacoesDeVagas = () => {
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label="Observação / Motivo"
+              label="Obs. Vaga"
               multiline
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               minRows={2}
               value={form.observacao_motivo}
               onChange={(e) => setField('observacao_motivo', e.target.value)}
@@ -579,36 +584,48 @@ const SolicitacoesDeVagas = () => {
               sx={{ flex: 1, minWidth: 160 }}
               label="Salário"
               type="number"
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.salario}
-              onChange={(e) => setField('salario', Math.max(0, Number(e.target.value)))}
+              onChange={(e) =>
+                setField(
+                  'salario',
+                  e.target.value === '' ? '' : Math.max(0, Number(e.target.value))
+                )
+              }
             />
             <TextField
               sx={{ flex: 1, minWidth: 160 }}
               label="Insalubridade"
               type="number"
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.insalubridade}
-              onChange={(e) => setField('insalubridade', Math.max(0, Number(e.target.value)))}
+              onChange={(e) =>
+                setField(
+                  'insalubridade',
+                  e.target.value === '' ? '' : Math.max(0, Number(e.target.value))
+                )
+              }
             />
             <TextField
               sx={{ flex: 1, minWidth: 160 }}
               label="VR"
               type="number"
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
               value={form.vr}
-              onChange={(e) => setField('vr', Math.max(0, Number(e.target.value)))}
+              onChange={(e) =>
+                setField('vr', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))
+              }
             />
           </div>
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
-              label="Obs."
+              label="Obs. Remuneração"
               multiline
-              disabled={can('pode_editar')}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
               minRows={2}
               value={form.observacao}
               onChange={(e) => setField('observacao', e.target.value)}
@@ -637,6 +654,16 @@ const SolicitacoesDeVagas = () => {
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+              <div className={styles.formRow}>
+                <TextField
+                  sx={{ flex: 1, minWidth: 260 }}
+                  label="Obs. Situação"
+                  multiline
+                  minRows={2}
+                  value={form.observacao_situacao}
+                  onChange={(e) => setField('observacao_situacao', e.target.value)}
+                />
               </div>
             </>
           )}

@@ -28,6 +28,7 @@ export interface SolicitacaoVagaProps {
   vr: number | null;
   custo_total: number | null;
   situacao: SituacaoVaga;
+  observacao_situacao: string;
   created_at: string;
   updated_at: string;
 }
@@ -41,11 +42,12 @@ export interface FormSolicitacaoVaga {
   observacao_motivo: string;
   quantidade: number;
   tipo_vaga: TipoVaga;
-  salario: number;
+  salario: number | '';
   observacao: string;
-  insalubridade: number;
-  vr: number;
+  insalubridade: number | '';
+  vr: number | '';
   situacao: SituacaoVaga;
+  observacao_situacao: string;
 }
 
 export interface SetoresProps {
