@@ -6,6 +6,7 @@ export interface VendedorCadastroProps {
   email: string | null;
   ajuda_custo: number | null;
   filial: string | null;
+  codigo_empresa: string;
   ativo: boolean;
   id_origem: string | null;
   id_usuario: string | null;
