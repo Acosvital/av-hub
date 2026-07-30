@@ -86,7 +86,7 @@ export default function Comissoes() {
       ajudaCusto: v.AjudaCusto,
       comissao: v.valorTotalComissao,
       bloqueado: v.valorBloqueado,
-      total: v.AjudaCusto + v.valorTotalComissao - v.valorBloqueado,
+      total: v.AjudaCusto + v.valorTotalComissao - (v.valorBloqueado ?? 0),
     }));
     return [...apiVendors, ...exceptionVendors]
       .sort((a, b) => b.total - a.total)
@@ -99,7 +99,8 @@ export default function Comissoes() {
       label: 'Comissão Vendedores',
       value:
         (comissoes?.resumo.valorTotalComissao ?? 0) +
-        exceptionVendors.reduce((sum, v) => sum + v.comissao, 0),
+        exceptionVendors.reduce((sum, v) => sum + v.comissao, 0) -
+        (comissoes?.resumo.valorTotalBloqueado ?? 0),
       color: 'var(--green-light)',
     },
     {

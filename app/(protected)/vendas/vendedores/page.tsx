@@ -39,6 +39,7 @@ import { FormVendedorCadastro, VendedorCadastroProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import { getUnidades, UnidadeProps } from '@/services/referenciais';
 
 const FORM_INICIAL: FormVendedorCadastro = {
   codigo_vendedor_omie: '',
@@ -67,6 +68,7 @@ export default function Vendedores() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [usuarios, setUsuarios] = useState<UsuarioProps[]>([]);
+  const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
 
   const [codigoInput, setCodigoInput] = useState('');
   const [nomeInput, setNomeInput] = useState('');
@@ -83,13 +85,21 @@ export default function Vendedores() {
   useEffect(() => {
     async function loadUsuarios() {
       try {
-        const data = await getUsuarios({ limit: 1000 });
+        const data = await getUsuarios({ limit: 200 });
         setUsuarios(data.usuarios);
       } catch {
         notify.error('Erro ao carregar usuários');
       }
     }
-    loadUsuarios();
+    async function loadUnidades() {
+      try {
+        const data = await getUnidades();
+        setUnidades(data.unidades);
+      } catch {
+        notify.error('Erro ao carregar unidades');
+      }
+    }
+    Promise.allSettled([loadUsuarios(), loadUnidades()]);
   }, []);
 
   useEffect(() => {
@@ -120,6 +130,12 @@ export default function Vendedores() {
     if (!id) return '—';
     const found = usuarios.find((u) => u.id === id);
     return found ? found.username : id;
+  };
+
+  const unidadeLabel = (id: string | null) => {
+    if (!id) return '—';
+    const found = unidades.find((u) => u.id === id);
+    return found ? found.nome_fantasia : id;
   };
 
   const limparFiltros = () => {
@@ -285,9 +301,11 @@ export default function Vendedores() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    {['Nome', 'Email', 'Filial', 'Usuário', 'Comissão', 'Status'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
-                    ))}
+                    {['Nome', 'Email', 'Filial', 'Usuário', 'Comissão', 'Status', 'Sistema'].map(
+                      (label) => (
+                        <TableCell key={label}>{label}</TableCell>
+                      )
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -316,6 +334,7 @@ export default function Vendedores() {
                           size="small"
                         />
                       </TableCell>
+                      <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

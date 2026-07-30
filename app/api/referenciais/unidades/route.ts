@@ -1,12 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const data = await apiFetch(`${process.env.API_URL}/unidades`, 'Erro ao buscar unidades', {
-      headers: { 'x-api-key': process.env.API_KEY! },
-      cache: 'no-store',
+    const { searchParams } = request.nextUrl;
+    const params = new URLSearchParams();
+    ['page', 'limit', 'tipo_unidade'].forEach((key) => {
+      const value = searchParams.get(key);
+      if (value !== null) params.set(key, value);
     });
+    const data = await apiFetch(
+      `${process.env.API_URL}/unidades?${params}`,
+      'Erro ao buscar unidades',
+      { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
+    );
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);
