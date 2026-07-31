@@ -5,7 +5,8 @@ import RankingBadge from './RankingBadge/RankingBadge';
 
 interface VendorCardProps {
   vendedor: string;
-  qtd_pedidos: string;
+  qtd_pedidos?: string;
+  total_nfs?: string;
   perc_meta: string;
   perc_participacao: string;
   faturamento?: string;
@@ -24,6 +25,7 @@ const rankClass: Record<number, string> = {
 const VendorCard = ({
   vendedor,
   qtd_pedidos,
+  total_nfs,
   perc_meta,
   perc_participacao,
   faturamento,
@@ -50,7 +52,9 @@ const VendorCard = ({
       <div className={styles.vendor}>
         <h4 className={styles.vendorName}>{vendedor}</h4>
         <div className={styles.vendorDetails}>
-          <span className={styles.vendorInfo}>{`${qtd_pedidos || 0} pedidos`}</span>
+          <span
+            className={styles.vendorInfo}
+          >{`${qtd_pedidos ? qtd_pedidos + ' Pedidos' : total_nfs + ' NFs'}`}</span>
           <span className={styles.vendorInfo}>{`${perc_meta || 0}% Meta`}</span>
           <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
         </div>
