@@ -19,6 +19,7 @@ import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 
 const Vendas = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
+  const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
   const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
   const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
@@ -119,7 +120,10 @@ const Vendas = () => {
                       <VendorCard
                         key={Number(v.cod_vendedor)}
                         {...v}
-                        onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                        onClick={() => {
+                          setSelectedVendorId(Number(v.cod_vendedor));
+                          setSelectedFilialId(v.codigo_empresa);
+                        }}
                         color={accentColor}
                       />
                     ))}
@@ -136,7 +140,10 @@ const Vendas = () => {
                         <VendorCard
                           key={Number(v.cod_vendedor)}
                           {...v}
-                          onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                          onClick={() => {
+                            setSelectedVendorId(Number(v.cod_vendedor));
+                            setSelectedFilialId(v.codigo_empresa);
+                          }}
                           color={accentColor}
                         />
                       ))}
@@ -147,7 +154,10 @@ const Vendas = () => {
                           <VendorCard
                             key={`dup-${Number(v.cod_vendedor)}`}
                             {...v}
-                            onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                            onClick={() => {
+                              setSelectedVendorId(Number(v.cod_vendedor));
+                              setSelectedFilialId(v.codigo_empresa);
+                            }}
                             color={accentColor}
                           />
                         ))}
@@ -222,7 +232,7 @@ const Vendas = () => {
       </DashboardGrid>
       <VendorDetailsModal
         isOpen={selectedVendorId !== null}
-        filialId="" //Ajustar Endpoint e colocar id real
+        filialId={selectedFilialId} //Ajustar Endpoint e colocar id real
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
         dashboard="vendas"
