@@ -87,6 +87,7 @@ export async function getRitmoMetaVendas(params: GetRitmoMetaVendasParams = {}) 
 /************************* DETALHE VENDEDOR *************************/
 interface GetDetalheVendedorVendasParams {
   cod_vendedor: string;
+  codigo_empresa: string;
   mes: number;
   ano: number;
   numero_pedido?: string;
@@ -114,6 +115,7 @@ interface DetalheVendedorVendasResponse {
 export async function getDetalheVendedorVendas(params: GetDetalheVendedorVendasParams) {
   const query = new URLSearchParams();
   query.set('cod_vendedor', String(params.cod_vendedor));
+  query.set('codigo_empresa', String(params.codigo_empresa));
   query.set('mes', String(params.mes));
   query.set('ano', String(params.ano));
   if (params.numero_pedido) query.set('numero_pedido', String(params.numero_pedido));

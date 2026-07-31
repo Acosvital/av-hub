@@ -3,6 +3,7 @@ export interface RankingVendedoresVendasProps {
   ano: number;
   posicao: string;
   cod_vendedor: string;
+  codigo_empresa: string;
   vendedor: string;
   vendas: string;
   qtd_pedidos: string;
