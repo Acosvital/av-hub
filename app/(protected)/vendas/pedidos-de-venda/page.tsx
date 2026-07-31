@@ -116,7 +116,7 @@ export default function PedidosVenda() {
 
   const unidadeLabel = (id: string) => {
     const found = unidades.find((u) => u.id === id);
-    return found ? found.nome : id;
+    return found ? found.nome_fantasia : id;
   };
 
   const limparFiltros = () => {
@@ -183,7 +183,7 @@ export default function PedidosVenda() {
                 <MenuItem value="">Todas</MenuItem>
                 {unidades.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
-                    {u.nome}
+                    {u.nome_fantasia}
                   </MenuItem>
                 ))}
               </Select>
