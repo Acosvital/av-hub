@@ -270,6 +270,7 @@
 html {
   font-family: var(--font-sans);
   color: var(--foreground);
+  /* font-size: clamp(93.75%, 0.5vw + 0.85rem, 112.5%); */
 }
 
 body {

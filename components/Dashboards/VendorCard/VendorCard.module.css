@@ -48,7 +48,7 @@
 
 .vendorName {
   font-family: var(--font-sans);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: var(--w-bold);
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -63,14 +63,14 @@
 }
 
 .vendorInfo {
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   color: var(--foreground-secondary);
   letter-spacing: -0.04em;
 }
 
 .vendorTotal {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: var(--w-black);
   color: var(--foreground);
   flex: 1;

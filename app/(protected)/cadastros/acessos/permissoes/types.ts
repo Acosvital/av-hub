@@ -13,12 +13,3 @@ export interface PermissaoProps {
   updated_at?: string;
   deleted_at?: string | null;
 }
-
-export interface FormPermissao {
-  id_perfil: string;
-  id_tela: string;
-  pode_visualizar: boolean;
-  pode_criar: boolean;
-  pode_editar: boolean;
-  pode_deletar: boolean;
-}

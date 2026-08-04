@@ -1,7 +1,7 @@
 import { DashboardDateContext } from '@/contexts/DashboardDateContext';
 import { useContext } from 'react';
 
-export function useDashboardDate() {
+function useDashboardDate() {
   const context = useContext(DashboardDateContext);
 
   if (!context) {

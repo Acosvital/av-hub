@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { LayoutContext } from '@/contexts/LayoutContext';
 
-export function useLayout() {
+function useLayout() {
   const context = useContext(LayoutContext);
 
   if (!context) {

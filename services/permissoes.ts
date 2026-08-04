@@ -30,28 +30,6 @@ export async function getPermissoes(params: GetPermissoesParams = {}) {
   return apiFetch<PermissoesResponse>(`/api/permissoes?${query}`, 'Erro ao buscar permissões');
 }
 
-export async function criarPermissao(data: object) {
-  return apiFetch('/api/permissoes', 'Erro ao criar permissão', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function editarPermissao(id: string, data: object) {
-  return apiFetch(`/api/permissoes/${id}`, 'Erro ao atualizar permissão', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deletarPermissao(id: string) {
-  return apiFetch(`/api/permissoes/${id}`, 'Erro ao deletar permissão', {
-    method: 'DELETE',
-  });
-}
-
 export interface BulkPermissaoPayload {
   id_perfil: string;
   permissoes: Array<{

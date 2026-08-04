@@ -2,11 +2,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   border-radius: var(--radius-sm);
   font-weight: var(--w-bold);
   font-family: var(--font-sans);
+  font-size: var(--fs-sm);
 }
 
 .gold {
@@ -29,5 +30,6 @@
 
 .default {
   background-color: var(--default);
+  box-shadow: 0 0 10px 2px var(--card-bg-tertiary);
   color: var(--neutral-0);
 }

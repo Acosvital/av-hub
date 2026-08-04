@@ -1,4 +1,4 @@
-export interface PedidosComissoesProps {
+interface PedidosComissoesProps {
   dataNF: string;
   status: string;
   cliente: string;
@@ -12,7 +12,7 @@ export interface PedidosComissoesProps {
   Motivo_Bloqueio: string;
 }
 
-export interface VendedoresComissoesProps {
+interface VendedoresComissoesProps {
   pedidos: PedidosComissoesProps[];
   vendedor: string;
   AjudaCusto: number;

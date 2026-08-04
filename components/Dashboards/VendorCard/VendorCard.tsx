@@ -42,7 +42,7 @@ const VendorCard = ({
         style={{
           width: `${perc_participacao}%`,
           borderRight: `3px solid ${color}`,
-          boxShadow: `0 0 10px 1px ${color}`,
+          boxShadow: `0 0 8px 1px ${color}`,
         }}
       />
       <div className={styles.vendorRank}>

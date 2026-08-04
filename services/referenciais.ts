@@ -48,10 +48,6 @@ interface SetoresResponse extends PaginatedResponse {
   setores: SetoresProps[];
 }
 
-export async function getCargos() {
-  return apiFetch('/api/referenciais/cargos', 'Erro ao buscar cargos');
-}
-
 export async function getSetores(params: GetSetoresParams = {}): Promise<SetoresResponse> {
   const query = new URLSearchParams();
   if (params.page) query.set('page', String(params.page));
