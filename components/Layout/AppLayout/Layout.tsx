@@ -5,25 +5,21 @@ import { Slide, ToastContainer } from 'react-toastify';
 import useLayout from '@/hooks/useLayout';
 import OverlayHeader from './OverlayHeader/OverlayHeader';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { mode, fullscreen, setMode, setFullscreen, mobileMenuOpen, setMobileMenuOpen } =
     useLayout();
   const pathname = usePathname();
-  const wasDashboardRef = useRef(false);
 
   useEffect(() => {
     const isDashboard = pathname.startsWith('/dashboard');
     setMode(isDashboard ? 'dashboard' : 'default');
 
-    if (isDashboard && !wasDashboardRef.current) {
-      setFullscreen(true);
-    } else if (!isDashboard) {
+    if (!isDashboard) {
       setFullscreen(false);
     }
-    wasDashboardRef.current = isDashboard;
   }, [pathname, setMode, setFullscreen]);
 
   // Fora dos dashboards não há mais um header — só o botão de abrir o
