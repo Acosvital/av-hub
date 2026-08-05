@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import DashboardHeroLayout from '@/components/Dashboards/DashboardHeroLayout/DashboardHeroLayout';
+import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import styles from './styles.module.css';
@@ -23,6 +24,7 @@ import {
   VendasPorTipoProps,
 } from './types';
 import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
+import Card from '@/components/Ui/Card/Card';
 
 const TIPO_VENDA_DEFINITIONS: VendasPorTipoProps['tipo_contrato'][] = [
   'SPOT',
@@ -148,7 +150,10 @@ const Vendas = () => {
                 <VendorCard
                   key={Number(v.cod_vendedor)}
                   {...v}
-                  onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                  onClick={() => {
+                    setSelectedVendorId(Number(v.cod_vendedor));
+                    setSelectedFilialId(v.codigo_empresa);
+                  }}
                   color={accentColor}
                 />
               ))}
@@ -165,7 +170,10 @@ const Vendas = () => {
                   <VendorCard
                     key={Number(v.cod_vendedor)}
                     {...v}
-                    onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                    onClick={() => {
+                      setSelectedVendorId(Number(v.cod_vendedor));
+                      setSelectedFilialId(v.codigo_empresa);
+                    }}
                     color={accentColor}
                   />
                 ))}
@@ -176,7 +184,10 @@ const Vendas = () => {
                     <VendorCard
                       key={`dup-${Number(v.cod_vendedor)}`}
                       {...v}
-                      onClick={() => setSelectedVendorId(Number(v.cod_vendedor))}
+                      onClick={() => {
+                        setSelectedVendorId(Number(v.cod_vendedor));
+                        setSelectedFilialId(v.codigo_empresa);
+                      }}
                       color={accentColor}
                     />
                   ))}
@@ -257,18 +268,23 @@ const Vendas = () => {
     </SectionCard>
   );
 
+  const dashboard = (
+    <DashboardHeroLayout
+      hero={hero}
+      ranking={ranking}
+      secondaryStats={secondaryStats}
+      secondaryPace={secondaryPace}
+      tertiary={tertiary}
+    />
+  );
+
   return (
     <div className={styles.dashboardContainer}>
-      <DashboardHeroLayout
-        hero={hero}
-        ranking={ranking}
-        secondaryStats={secondaryStats}
-        secondaryPace={secondaryPace}
-        tertiary={tertiary}
-      />
+      {/* Adicionar ao array panels os dashboards desejados, que serão exibidos em sequência */}
+      <DashboardScrollStack accentColor={accentColor} panels={[dashboard]} />
       <VendorDetailsModal
         isOpen={selectedVendorId !== null}
-        filialId={selectedFilialId} //Ajustar Endpoint e colocar id real
+        filialId={selectedFilialId}
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
         dashboard="vendas"
