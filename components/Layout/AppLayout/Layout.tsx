@@ -30,7 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className={styles.app}>
         {!fullscreen && <Menu />}
-        <div className={styles.shell}>
+        <div className={`${styles.shell} ${mode === 'dashboard' ? 'dark' : ''}`}>
           {mode === 'dashboard' && <OverlayHeader />}
           {showMobileMenuButton && (
             <button
