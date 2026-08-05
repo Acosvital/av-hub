@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Fira_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
 import Providers from '@/providers';
 
-const firaSans = Fira_Sans({
-  variable: '--font-fira-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
   weight: ['400', '600', '700', '900'],
   display: 'swap',
@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-br" suppressHydrationWarning>
-      <body className={`${firaSans.variable}`}>
+      <body className={`${inter.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

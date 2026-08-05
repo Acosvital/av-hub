@@ -3,7 +3,6 @@ import styles from './OverlayHeader.module.css';
 import useLayout from '@/hooks/useLayout';
 import { useSession } from 'next-auth/react';
 import ThemeToggle from '../Header/ThemeToggle/ThemeToggle';
-import UserMenu from '../Header/UserMenu/UserMenu';
 import { MdFullscreen, MdFullscreenExit, MdOutlineHistory } from 'react-icons/md';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -91,8 +90,6 @@ const OverlayHeader = () => {
       >
         <GiHamburgerMenu />
       </button>
-      <span className={styles.title}>Aços Hub</span>
-
       {status === 'authenticated' && (
         <div className={styles.buttonsContainer}>
           <button
@@ -176,7 +173,6 @@ const OverlayHeader = () => {
             {fullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
           </button>
           <ThemeToggle />
-          <UserMenu onOpen={() => setIsOpenDatePicker(false)} />
         </div>
       )}
     </header>

@@ -1,25 +1,50 @@
 'use client';
-import Header from './Header/Header';
 import Menu from './Menu/Menu';
 import styles from './Layout.module.css';
 import { Slide, ToastContainer } from 'react-toastify';
 import useLayout from '@/hooks/useLayout';
 import OverlayHeader from './OverlayHeader/OverlayHeader';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { GiHamburgerMenu } from 'react-icons/gi';
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { mode, fullscreen, setMode } = useLayout();
+  const { mode, fullscreen, setMode, setFullscreen, mobileMenuOpen, setMobileMenuOpen } =
+    useLayout();
   const pathname = usePathname();
+  const wasDashboardRef = useRef(false);
+
   useEffect(() => {
-    setMode(pathname.startsWith('/dashboard') ? 'dashboard' : 'default');
-  }, [pathname, setMode]);
+    const isDashboard = pathname.startsWith('/dashboard');
+    setMode(isDashboard ? 'dashboard' : 'default');
+
+    if (isDashboard && !wasDashboardRef.current) {
+      setFullscreen(true);
+    } else if (!isDashboard) {
+      setFullscreen(false);
+    }
+    wasDashboardRef.current = isDashboard;
+  }, [pathname, setMode, setFullscreen]);
+
+  // Fora dos dashboards não há mais um header — só o botão de abrir o
+  // menu no mobile, que antes vinha do Header, continua acessível.
+  const showMobileMenuButton = mode !== 'dashboard' && !mobileMenuOpen;
 
   return (
     <>
       <div className={styles.app}>
         {!fullscreen && <Menu />}
         <div className={styles.shell}>
-          {mode === 'dashboard' ? <OverlayHeader /> : <Header />}
+          {mode === 'dashboard' && <OverlayHeader />}
+          {showMobileMenuButton && (
+            <button
+              className={styles.mobileMenuButton}
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Abrir menu"
+            >
+              <GiHamburgerMenu />
+            </button>
+          )}
           <main className={styles.mainArea}>{children}</main>
         </div>
       </div>

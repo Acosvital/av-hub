@@ -1,36 +1,34 @@
 .vendorCard {
   display: flex;
-  min-height: 75px;
-  max-height: 75px;
-  border-radius: var(--radius-xl);
-  padding: var(--space-4);
+  min-height: 52px;
+  max-height: 52px;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   position: relative;
   overflow: hidden;
-  background-color: var(--card-bg-secondary);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-color) 20%, var(--card-bg-secondary)) 0%,
+    var(--card-bg-secondary) 80%
+  );
+  border-left: 3px solid var(--row-color);
   font-family: var(--font-sans);
-}
-
-.vendorCard > *:not(.percentageEffect) {
-  position: relative;
-  z-index: 1;
+  transition: border-color var(--t-slow), background var(--t-slow);
 }
 
 .vendorCard:hover {
   cursor: pointer;
-  border: 2px solid var(--gold);
-  transition: border var(--t-slow);
+  border-left-color: var(--gold);
 }
 
-.percentageEffect {
-  position: absolute;
-  inset: 0;
-  width: 300px;
-  border-right: 3px solid var(--gold);
-  background-color: var(--border);
-  box-shadow: 0 0 10px 1px var(--gold);
-  z-index: 1;
+.podium {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-color) 40%, var(--card-bg-secondary)) 0%,
+    var(--card-bg-secondary) 90%
+  );
 }
 
 .vendorRank {
@@ -44,54 +42,55 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .vendorName {
   font-family: var(--font-sans);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-sm);
   font-weight: var(--w-bold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vendorDetails {
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: flex-start;
-  gap: var(--space-4);
+  gap: var(--space-2);
+  overflow: hidden;
 }
 
 .vendorInfo {
-  font-size: var(--fs-md);
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   color: var(--foreground-secondary);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.vendorMeta {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .vendorTotal {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: var(--w-black);
   color: var(--foreground);
-  flex: 1;
+  flex: 0 0 auto;
   align-self: center;
   text-align: end;
-}
-
-.gold {
-  border: 1px solid var(--gold);
-}
-
-.silver {
-  border: 1px solid var(--silver);
-}
-
-.bronze {
-  border: 1px solid var(--bronze);
-}
-
-.default {
-  border: 1px solid var(--default);
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {

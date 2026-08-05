@@ -7,6 +7,7 @@
   width: var(--menu-w);
   gap: var(--space-4);
   transition: min-width var(--t-base);
+  position: relative;
   z-index: 110;
 }
 
@@ -19,12 +20,39 @@
   align-items: center;
   gap: var(--space-4);
   transition: min-width var(--t-base);
+  position: relative;
   z-index: 110;
+}
+
+/* Botão de recolher/expandir, flutuando meio dentro / meio fora da
+   borda direita do sidebar — padrão usado em Notion/Linear. */
+.toggleBtn {
+  position: absolute;
+  right: -14px;
+  top: 40px;
+  z-index: 120;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--av-secondary);
+  background-color: var(--av-primary);
+  color: var(--navy-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--t-base);
+}
+
+.toggleBtn:hover {
+  color: var(--neutral-50);
+  border-color: var(--av-accent);
 }
 
 .logo {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   color: var(--neutral-50);
   padding: 0 var(--space-2);
@@ -37,52 +65,107 @@
   margin: var(--space-2) 0;
 }
 
-.hamburger {
-  cursor: pointer;
-  font-size: 25px;
-  transition: transform var(--t-base);
-}
-
-.hamburger:hover {
-  transform: scale(1.2);
-}
-
 .menuContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
   list-style: none;
   padding: 0;
   margin: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .menuWrapper {
   list-style: none;
 }
 
+.groupLabel {
+  list-style: none;
+  padding: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+  font-size: 0.7rem;
+  font-weight: var(--w-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--navy-300);
+  opacity: 0.7;
+}
+
+.groupLabel:first-child {
+  margin-top: 0;
+}
+
 .menuCard {
-  height: 35px;
+  height: 36px;
   margin: 0 var(--space-2);
-  padding: var(--space-2);
+  padding: 0 var(--space-2);
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  color: var(--neutral-50);
-  font-size: var(----fs-sm);
+  font-size: var(--fs-sm);
   cursor: pointer;
   transition: all var(--t-base);
-  gap: var(--space-2);
+  gap: var(--space-3);
   position: relative;
-  border-left: 1px solid transparent;
+  border-radius: var(--radius-md);
 }
 
+.menuIcon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--navy-300);
+  transition: color var(--t-base);
+}
+
+.menuLabel {
+  margin: 0;
+  white-space: nowrap;
+  flex: 1;
+  font-family: var(--font-sans);
+  font-weight: var(--w-semibold);
+  color: var(--navy-100);
+  transition: color var(--t-base);
+}
+
+.menuCard:hover:not(.selectedMenu) .menuIcon,
+.menuCard:hover:not(.selectedMenu) .menuLabel {
+  color: var(--neutral-50);
+}
+
+.menuCard:hover:not(.selectedMenu) {
+  background-color: color-mix(in srgb, var(--av-secondary) 45%, transparent);
+}
+
+/* Item ativo: fundo suave + barrinha de destaque, em vez de um pill
+   sólido — mais parecido com o padrão de mercado (Notion/GitHub). */
 .selectedMenu {
-  background-color: var(--av-secondary);
-  border-left: 5px solid var(--av-accent);
+  background-color: color-mix(in srgb, var(--av-accent) 18%, transparent);
+}
+
+.selectedMenu::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 55%;
+  border-radius: var(--radius-pill);
+  background-color: var(--av-accent);
+}
+
+.selectedMenu .menuIcon {
+  color: var(--av-accent);
+}
+
+.selectedMenu .menuLabel {
+  color: var(--neutral-50);
 }
 
 .expandIcon {
-  height: 25px;
+  height: 18px;
+  width: 18px;
   margin-left: auto;
   transition: transform var(--t-base);
   flex-shrink: 0;
@@ -90,20 +173,6 @@
 
 .expandIcon.rotated {
   transform: rotate(180deg);
-}
-
-.menuCard span {
-  margin: 0;
-  white-space: nowrap;
-  flex: 1;
-  font-family: var(--font-sans);
-  font-weight: var(--w-bold);
-  color: var(--neutral-50);
-}
-
-.menuCard:hover {
-  background-color: var(--av-secondary);
-  border-left: 5px solid var(--av-accent);
 }
 
 .submenu {
@@ -121,7 +190,9 @@
 
 .submenuItem {
   padding: var(--space-2) var(--space-4);
-  color: var(--neutral-50);
+  margin: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--navy-100);
   font-size: var(--fs-sm);
   cursor: pointer;
   transition: all var(--t-base);
@@ -129,7 +200,7 @@
 }
 
 .submenuItem:hover {
-  background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
+  background-color: color-mix(in srgb, var(--av-secondary) 60%, transparent);
 }
 
 .submenuItemExpandable {
@@ -140,9 +211,9 @@
 }
 
 .submenuItemSelected {
-  border-left: 2px solid var(--av-accent);
-  background-color: color-mix(in srgb, var(--av-secondary) 80%, black);
-  width: 104%;
+  background-color: color-mix(in srgb, var(--av-accent) 25%, transparent);
+  color: var(--neutral-50);
+  width: 100%;
 }
 
 .subsubmenu {
@@ -156,7 +227,9 @@
 
 .subsubmenuItem {
   padding: var(--space-2) var(--space-4);
-  color: var(--neutral-50);
+  margin: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--navy-100);
   font-size: var(--fs-sm);
   cursor: pointer;
   transition: all var(--t-base);
@@ -164,7 +237,7 @@
 }
 
 .subsubmenuItem:hover {
-  background-color: color-mix(in srgb, var(--av-secondary) 70%, black);
+  background-color: color-mix(in srgb, var(--av-secondary) 50%, transparent);
 }
 
 .hidden {
@@ -174,6 +247,85 @@
 .link {
   text-decoration: none;
   color: inherit;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2) 0;
+  margin-top: auto;
+  border-top: 1px solid color-mix(in srgb, var(--neutral-50) 12%, transparent);
+  flex-shrink: 0;
+}
+
+.footerBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--navy-200);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  cursor: pointer;
+  transition: all var(--t-base);
+  white-space: nowrap;
+}
+
+.footerBtn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footerBtn:hover {
+  background-color: color-mix(in srgb, var(--av-secondary) 45%, transparent);
+  color: var(--neutral-50);
+}
+
+.logoutBtn:hover {
+  background-color: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.profileInfo.hidden {
+  display: none;
+}
+
+.profileName {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--neutral-50);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileEmail {
+  font-size: 0.7rem;
+  color: var(--navy-300);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes slideDown {
@@ -212,6 +364,10 @@
 
   .mobileOpen {
     transform: translateX(0) !important;
+  }
+
+  .toggleBtn {
+    display: none;
   }
 
   .backdrop {

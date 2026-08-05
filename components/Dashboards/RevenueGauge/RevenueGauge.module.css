@@ -2,50 +2,53 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--card-bg);
+  overflow: hidden;
   color: var(--foreground);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border);
-  padding: var(--space-2);
+  padding: var(--space-1) var(--space-2);
   font-family: var(--font-sans);
+  border: 1px solid var(--navy-915);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
 }
 
 .totalRevenueValues {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--space-2);
+  justify-content: center;
+  gap: var(--space-8);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0 var(--space-2);
   border-bottom: 1px solid var(--border);
 }
 
 .totalRevenueValues:last-child {
   border: none;
+  margin-top: var(--space-2);
 }
 
 .defaultTitle {
-  font-family: var(--font-sans);
-  font-size: var(--fs-sm);
-  text-transform: uppercase;
+  font-size: var(--fs-base);
 }
 
 .defaultSubtitle {
-  font-family: var(--font-sans);
   font-size: var(--fs-xs);
-  text-transform: uppercase;
+  color: var(--foreground-secondary);
 }
 
 .revenueValue {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-xl);
 }
 
 .secondarySubtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
   color: var(--foreground-secondary);
 }
 
 .meta {
-  font-size: var(--fs-md);
-  color: var(--gold);
-  text-shadow: 0 0 10px var(--gold);
+  font-size: var(--fs-lg);
+  color: var(--blue);
 }

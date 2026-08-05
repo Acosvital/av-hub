@@ -28,6 +28,14 @@ export interface VendaMensalProps {
   pedidos_ontem: string;
 }
 
+export interface VendasPorTipoProps {
+  mes: number;
+  ano: number;
+  tipo_contrato: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
+  vendas: number | null;
+  qtd_pedidos: number;
+}
+
 export interface RitmoMetaVendasProps {
   mes: number;
   ano: number;
