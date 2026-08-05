@@ -2,11 +2,13 @@
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
+import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import BillingHistoryChart from '@/components/Dashboards/BillingHistoryChart/BillingHistoryChart';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
+import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
@@ -217,7 +219,7 @@ export default function Faturamento() {
                 <div className={styles.defaultRank}>
                   {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
                   <div
-                    className={`${sellerRanking.length > 9 && styles.autoScroll}`}
+                    className={sellerRanking.length > 9 ? styles.autoScroll : ''}
                     style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
                   >
                     <div className={styles.vendorGroup}>
@@ -307,6 +309,7 @@ export default function Faturamento() {
               currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
               workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
               elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+              orientation="row"
             />
           )}
         </DashboardWidget>
@@ -353,48 +356,43 @@ export default function Faturamento() {
         </DashboardWidget>
         {/* Faturamento Diário */}
         <DashboardWidget cols={2} rows={2} tabletCols={6} mobileOrder={2} tabletOrder={7}>
-          <div className={styles.defaultCard}>
-            {loadingFaturamentoMensal ? (
-              <WidgetLoading />
-            ) : (
-              <>
-                <div>
-                  <h3>Faturamento Diário</h3>
-                  <div className={styles.billingCard}>
-                    <div>
-                      <h4 className={styles.billingTitle}>Hoje</h4>
-                      <span className={styles.billingValue}>
-                        {toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className={styles.billingTitle}>Ontem</h4>
-                      <span className={styles.billingValue}>
-                        {toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3>Volume de Notas Fiscais</h3>
-                  <div className={styles.billingCard}>
-                    <div>
-                      <h4 className={styles.billingTitle}>Hoje</h4>
-                      <span className={styles.billingValue}>
-                        {faturamentoMensal?.pedidos_hoje || 0}
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className={styles.billingTitle}>Ontem</h4>
-                      <span className={styles.billingValue}>
-                        {faturamentoMensal?.pedidos_ontem || 0}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          {loadingFaturamentoMensal ? (
+            <div className={styles.stackedSections}>
+              <SectionCard>
+                <WidgetLoading />
+              </SectionCard>
+              <SectionCard>
+                <WidgetLoading />
+              </SectionCard>
+            </div>
+          ) : (
+            <div className={styles.stackedSections}>
+              <SectionCard
+                header={{
+                  title: 'Faturamento Diário',
+                  icon: <span className={`${styles.titleDot} ${styles.dotGreen}`} />,
+                }}
+                background="var(--navy-850)"
+              >
+                <DailyStatCard
+                  todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+                  yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
+                />
+              </SectionCard>
+              <SectionCard
+                header={{
+                  title: 'Volume de Notas Fiscais',
+                  icon: <span className={`${styles.titleDot} ${styles.dotBlue}`} />,
+                }}
+                background="var(--navy-850)"
+              >
+                <DailyStatCard
+                  todayValue={faturamentoMensal?.pedidos_hoje || 0}
+                  yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
+                />
+              </SectionCard>
+            </div>
+          )}
         </DashboardWidget>
       </DashboardGrid>
       <VendorDetailsModal

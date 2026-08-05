@@ -1,0 +1,46 @@
+.dailyStatCard {
+  display: flex;
+  flex: 1;
+  gap: var(--space-4);
+  margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--navy-925);
+}
+
+.dailyStatCard > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.dailyStatCard > div:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.todayLabel {
+  color: var(--success);
+  font-size: var(--fs-sm);
+}
+
+.todayValue {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  display: block;
+  overflow-wrap: break-word;
+}
+
+.yesterdayLabel {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+}
+
+.yesterdayValue {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground-secondary);
+  display: block;
+  overflow-wrap: break-word;
+}

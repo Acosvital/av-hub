@@ -3,6 +3,14 @@ import styles from './VendorCard.module.css';
 import toBRL from '@/utils/toBRL';
 import RankingBadge from './RankingBadge/RankingBadge';
 
+function getMetaColor(percMeta: number) {
+  if (percMeta <= 100) return 'var(--foreground)';
+  if (percMeta <= 200) return 'var(--blue)';
+  if (percMeta <= 300) return 'var(--green)';
+  if (percMeta <= 400) return 'var(--orange)';
+  return 'var(--gold)';
+}
+
 interface VendorCardProps {
   vendedor: string;
   qtd_pedidos?: string;
@@ -16,12 +24,6 @@ interface VendorCardProps {
   color?: string;
 }
 
-const rankClass: Record<number, string> = {
-  1: styles.gold,
-  2: styles.silver,
-  3: styles.bronze,
-};
-
 const VendorCard = ({
   vendedor,
   qtd_pedidos,
@@ -34,20 +36,17 @@ const VendorCard = ({
   onClick,
   color = 'var(--gold)',
 }: VendorCardProps) => {
-  const colorClass = rankClass[Number(posicao)] ?? styles.default;
+  const isPodium = Number(posicao) <= 3;
+  const metaColor = getMetaColor(Number(perc_meta) || 0);
   return (
-    <div className={`${styles.vendorCard} ${colorClass}`} onClick={onClick}>
-      <div
-        className={styles.percentageEffect}
-        style={{
-          width: `${perc_participacao}%`,
-          borderRight: `3px solid ${color}`,
-          boxShadow: `0 0 10px 1px ${color}`,
-        }}
-      />
+    <div
+      className={`${styles.vendorCard} ${isPodium ? styles.podium : ''}`}
+      style={{ '--row-color': metaColor } as React.CSSProperties}
+      onClick={onClick}
+    >
       <div className={styles.vendorRank}>
         <RankingBadge rank={Number(posicao)} />
-        <Avatar name={vendedor} border={`${color}`} size={50} />
+        <Avatar name={vendedor} border={`${color}`} size={38} />
       </div>
       <div className={styles.vendor}>
         <h4 className={styles.vendorName}>{vendedor}</h4>
@@ -55,7 +54,12 @@ const VendorCard = ({
           <span
             className={styles.vendorInfo}
           >{`${qtd_pedidos ? qtd_pedidos + ' Pedidos' : total_nfs + ' NFs'}`}</span>
-          <span className={styles.vendorInfo}>{`${perc_meta || 0}% Meta`}</span>
+          <span className={styles.vendorInfo}>·</span>
+          <span
+            className={styles.vendorMeta}
+            style={{ color: metaColor }}
+          >{`${perc_meta || 0}% Meta`}</span>
+          <span className={styles.vendorInfo}>·</span>
           <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
         </div>
       </div>

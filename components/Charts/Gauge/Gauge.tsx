@@ -1,18 +1,46 @@
-import { Gauge as MuiGauge, gaugeClasses } from '@mui/x-charts';
+import { useId } from 'react';
+import { Gauge as MuiGauge, gaugeClasses, useGaugeState } from '@mui/x-charts';
 interface GaugeProps {
   size?: number;
   startAngle?: number;
   endAngle?: number;
   value: number;
   color?: string;
+  gradientFrom?: string;
 }
 
-const Gauge = ({ size = 300, startAngle = -120, endAngle = 120, value, color }: GaugeProps) => {
+const GaugeValue = ({ displayValue }: { displayValue: number }) => {
+  const { cx, cy } = useGaugeState();
+  return (
+    <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
+      <tspan style={{ fontSize: 'var(--fs-4xl)', fontWeight: 'var(--w-black)' }}>
+        {Math.round(displayValue)}
+      </tspan>
+      <tspan style={{ fontSize: 'var(--fs-lg)', fontWeight: 'var(--w-semibold)' }} dy="-0.9em">
+        %
+      </tspan>
+    </text>
+  );
+};
+
+const Gauge = ({
+  size = 300,
+  startAngle = -145,
+  endAngle = 145,
+  value,
+  color,
+  gradientFrom = 'var(--blue)',
+}: GaugeProps) => {
+  const gradientId = `gauge-gradient-${useId()}`;
   return (
     <div style={{ position: 'relative', alignSelf: 'center' }}>
-      {/* Injetamos um SVG invisível apenas para carregar a definição do filtro de sombra */}
+      {/* Injetamos um SVG invisível apenas para carregar as definições de gradiente e sombra */}
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={gradientFrom} />
+            <stop offset="100%" stopColor={color} />
+          </linearGradient>
           <filter id="gauge-shadow" x="-20%" y="-20%" width="140%" height="140%">
             {/* Cria o borrão da sombra */}
             <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
@@ -32,27 +60,28 @@ const Gauge = ({ size = 300, startAngle = -120, endAngle = 120, value, color }: 
       <MuiGauge
         width={size}
         height={size}
-        value={value}
-        text={({ value }) => `${value}%`}
-        startAngle={value <= 100 ? startAngle : -180}
-        endAngle={value <= 100 ? endAngle : 180}
+        value={Math.min(value, 100)}
+        text={() => null}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        innerRadius="80%"
         cornerRadius="50%"
         sx={{
           '& text': {
             fill: 'var(--foreground) !important',
-            fontSize: 'var(--fs-2xl) !important',
             fontFamily: 'var(--font-sans) !important',
-            fontWeight: 'var(--w-semibold) !important',
           },
           [`& .${gaugeClasses.valueArc}`]: {
-            fill: color,
+            fill: `url(#${gradientId})`,
             filter: 'url(#gauge-shadow)',
           },
           [`& .${gaugeClasses.referenceArc}`]: {
-            fill: '#111827',
+            fill: 'color-mix(in srgb, var(--foreground) 12%, transparent)',
           },
         }}
-      />
+      >
+        <GaugeValue displayValue={value} />
+      </MuiGauge>
     </div>
   );
 };

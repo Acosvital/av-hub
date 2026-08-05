@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--waves-bg) no-repeat center bottom / cover;
+  background: var(--surface);
   min-width: 0;
   overflow: hidden;
 }
@@ -23,4 +23,32 @@
   overflow-x: hidden;
   overflow-y: auto;
   min-height: 0;
+}
+
+/* Sem header fora dos dashboards — no mobile precisa de um jeito de
+   abrir o menu (o toggle de recolher do sidebar fica escondido nesse
+   breakpoint, já que lá o sidebar é um drawer, não um painel fixo). */
+.mobileMenuButton {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .mobileMenuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: var(--space-4);
+    left: var(--space-4);
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--foreground);
+    font-size: var(--fs-lg);
+    cursor: pointer;
+    z-index: 190;
+    box-shadow: var(--shadow-md);
+  }
 }

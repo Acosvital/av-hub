@@ -1,21 +1,51 @@
 /********* DEFAULT CLASSES *********/
 .dashboardContainer {
-  width: 100%;
-  height: 100%;
+  width: calc(100% + var(--space-4) * 2);
+  height: calc(100% + var(--space-4) * 2);
+  margin: calc(var(--space-4) * -1);
+  padding: var(--space-4);
+  background-color: var(--navy-950);
   /* overflow: hidden; */
+}
+
+.stackedSections {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: var(--space-3);
+}
+
+.stackedSections > * {
+  flex: 1;
+}
+
+.titleDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotGreen {
+  background-color: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.dotBlue {
+  background-color: var(--blue);
+  box-shadow: 0 0 6px var(--blue);
 }
 
 .defaultCard {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  background-color: var(--card-bg);
+  background-color: var(--navy-850);
   color: var(--foreground);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--navy-915);
   height: 100%;
-  padding: var(--space-2);
+  padding: var(--space-3) var(--space-4);
   gap: var(--space-2);
   text-transform: uppercase;
   font-family: var(--font-sans);
@@ -53,12 +83,12 @@
 .card {
   display: flex;
   flex-direction: column;
-  background-color: var(--card-bg-secondary);
+  background-color: var(--navy-850);
   color: var(--foreground);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--navy-915);
   height: 100%;
+  overflow: hidden;
 }
 
 .cardHeader {
@@ -67,9 +97,8 @@
   justify-content: space-between;
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--border);
-  background-color: var(--card-bg);
+  background-color: color-mix(in srgb, var(--navy-850) 92%, black);
   color: var(--foreground);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
   font-family: var(--font-sans);
   height: 10%;
   font-weight: var(--w-bold);
@@ -87,9 +116,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  background-color: var(--card-bg);
+  background-color: var(--navy-925);
   border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-xl);
   font-weight: var(--w-bold);
   font-family: var(--font-sans);
   z-index: 1;
@@ -106,11 +134,13 @@
 .defaultRank {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   font-weight: var(--w-bold);
   padding: var(--space-2);
   gap: var(--space-2);
-  height: 60%;
   overflow: hidden;
+  background-color: var(--navy-925);
 }
 
 .defaultRank:hover {
@@ -164,6 +194,9 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin: 0 calc(var(--space-4) * -1) calc(var(--space-3) * -1);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  background-color: var(--navy-925);
 }
 
 .billings > div:last-child {
@@ -197,8 +230,10 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: var(--space-2);
   height: 100%;
+  margin: 0 calc(var(--space-4) * -1) calc(var(--space-3) * -1);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  background-color: var(--navy-925);
 }
 
 .situationCard {
@@ -206,12 +241,17 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  border: 1px solid var(--border-strong);
   grid-column: span 1;
   grid-row: span 1;
   height: 100%;
-  background-color: var(--card-bg-secondary);
-  border-radius: var(--radius-md);
+}
+
+.situationCard:nth-child(-n + 2) {
+  border-bottom: 1px solid var(--border);
+}
+
+.situationCard:nth-child(odd) {
+  border-right: 1px solid var(--border);
 }
 
 .situationCard > div {
@@ -231,40 +271,6 @@
 
 .situationTitle {
   color: var(--danger);
-}
-
-/********* FATURAMENTO DIÁRIO *********/
-.billingCard {
-  display: flex;
-  gap: var(--space-2);
-  font-size: var(--fs-sm);
-  background-color: var(--card-bg-secondary);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
-  border: 1px solid var(--border-strong);
-  color: var(--foreground);
-}
-
-.billingCard > div {
-  padding: var(--space-2);
-  width: 50%;
-}
-
-.billingCard > div:first-child {
-  border-right: 1px solid var(--border);
-}
-
-.billingTitle {
-  color: var(--success);
-  font-size: var(--fs-md);
-}
-
-.billingValue {
-  font-size: var(--fs-sm);
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /************************************************* MOBILE / TABLET *************************************************/

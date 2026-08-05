@@ -6,6 +6,7 @@ import {
   RankingVendedoresVendasProps,
   RitmoMetaVendasProps,
   VendaMensalProps,
+  VendasPorTipoProps,
 } from '@/app/(protected)/dashboards/dash-vendas/types';
 
 /************************* RANKING VENDEDORES *************************/
@@ -57,6 +58,31 @@ export async function getVendaMensal(params: GetVendaMensalParams = {}) {
   return apiFetch<VendaMensalResponse>(
     `/api/dashboard/vendas?${query}`,
     'Erro ao buscar vendas mensais'
+  );
+}
+/************************* VENDAS POR TIPO *************************/
+interface GetVendasPorTipoParams {
+  mes?: number;
+  ano?: number;
+  tipo_contrato?: string;
+  page?: string;
+  limit?: string;
+}
+
+interface VendasPorTipoResponse extends PaginatedResponse {
+  data: VendasPorTipoProps[];
+}
+
+export async function getVendasPorTipo(params: GetVendasPorTipoParams = {}) {
+  const query = new URLSearchParams();
+  if (params.mes) query.set('mes', String(params.mes));
+  if (params.ano) query.set('ano', String(params.ano));
+  if (params.tipo_contrato) query.set('tipo_contrato', String(params.tipo_contrato));
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  return apiFetch<VendasPorTipoResponse>(
+    `/api/dashboard/vendas/vendas-por-tipo?${query}`,
+    'Erro ao buscar vendas por tipo'
   );
 }
 /************************* RITMO DE META *************************/

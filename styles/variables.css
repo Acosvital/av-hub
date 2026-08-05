@@ -4,8 +4,8 @@
    Pulled from arquitetoVital/av-hub (styles/variables.css + theme/theme.ts).
    ============================================================= */
 
-/* ----- Webfont: Fira Sans (Google Fonts, matches `next/font/google` import) ----- */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700;900&display=swap');
+/* ----- Webfont: Inter (Google Fonts, matches `next/font/google` import) ----- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 
 :root {
   /* ---------- BRAND PALETTE ---------- */
@@ -22,7 +22,10 @@
 
   /* ---------- EXTENDED NAVY/SLATE SCALE ---------- */
   --navy-950: #020617;
+  --navy-925: #0c1327;
+  --navy-915: #0e1122;
   --navy-900: #0f172a;
+  --navy-850: #181f32;
   --navy-800: #131d33;
   --navy-700: #1e293b;
   --navy-600: #334155;
@@ -177,7 +180,7 @@
   /* ---------- LAYOUT ---------- */
   --header-h: 60px;
   --menu-w: 220px;
-  --menu-w-min: 70px;
+  --menu-w-min: 60px;
   --content-pad: 1rem;
 
   /* ---------- TRANSITIONS ---------- */
@@ -186,9 +189,9 @@
   --t-slow: 0.3s ease;
 
   /* ---------- TYPOGRAPHY: FAMILIES ---------- */
-  --font-sans: 'Fira Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  --font-fira-sans: var(--font-sans);
+  --font-inter: var(--font-sans);
   /* alias used in MUI theme */
 
   /* ---------- TYPOGRAPHY: WEIGHTS ---------- */

@@ -1,0 +1,7 @@
+/* Tokens compartilhados entre widgets de dashboard (hero, cards secundários). */
+
+.sectionLabel {
+  text-transform: uppercase;
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+}
