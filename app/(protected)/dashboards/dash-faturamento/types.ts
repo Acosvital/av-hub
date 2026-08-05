@@ -7,6 +7,7 @@ export interface SellerRankingProps {
   vendedor: string;
   faturamento: string;
   qtd_pedidos: string;
+  total_nfs: string;
   perc_participacao: string;
   perc_meta: string;
   meta_individual: string;

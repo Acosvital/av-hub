@@ -32,6 +32,7 @@ const TIPO_VENDA_DEFINITIONS: VendasPorTipoProps['tipo_contrato'][] = [
 
 const Vendas = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
+  const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
   const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
   const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
@@ -267,7 +268,7 @@ const Vendas = () => {
       />
       <VendorDetailsModal
         isOpen={selectedVendorId !== null}
-        filialId="" //Ajustar Endpoint e colocar id real
+        filialId={selectedFilialId} //Ajustar Endpoint e colocar id real
         onClose={() => setSelectedVendorId(null)}
         vendorId={selectedVendorId}
         dashboard="vendas"
