@@ -12,6 +12,7 @@ interface RevenueGaugeProps {
   lastMonthRevenue: number;
   lastMonthOrders: number;
   color?: string;
+  gradientColor?: string;
 }
 
 const RevenueGauge = ({
@@ -22,7 +23,8 @@ const RevenueGauge = ({
   totalRevenue,
   lastMonthRevenue,
   lastMonthOrders,
-  color = 'var(--gold)',
+  color = 'var(--white)',
+  gradientColor,
 }: RevenueGaugeProps) => {
   const compactMeta = new Intl.NumberFormat('pt-BR', {
     notation: 'compact',
@@ -35,7 +37,7 @@ const RevenueGauge = ({
           {totalOrders}{' '}
         </h5>
       )}
-      <Gauge size={240} value={value} color={color} />
+      <Gauge size={240} value={value} color={color} gradientFrom={gradientColor} />
       <div className={styles.totalRevenueValues}>
         <div>
           <h2 className={`${styles.defaultTitle} sectionLabel`}>{type} total</h2>
@@ -43,7 +45,9 @@ const RevenueGauge = ({
         </div>
         <div>
           <h2 className={`${styles.defaultTitle} sectionLabel`}>Meta</h2>
-          <h4 className={styles.meta}>{compactMeta}</h4>
+          <h4 className={styles.meta} style={{ color }}>
+            {compactMeta}
+          </h4>
         </div>
       </div>
       <div className={styles.totalRevenueValues}>

@@ -204,6 +204,7 @@ const VendorDetailsModal = ({
           cod_vendedor: String(vendorId),
           mes,
           ano,
+          limit: '500',
         });
         setDetails(mapVendorDetails(dashboard, res.vendedor, res.detalhes));
       } catch (err) {

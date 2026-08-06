@@ -29,7 +29,7 @@ const Gauge = ({
   endAngle = 145,
   value,
   color,
-  gradientFrom = 'var(--blue)',
+  gradientFrom,
 }: GaugeProps) => {
   const gradientId = `gauge-gradient-${useId()}`;
   return (
@@ -38,7 +38,7 @@ const Gauge = ({
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor={gradientFrom} />
+            <stop offset="0%" stopColor={gradientFrom ? gradientFrom : color} />
             <stop offset="100%" stopColor={color} />
           </linearGradient>
           <filter id="gauge-shadow" x="-20%" y="-20%" width="140%" height="140%">

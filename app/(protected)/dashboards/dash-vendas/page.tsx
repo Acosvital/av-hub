@@ -130,6 +130,7 @@ const Vendas = () => {
       lastMonthRevenue={Number(vendaMensal?.vendas_mes_anterior) || 0}
       lastMonthOrders={Number(vendaMensal?.qtd_pedidos_mes_anterior) || 0}
       color={accentColor}
+      gradientColor="var(--blue)"
     />
   );
 
