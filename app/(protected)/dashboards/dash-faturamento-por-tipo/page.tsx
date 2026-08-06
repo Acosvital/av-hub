@@ -4,6 +4,7 @@ import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
+import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import BillingHistoryChart from '@/components/Dashboards/BillingHistoryChart/BillingHistoryChart';
@@ -36,12 +37,92 @@ import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import Card from '@/components/Ui/Card/Card';
 import { LineChart, PieChart } from '@mui/x-charts';
+import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
 
 const SITUACAO_DEFINITIONS = [
-  { id: 'G1', label: 'Cancelados' },
-  { id: 'G2', label: 'Devolvidos' },
-  { id: 'G3', label: 'Recusados' },
-  { id: 'G6', label: 'Refaturamento' },
+  { id: 'G1', label: 'Cancelados', color: 'var(--red)' },
+  { id: 'G2', label: 'Devolvidos', color: 'var(--blue)' },
+  { id: 'G3', label: 'Recusados', color: 'var(--yellow)' },
+  { id: 'G6', label: 'Refaturamento', color: 'var(--orange)' },
+];
+
+const BILLING_TYPE_COLORS: Record<string, string> = {
+  SPOT: 'var(--green)',
+  CONTRATO: 'var(--purple)',
+  'SEM CLASSIFICAÇÃO': 'var(--white)',
+};
+
+const CLIENT_TYPE_FILTERS: ClientOrderType[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
+
+// TODO: mock enquanto não existe endpoint de ranking de clientes
+interface ClientRankingMockProps {
+  cliente: string;
+  faturamento: number;
+  qtd_pedidos: number;
+  tipo_contrato: ClientOrderType;
+}
+
+const CLIENT_RANKING_MOCK: ClientRankingMockProps[] = [
+  {
+    cliente: 'Metalúrgica Santa Fé',
+    faturamento: 482_300,
+    qtd_pedidos: 34,
+    tipo_contrato: 'CONTRATO',
+  },
+  { cliente: 'Aços Progresso Ltda', faturamento: 397_150, qtd_pedidos: 28, tipo_contrato: 'SPOT' },
+  {
+    cliente: 'Construtora Horizonte',
+    faturamento: 356_800,
+    qtd_pedidos: 19,
+    tipo_contrato: 'CONTRATO',
+  },
+  { cliente: 'Indústria Vale Verde', faturamento: 298_420, qtd_pedidos: 22, tipo_contrato: 'SPOT' },
+  {
+    cliente: 'Ferro & Cia',
+    faturamento: 271_900,
+    qtd_pedidos: 31,
+    tipo_contrato: 'SEM CLASSIFICAÇÃO',
+  },
+  {
+    cliente: 'Distribuidora Central',
+    faturamento: 245_600,
+    qtd_pedidos: 17,
+    tipo_contrato: 'CONTRATO',
+  },
+  { cliente: 'Metais Bandeirantes', faturamento: 213_050, qtd_pedidos: 14, tipo_contrato: 'SPOT' },
+  {
+    cliente: 'Estruturas Norte Sul',
+    faturamento: 198_770,
+    qtd_pedidos: 12,
+    tipo_contrato: 'SEM CLASSIFICAÇÃO',
+  },
+  { cliente: 'Comercial Aço Rio', faturamento: 176_340, qtd_pedidos: 20, tipo_contrato: 'SPOT' },
+  {
+    cliente: 'Galvanor Indústria',
+    faturamento: 154_890,
+    qtd_pedidos: 9,
+    tipo_contrato: 'CONTRATO',
+  },
+  {
+    cliente: 'Perfilados União',
+    faturamento: 132_410,
+    qtd_pedidos: 11,
+    tipo_contrato: 'SEM CLASSIFICAÇÃO',
+  },
+  { cliente: 'Siderúrgica Boa Vista', faturamento: 118_260, qtd_pedidos: 8, tipo_contrato: 'SPOT' },
+  {
+    cliente: 'Metalcorte Express',
+    faturamento: 97_530,
+    qtd_pedidos: 15,
+    tipo_contrato: 'CONTRATO',
+  },
+  {
+    cliente: 'Chapas & Tubos SA',
+    faturamento: 84_120,
+    qtd_pedidos: 7,
+    tipo_contrato: 'SEM CLASSIFICAÇÃO',
+  },
+  { cliente: 'Aço Vital Distribuição', faturamento: 71_980, qtd_pedidos: 6, tipo_contrato: 'SPOT' },
 ];
 
 export default function Faturamento() {
@@ -53,6 +134,7 @@ export default function Faturamento() {
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
+  const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
 
   //loadings individuais para cada Widget
   const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
@@ -75,12 +157,14 @@ export default function Faturamento() {
     label: tipo.tipo_contrato,
     value: Number(tipo.faturamento),
   }));
+  const totalBillingTypes = billingTypes.reduce((sum, t) => sum + t.value, 0);
   const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
-  const situations = SITUACAO_DEFINITIONS.map(({ id, label }) => {
+  const situations = SITUACAO_DEFINITIONS.map(({ id, label, color }) => {
     const situacao = situacaoPorGrupo.get(id);
     return {
       id,
       label,
+      color,
       count: Number(situacao?.qtd_nfs) || 0,
       value: Number(situacao?.valor_total) || 0,
     };
@@ -91,6 +175,26 @@ export default function Faturamento() {
       mes: dayjs(item.periodo).locale('pt-br').format('MMM'),
       faturamento: Number(item.fat_liquido),
     }));
+
+  const toggleClientType = (type: ClientOrderType) => {
+    setSelectedClientTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const totalClientRevenue = CLIENT_RANKING_MOCK.reduce((sum, c) => sum + c.faturamento, 0);
+  const clientRanking = CLIENT_RANKING_MOCK.filter(
+    (c) => selectedClientTypes.length === 0 || selectedClientTypes.includes(c.tipo_contrato)
+  )
+    .sort((a, b) => b.faturamento - a.faturamento)
+    .map((c, i) => ({
+      ...c,
+      posicao: String(i + 1),
+      perc_participacao: ((c.faturamento / totalClientRevenue) * 100).toFixed(1),
+    }));
+  const top3Clients = clientRanking.slice(0, 3);
+  const otherClients = clientRanking.slice(3);
+  const clientScrollDuration = `${otherClients.length * 1.7}s`;
 
   //state que avisa quando renderizar a Logo, com o tema certo
   useEffect(() => {
@@ -357,96 +461,127 @@ export default function Faturamento() {
     <DashboardGrid>
       {/* Faturamento Mensal */}
       <DashboardWidget cols={6} rows={3}>
-        <Card title="Faturamento Mensal">
+        <div className={styles.defaultCard}>
+          <h3>Faturamento Mensal</h3>
           <LineChart
             xAxis={[
               {
                 scaleType: 'band',
-                data: ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out'],
+                data: [
+                  'jan',
+                  'fev',
+                  'mar',
+                  'abr',
+                  'mai',
+                  'jun',
+                  'jul',
+                  'ago',
+                  'set',
+                  'out',
+                  'nov',
+                  'dez',
+                ],
               },
             ]}
             series={[
               {
-                data: [2, 4, 6, 8, 10, 8, 6, 8, 6, 10],
+                label: 'SPOT',
+                data: [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9],
+                color: 'var(--green)',
                 showMark: ({ index }) => !!index,
               },
               {
-                data: [12, 8, 5, 7, 4, 2, 10, 9, 11, 8],
+                label: 'CONTRATO',
+                data: [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11],
+                color: 'var(--purple)',
                 showMark: ({ index }) => index % 2 === 0,
               },
               {
-                data: [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8],
+                label: 'SEM CLASSIFICAÇÃO',
+                data: [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6],
+                color: 'var(--white)',
                 showMark: ({ index }) => index % 3 === 0,
               },
             ]}
-            height={300}
+            height={260}
+            margin={{ left: 0 }}
+            sx={{
+              '& .MuiChartsAxis-line': {
+                stroke: 'var(--border-strong) !important',
+              },
+              '& .MuiChartsAxis-tick': {
+                stroke: 'var(--border-strong) !important',
+              },
+              '& .MuiChartsAxis-tickLabel': {
+                fill: 'var(--foreground) !important',
+              },
+              '& .MuiChartsAxis-label': {
+                fill: 'var(--foreground) !important',
+              },
+              [`& .${chartsGridClasses.line}`]: {
+                stroke: 'var(--border)',
+                strokeDasharray: '5 5',
+              },
+              '& .MuiChartsLegend-label': {
+                color: 'var(--foreground) !important',
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 'var(--w-regular)',
+                textTransform: 'none',
+              },
+            }}
           />
-        </Card>
+        </div>
       </DashboardWidget>
       {/* Ranking Clientes */}
       <DashboardWidget cols={6} rows={6}>
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking Clientes</h2>
-            <span>{loadingRanking ? 0 : sellerRanking.length} clientes</span>
+            <span>{clientRanking.length} clientes</span>
           </div>
-          {loadingRanking ? (
-            <WidgetLoading />
-          ) : (
-            <>
-              <div className={styles.fixedRank}>
-                Destaques do Pódio
-                <div className={styles.top3Container}>
-                  {top3.map((v) => (
-                    <VendorCard
-                      key={v.cod_vendedor}
-                      {...v}
-                      onClick={() => {
-                        setSelectedVendorId(Number(v.cod_vendedor));
-                        setSelectedFilialId(v.codigo_empresa);
-                      }}
-                      color={accentColor}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className={styles.defaultRank}>
-                {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-                <div
-                  className={sellerRanking.length > 9 ? styles.autoScroll : ''}
-                  style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+          <div className={styles.typeFilters}>
+            {CLIENT_TYPE_FILTERS.map((type) => {
+              const isActive = selectedClientTypes.includes(type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  className={`${styles.typeFilterChip} ${isActive ? styles.typeFilterChipActive : ''}`}
+                  style={{ '--chip-color': BILLING_TYPE_COLORS[type] } as React.CSSProperties}
+                  onClick={() => toggleClientType(type)}
                 >
-                  <div className={styles.vendorGroup}>
-                    {otherVendors.map((v) => (
-                      <VendorCard
-                        key={v.cod_vendedor}
-                        {...v}
-                        onClick={() => {
-                          setSelectedVendorId(Number(v.cod_vendedor));
-                          setSelectedFilialId(v.codigo_empresa);
-                        }}
-                        color={accentColor}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.vendorGroup} aria-hidden="true">
-                    {sellerRanking.length >= 10 &&
-                      otherVendors.map((v) => (
-                        <VendorCard
-                          key={`dup-${v.cod_vendedor}`}
-                          {...v}
-                          onClick={() => {
-                            setSelectedVendorId(Number(v.cod_vendedor));
-                            setSelectedFilialId(v.codigo_empresa);
-                          }}
-                          color={accentColor}
-                        />
-                      ))}
-                  </div>
-                </div>
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.fixedRank}>
+            Destaques do Pódio
+            <div className={styles.top3Container}>
+              {top3Clients.map((c) => (
+                <ClientCard key={c.cliente} {...c} color={accentColor} />
+              ))}
+            </div>
+          </div>
+          <div className={styles.defaultRank}>
+            {/* Se o tamanho do Array dos clientes for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+            <div
+              className={otherClients.length > 9 ? styles.autoScroll : ''}
+              style={{ '--scroll-duration': clientScrollDuration } as React.CSSProperties}
+            >
+              <div className={styles.vendorGroup}>
+                {otherClients.map((c) => (
+                  <ClientCard key={c.cliente} {...c} color={accentColor} />
+                ))}
               </div>
-            </>
-          )}
+              <div className={styles.vendorGroup} aria-hidden="true">
+                {otherClients.length >= 10 &&
+                  otherClients.map((c) => (
+                    <ClientCard key={`dup-${c.cliente}`} {...c} color={accentColor} />
+                  ))}
+              </div>
+            </div>
+          </div>
         </div>
       </DashboardWidget>
       {/* Situação */}
@@ -457,8 +592,12 @@ export default function Faturamento() {
             <WidgetLoading />
           ) : (
             <div className={styles.situationGroup}>
-              {situations.map(({ label, count, value }) => (
-                <div key={label} className={styles.situationCard}>
+              {situations.map(({ label, color, count, value }) => (
+                <div
+                  key={label}
+                  className={styles.situationCard}
+                  style={{ '--situation-color': color } as React.CSSProperties}
+                >
                   <div>
                     <h4 className={styles.situationTitle}>{label}</h4>
                     <span>{count}</span>
@@ -474,23 +613,62 @@ export default function Faturamento() {
       </DashboardWidget>
       {/* Faturamento por tipo */}
       <DashboardWidget cols={3} rows={3}>
-        <div className={styles.defaultCard}>
-          <PieChart
-            series={[
-              {
-                data: [
-                  { id: 0, value: 40, label: 'SPOT' },
-                  { id: 1, value: 20, label: 'CONTRATO' },
-                  { id: 2, value: 40, label: 'SEM CLASSIFICAÇÃO' },
-                ],
-              },
-            ]}
-            sx={{
-              color: 'white',
-            }}
-            width={200}
-            height={200}
-          />
+        <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
+          {/* <h3>Faturamento por Tipo</h3> */}
+          {loadingFaturamentoPorTipo ? (
+            <WidgetLoading />
+          ) : (
+            <div className={styles.pieWrapper}>
+              <div className={styles.pieTotal}>
+                <span className={styles.tipoFaturamentoLabel}>Total Faturado</span>
+                <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
+              </div>
+              <PieChart
+                series={[
+                  {
+                    innerRadius: 50,
+                    outerRadius: 100,
+                    data: billingTypes.map(({ label, value }) => ({
+                      id: label,
+                      value,
+                      label,
+                      color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
+                    })),
+
+                    valueFormatter: ({ value }) => toBRL(value),
+                    arcLabel: (item) =>
+                      totalBillingTypes
+                        ? `${Math.round((item.value / totalBillingTypes) * 100)}%`
+                        : '',
+                    arcLabelMinAngle: 15,
+                  },
+                ]}
+                slotProps={{
+                  legend: {
+                    direction: 'horizontal',
+                    position: { vertical: 'bottom', horizontal: 'center' },
+                  },
+                }}
+                sx={{
+                  '& .MuiChartsArcLabel-root': {
+                    fill: 'var(--navy-950)',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-bold)',
+                    fontSize: 'var(--fs-xs)',
+                  },
+                  '& .MuiChartsLegend-label': {
+                    color: 'var(--foreground) !important',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-regular)',
+                    textTransform: 'none',
+                  },
+                  gap: '2rem',
+                }}
+                width={200}
+                height={200}
+              />
+            </div>
+          )}
         </div>
       </DashboardWidget>
     </DashboardGrid>
