@@ -1,3 +1,13 @@
+.container {
+  container-type: size;
+  container-name: widget-loading;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
 .loading {
   display: flex;
   flex-direction: column;
@@ -6,8 +16,10 @@
   text-align: center;
   gap: var(--space-4);
   padding: var(--space-6);
-  flex: 1;
+  width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .loading span {
@@ -15,8 +27,50 @@
   color: var(--foreground);
   font-size: var(--fs-xl);
   font-family: var(--font-sans);
+  white-space: nowrap;
 }
 
 .loading svg {
   color: var(--av-accent);
+}
+
+/* Widgets médios (cards menores em coluna) */
+@container widget-loading (max-height: 170px) {
+  .loading {
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .loading span {
+    font-size: var(--fs-sm);
+  }
+
+  .spinner {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* Widgets bem pequenos: spinner e texto lado a lado */
+@container widget-loading (max-height: 110px) {
+  .loading {
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+
+  .loading span {
+    font-size: var(--fs-xs);
+  }
+
+  .spinner {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+/* Widgets estreitos: some com o texto, mantém só o spinner */
+@container widget-loading (max-width: 130px) {
+  .loading span {
+    display: none;
+  }
 }

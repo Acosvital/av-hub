@@ -26,11 +26,6 @@
   flex-shrink: 0;
 }
 
-.dotGold {
-  background-color: var(--gold);
-  box-shadow: 0 0 6px var(--gold);
-}
-
 .defaultCard {
   display: flex;
   flex-direction: column;
@@ -176,12 +171,60 @@
   gap: var(--space-2);
 }
 
-/********* LOGO *********/
-.logoContainer {
+/********* FILTROS DE TIPO *********/
+.typeFilters {
   display: flex;
-  justify-content: center;
+  gap: var(--space-2);
+}
+
+.typeFilterChip {
+  appearance: none;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--chip-color, var(--border-strong));
+  background-color: transparent;
+  color: var(--chip-color, var(--foreground));
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  padding: var(--space-1) var(--space-3);
+  transition:
+    background-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.typeFilterChip:hover {
+  background-color: color-mix(in srgb, var(--chip-color, var(--foreground)) 15%, transparent);
+}
+
+.typeFilterChipActive {
+  background-color: var(--chip-color, var(--foreground));
+  color: var(--navy-950);
+}
+
+/********* FATURAMENTO POR TIPO (PIZZA) *********/
+.pieWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  height: 100%;
+  justify-content: center;
+  gap: var(--space-2);
+  flex: 1;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--navy-400) 30%, transparent) 0%,
+    transparent 65%
+  );
+}
+
+.pieTotal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 /********* FATURAMENTO POR TIPO *********/
@@ -218,17 +261,14 @@
 }
 
 /********* SITUAÇÃO *********/
-.situation > h3 {
-  font-size: var(--fs-sm);
-}
-
 .situationGroup {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
+  gap: var(--space-2);
   height: 100%;
   margin: 0 calc(var(--space-4) * -1) calc(var(--space-3) * -1);
-  padding: var(--space-2) var(--space-4) var(--space-3);
+  padding: var(--space-2);
   background-color: var(--navy-925);
 }
 
@@ -240,14 +280,13 @@
   grid-column: span 1;
   grid-row: span 1;
   height: 100%;
-}
-
-.situationCard:nth-child(-n + 2) {
-  border-bottom: 1px solid var(--border);
-}
-
-.situationCard:nth-child(odd) {
-  border-right: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--situation-color) 45%, var(--border-strong));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--situation-color) 20%, var(--navy-850)) 0%,
+    var(--navy-925) 100%
+  );
 }
 
 .situationCard > div {
@@ -261,12 +300,14 @@
 }
 
 .situationCard > div:last-child {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid color-mix(in srgb, var(--situation-color) 35%, var(--border));
   font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
 }
 
 .situationTitle {
-  color: var(--danger);
+  color: var(--situation-color);
 }
 
 /************************************************* MOBILE / TABLET *************************************************/

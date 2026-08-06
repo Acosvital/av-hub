@@ -33,6 +33,9 @@ import {
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
+import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
+import Card from '@/components/Ui/Card/Card';
+import { LineChart, PieChart } from '@mui/x-charts';
 
 const SITUACAO_DEFINITIONS = [
   { id: 'G1', label: 'Cancelados' },
@@ -186,24 +189,43 @@ export default function Faturamento() {
     loadResumoMensal();
   }, [completeDate]);
 
-  return (
-    <div className={styles.dashboardContainer}>
-      <DashboardGrid>
-        {/* Ranking */}
-        <DashboardWidget cols={5} rows={6} tabletCols={12} mobileOrder={6} tabletOrder={3}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-              <span>{loadingRanking ? 0 : sellerRanking.length} vendedores</span>
-            </div>
-            {loadingRanking ? (
-              <WidgetLoading />
-            ) : (
-              <>
-                <div className={styles.fixedRank}>
-                  Destaques do Pódio
-                  <div className={styles.top3Container}>
-                    {top3.map((v) => (
+  const faturamento = (
+    <DashboardGrid>
+      {/* Ranking */}
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
+            <span>{loadingRanking ? 0 : sellerRanking.length} vendedores</span>
+          </div>
+          {loadingRanking ? (
+            <WidgetLoading />
+          ) : (
+            <>
+              <div className={styles.fixedRank}>
+                Destaques do Pódio
+                <div className={styles.top3Container}>
+                  {top3.map((v) => (
+                    <VendorCard
+                      key={v.cod_vendedor}
+                      {...v}
+                      onClick={() => {
+                        setSelectedVendorId(Number(v.cod_vendedor));
+                        setSelectedFilialId(v.codigo_empresa);
+                      }}
+                      color={accentColor}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className={styles.defaultRank}>
+                {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+                <div
+                  className={sellerRanking.length > 9 ? styles.autoScroll : ''}
+                  style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+                >
+                  <div className={styles.vendorGroup}>
+                    {otherVendors.map((v) => (
                       <VendorCard
                         key={v.cod_vendedor}
                         {...v}
@@ -215,17 +237,11 @@ export default function Faturamento() {
                       />
                     ))}
                   </div>
-                </div>
-                <div className={styles.defaultRank}>
-                  {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-                  <div
-                    className={sellerRanking.length > 9 ? styles.autoScroll : ''}
-                    style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-                  >
-                    <div className={styles.vendorGroup}>
-                      {otherVendors.map((v) => (
+                  <div className={styles.vendorGroup} aria-hidden="true">
+                    {sellerRanking.length >= 10 &&
+                      otherVendors.map((v) => (
                         <VendorCard
-                          key={v.cod_vendedor}
+                          key={`dup-${v.cod_vendedor}`}
                           {...v}
                           onClick={() => {
                             setSelectedVendorId(Number(v.cod_vendedor));
@@ -234,167 +250,111 @@ export default function Faturamento() {
                           color={accentColor}
                         />
                       ))}
-                    </div>
-                    <div className={styles.vendorGroup} aria-hidden="true">
-                      {sellerRanking.length >= 10 &&
-                        otherVendors.map((v) => (
-                          <VendorCard
-                            key={`dup-${v.cod_vendedor}`}
-                            {...v}
-                            onClick={() => {
-                              setSelectedVendorId(Number(v.cod_vendedor));
-                              setSelectedFilialId(v.codigo_empresa);
-                            }}
-                            color={accentColor}
-                          />
-                        ))}
-                    </div>
                   </div>
                 </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
+        </div>
+      </DashboardWidget>
+      {/* Gauge */}
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
+        {loadingFaturamentoMensal ? (
+          <div className={styles.defaultCard}>
+            <WidgetLoading />
           </div>
-        </DashboardWidget>
-        {/* Logo */}
-        <DashboardWidget cols={2} rows={1} tabletCols={4} hideOnMobile hideOnTablet>
-          <div className={styles.logoContainer}>
-            {mounted && (
-              <Image
-                src={resolvedTheme === 'dark' ? '/logo.png' : '/logo_dark.png'}
-                alt="Aços Vital"
-                width={200}
-                height={43}
+        ) : (
+          <RevenueGauge
+            totalOrders={faturamentoMensal?.qtd_nfs}
+            value={gauge || 0}
+            target={Number(faturamentoMensal?.meta) || 0}
+            totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
+            lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
+            lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
+            color={accentColor}
+          />
+        )}
+      </DashboardWidget>
+      {/* Faturamento Diário / Volume NFs */}
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {loadingFaturamentoMensal ? (
+          <div className={styles.stackedSections}>
+            <SectionCard>
+              <WidgetLoading />
+            </SectionCard>
+            <SectionCard>
+              <WidgetLoading />
+            </SectionCard>
+          </div>
+        ) : (
+          <div className={styles.stackedSections}>
+            <SectionCard
+              header={{
+                title: 'Faturamento Diário',
+                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+              }}
+              background="var(--navy-850)"
+            >
+              <DailyStatCard
+                todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+                yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
               />
-            )}
+            </SectionCard>
+            <SectionCard
+              header={{
+                title: 'Volume de Notas Fiscais',
+                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+              }}
+              background="var(--navy-850)"
+            >
+              <DailyStatCard
+                todayValue={faturamentoMensal?.pedidos_hoje || 0}
+                yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
+              />
+            </SectionCard>
           </div>
-        </DashboardWidget>
-        {/* Historico de faturamento */}
-        <DashboardWidget cols={5} rows={2} tabletCols={8} mobileOrder={3} tabletOrder={2}>
-          {loadingResumoMensal ? (
-            <div className={styles.defaultCard}>
-              <WidgetLoading />
-            </div>
-          ) : (
-            <BillingHistoryChart dataset={billingHistory} color={accentColor} />
-          )}
-        </DashboardWidget>
-        {/* Gauge */}
-        <DashboardWidget cols={2} rows={3} tabletCols={4} mobileOrder={1} tabletOrder={1}>
-          {loadingFaturamentoMensal ? (
-            <div className={styles.defaultCard}>
-              <WidgetLoading />
-            </div>
-          ) : (
-            <RevenueGauge
-              totalOrders={faturamentoMensal?.qtd_nfs}
-              value={gauge || 0}
-              target={Number(faturamentoMensal?.meta) || 0}
-              totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
-              lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
-              lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
-              color={accentColor}
-            />
-          )}
-        </DashboardWidget>
-        {/* Ritmo de Meta */}
-        <DashboardWidget cols={5} rows={1} tabletCols={12} mobileOrder={2} tabletOrder={4}>
-          {loadingRitmoMeta ? (
-            <div className={styles.defaultCard}>
-              <WidgetLoading />
-            </div>
-          ) : (
-            <GoalPaceCard
-              status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-              idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-              currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-              workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-              elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-              orientation="row"
-            />
-          )}
-        </DashboardWidget>
-        {/* Tipo de faturamento */}
-        <DashboardWidget cols={2} rows={3} tabletCols={6} mobileOrder={4} tabletOrder={5}>
+        )}
+      </DashboardWidget>
+      {/* Ritmo de meta */}
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {loadingRitmoMeta ? (
           <div className={styles.defaultCard}>
-            <h3>Tipo de faturamento</h3>
-            {loadingFaturamentoPorTipo ? (
-              <WidgetLoading />
-            ) : (
-              <div className={styles.billings}>
-                {billingTypes.map(({ label, value }) => (
-                  <div key={label} className={styles.billing}>
-                    <h3>{label}</h3>
-                    <span>{toBRL(value)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <WidgetLoading />
           </div>
-        </DashboardWidget>
-        {/* Situação */}
-        <DashboardWidget cols={3} rows={3} tabletCols={6} mobileOrder={5} tabletOrder={6}>
-          <div className={styles.defaultCard}>
-            <h3>Situação</h3>
-            {loadingSituacaoPedidos ? (
-              <WidgetLoading />
-            ) : (
-              <div className={styles.situationGroup}>
-                {situations.map(({ label, count, value }) => (
-                  <div key={label} className={styles.situationCard}>
-                    <div>
-                      <h4 className={styles.situationTitle}>{label}</h4>
-                      <span>{count}</span>
-                    </div>
-                    <div>
-                      <span>{toBRL(value)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DashboardWidget>
-        {/* Faturamento Diário */}
-        <DashboardWidget cols={2} rows={2} tabletCols={6} mobileOrder={2} tabletOrder={7}>
-          {loadingFaturamentoMensal ? (
-            <div className={styles.stackedSections}>
-              <SectionCard>
-                <WidgetLoading />
-              </SectionCard>
-              <SectionCard>
-                <WidgetLoading />
-              </SectionCard>
-            </div>
+        ) : (
+          <GoalPaceCard
+            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+            orientation="column"
+          />
+        )}
+      </DashboardWidget>
+      {/* Faturamento por tipo */}
+      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+        <div className={styles.defaultCard}>
+          <h3>Faturamento por tipo</h3>
+          {loadingFaturamentoPorTipo ? (
+            <WidgetLoading />
           ) : (
-            <div className={styles.stackedSections}>
-              <SectionCard
-                header={{
-                  title: 'Faturamento Diário',
-                  icon: <span className={`${styles.titleDot} ${styles.dotGreen}`} />,
-                }}
-                background="var(--navy-850)"
-              >
-                <DailyStatCard
-                  todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-                  yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-                />
-              </SectionCard>
-              <SectionCard
-                header={{
-                  title: 'Volume de Notas Fiscais',
-                  icon: <span className={`${styles.titleDot} ${styles.dotBlue}`} />,
-                }}
-                background="var(--navy-850)"
-              >
-                <DailyStatCard
-                  todayValue={faturamentoMensal?.pedidos_hoje || 0}
-                  yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
-                />
-              </SectionCard>
+            <div className={styles.tipoFaturamentoRow}>
+              {billingTypes.map(({ label, value }) => (
+                <div key={label} className={styles.tipoFaturamentoItem}>
+                  <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
+                  <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
+                </div>
+              ))}
             </div>
           )}
-        </DashboardWidget>
-      </DashboardGrid>
+        </div>
+      </DashboardWidget>
+    </DashboardGrid>
+  );
+  return (
+    <div className={styles.dashboardContainer}>
+      <DashboardScrollStack accentColor={accentColor} panels={[faturamento]} />
       <VendorDetailsModal
         isOpen={selectedVendorId !== null}
         onClose={() => setSelectedVendorId(null)}
