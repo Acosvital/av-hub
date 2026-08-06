@@ -7,19 +7,13 @@ import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
 import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
-import BillingHistoryChart from '@/components/Dashboards/BillingHistoryChart/BillingHistoryChart';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
-import dayjs from 'dayjs';
-import 'dayjs/locale/pt-br';
 import { useEffect, useState } from 'react';
 import {
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
-  ResumoMensalFaturamentoProps,
   RitmoMetaFaturamentoProps,
   SellerRankingProps,
   SituacaoPedidosFaturadosProps,
@@ -28,14 +22,12 @@ import {
   getFaturamentoMensal,
   getFaturamentoPorTipo,
   getRankingVendedores,
-  getResumoMensalFaturamento,
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
-import Card from '@/components/Ui/Card/Card';
 import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
 
@@ -133,7 +125,6 @@ export default function Faturamento() {
   const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
-  const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
 
   //loadings individuais para cada Widget
@@ -142,10 +133,7 @@ export default function Faturamento() {
   const [loadingFaturamentoPorTipo, setLoadingFaturamentoPorTipo] = useState<boolean>(false);
   const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
   const [loadingSituacaoPedidos, setLoadingSituacaoPedidos] = useState<boolean>(false);
-  const [loadingResumoMensal, setLoadingResumoMensal] = useState<boolean>(false);
 
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--gold)';
 
@@ -169,13 +157,6 @@ export default function Faturamento() {
       value: Number(situacao?.valor_total) || 0,
     };
   });
-  const billingHistory = [...resumoMensal]
-    .sort((a, b) => a.periodo.localeCompare(b.periodo))
-    .map((item) => ({
-      mes: dayjs(item.periodo).locale('pt-br').format('MMM'),
-      faturamento: Number(item.fat_liquido),
-    }));
-
   const toggleClientType = (type: ClientOrderType) => {
     setSelectedClientTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
@@ -195,11 +176,6 @@ export default function Faturamento() {
   const top3Clients = clientRanking.slice(0, 3);
   const otherClients = clientRanking.slice(3);
   const clientScrollDuration = `${otherClients.length * 1.7}s`;
-
-  //state que avisa quando renderizar a Logo, com o tema certo
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   //Carrega os dados do dashboard a partir do filtro de data
   useEffect(() => {
@@ -265,32 +241,11 @@ export default function Faturamento() {
       }
     }
 
-    async function loadResumoMensal() {
-      try {
-        setLoadingResumoMensal(true);
-        const periodoInicio = completeDate
-          .subtract(5, 'month')
-          .startOf('month')
-          .format('YYYY-MM-DD');
-        const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
-        const resumoMensalRes = await getResumoMensalFaturamento({
-          periodo_inicio: periodoInicio,
-          periodo_fim: periodoFim,
-        });
-        setResumoMensal(resumoMensalRes.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingResumoMensal(false);
-      }
-    }
-
     loadRanking();
     loadFaturamentoMensal();
     loadFaturamentoPorTipo();
     loadRitmoMeta();
     loadSituacaoPedidos();
-    loadResumoMensal();
   }, [completeDate]);
 
   const faturamento = (
@@ -463,6 +418,22 @@ export default function Faturamento() {
       <DashboardWidget cols={6} rows={3}>
         <div className={styles.defaultCard}>
           <h3>Faturamento Mensal</h3>
+          <svg width="0" height="0" style={{ position: 'absolute' }}>
+            <defs>
+              <linearGradient id="lineAreaGradient-spot" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--green)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--green)" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="lineAreaGradient-contrato" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--purple)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--purple)" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="lineAreaGradient-semclass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--white)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--white)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+          </svg>
           <LineChart
             xAxis={[
               {
@@ -485,22 +456,28 @@ export default function Faturamento() {
             ]}
             series={[
               {
+                id: 'SPOT',
                 label: 'SPOT',
                 data: [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9],
                 color: 'var(--green)',
-                showMark: ({ index }) => !!index,
+                curve: 'natural',
+                area: true,
               },
               {
+                id: 'CONTRATO',
                 label: 'CONTRATO',
                 data: [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11],
                 color: 'var(--purple)',
-                showMark: ({ index }) => index % 2 === 0,
+                curve: 'natural',
+                area: true,
               },
               {
+                id: 'SEM CLASSIFICAÇÃO',
                 label: 'SEM CLASSIFICAÇÃO',
                 data: [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6],
                 color: 'var(--white)',
-                showMark: ({ index }) => index % 3 === 0,
+                curve: 'natural',
+                area: true,
               },
             ]}
             height={260}
@@ -528,6 +505,15 @@ export default function Faturamento() {
                 fontWeight: 'var(--w-regular)',
                 textTransform: 'none',
               },
+              '& .MuiLineChart-area[data-series="SPOT"]': {
+                fill: 'url(#lineAreaGradient-spot)',
+              },
+              '& .MuiLineChart-area[data-series="CONTRATO"]': {
+                fill: 'url(#lineAreaGradient-contrato)',
+              },
+              '& .MuiLineChart-area[data-series="SEM CLASSIFICAÇÃO"]': {
+                fill: 'url(#lineAreaGradient-semclass)',
+              },
             }}
           />
         </div>
@@ -539,24 +525,27 @@ export default function Faturamento() {
             <h2 className={styles.rankingTitle}>🏆 Ranking Clientes</h2>
             <span>{clientRanking.length} clientes</span>
           </div>
-          <div className={styles.typeFilters}>
-            {CLIENT_TYPE_FILTERS.map((type) => {
-              const isActive = selectedClientTypes.includes(type);
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  className={`${styles.typeFilterChip} ${isActive ? styles.typeFilterChipActive : ''}`}
-                  style={{ '--chip-color': BILLING_TYPE_COLORS[type] } as React.CSSProperties}
-                  onClick={() => toggleClientType(type)}
-                >
-                  {type}
-                </button>
-              );
-            })}
-          </div>
+
           <div className={styles.fixedRank}>
-            Destaques do Pódio
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              Destaques do Pódio
+              <div className={styles.typeFilters}>
+                {CLIENT_TYPE_FILTERS.map((type) => {
+                  const isActive = selectedClientTypes.includes(type);
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      className={`${styles.typeFilterChip} ${isActive ? styles.typeFilterChipActive : ''}`}
+                      style={{ '--chip-color': BILLING_TYPE_COLORS[type] } as React.CSSProperties}
+                      onClick={() => toggleClientType(type)}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <div className={styles.top3Container}>
               {top3Clients.map((c) => (
                 <ClientCard key={c.cliente} {...c} color={accentColor} />
@@ -614,13 +603,12 @@ export default function Faturamento() {
       {/* Faturamento por tipo */}
       <DashboardWidget cols={3} rows={3}>
         <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
-          {/* <h3>Faturamento por Tipo</h3> */}
           {loadingFaturamentoPorTipo ? (
             <WidgetLoading />
           ) : (
             <div className={styles.pieWrapper}>
               <div className={styles.pieTotal}>
-                <span className={styles.tipoFaturamentoLabel}>Total Faturado</span>
+                <span className={styles.tipoFaturamentoLabel}>Total Faturado por tipo</span>
                 <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
               </div>
               <PieChart
@@ -662,7 +650,7 @@ export default function Faturamento() {
                     fontWeight: 'var(--w-regular)',
                     textTransform: 'none',
                   },
-                  gap: '2rem',
+                  gap: '3.5rem',
                 }}
                 width={200}
                 height={200}

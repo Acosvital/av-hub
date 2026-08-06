@@ -26,16 +26,6 @@
   flex-shrink: 0;
 }
 
-.dotGreen {
-  background-color: var(--green);
-  box-shadow: 0 0 6px var(--green);
-}
-
-.dotBlue {
-  background-color: var(--blue);
-  box-shadow: 0 0 6px var(--blue);
-}
-
 .defaultCard {
   display: flex;
   flex-direction: column;
@@ -184,10 +174,7 @@
 /********* FILTROS DE TIPO *********/
 .typeFilters {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-6) 0;
-  background-color: color-mix(in srgb, var(--navy-850) 92%, black);
 }
 
 .typeFilterChip {
@@ -215,14 +202,6 @@
 .typeFilterChipActive {
   background-color: var(--chip-color, var(--foreground));
   color: var(--navy-950);
-}
-
-/********* LOGO *********/
-.logoContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
 }
 
 /********* FATURAMENTO POR TIPO (PIZZA) *********/
@@ -282,10 +261,6 @@
 }
 
 /********* SITUAÇÃO *********/
-.situation > h3 {
-  font-size: var(--fs-sm);
-}
-
 .situationGroup {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -293,7 +268,7 @@
   gap: var(--space-2);
   height: 100%;
   margin: 0 calc(var(--space-4) * -1) calc(var(--space-3) * -1);
-  padding: var(--space-2) var(--space-4) var(--space-3);
+  padding: var(--space-2);
   background-color: var(--navy-925);
 }
 
