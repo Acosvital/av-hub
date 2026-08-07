@@ -15,7 +15,9 @@
   );
   border-left: 3px solid var(--row-color);
   font-family: var(--font-sans);
-  transition: border-color var(--t-slow), background var(--t-slow);
+  transition:
+    border-color var(--t-slow),
+    background var(--t-slow);
 }
 
 .podium {

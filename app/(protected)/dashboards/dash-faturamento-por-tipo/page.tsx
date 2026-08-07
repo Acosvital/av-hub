@@ -26,10 +26,10 @@ import {
   getSituacaoPedidos,
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
-import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
+import { Skeleton, useMediaQuery } from '@mui/material';
 
 const SITUACAO_DEFINITIONS = [
   { id: 'G1', label: 'Cancelados', color: 'var(--red)' },
@@ -45,6 +45,25 @@ const BILLING_TYPE_COLORS: Record<string, string> = {
 };
 
 const CLIENT_TYPE_FILTERS: ClientOrderType[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
+
+const MESES_FATURAMENTO_MENSAL = [
+  'jan',
+  'fev',
+  'mar',
+  'abr',
+  'mai',
+  'jun',
+  'jul',
+  'ago',
+  'set',
+  'out',
+  'nov',
+  'dez',
+];
+const FATURAMENTO_MENSAL_SPOT = [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9];
+const FATURAMENTO_MENSAL_CONTRATO = [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11];
+const FATURAMENTO_MENSAL_SEM_CLASSIFICACAO = [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6];
+const MAX_CLIENTES_RANKING_MOBILE = 15;
 
 // TODO: mock enquanto não existe endpoint de ranking de clientes
 interface ClientRankingMockProps {
@@ -117,7 +136,7 @@ const CLIENT_RANKING_MOCK: ClientRankingMockProps[] = [
   { cliente: 'Aço Vital Distribuição', faturamento: 71_980, qtd_pedidos: 6, tipo_contrato: 'SPOT' },
 ];
 
-export default function Faturamento() {
+export default function FaturamentoPorTipo() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
   const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
@@ -127,15 +146,12 @@ export default function Faturamento() {
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
 
-  //loadings individuais para cada Widget
-  const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
-  const [loadingFaturamentoMensal, setLoadingFaturamentoMensal] = useState<boolean>(false);
-  const [loadingFaturamentoPorTipo, setLoadingFaturamentoPorTipo] = useState<boolean>(false);
-  const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
-  const [loadingSituacaoPedidos, setLoadingSituacaoPedidos] = useState<boolean>(false);
+  //só exibe o dashboard quando todas as requisições terminarem
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--gold)';
+  const isMobile = useMediaQuery('(max-width: 1024px)');
 
   const top3 = sellerRanking.slice(0, 3);
   const otherVendors = sellerRanking.slice(3);
@@ -164,7 +180,7 @@ export default function Faturamento() {
   };
 
   const totalClientRevenue = CLIENT_RANKING_MOCK.reduce((sum, c) => sum + c.faturamento, 0);
-  const clientRanking = CLIENT_RANKING_MOCK.filter(
+  const clientRankingFull = CLIENT_RANKING_MOCK.filter(
     (c) => selectedClientTypes.length === 0 || selectedClientTypes.includes(c.tipo_contrato)
   )
     .sort((a, b) => b.faturamento - a.faturamento)
@@ -173,6 +189,11 @@ export default function Faturamento() {
       posicao: String(i + 1),
       perc_participacao: ((c.faturamento / totalClientRevenue) * 100).toFixed(1),
     }));
+  // No mobile o auto-scroll do ranking fica desativado (vira lista estática), então uma
+  // lista grande de clientes fica cansativa de rolar manualmente.
+  const clientRanking = isMobile
+    ? clientRankingFull.slice(0, MAX_CLIENTES_RANKING_MOBILE)
+    : clientRankingFull;
   const top3Clients = clientRanking.slice(0, 3);
   const otherClients = clientRanking.slice(3);
   const clientScrollDuration = `${otherClients.length * 1.7}s`;
@@ -181,71 +202,40 @@ export default function Faturamento() {
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
 
-    async function loadRanking() {
-      try {
-        setLoadingRanking(true);
-        const ranking = await getRankingVendedores(params);
-        setSellerRanking(ranking.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRanking(false);
-      }
+    async function loadAll() {
+      setIsLoading(true);
+
+      const results = await Promise.allSettled([
+        getRankingVendedores(params),
+        getFaturamentoMensal(params),
+        getFaturamentoPorTipo(params),
+        getRitmoMetaFaturamento(params),
+        getSituacaoPedidos(params),
+      ]);
+      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes] = results;
+
+      if (ranking.status === 'fulfilled') setSellerRanking(ranking.value.data ?? []);
+      else console.error(ranking.reason);
+
+      if (faturamento.status === 'fulfilled')
+        setFaturamentoMensal(faturamento.value.data?.[0] ?? null);
+      else console.error(faturamento.reason);
+
+      if (faturamentoTipos.status === 'fulfilled')
+        setFaturamentoPorTipo(faturamentoTipos.value.data ?? []);
+      else console.error(faturamentoTipos.reason);
+
+      if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
+      else console.error(ritmoMeta.reason);
+
+      if (situacaoPedidosRes.status === 'fulfilled')
+        setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
+      else console.error(situacaoPedidosRes.reason);
+
+      setIsLoading(false);
     }
 
-    async function loadFaturamentoMensal() {
-      try {
-        setLoadingFaturamentoMensal(true);
-        const faturamento = await getFaturamentoMensal(params);
-        setFaturamentoMensal(faturamento.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingFaturamentoMensal(false);
-      }
-    }
-
-    async function loadFaturamentoPorTipo() {
-      try {
-        setLoadingFaturamentoPorTipo(true);
-        const faturamentoTipos = await getFaturamentoPorTipo(params);
-        setFaturamentoPorTipo(faturamentoTipos.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingFaturamentoPorTipo(false);
-      }
-    }
-
-    async function loadRitmoMeta() {
-      try {
-        setLoadingRitmoMeta(true);
-        const ritmoMeta = await getRitmoMetaFaturamento(params);
-        setRitmoDeMeta(ritmoMeta.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRitmoMeta(false);
-      }
-    }
-
-    async function loadSituacaoPedidos() {
-      try {
-        setLoadingSituacaoPedidos(true);
-        const situacaoPedidosRes = await getSituacaoPedidos(params);
-        setSituacaoPedidos(situacaoPedidosRes.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingSituacaoPedidos(false);
-      }
-    }
-
-    loadRanking();
-    loadFaturamentoMensal();
-    loadFaturamentoPorTipo();
-    loadRitmoMeta();
-    loadSituacaoPedidos();
+    loadAll();
   }, [completeDate]);
 
   const faturamento = (
@@ -255,18 +245,48 @@ export default function Faturamento() {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-            <span>{loadingRanking ? 0 : sellerRanking.length} vendedores</span>
+            <span>{sellerRanking.length} vendedores</span>
           </div>
-          {loadingRanking ? (
-            <WidgetLoading />
-          ) : (
-            <>
-              <div className={styles.fixedRank}>
-                Destaques do Pódio
-                <div className={styles.top3Container}>
-                  {top3.map((v) => (
+          <div className={styles.fixedRank}>
+            Destaques do Pódio
+            <div className={styles.top3Container}>
+              {top3.map((v) => (
+                <VendorCard
+                  key={v.cod_vendedor}
+                  {...v}
+                  onClick={() => {
+                    setSelectedVendorId(Number(v.cod_vendedor));
+                    setSelectedFilialId(v.codigo_empresa);
+                  }}
+                  color={accentColor}
+                />
+              ))}
+            </div>
+          </div>
+          <div className={styles.defaultRank}>
+            {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+            <div
+              className={sellerRanking.length > 9 ? styles.autoScroll : ''}
+              style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+            >
+              <div className={styles.vendorGroup}>
+                {otherVendors.map((v) => (
+                  <VendorCard
+                    key={v.cod_vendedor}
+                    {...v}
+                    onClick={() => {
+                      setSelectedVendorId(Number(v.cod_vendedor));
+                      setSelectedFilialId(v.codigo_empresa);
+                    }}
+                    color={accentColor}
+                  />
+                ))}
+              </div>
+              <div className={styles.vendorGroup} aria-hidden="true">
+                {sellerRanking.length >= 10 &&
+                  otherVendors.map((v) => (
                     <VendorCard
-                      key={v.cod_vendedor}
+                      key={`dup-${v.cod_vendedor}`}
                       {...v}
                       onClick={() => {
                         setSelectedVendorId(Number(v.cod_vendedor));
@@ -275,138 +295,75 @@ export default function Faturamento() {
                       color={accentColor}
                     />
                   ))}
-                </div>
               </div>
-              <div className={styles.defaultRank}>
-                {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-                <div
-                  className={sellerRanking.length > 9 ? styles.autoScroll : ''}
-                  style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-                >
-                  <div className={styles.vendorGroup}>
-                    {otherVendors.map((v) => (
-                      <VendorCard
-                        key={v.cod_vendedor}
-                        {...v}
-                        onClick={() => {
-                          setSelectedVendorId(Number(v.cod_vendedor));
-                          setSelectedFilialId(v.codigo_empresa);
-                        }}
-                        color={accentColor}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.vendorGroup} aria-hidden="true">
-                    {sellerRanking.length >= 10 &&
-                      otherVendors.map((v) => (
-                        <VendorCard
-                          key={`dup-${v.cod_vendedor}`}
-                          {...v}
-                          onClick={() => {
-                            setSelectedVendorId(Number(v.cod_vendedor));
-                            setSelectedFilialId(v.codigo_empresa);
-                          }}
-                          color={accentColor}
-                        />
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </DashboardWidget>
       {/* Gauge */}
       <DashboardWidget cols={6} rows={3} tabletCols={12}>
-        {loadingFaturamentoMensal ? (
-          <div className={styles.defaultCard}>
-            <WidgetLoading />
-          </div>
-        ) : (
-          <RevenueGauge
-            totalOrders={faturamentoMensal?.qtd_nfs}
-            value={gauge || 0}
-            target={Number(faturamentoMensal?.meta) || 0}
-            totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
-            lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
-            lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
-            color={accentColor}
-          />
-        )}
+        <RevenueGauge
+          totalOrders={faturamentoMensal?.qtd_nfs}
+          value={gauge || 0}
+          target={Number(faturamentoMensal?.meta) || 0}
+          totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
+          lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
+          lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
+          color={accentColor}
+        />
       </DashboardWidget>
       {/* Faturamento Diário / Volume NFs */}
       <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        {loadingFaturamentoMensal ? (
-          <div className={styles.stackedSections}>
-            <SectionCard>
-              <WidgetLoading />
-            </SectionCard>
-            <SectionCard>
-              <WidgetLoading />
-            </SectionCard>
-          </div>
-        ) : (
-          <div className={styles.stackedSections}>
-            <SectionCard
-              header={{
-                title: 'Faturamento Diário',
-                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-              }}
-              background="var(--navy-850)"
-            >
-              <DailyStatCard
-                todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-                yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-              />
-            </SectionCard>
-            <SectionCard
-              header={{
-                title: 'Volume de Notas Fiscais',
-                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-              }}
-              background="var(--navy-850)"
-            >
-              <DailyStatCard
-                todayValue={faturamentoMensal?.pedidos_hoje || 0}
-                yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
-              />
-            </SectionCard>
-          </div>
-        )}
+        <div className={styles.stackedSections}>
+          <SectionCard
+            header={{
+              title: 'Faturamento Diário',
+              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+            }}
+            background="var(--navy-850)"
+          >
+            <DailyStatCard
+              todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+              yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
+            />
+          </SectionCard>
+          <SectionCard
+            header={{
+              title: 'Volume de Notas Fiscais',
+              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+            }}
+            background="var(--navy-850)"
+          >
+            <DailyStatCard
+              todayValue={faturamentoMensal?.pedidos_hoje || 0}
+              yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
+            />
+          </SectionCard>
+        </div>
       </DashboardWidget>
       {/* Ritmo de meta */}
       <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        {loadingRitmoMeta ? (
-          <div className={styles.defaultCard}>
-            <WidgetLoading />
-          </div>
-        ) : (
-          <GoalPaceCard
-            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-            orientation="column"
-          />
-        )}
+        <GoalPaceCard
+          status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+          idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+          currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+          workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+          elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+          orientation="column"
+        />
       </DashboardWidget>
       {/* Faturamento por tipo */}
       <DashboardWidget cols={6} rows={1} tabletCols={12}>
         <div className={styles.defaultCard}>
           <h3>Faturamento por tipo</h3>
-          {loadingFaturamentoPorTipo ? (
-            <WidgetLoading />
-          ) : (
-            <div className={styles.tipoFaturamentoRow}>
-              {billingTypes.map(({ label, value }) => (
-                <div key={label} className={styles.tipoFaturamentoItem}>
-                  <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
-                  <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className={styles.tipoFaturamentoRow}>
+            {billingTypes.map(({ label, value }) => (
+              <div key={label} className={styles.tipoFaturamentoItem}>
+                <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
+                <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </DashboardWidget>
     </DashboardGrid>
@@ -438,27 +395,14 @@ export default function Faturamento() {
             xAxis={[
               {
                 scaleType: 'band',
-                data: [
-                  'jan',
-                  'fev',
-                  'mar',
-                  'abr',
-                  'mai',
-                  'jun',
-                  'jul',
-                  'ago',
-                  'set',
-                  'out',
-                  'nov',
-                  'dez',
-                ],
+                data: isMobile ? MESES_FATURAMENTO_MENSAL.slice(-6) : MESES_FATURAMENTO_MENSAL,
               },
             ]}
             series={[
               {
                 id: 'SPOT',
                 label: 'SPOT',
-                data: [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9],
+                data: isMobile ? FATURAMENTO_MENSAL_SPOT.slice(-6) : FATURAMENTO_MENSAL_SPOT,
                 color: 'var(--green)',
                 curve: 'natural',
                 area: true,
@@ -466,7 +410,9 @@ export default function Faturamento() {
               {
                 id: 'CONTRATO',
                 label: 'CONTRATO',
-                data: [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11],
+                data: isMobile
+                  ? FATURAMENTO_MENSAL_CONTRATO.slice(-6)
+                  : FATURAMENTO_MENSAL_CONTRATO,
                 color: 'var(--purple)',
                 curve: 'natural',
                 area: true,
@@ -474,7 +420,9 @@ export default function Faturamento() {
               {
                 id: 'SEM CLASSIFICAÇÃO',
                 label: 'SEM CLASSIFICAÇÃO',
-                data: [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6],
+                data: isMobile
+                  ? FATURAMENTO_MENSAL_SEM_CLASSIFICACAO.slice(-6)
+                  : FATURAMENTO_MENSAL_SEM_CLASSIFICACAO,
                 color: 'var(--white)',
                 curve: 'natural',
                 area: true,
@@ -577,90 +525,115 @@ export default function Faturamento() {
       <DashboardWidget cols={3} rows={3}>
         <div className={styles.defaultCard}>
           <h3>Situação</h3>
-          {loadingSituacaoPedidos ? (
-            <WidgetLoading />
-          ) : (
-            <div className={styles.situationGroup}>
-              {situations.map(({ label, color, count, value }) => (
-                <div
-                  key={label}
-                  className={styles.situationCard}
-                  style={{ '--situation-color': color } as React.CSSProperties}
-                >
-                  <div>
-                    <h4 className={styles.situationTitle}>{label}</h4>
-                    <span>{count}</span>
-                  </div>
-                  <div>
-                    <span>{toBRL(value)}</span>
-                  </div>
+          <div className={styles.situationGroup}>
+            {situations.map(({ label, color, count, value }) => (
+              <div
+                key={label}
+                className={styles.situationCard}
+                style={{ '--situation-color': color } as React.CSSProperties}
+              >
+                <div>
+                  <h4 className={styles.situationTitle}>{label}</h4>
+                  <span>{count}</span>
                 </div>
-              ))}
-            </div>
-          )}
+                <div>
+                  <span>{toBRL(value)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </DashboardWidget>
       {/* Faturamento por tipo */}
       <DashboardWidget cols={3} rows={3}>
         <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
-          {loadingFaturamentoPorTipo ? (
-            <WidgetLoading />
-          ) : (
-            <div className={styles.pieWrapper}>
-              <div className={styles.pieTotal}>
-                <span className={styles.tipoFaturamentoLabel}>Total Faturado por tipo</span>
-                <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
-              </div>
-              <PieChart
-                series={[
-                  {
-                    innerRadius: 50,
-                    outerRadius: 100,
-                    data: billingTypes.map(({ label, value }) => ({
-                      id: label,
-                      value,
-                      label,
-                      color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
-                    })),
-
-                    valueFormatter: ({ value }) => toBRL(value),
-                    arcLabel: (item) =>
-                      totalBillingTypes
-                        ? `${Math.round((item.value / totalBillingTypes) * 100)}%`
-                        : '',
-                    arcLabelMinAngle: 15,
-                  },
-                ]}
-                slotProps={{
-                  legend: {
-                    direction: 'horizontal',
-                    position: { vertical: 'bottom', horizontal: 'center' },
-                  },
-                }}
-                sx={{
-                  '& .MuiChartsArcLabel-root': {
-                    fill: 'var(--navy-950)',
-                    fontFamily: 'var(--font-sans)',
-                    fontWeight: 'var(--w-bold)',
-                    fontSize: 'var(--fs-xs)',
-                  },
-                  '& .MuiChartsLegend-label': {
-                    color: 'var(--foreground) !important',
-                    fontFamily: 'var(--font-sans)',
-                    fontWeight: 'var(--w-regular)',
-                    textTransform: 'none',
-                  },
-                  gap: '3.5rem',
-                }}
-                width={200}
-                height={200}
-              />
+          <div className={styles.pieWrapper}>
+            <div className={styles.pieTotal}>
+              <span className={styles.tipoFaturamentoLabel}>Total Faturado por tipo</span>
+              <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
             </div>
-          )}
+            <PieChart
+              series={[
+                {
+                  innerRadius: 50,
+                  outerRadius: 100,
+                  data: billingTypes.map(({ label, value }) => ({
+                    id: label,
+                    value,
+                    label,
+                    color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
+                  })),
+
+                  valueFormatter: ({ value }) => toBRL(value),
+                  arcLabel: (item) =>
+                    totalBillingTypes
+                      ? `${Math.round((item.value / totalBillingTypes) * 100)}%`
+                      : '',
+                  arcLabelMinAngle: 15,
+                },
+              ]}
+              slotProps={{
+                legend: {
+                  direction: 'horizontal',
+                  position: { vertical: 'bottom', horizontal: 'center' },
+                },
+              }}
+              sx={{
+                '& .MuiChartsArcLabel-root': {
+                  fill: 'var(--navy-950)',
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 'var(--w-bold)',
+                  fontSize: 'var(--fs-xs)',
+                },
+                '& .MuiChartsLegend-label': {
+                  color: 'var(--foreground) !important',
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 'var(--w-regular)',
+                  textTransform: 'none',
+                },
+                gap: '3rem',
+              }}
+              width={200}
+              height={200}
+            />
+          </div>
         </div>
       </DashboardWidget>
     </DashboardGrid>
   );
+
+  const skeletonWidget = (
+    <Skeleton
+      variant="rounded"
+      width="100%"
+      height="100%"
+      sx={{ bgcolor: 'var(--navy-850)', borderRadius: 'var(--radius-md)' }}
+    />
+  );
+
+  const skeleton = (
+    <DashboardGrid>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+    </DashboardGrid>
+  );
+
+  if (isLoading) {
+    return <div className={styles.dashboardContainer}>{skeleton}</div>;
+  }
 
   return (
     <div className={styles.dashboardContainer}>

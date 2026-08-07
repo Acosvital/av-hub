@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PaginatedResponse } from './types';
 import {
+  ClientRankingVendasProps,
   DetalheVendedorVendasPedidoProps,
   DetalheVendedorVendasResumoProps,
   RankingVendedoresVendasProps,
@@ -83,6 +84,36 @@ export async function getVendasPorTipo(params: GetVendasPorTipoParams = {}) {
   return apiFetch<VendasPorTipoResponse>(
     `/api/dashboard/vendas/vendas-por-tipo?${query}`,
     'Erro ao buscar vendas por tipo'
+  );
+}
+/************************* RANKING CLIENTES *************************/
+
+interface GetRankingClientesVendasParams {
+  mes?: number;
+  ano?: number;
+  codigo_cliente?: string;
+  cpf_cnpj?: string;
+  cliente?: string;
+  page?: string;
+  limit?: string;
+}
+
+interface RankingClientesVendasResponse extends PaginatedResponse {
+  data: ClientRankingVendasProps[];
+}
+
+export async function getRankingClientesVendas(params: GetRankingClientesVendasParams = {}) {
+  const query = new URLSearchParams();
+  if (params.mes) query.set('mes', String(params.mes));
+  if (params.ano) query.set('ano', String(params.ano));
+  if (params.codigo_cliente) query.set('codigo_cliente', String(params.codigo_cliente));
+  if (params.cpf_cnpj) query.set('cpf_cnpj', String(params.cpf_cnpj));
+  if (params.cliente) query.set('cliente', String(params.cliente));
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  return apiFetch<RankingClientesVendasResponse>(
+    `/api/dashboard/vendas/ranking-clientes?${query}`,
+    'Erro ao buscar ranking de clientes'
   );
 }
 /************************* RITMO DE META *************************/
