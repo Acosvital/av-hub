@@ -26,48 +26,47 @@
   flex-shrink: 0;
 }
 
-.defaultCard {
+.dotGreen {
+  background-color: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.dotBlue {
+  background-color: var(--blue);
+  box-shadow: 0 0 6px var(--blue);
+}
+
+/********* VENDAS POR TIPO *********/
+.tipoVendaRow {
   display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  background-color: var(--navy-850);
-  color: var(--foreground);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--navy-915);
-  height: 100%;
-  min-height: 0;
+  flex: 1;
+  margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1);
   padding: var(--space-3) var(--space-4);
-  gap: var(--space-2);
-  text-transform: uppercase;
-  font-family: var(--font-sans);
+  background-color: var(--navy-925);
 }
 
-.defaultCard > h3,
-.defaultCard > div > h3 {
-  font-size: var(--fs-sm);
-  margin-bottom: var(--space-2);
-}
-
-.loading {
+.tipoVendaItem {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  gap: var(--space-4);
-  padding: var(--space-6);
   flex: 1;
+  text-align: center;
 }
 
-.loading span {
-  text-transform: none;
+.tipoVendaItem:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+
+.tipoVendaLabel {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+.tipoVendaValue {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
   color: var(--foreground);
-  font-size: var(--fs-xl);
-  font-family: var(--font-sans);
-}
-
-.loading svg {
-  color: var(--av-accent);
 }
 
 /********* RANKING *********/
@@ -76,41 +75,41 @@
   flex-direction: column;
   background-color: var(--navy-850);
   color: var(--foreground);
-  border-radius: var(--radius-md);
   border: 1px solid var(--navy-915);
-  height: 100%;
+  border-radius: var(--radius-md);
   overflow: hidden;
+  height: 100%;
 }
 
 .cardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
   background-color: color-mix(in srgb, var(--navy-850) 92%, black);
-  color: var(--foreground);
+  color: var(--foreground-secondary);
   font-family: var(--font-sans);
-  height: 10%;
   font-weight: var(--w-bold);
+  border-bottom: 1px solid var(--border);
 }
 
 .rankingTitle {
   font-size: var(--fs-2xl);
   text-transform: uppercase;
+  color: var(--foreground-secondary);
 }
 
 .fixedRank {
   text-align: left;
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-4);
   height: fit-content;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  background-color: var(--navy-925);
   border-bottom: 1px solid var(--border);
   font-weight: var(--w-bold);
   font-family: var(--font-sans);
+  background-color: var(--navy-925);
   z-index: 1;
 }
 
@@ -128,7 +127,7 @@
   flex: 1;
   min-height: 0;
   font-weight: var(--w-bold);
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-4);
   gap: var(--space-2);
   overflow: hidden;
   background-color: var(--navy-925);
@@ -155,24 +154,7 @@
   animation: verticalScroll var(--scroll-duration, 10s) linear infinite;
 }
 
-@keyframes verticalScroll {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    /* Desloca exatamente o tamanho do primeiro grupo */
-    transform: translate3d(0, -50%, 0);
-  }
-}
-
-.vendorGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/********* FILTROS DE TIPO *********/
+/********* RANKING: FILTROS DE TIPO *********/
 .typeFilters {
   display: flex;
   gap: var(--space-2);
@@ -312,6 +294,45 @@
 .situationTitle {
   color: var(--situation-color);
 }
+/**************************************************************** FATURAMENTO MENSAL ****************************************************************/
+.defaultCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: var(--navy-850);
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--navy-915);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-2);
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+}
+
+.defaultCard > h3,
+.defaultCard > div > h3 {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-2);
+}
+
+@keyframes verticalScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    /* Desloca exatamente o tamanho do primeiro grupo */
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.vendorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 
 /************************************************* MOBILE / TABLET *************************************************/
 @media screen and (max-width: 1024px) {
@@ -332,12 +353,12 @@
     height: fit-content;
   }
 
-  .tipoFaturamentoRow {
+  .tipoVendaRow {
     flex-direction: column;
     gap: var(--space-2);
   }
 
-  .tipoFaturamentoItem:not(:last-child) {
+  .tipoVendaItem:not(:last-child) {
     border-right: none;
     border-bottom: 1px solid var(--border);
     padding-bottom: var(--space-2);

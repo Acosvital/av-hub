@@ -33,8 +33,10 @@ export interface FaturamentoMensalProps {
 export interface FaturamentoPorTipoProps {
   mes: number;
   ano: number;
-  tipo_contrato: string;
+  tipo_contrato: 'CONTRATO' | 'SPOT' | 'SEM CLASSIFICAÇÃO';
   faturamento: string;
+  percentual_qtd_nfs: string;
+  percentual_faturamento: string;
   qtd_nfs: string;
 }
 

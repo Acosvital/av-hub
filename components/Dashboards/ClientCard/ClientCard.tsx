@@ -16,7 +16,7 @@ interface ClientCardProps {
   qtd_pedidos: number;
   perc_participacao: string;
   faturamento: number;
-  tipo_contrato: ClientOrderType;
+  tipo_contrato?: ClientOrderType | ClientOrderType[];
   posicao: string;
   color?: string;
 }
@@ -31,12 +31,35 @@ const ClientCard = ({
   color = 'var(--gold)',
 }: ClientCardProps) => {
   const isPodium = Number(posicao) <= 3;
-  const typeColor = CLIENT_TYPE_COLORS[tipo_contrato] ?? 'var(--foreground)';
+  const tipos = tipo_contrato
+    ? Array.isArray(tipo_contrato)
+      ? tipo_contrato
+      : [tipo_contrato]
+    : [];
+  const isComposite = tipos.length > 1;
+  const typeColor =
+    tipos.length > 0 ? (CLIENT_TYPE_COLORS[tipos[0]] ?? 'var(--foreground)') : color;
+
+  // Vários tipos de contrato agrupados no mesmo card: sinaliza com um degradê nas cores de cada tipo.
+  const compositeStyle: React.CSSProperties = isComposite
+    ? {
+        borderLeft: '3px solid transparent',
+        borderImage: `linear-gradient(180deg, ${tipos.map((t) => CLIENT_TYPE_COLORS[t]).join(', ')}) 1`,
+        background: `linear-gradient(90deg, ${tipos
+          .map(
+            (t, i) =>
+              `color-mix(in srgb, ${CLIENT_TYPE_COLORS[t]} ${isPodium ? 40 : 20}%, var(--card-bg-secondary)) ${
+                (i * 100) / (tipos.length - 1)
+              }%`
+          )
+          .join(', ')})`,
+      }
+    : {};
 
   return (
     <div
       className={`${styles.clientCard} ${isPodium ? styles.podium : ''}`}
-      style={{ '--row-color': typeColor } as React.CSSProperties}
+      style={{ '--row-color': typeColor, ...compositeStyle } as React.CSSProperties}
     >
       <div className={styles.clientRank}>
         <RankingBadge rank={Number(posicao)} />
@@ -47,8 +70,11 @@ const ClientCard = ({
         <div className={styles.clientDetails}>
           <span className={styles.clientInfo}>{`${qtd_pedidos} Pedidos`}</span>
           <span className={styles.clientInfo}>·</span>
-          <span className={styles.clientType} style={{ color: typeColor }}>
-            {tipo_contrato}
+          <span
+            className={styles.clientType}
+            style={{ color: isComposite ? 'var(--foreground)' : typeColor }}
+          >
+            {tipos.join(' + ')}
           </span>
           <span className={styles.clientInfo}>·</span>
           <span className={styles.clientInfo}>{`${perc_participacao || 0}% Part.`}</span>
