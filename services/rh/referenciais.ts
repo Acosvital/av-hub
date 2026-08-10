@@ -1,6 +1,6 @@
 import { SetoresProps } from '@/app/(protected)/rh/solicitacoes-de-vagas/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 
 export interface GetUnidadesParams {
   page?: number;

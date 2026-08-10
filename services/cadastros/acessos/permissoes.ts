@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PermissaoProps } from '@/app/(protected)/cadastros/acessos/permissoes/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 interface GetPermissoesParams {
   page?: number;

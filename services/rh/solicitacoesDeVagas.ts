@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { SolicitacaoVagaProps } from '@/app/(protected)/rh/solicitacoes-de-vagas/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 
 interface GetSolicitacoesDeVagasParams {
   page?: number;

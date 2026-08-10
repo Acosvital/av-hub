@@ -1,5 +1,5 @@
 import { NotasFiscaisSaidaProps } from '@/app/(protected)/vendas/notas-fiscais-saida/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 import { apiFetch } from '@/lib/api/fetchHelper';
 
 interface GetInterfaceNotasFiscaisSaidaParams {

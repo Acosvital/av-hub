@@ -6,44 +6,26 @@ import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
 import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
-import BillingHistoryChart from '@/components/Dashboards/BillingHistoryChart/BillingHistoryChart';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
 import toBRL from '@/utils/toBRL';
-import dayjs from 'dayjs';
-import 'dayjs/locale/pt-br';
 import { useEffect, useState } from 'react';
 import {
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
-  ResumoMensalFaturamentoProps,
   RitmoMetaFaturamentoProps,
   SellerRankingProps,
-  SituacaoPedidosFaturadosProps,
 } from './types';
 import {
   getFaturamentoMensal,
   getFaturamentoPorTipo,
   getRankingVendedores,
-  getResumoMensalFaturamento,
   getRitmoMetaFaturamento,
-  getSituacaoPedidos,
   parseFaturamentoPorTipoBuckets,
-} from '@/services/dashboardFaturamento';
+} from '@/services/dashboards/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
-import Card from '@/components/Ui/Card/Card';
-import { LineChart, PieChart } from '@mui/x-charts';
 import { Skeleton } from '@mui/material';
-
-const SITUACAO_DEFINITIONS = [
-  { id: 'G1', label: 'Cancelados' },
-  { id: 'G2', label: 'Devolvidos' },
-  { id: 'G3', label: 'Recusados' },
-  { id: 'G6', label: 'Refaturamento' },
-];
 
 export default function Faturamento() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
@@ -52,14 +34,10 @@ export default function Faturamento() {
   const [faturamentoMensal, setFaturamentoMensal] = useState<FaturamentoMensalProps | null>(null);
   const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
-  const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
-  const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
 
   //só exibe o dashboard quando todas as requisições terminarem
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--gold)';
 
@@ -71,33 +49,9 @@ export default function Faturamento() {
     label: tipo.tipo_contrato,
     value: Number(tipo.faturamento),
   }));
-  const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
-  const situations = SITUACAO_DEFINITIONS.map(({ id, label }) => {
-    const situacao = situacaoPorGrupo.get(id);
-    return {
-      id,
-      label,
-      count: Number(situacao?.qtd_nfs) || 0,
-      value: Number(situacao?.valor_total) || 0,
-    };
-  });
-  const billingHistory = [...resumoMensal]
-    .sort((a, b) => a.periodo.localeCompare(b.periodo))
-    .map((item) => ({
-      mes: dayjs(item.periodo).locale('pt-br').format('MMM'),
-      faturamento: Number(item.fat_liquido),
-    }));
-
-  //state que avisa quando renderizar a Logo, com o tema certo
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   //Carrega os dados do dashboard a partir do filtro de data
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
-    const periodoInicio = completeDate.subtract(5, 'month').startOf('month').format('YYYY-MM-DD');
-    const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
 
     async function loadAll() {
       setIsLoading(true);
@@ -107,11 +61,8 @@ export default function Faturamento() {
         getFaturamentoMensal(params),
         getFaturamentoPorTipo(params),
         getRitmoMetaFaturamento(params),
-        getSituacaoPedidos(params),
-        getResumoMensalFaturamento({ periodo_inicio: periodoInicio, periodo_fim: periodoFim }),
       ]);
-      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes, resumoMensalRes] =
-        results;
+      const [ranking, faturamento, faturamentoTipos, ritmoMeta] = results;
 
       if (ranking.status === 'fulfilled') setSellerRanking(ranking.value.data ?? []);
       else console.error(ranking.reason);
@@ -127,13 +78,6 @@ export default function Faturamento() {
 
       if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
       else console.error(ritmoMeta.reason);
-
-      if (situacaoPedidosRes.status === 'fulfilled')
-        setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
-      else console.error(situacaoPedidosRes.reason);
-
-      if (resumoMensalRes.status === 'fulfilled') setResumoMensal(resumoMensalRes.value.data ?? []);
-      else console.error(resumoMensalRes.reason);
 
       setIsLoading(false);
     }

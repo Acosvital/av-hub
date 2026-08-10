@@ -24,9 +24,9 @@ import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import AppLineChart from '@/components/Charts/AppLineChart/AppLineChart';
 import { notify } from '@/lib/toast/toast';
-import { getProdutos } from '@/services/historicoProdutos';
-import { getFamilias } from '@/services/familias';
-import { getFornecedores } from '@/services/fornecedores';
+import { getProdutos } from '@/services/orcamento/historicoProdutos';
+import { getFamilias } from '@/services/orcamento/familias';
+import { getFornecedores } from '@/services/orcamento/fornecedores';
 import {
   FamiliaProdutosProps,
   FornecedorProps,
@@ -37,7 +37,7 @@ import {
 import { useDebounce } from '@/hooks/useDebouncer';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
-import { getPriceHistory } from '@/services/historicoPrecos';
+import { getPriceHistory } from '@/services/orcamento/historicoPrecos';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 

@@ -34,7 +34,7 @@ import {
   deletarSolicitacaoVaga,
   editarSolicitacaoVaga,
   getSolicitacoesDeVagas,
-} from '@/services/solicitacoesDeVagas';
+} from '@/services/rh/solicitacoesDeVagas';
 import {
   FormSolicitacaoVaga,
   SITUACAO_LABEL,
@@ -44,7 +44,7 @@ import {
   SolicitacaoVagaProps,
   TIPOS_VAGA,
 } from './types';
-import { getSetores } from '@/services/referenciais';
+import { getSetores } from '@/services/rh/referenciais';
 
 const FORM_INICIAL: FormSolicitacaoVaga = {
   data_solicitacao: new Date().toISOString().slice(0, 10),

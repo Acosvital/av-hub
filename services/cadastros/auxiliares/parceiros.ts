@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { ParceiroProps } from '@/app/(protected)/cadastros/auxiliares/parceiros/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 interface GetParceirosParams {
   page?: number;

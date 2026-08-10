@@ -1,6 +1,6 @@
 import { TelaProps } from '@/app/(protected)/cadastros/acessos/telas/types';
 import { apiFetch } from '@/lib/api/fetchHelper';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 interface GetTelasParams {
   page?: number;

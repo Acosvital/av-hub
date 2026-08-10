@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { ProdutoCadastroProps } from '@/app/(protected)/cadastros/auxiliares/produtos/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 interface GetProdutosCadastroParams {
   page?: number;

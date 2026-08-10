@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { FormPerfil, PerfilProps } from '@/app/(protected)/cadastros/acessos/perfis/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 export interface GetPerfisParams {
   page?: number;

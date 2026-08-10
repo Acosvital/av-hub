@@ -5,10 +5,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'mes', 'ano', 'codigo_cliente', 'cpf_cnpj', 'cliente'].forEach((key) => {
-      const value = searchParams.get(key);
-      if (value !== null) params.set(key, value);
-    });
+    ['page', 'limit', 'mes', 'ano', 'codigo_cliente', 'cpf_cnpj', 'cliente', 'historico'].forEach(
+      (key) => {
+        const value = searchParams.get(key);
+        if (value !== null) params.set(key, value);
+      }
+    );
     const data = await apiFetch(
       `${process.env.API_URL}/ranking_clientes_vendas?${params}`,
       'Erro ao buscar ranking de clientes',

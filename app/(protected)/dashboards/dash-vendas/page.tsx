@@ -19,7 +19,7 @@ import {
   getVendaMensal,
   getVendasPorTipo,
   parseVendasPorTipoBuckets,
-} from '@/services/dashboardVendas';
+} from '@/services/dashboards/dashboardVendas';
 import {
   RankingVendedoresVendasProps,
   RitmoMetaVendasProps,

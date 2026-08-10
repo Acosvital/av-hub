@@ -22,10 +22,10 @@ import {
   getVendasPorTipo,
   parseVendasPorTipoBuckets,
   VendasPorTipoBucket,
-} from '@/services/dashboardVendas';
+} from '@/services/dashboards/dashboardVendas';
 // TODO: ainda não existe um endpoint de situação dos pedidos específico de vendas,
 // então reaproveitamos o mesmo endpoint usado pelo dashboard de faturamento por tipo.
-import { getSituacaoPedidos } from '@/services/dashboardFaturamento';
+import { getSituacaoPedidos } from '@/services/dashboards/dashboardFaturamento';
 import { SituacaoPedidosFaturadosProps } from '../dash-faturamento-por-tipo/types';
 import {
   ClientRankingVendasProps,
