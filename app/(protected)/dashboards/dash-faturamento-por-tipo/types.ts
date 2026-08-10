@@ -64,6 +64,23 @@ export interface SituacaoPedidosFaturadosProps {
   valor_total: string;
 }
 
+export interface ClientRankingFaturamentoProps {
+  mes: number;
+  ano: number;
+  tipo_contrato: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
+  posicao: string;
+  id_parceiro: string;
+  cpf_cnpj: string;
+  codigo_cliente: string;
+  codigo_empresa: string;
+  codigos_cliente: string[];
+  cliente: string;
+  faturamento: string;
+  qtd_pedidos: string;
+  perc_participacao: string;
+  empresas: string[];
+}
+
 export interface DetalheVendedorFaturamentoResumoProps {
   cod_vendedor: string;
   vendedor: string | null;

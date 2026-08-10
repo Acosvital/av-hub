@@ -1,4 +1,5 @@
 import {
+  ClientRankingFaturamentoProps,
   DetalheVendedorFaturamentoPedidoProps,
   DetalheVendedorFaturamentoResumoProps,
   FaturamentoMensalProps,
@@ -107,6 +108,38 @@ export function parseFaturamentoPorTipoBuckets(
     )
     .map((entries) => ({ mes: entries[0].mes, ano: entries[0].ano, entries }))
     .sort((a, b) => a.ano * 12 + a.mes - (b.ano * 12 + b.mes));
+}
+/************************* RANKING CLIENTES *************************/
+
+interface GetRankingClientesFaturamentoParams {
+  mes?: number;
+  ano?: number;
+  codigo_cliente?: string;
+  cpf_cnpj?: string;
+  cliente?: string;
+  page?: string;
+  limit?: string;
+}
+
+interface RankingClientesFaturamentoResponse extends PaginatedResponse {
+  data: ClientRankingFaturamentoProps[];
+}
+
+export async function getRankingClientesFaturamento(
+  params: GetRankingClientesFaturamentoParams = {}
+) {
+  const query = new URLSearchParams();
+  if (params.mes) query.set('mes', String(params.mes));
+  if (params.ano) query.set('ano', String(params.ano));
+  if (params.codigo_cliente) query.set('codigo_cliente', String(params.codigo_cliente));
+  if (params.cpf_cnpj) query.set('cpf_cnpj', String(params.cpf_cnpj));
+  if (params.cliente) query.set('cliente', String(params.cliente));
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  return apiFetch<RankingClientesFaturamentoResponse>(
+    `/api/dashboard/faturamento/ranking-clientes?${query}`,
+    'Erro ao buscar ranking de clientes'
+  );
 }
 /************************* RITMO DE META *************************/
 interface GetRitmoMetaFaturamentoParams {

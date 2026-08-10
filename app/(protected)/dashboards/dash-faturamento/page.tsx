@@ -33,10 +33,10 @@ import {
   parseFaturamentoPorTipoBuckets,
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
-import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import Card from '@/components/Ui/Card/Card';
 import { LineChart, PieChart } from '@mui/x-charts';
+import { Skeleton } from '@mui/material';
 
 const SITUACAO_DEFINITIONS = [
   { id: 'G1', label: 'Cancelados' },
@@ -55,13 +55,8 @@ export default function Faturamento() {
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [resumoMensal, setResumoMensal] = useState<ResumoMensalFaturamentoProps[]>([]);
 
-  //loadings individuais para cada Widget
-  const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
-  const [loadingFaturamentoMensal, setLoadingFaturamentoMensal] = useState<boolean>(false);
-  const [loadingFaturamentoPorTipo, setLoadingFaturamentoPorTipo] = useState<boolean>(false);
-  const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
-  const [loadingSituacaoPedidos, setLoadingSituacaoPedidos] = useState<boolean>(false);
-  const [loadingResumoMensal, setLoadingResumoMensal] = useState<boolean>(false);
+  //só exibe o dashboard quando todas as requisições terminarem
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -101,94 +96,49 @@ export default function Faturamento() {
   //Carrega os dados do dashboard a partir do filtro de data
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+    const periodoInicio = completeDate.subtract(5, 'month').startOf('month').format('YYYY-MM-DD');
+    const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
 
-    async function loadRanking() {
-      try {
-        setLoadingRanking(true);
-        const ranking = await getRankingVendedores(params);
-        setSellerRanking(ranking.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRanking(false);
-      }
-    }
+    async function loadAll() {
+      setIsLoading(true);
 
-    async function loadFaturamentoMensal() {
-      try {
-        setLoadingFaturamentoMensal(true);
-        const faturamento = await getFaturamentoMensal(params);
-        setFaturamentoMensal(faturamento.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingFaturamentoMensal(false);
-      }
-    }
+      const results = await Promise.allSettled([
+        getRankingVendedores(params),
+        getFaturamentoMensal(params),
+        getFaturamentoPorTipo(params),
+        getRitmoMetaFaturamento(params),
+        getSituacaoPedidos(params),
+        getResumoMensalFaturamento({ periodo_inicio: periodoInicio, periodo_fim: periodoFim }),
+      ]);
+      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes, resumoMensalRes] =
+        results;
 
-    async function loadFaturamentoPorTipo() {
-      try {
-        setLoadingFaturamentoPorTipo(true);
-        const faturamentoTipos = await getFaturamentoPorTipo(params);
-        const buckets = parseFaturamentoPorTipoBuckets(faturamentoTipos.data);
+      if (ranking.status === 'fulfilled') setSellerRanking(ranking.value.data ?? []);
+      else console.error(ranking.reason);
+
+      if (faturamento.status === 'fulfilled')
+        setFaturamentoMensal(faturamento.value.data?.[0] ?? null);
+      else console.error(faturamento.reason);
+
+      if (faturamentoTipos.status === 'fulfilled') {
+        const buckets = parseFaturamentoPorTipoBuckets(faturamentoTipos.value.data);
         setFaturamentoPorTipo(buckets[0]?.entries ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingFaturamentoPorTipo(false);
-      }
+      } else console.error(faturamentoTipos.reason);
+
+      if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
+      else console.error(ritmoMeta.reason);
+
+      if (situacaoPedidosRes.status === 'fulfilled')
+        setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
+      else console.error(situacaoPedidosRes.reason);
+
+      if (resumoMensalRes.status === 'fulfilled') setResumoMensal(resumoMensalRes.value.data ?? []);
+      else console.error(resumoMensalRes.reason);
+
+      setIsLoading(false);
     }
 
-    async function loadRitmoMeta() {
-      try {
-        setLoadingRitmoMeta(true);
-        const ritmoMeta = await getRitmoMetaFaturamento(params);
-        setRitmoDeMeta(ritmoMeta.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRitmoMeta(false);
-      }
-    }
-
-    async function loadSituacaoPedidos() {
-      try {
-        setLoadingSituacaoPedidos(true);
-        const situacaoPedidosRes = await getSituacaoPedidos(params);
-        setSituacaoPedidos(situacaoPedidosRes.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingSituacaoPedidos(false);
-      }
-    }
-
-    async function loadResumoMensal() {
-      try {
-        setLoadingResumoMensal(true);
-        const periodoInicio = completeDate
-          .subtract(5, 'month')
-          .startOf('month')
-          .format('YYYY-MM-DD');
-        const periodoFim = completeDate.startOf('month').format('YYYY-MM-DD');
-        const resumoMensalRes = await getResumoMensalFaturamento({
-          periodo_inicio: periodoInicio,
-          periodo_fim: periodoFim,
-        });
-        setResumoMensal(resumoMensalRes.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingResumoMensal(false);
-      }
-    }
-
-    loadRanking();
-    loadFaturamentoMensal();
-    loadFaturamentoPorTipo();
-    loadRitmoMeta();
-    loadSituacaoPedidos();
-    loadResumoMensal();
+    loadAll();
   }, [completeDate]);
 
   const faturamento = (
@@ -198,18 +148,48 @@ export default function Faturamento() {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-            <span>{loadingRanking ? 0 : sellerRanking.length} vendedores</span>
+            <span>{sellerRanking.length} vendedores</span>
           </div>
-          {loadingRanking ? (
-            <WidgetLoading />
-          ) : (
-            <>
-              <div className={styles.fixedRank}>
-                Destaques do Pódio
-                <div className={styles.top3Container}>
-                  {top3.map((v) => (
+          <div className={styles.fixedRank}>
+            Destaques do Pódio
+            <div className={styles.top3Container}>
+              {top3.map((v) => (
+                <VendorCard
+                  key={v.cod_vendedor}
+                  {...v}
+                  onClick={() => {
+                    setSelectedVendorId(Number(v.cod_vendedor));
+                    setSelectedFilialId(v.codigo_empresa);
+                  }}
+                  color={accentColor}
+                />
+              ))}
+            </div>
+          </div>
+          <div className={styles.defaultRank}>
+            {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+            <div
+              className={sellerRanking.length > 9 ? styles.autoScroll : ''}
+              style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+            >
+              <div className={styles.vendorGroup}>
+                {otherVendors.map((v) => (
+                  <VendorCard
+                    key={v.cod_vendedor}
+                    {...v}
+                    onClick={() => {
+                      setSelectedVendorId(Number(v.cod_vendedor));
+                      setSelectedFilialId(v.codigo_empresa);
+                    }}
+                    color={accentColor}
+                  />
+                ))}
+              </div>
+              <div className={styles.vendorGroup} aria-hidden="true">
+                {sellerRanking.length >= 10 &&
+                  otherVendors.map((v) => (
                     <VendorCard
-                      key={v.cod_vendedor}
+                      key={`dup-${v.cod_vendedor}`}
                       {...v}
                       onClick={() => {
                         setSelectedVendorId(Number(v.cod_vendedor));
@@ -218,142 +198,113 @@ export default function Faturamento() {
                       color={accentColor}
                     />
                   ))}
-                </div>
               </div>
-              <div className={styles.defaultRank}>
-                {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-                <div
-                  className={sellerRanking.length > 9 ? styles.autoScroll : ''}
-                  style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-                >
-                  <div className={styles.vendorGroup}>
-                    {otherVendors.map((v) => (
-                      <VendorCard
-                        key={v.cod_vendedor}
-                        {...v}
-                        onClick={() => {
-                          setSelectedVendorId(Number(v.cod_vendedor));
-                          setSelectedFilialId(v.codigo_empresa);
-                        }}
-                        color={accentColor}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.vendorGroup} aria-hidden="true">
-                    {sellerRanking.length >= 10 &&
-                      otherVendors.map((v) => (
-                        <VendorCard
-                          key={`dup-${v.cod_vendedor}`}
-                          {...v}
-                          onClick={() => {
-                            setSelectedVendorId(Number(v.cod_vendedor));
-                            setSelectedFilialId(v.codigo_empresa);
-                          }}
-                          color={accentColor}
-                        />
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </DashboardWidget>
       {/* Gauge */}
       <DashboardWidget cols={6} rows={3} tabletCols={12}>
-        {loadingFaturamentoMensal ? (
-          <div className={styles.defaultCard}>
-            <WidgetLoading />
-          </div>
-        ) : (
-          <RevenueGauge
-            totalOrders={faturamentoMensal?.qtd_nfs}
-            value={gauge || 0}
-            target={Number(faturamentoMensal?.meta) || 0}
-            totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
-            lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
-            lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
-            color={accentColor}
-          />
-        )}
+        <RevenueGauge
+          totalOrders={faturamentoMensal?.qtd_nfs}
+          value={gauge || 0}
+          target={Number(faturamentoMensal?.meta) || 0}
+          totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
+          lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
+          lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
+          color={accentColor}
+        />
       </DashboardWidget>
       {/* Faturamento Diário / Volume NFs */}
       <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        {loadingFaturamentoMensal ? (
-          <div className={styles.stackedSections}>
-            <SectionCard>
-              <WidgetLoading />
-            </SectionCard>
-            <SectionCard>
-              <WidgetLoading />
-            </SectionCard>
-          </div>
-        ) : (
-          <div className={styles.stackedSections}>
-            <SectionCard
-              header={{
-                title: 'Faturamento Diário',
-                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-              }}
-              background="var(--navy-850)"
-            >
-              <DailyStatCard
-                todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-                yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-              />
-            </SectionCard>
-            <SectionCard
-              header={{
-                title: 'Volume de Notas Fiscais',
-                icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-              }}
-              background="var(--navy-850)"
-            >
-              <DailyStatCard
-                todayValue={faturamentoMensal?.pedidos_hoje || 0}
-                yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
-              />
-            </SectionCard>
-          </div>
-        )}
+        <div className={styles.stackedSections}>
+          <SectionCard
+            header={{
+              title: 'Faturamento Diário',
+              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+            }}
+            background="var(--navy-850)"
+          >
+            <DailyStatCard
+              todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
+              yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
+            />
+          </SectionCard>
+          <SectionCard
+            header={{
+              title: 'Volume de Notas Fiscais',
+              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
+            }}
+            background="var(--navy-850)"
+          >
+            <DailyStatCard
+              todayValue={faturamentoMensal?.pedidos_hoje || 0}
+              yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
+            />
+          </SectionCard>
+        </div>
       </DashboardWidget>
       {/* Ritmo de meta */}
       <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        {loadingRitmoMeta ? (
-          <div className={styles.defaultCard}>
-            <WidgetLoading />
-          </div>
-        ) : (
-          <GoalPaceCard
-            status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-            idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-            currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-            workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-            elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-            orientation="column"
-          />
-        )}
+        <GoalPaceCard
+          status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
+          idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
+          currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
+          workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
+          elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
+          orientation="column"
+        />
       </DashboardWidget>
       {/* Faturamento por tipo */}
       <DashboardWidget cols={6} rows={1} tabletCols={12}>
         <div className={styles.defaultCard}>
           <h3>Faturamento por tipo</h3>
-          {loadingFaturamentoPorTipo ? (
-            <WidgetLoading />
-          ) : (
-            <div className={styles.tipoFaturamentoRow}>
-              {billingTypes.map(({ label, value }) => (
-                <div key={label} className={styles.tipoFaturamentoItem}>
-                  <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
-                  <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className={styles.tipoFaturamentoRow}>
+            {billingTypes.map(({ label, value }) => (
+              <div key={label} className={styles.tipoFaturamentoItem}>
+                <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
+                <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </DashboardWidget>
     </DashboardGrid>
   );
+
+  const skeletonWidget = (
+    <Skeleton
+      variant="rounded"
+      width="100%"
+      height="100%"
+      sx={{ bgcolor: 'var(--navy-850)', borderRadius: 'var(--radius-md)' }}
+    />
+  );
+
+  const skeleton = (
+    <DashboardGrid>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+    </DashboardGrid>
+  );
+
+  if (isLoading) {
+    return <div className={styles.dashboardContainer}>{skeleton}</div>;
+  }
+
   return (
     <div className={styles.dashboardContainer}>
       <DashboardScrollStack accentColor={accentColor} panels={[faturamento]} />
