@@ -33,9 +33,14 @@ export interface VendasPorTipoProps {
   mes: number;
   ano: number;
   tipo_contrato: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
-  vendas: number | null;
-  qtd_pedidos: number;
+  vendas: string;
+  qtd_pedidos: string;
+  percentual_vendas: string;
+  percentual_qtd_pedidos: string;
 }
+
+// A API agrupa as vendas por mês, cada bucket vem chaveado como "MM/YYYY".
+export type VendasPorTipoPorMesProps = Record<string, VendasPorTipoProps[]>;
 
 export interface RitmoMetaVendasProps {
   mes: number;
