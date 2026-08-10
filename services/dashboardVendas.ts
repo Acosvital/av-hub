@@ -7,6 +7,7 @@ import {
   RankingVendedoresVendasProps,
   RitmoMetaVendasProps,
   VendaMensalProps,
+  VendasPorTipoPorMesProps,
   VendasPorTipoProps,
 } from '@/app/(protected)/dashboards/dash-vendas/types';
 
@@ -71,7 +72,7 @@ interface GetVendasPorTipoParams {
 }
 
 interface VendasPorTipoResponse extends PaginatedResponse {
-  data: VendasPorTipoProps[];
+  data: VendasPorTipoPorMesProps[];
 }
 
 export async function getVendasPorTipo(params: GetVendasPorTipoParams = {}) {
@@ -85,6 +86,24 @@ export async function getVendasPorTipo(params: GetVendasPorTipoParams = {}) {
     `/api/dashboard/vendas/vendas-por-tipo?${query}`,
     'Erro ao buscar vendas por tipo'
   );
+}
+
+export interface VendasPorTipoBucket {
+  mes: number;
+  ano: number;
+  entries: VendasPorTipoProps[];
+}
+
+// Achata a resposta agrupada por mês ("MM/YYYY" -> entries) em uma lista de
+// buckets ordenada cronologicamente (mais antigo primeiro).
+export function parseVendasPorTipoBuckets(
+  data: VendasPorTipoPorMesProps[] = []
+): VendasPorTipoBucket[] {
+  return data
+    .flatMap((bucket) => Object.values(bucket))
+    .filter((entries): entries is VendasPorTipoProps[] => Array.isArray(entries) && entries.length > 0)
+    .map((entries) => ({ mes: entries[0].mes, ano: entries[0].ano, entries }))
+    .sort((a, b) => a.ano * 12 + a.mes - (b.ano * 12 + b.mes));
 }
 /************************* RANKING CLIENTES *************************/
 

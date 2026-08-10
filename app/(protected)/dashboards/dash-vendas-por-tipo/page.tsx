@@ -11,6 +11,7 @@ import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
 import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
 import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import toBRL from '@/utils/toBRL';
+import toCompactBRL from '@/utils/toCompactBRL';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import {
@@ -19,7 +20,13 @@ import {
   getRitmoMetaVendas,
   getVendaMensal,
   getVendasPorTipo,
+  parseVendasPorTipoBuckets,
+  VendasPorTipoBucket,
 } from '@/services/dashboardVendas';
+// TODO: ainda não existe um endpoint de situação dos pedidos específico de vendas,
+// então reaproveitamos o mesmo endpoint usado pelo dashboard de faturamento por tipo.
+import { getSituacaoPedidos } from '@/services/dashboardFaturamento';
+import { SituacaoPedidosFaturadosProps } from '../dash-faturamento-por-tipo/types';
 import {
   ClientRankingVendasProps,
   RankingVendedoresVendasProps,
@@ -43,9 +50,16 @@ const BILLING_TYPE_COLORS: Record<string, string> = {
   'SEM CLASSIFICAÇÃO': 'var(--white)',
 };
 
+const SITUACAO_DEFINITIONS = [
+  { id: 'G1', label: 'Cancelados', color: 'var(--red)' },
+  { id: 'G2', label: 'Devolvidos', color: 'var(--blue)' },
+  { id: 'G3', label: 'Recusados', color: 'var(--yellow)' },
+  { id: 'G6', label: 'Refaturamento', color: 'var(--orange)' },
+];
+
 const CLIENT_TYPE_FILTERS: ClientOrderType[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
 
-const MESES_FATURAMENTO_MENSAL = [
+const MESES_ABREVIADOS = [
   'jan',
   'fev',
   'mar',
@@ -59,10 +73,11 @@ const MESES_FATURAMENTO_MENSAL = [
   'nov',
   'dez',
 ];
-const VENDAS_MENSAIS_SPOT = [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9];
-const VENDAS_MENSAIS_CONTRATO = [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11];
-const VENDAS_MENSAIS_SEM_CLASSIFICACAO = [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6];
+const MAX_MESES_FATURAMENTO_MENSAL = 12;
 const MAX_CLIENTES_RANKING_MOBILE = 15;
+
+const labelMesAno = (mes: number, ano: number) =>
+  `${MESES_ABREVIADOS[mes - 1]}/${String(ano).slice(-2)}`;
 
 const VendasPorTipo = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
@@ -70,7 +85,8 @@ const VendasPorTipo = () => {
   const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
   const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
-  const [vendasPorTipo, setVendasPorTipo] = useState<VendasPorTipoProps[]>([]);
+  const [vendasPorTipoBuckets, setVendasPorTipoBuckets] = useState<VendasPorTipoBucket[]>([]);
+  const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
 
   /* Segundo Dashboard*/
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
@@ -87,12 +103,49 @@ const VendasPorTipo = () => {
   const gauge = Number(vendaMensal?.perc_atingimento);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
 
-  const vendasPorTipoPorLabel = new Map(vendasPorTipo.map((t) => [t.tipo_contrato, t]));
+  const anchorMes = completeDate.month() + 1;
+  const anchorAno = completeDate.year();
+  const anchorKey = anchorAno * 12 + anchorMes;
+
+  const vendasPorTipoMesAtual =
+    vendasPorTipoBuckets.find((b) => b.ano * 12 + b.mes === anchorKey)?.entries ?? [];
+  const ultimos12Meses = vendasPorTipoBuckets
+    .filter((b) => b.ano * 12 + b.mes <= anchorKey)
+    .slice(-MAX_MESES_FATURAMENTO_MENSAL);
+
+  const vendasPorTipoPorLabel = new Map(vendasPorTipoMesAtual.map((t) => [t.tipo_contrato, t]));
   const tiposVenda = TIPO_VENDA_DEFINITIONS.map((label) => ({
     label,
     value: Number(vendasPorTipoPorLabel.get(label)?.vendas) || 0,
   }));
   const totalVendaTipos = tiposVenda.reduce((sum, t) => sum + t.value, 0);
+  const tiposVendaPercentual = TIPO_VENDA_DEFINITIONS.map((label) => ({
+    label,
+    value: Number(vendasPorTipoPorLabel.get(label)?.percentual_vendas) || 0,
+  }));
+
+  const faturamentoMensalLabels = ultimos12Meses.map((b) => labelMesAno(b.mes, b.ano));
+  const faturamentoMensalPorTipo = TIPO_VENDA_DEFINITIONS.reduce<Record<string, number[]>>(
+    (acc, tipo) => {
+      acc[tipo] = ultimos12Meses.map(
+        (b) => Number(b.entries.find((e) => e.tipo_contrato === tipo)?.vendas) || 0
+      );
+      return acc;
+    },
+    {}
+  );
+
+  const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
+  const situations = SITUACAO_DEFINITIONS.map(({ id, label, color }) => {
+    const situacao = situacaoPorGrupo.get(id);
+    return {
+      id,
+      label,
+      color,
+      count: Number(situacao?.qtd_nfs) || 0,
+      value: Number(situacao?.valor_total) || 0,
+    };
+  });
 
   /* Funções Cards Clientes*/
   // A API retorna uma linha por (cliente, tipo_contrato), então o mesmo cliente aparece
@@ -167,10 +220,13 @@ const VendasPorTipo = () => {
         getRankingVendedoresVendas(params),
         getVendaMensal(params),
         getRitmoMetaVendas(params),
-        getVendasPorTipo(params),
+        // Sem mes/ano o endpoint retorna todo o período, necessário para os últimos 12 meses do LineChart.
+        getVendasPorTipo(),
         getRankingClientesVendas(params),
+        getSituacaoPedidos(params),
       ]);
-      const [ranking, vendas, ritmoVendas, vendasTipo, rankingClientes] = results;
+      const [ranking, vendas, ritmoVendas, vendasTipo, rankingClientes, situacaoPedidosRes] =
+        results;
 
       if (ranking.status === 'fulfilled') setRankingVendedores(ranking.value.data ?? []);
       else console.error(ranking.reason);
@@ -181,12 +237,17 @@ const VendasPorTipo = () => {
       if (ritmoVendas.status === 'fulfilled') setRitmoDeMeta(ritmoVendas.value.data?.[0] ?? null);
       else console.error(ritmoVendas.reason);
 
-      if (vendasTipo.status === 'fulfilled') setVendasPorTipo(vendasTipo.value.data ?? []);
+      if (vendasTipo.status === 'fulfilled')
+        setVendasPorTipoBuckets(parseVendasPorTipoBuckets(vendasTipo.value.data));
       else console.error(vendasTipo.reason);
 
       if (rankingClientes.status === 'fulfilled')
         setClientRankingData(rankingClientes.value.data ?? []);
       else console.error(rankingClientes.reason);
+
+      if (situacaoPedidosRes.status === 'fulfilled')
+        setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
+      else console.error(situacaoPedidosRes.reason);
 
       setIsLoading(false);
     }
@@ -368,7 +429,6 @@ const VendasPorTipo = () => {
             <h2 className={styles.rankingTitle}>🏆 Ranking Clientes</h2>
             <span>{clientRanking.length} clientes</span>
           </div>
-
           <div className={styles.fixedRank}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               Destaques do Pódio
@@ -440,35 +500,48 @@ const VendasPorTipo = () => {
             xAxis={[
               {
                 scaleType: 'band',
-                data: isMobile ? MESES_FATURAMENTO_MENSAL.slice(-6) : MESES_FATURAMENTO_MENSAL,
+                data: isMobile ? faturamentoMensalLabels.slice(-6) : faturamentoMensalLabels,
+              },
+            ]}
+            yAxis={[
+              {
+                width: 64,
+                valueFormatter: (value: number) => toCompactBRL(value),
               },
             ]}
             series={[
               {
                 id: 'SPOT',
                 label: 'SPOT',
-                data: isMobile ? VENDAS_MENSAIS_SPOT.slice(-6) : VENDAS_MENSAIS_SPOT,
+                data: isMobile
+                  ? faturamentoMensalPorTipo.SPOT.slice(-6)
+                  : faturamentoMensalPorTipo.SPOT,
                 color: 'var(--green)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
               {
                 id: 'CONTRATO',
                 label: 'CONTRATO',
-                data: isMobile ? VENDAS_MENSAIS_CONTRATO.slice(-6) : VENDAS_MENSAIS_CONTRATO,
+                data: isMobile
+                  ? faturamentoMensalPorTipo.CONTRATO.slice(-6)
+                  : faturamentoMensalPorTipo.CONTRATO,
                 color: 'var(--purple)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
               {
                 id: 'SEM CLASSIFICAÇÃO',
                 label: 'SEM CLASSIFICAÇÃO',
                 data: isMobile
-                  ? VENDAS_MENSAIS_SEM_CLASSIFICACAO.slice(-6)
-                  : VENDAS_MENSAIS_SEM_CLASSIFICACAO,
+                  ? faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'].slice(-6)
+                  : faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'],
                 color: 'var(--white)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
             ]}
             margin={{ left: 0 }}
@@ -514,24 +587,24 @@ const VendasPorTipo = () => {
         <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
           <div className={styles.pieWrapper}>
             <div className={styles.pieTotal}>
-              <span className={styles.tipoFaturamentoLabel}>Total Faturado por tipo</span>
+              <span className={styles.tipoFaturamentoLabel}>Total Vendas por tipo</span>
               <span className={styles.tipoFaturamentoValue}>{toBRL(totalVendaTipos)}</span>
             </div>
             <PieChart
+              height={isMobile ? 260 : undefined}
               series={[
                 {
                   innerRadius: 50,
                   outerRadius: 100,
-                  data: tiposVenda.map(({ label, value }) => ({
+                  data: tiposVendaPercentual.map(({ label, value }) => ({
                     id: label,
                     value,
                     label,
                     color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
                   })),
 
-                  valueFormatter: ({ value }) => toBRL(value),
-                  arcLabel: (item) =>
-                    totalVendaTipos ? `${Math.round((item.value / totalVendaTipos) * 100)}%` : '',
+                  valueFormatter: ({ value }) => `${value.toFixed(1)}%`,
+                  arcLabel: (item) => `${Math.round(item.value)}%`,
                   arcLabelMinAngle: 15,
                 },
               ]}
@@ -568,7 +641,7 @@ const VendasPorTipo = () => {
         <div className={styles.defaultCard}>
           <h3>Situação</h3>
           <div className={styles.situationGroup}>
-            {/* {situations.map(({ label, color, count, value }) => (
+            {situations.map(({ label, color, count, value }) => (
               <div
                 key={label}
                 className={styles.situationCard}
@@ -582,7 +655,7 @@ const VendasPorTipo = () => {
                   <span>{toBRL(value)}</span>
                 </div>
               </div>
-            ))} */}
+            ))}
           </div>
         </div>
       </DashboardWidget>

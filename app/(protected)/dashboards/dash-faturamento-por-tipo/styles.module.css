@@ -283,6 +283,7 @@
   grid-column: span 1;
   grid-row: span 1;
   height: 100%;
+  min-width: 100%;
   border-radius: var(--radius-md);
   border: 1px solid color-mix(in srgb, var(--situation-color) 45%, var(--border-strong));
   background: linear-gradient(
@@ -304,7 +305,7 @@
 
 .situationCard > div:last-child {
   border-top: 1px solid color-mix(in srgb, var(--situation-color) 35%, var(--border));
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: var(--w-bold);
   color: var(--foreground);
 }
@@ -351,5 +352,9 @@
   .typeFilterChip {
     font-size: 10px;
     padding: var(--space-1) var(--space-2);
+  }
+
+  .pieWrapper {
+    min-height: 320px;
   }
 }

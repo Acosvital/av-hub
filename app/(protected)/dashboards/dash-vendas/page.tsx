@@ -16,6 +16,7 @@ import {
   getRitmoMetaVendas,
   getVendaMensal,
   getVendasPorTipo,
+  parseVendasPorTipoBuckets,
 } from '@/services/dashboardVendas';
 import {
   RankingVendedoresVendasProps,
@@ -102,7 +103,8 @@ const Vendas = () => {
       try {
         setLoadingVendasPorTipo(true);
         const vendasTipo = await getVendasPorTipo(params);
-        setVendasPorTipo(vendasTipo.data ?? []);
+        const buckets = parseVendasPorTipoBuckets(vendasTipo.data);
+        setVendasPorTipo(buckets[0]?.entries ?? []);
       } catch (err) {
         console.error(err);
       } finally {

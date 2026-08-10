@@ -30,6 +30,7 @@ import {
   getResumoMensalFaturamento,
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
+  parseFaturamentoPorTipoBuckets,
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
@@ -129,7 +130,8 @@ export default function Faturamento() {
       try {
         setLoadingFaturamentoPorTipo(true);
         const faturamentoTipos = await getFaturamentoPorTipo(params);
-        setFaturamentoPorTipo(faturamentoTipos.data ?? []);
+        const buckets = parseFaturamentoPorTipoBuckets(faturamentoTipos.data);
+        setFaturamentoPorTipo(buckets[0]?.entries ?? []);
       } catch (err) {
         console.error(err);
       } finally {
