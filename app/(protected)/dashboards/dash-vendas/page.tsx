@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import DashboardHeroLayout from '@/components/Dashboards/DashboardHeroLayout/DashboardHeroLayout';
+import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
+import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
@@ -24,8 +26,8 @@ import {
   VendaMensalProps,
   VendasPorTipoProps,
 } from './types';
-import WidgetLoading from '@/components/Dashboards/WidgetLoading/WidgetLoading';
 import Card from '@/components/Ui/Card/Card';
+import { Skeleton } from '@mui/material';
 
 const TIPO_VENDA_DEFINITIONS: VendasPorTipoProps['tipo_contrato'][] = [
   'SPOT',
@@ -41,11 +43,8 @@ const Vendas = () => {
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
   const [vendasPorTipo, setVendasPorTipo] = useState<VendasPorTipoProps[]>([]);
 
-  //loadings individuais para cada Widget
-  const [loadingRanking, setLoadingRanking] = useState<boolean>(false);
-  const [loadingVendaMensal, setLoadingVendaMensal] = useState<boolean>(false);
-  const [loadingRitmoMeta, setLoadingRitmoMeta] = useState<boolean>(false);
-  const [loadingVendasPorTipo, setLoadingVendasPorTipo] = useState<boolean>(false);
+  //só exibe o dashboard quando todas as requisições terminarem
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { completeDate } = useDashboardDate();
   const accentColor = 'var(--green)';
 
@@ -63,66 +62,38 @@ const Vendas = () => {
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
 
-    async function loadRanking() {
-      try {
-        setLoadingRanking(true);
-        const ranking = await getRankingVendedoresVendas(params);
-        setRankingVendedores(ranking.data ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRanking(false);
-      }
-    }
+    async function loadAll() {
+      setIsLoading(true);
 
-    async function loadVendaMensal() {
-      try {
-        setLoadingVendaMensal(true);
-        const vendas = await getVendaMensal(params);
-        setVendaMensal(vendas.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingVendaMensal(false);
-      }
-    }
+      const results = await Promise.allSettled([
+        getRankingVendedoresVendas(params),
+        getVendaMensal(params),
+        getRitmoMetaVendas(params),
+        getVendasPorTipo(params),
+      ]);
+      const [ranking, vendas, ritmoVendas, vendasTipo] = results;
 
-    async function loadRitmoMeta() {
-      try {
-        setLoadingRitmoMeta(true);
-        const ritmoVendas = await getRitmoMetaVendas(params);
-        setRitmoDeMeta(ritmoVendas.data?.[0] ?? null);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingRitmoMeta(false);
-      }
-    }
+      if (ranking.status === 'fulfilled') setRankingVendedores(ranking.value.data ?? []);
+      else console.error(ranking.reason);
 
-    async function loadVendasPorTipo() {
-      try {
-        setLoadingVendasPorTipo(true);
-        const vendasTipo = await getVendasPorTipo(params);
-        const buckets = parseVendasPorTipoBuckets(vendasTipo.data);
+      if (vendas.status === 'fulfilled') setVendaMensal(vendas.value.data?.[0] ?? null);
+      else console.error(vendas.reason);
+
+      if (ritmoVendas.status === 'fulfilled') setRitmoDeMeta(ritmoVendas.value.data?.[0] ?? null);
+      else console.error(ritmoVendas.reason);
+
+      if (vendasTipo.status === 'fulfilled') {
+        const buckets = parseVendasPorTipoBuckets(vendasTipo.value.data);
         setVendasPorTipo(buckets[0]?.entries ?? []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingVendasPorTipo(false);
-      }
+      } else console.error(vendasTipo.reason);
+
+      setIsLoading(false);
     }
 
-    loadRanking();
-    loadVendaMensal();
-    loadRitmoMeta();
-    loadVendasPorTipo();
+    loadAll();
   }, [completeDate]);
 
-  const hero = loadingVendaMensal ? (
-    <SectionCard>
-      <WidgetLoading />
-    </SectionCard>
-  ) : (
+  const hero = (
     <RevenueGauge
       totalOrders={vendaMensal?.qtd_pedidos}
       type="venda"
@@ -140,18 +111,48 @@ const Vendas = () => {
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-        <span>{loadingRanking ? 0 : rankingVendedores.length} vendedores</span>
+        <span>{rankingVendedores.length} vendedores</span>
       </div>
-      {loadingRanking ? (
-        <WidgetLoading />
-      ) : (
-        <>
-          <div className={styles.fixedRank}>
-            Destaques do Pódio
-            <div className={styles.top3Container}>
-              {top3.map((v) => (
+      <div className={styles.fixedRank}>
+        Destaques do Pódio
+        <div className={styles.top3Container}>
+          {top3.map((v) => (
+            <VendorCard
+              key={Number(v.cod_vendedor)}
+              {...v}
+              onClick={() => {
+                setSelectedVendorId(Number(v.cod_vendedor));
+                setSelectedFilialId(v.codigo_empresa);
+              }}
+              color={accentColor}
+            />
+          ))}
+        </div>
+      </div>
+      <div className={styles.defaultRank}>
+        {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
+        <div
+          className={rankingVendedores.length > 9 ? styles.autoScroll : ''}
+          style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
+        >
+          <div className={styles.vendorGroup}>
+            {otherVendors.map((v) => (
+              <VendorCard
+                key={Number(v.cod_vendedor)}
+                {...v}
+                onClick={() => {
+                  setSelectedVendorId(Number(v.cod_vendedor));
+                  setSelectedFilialId(v.codigo_empresa);
+                }}
+                color={accentColor}
+              />
+            ))}
+          </div>
+          <div className={styles.vendorGroup} aria-hidden="true">
+            {rankingVendedores.length >= 10 &&
+              otherVendors.map((v) => (
                 <VendorCard
-                  key={Number(v.cod_vendedor)}
+                  key={`dup-${Number(v.cod_vendedor)}`}
                   {...v}
                   onClick={() => {
                     setSelectedVendorId(Number(v.cod_vendedor));
@@ -160,58 +161,13 @@ const Vendas = () => {
                   color={accentColor}
                 />
               ))}
-            </div>
           </div>
-          <div className={styles.defaultRank}>
-            {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-            <div
-              className={rankingVendedores.length > 9 ? styles.autoScroll : ''}
-              style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-            >
-              <div className={styles.vendorGroup}>
-                {otherVendors.map((v) => (
-                  <VendorCard
-                    key={Number(v.cod_vendedor)}
-                    {...v}
-                    onClick={() => {
-                      setSelectedVendorId(Number(v.cod_vendedor));
-                      setSelectedFilialId(v.codigo_empresa);
-                    }}
-                    color={accentColor}
-                  />
-                ))}
-              </div>
-              <div className={styles.vendorGroup} aria-hidden="true">
-                {rankingVendedores.length >= 10 &&
-                  otherVendors.map((v) => (
-                    <VendorCard
-                      key={`dup-${Number(v.cod_vendedor)}`}
-                      {...v}
-                      onClick={() => {
-                        setSelectedVendorId(Number(v.cod_vendedor));
-                        setSelectedFilialId(v.codigo_empresa);
-                      }}
-                      color={accentColor}
-                    />
-                  ))}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 
-  const secondaryStats = loadingVendaMensal ? (
-    <div className={styles.stackedSections}>
-      <SectionCard>
-        <WidgetLoading />
-      </SectionCard>
-      <SectionCard>
-        <WidgetLoading />
-      </SectionCard>
-    </div>
-  ) : (
+  const secondaryStats = (
     <div className={styles.stackedSections}>
       <SectionCard
         header={{
@@ -240,11 +196,7 @@ const Vendas = () => {
     </div>
   );
 
-  const secondaryPace = loadingRitmoMeta ? (
-    <SectionCard>
-      <WidgetLoading />
-    </SectionCard>
-  ) : (
+  const secondaryPace = (
     <GoalPaceCard
       status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
       idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
@@ -254,11 +206,7 @@ const Vendas = () => {
     />
   );
 
-  const tertiary = loadingVendasPorTipo ? (
-    <SectionCard background="var(--navy-850)">
-      <WidgetLoading />
-    </SectionCard>
-  ) : (
+  const tertiary = (
     <SectionCard header={{ title: 'Vendas por Tipo' }} background="var(--navy-850)">
       <div className={styles.tipoVendaRow}>
         {tiposVenda.map((tipo) => (
@@ -280,6 +228,39 @@ const Vendas = () => {
       tertiary={tertiary}
     />
   );
+
+  const skeletonWidget = (
+    <Skeleton
+      variant="rounded"
+      width="100%"
+      height="100%"
+      sx={{ bgcolor: 'var(--navy-850)', borderRadius: 'var(--radius-md)' }}
+    />
+  );
+
+  const skeleton = (
+    <DashboardGrid>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+        {skeletonWidget}
+      </DashboardWidget>
+      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+        {skeletonWidget}
+      </DashboardWidget>
+    </DashboardGrid>
+  );
+
+  if (isLoading) {
+    return <div className={styles.dashboardContainer}>{skeleton}</div>;
+  }
 
   return (
     <div className={styles.dashboardContainer}>

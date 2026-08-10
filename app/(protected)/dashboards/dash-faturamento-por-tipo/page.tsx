@@ -13,6 +13,7 @@ import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
 import { useEffect, useState } from 'react';
 import {
+  ClientRankingFaturamentoProps,
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
   RitmoMetaFaturamentoProps,
@@ -23,6 +24,7 @@ import {
   FaturamentoPorTipoBucket,
   getFaturamentoMensal,
   getFaturamentoPorTipo,
+  getRankingClientesFaturamento,
   getRankingVendedores,
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
@@ -74,77 +76,6 @@ const MAX_CLIENTES_RANKING_MOBILE = 15;
 const labelMesAno = (mes: number, ano: number) =>
   `${MESES_FATURAMENTO_MENSAL[mes - 1]}/${String(ano).slice(-2)}`;
 
-// TODO: mock enquanto não existe endpoint de ranking de clientes
-interface ClientRankingMockProps {
-  cliente: string;
-  faturamento: number;
-  qtd_pedidos: number;
-  tipo_contrato: ClientOrderType;
-}
-
-const CLIENT_RANKING_MOCK: ClientRankingMockProps[] = [
-  {
-    cliente: 'Metalúrgica Santa Fé',
-    faturamento: 482_300,
-    qtd_pedidos: 34,
-    tipo_contrato: 'CONTRATO',
-  },
-  { cliente: 'Aços Progresso Ltda', faturamento: 397_150, qtd_pedidos: 28, tipo_contrato: 'SPOT' },
-  {
-    cliente: 'Construtora Horizonte',
-    faturamento: 356_800,
-    qtd_pedidos: 19,
-    tipo_contrato: 'CONTRATO',
-  },
-  { cliente: 'Indústria Vale Verde', faturamento: 298_420, qtd_pedidos: 22, tipo_contrato: 'SPOT' },
-  {
-    cliente: 'Ferro & Cia',
-    faturamento: 271_900,
-    qtd_pedidos: 31,
-    tipo_contrato: 'SEM CLASSIFICAÇÃO',
-  },
-  {
-    cliente: 'Distribuidora Central',
-    faturamento: 245_600,
-    qtd_pedidos: 17,
-    tipo_contrato: 'CONTRATO',
-  },
-  { cliente: 'Metais Bandeirantes', faturamento: 213_050, qtd_pedidos: 14, tipo_contrato: 'SPOT' },
-  {
-    cliente: 'Estruturas Norte Sul',
-    faturamento: 198_770,
-    qtd_pedidos: 12,
-    tipo_contrato: 'SEM CLASSIFICAÇÃO',
-  },
-  { cliente: 'Comercial Aço Rio', faturamento: 176_340, qtd_pedidos: 20, tipo_contrato: 'SPOT' },
-  {
-    cliente: 'Galvanor Indústria',
-    faturamento: 154_890,
-    qtd_pedidos: 9,
-    tipo_contrato: 'CONTRATO',
-  },
-  {
-    cliente: 'Perfilados União',
-    faturamento: 132_410,
-    qtd_pedidos: 11,
-    tipo_contrato: 'SEM CLASSIFICAÇÃO',
-  },
-  { cliente: 'Siderúrgica Boa Vista', faturamento: 118_260, qtd_pedidos: 8, tipo_contrato: 'SPOT' },
-  {
-    cliente: 'Metalcorte Express',
-    faturamento: 97_530,
-    qtd_pedidos: 15,
-    tipo_contrato: 'CONTRATO',
-  },
-  {
-    cliente: 'Chapas & Tubos SA',
-    faturamento: 84_120,
-    qtd_pedidos: 7,
-    tipo_contrato: 'SEM CLASSIFICAÇÃO',
-  },
-  { cliente: 'Aço Vital Distribuição', faturamento: 71_980, qtd_pedidos: 6, tipo_contrato: 'SPOT' },
-];
-
 export default function FaturamentoPorTipo() {
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
   const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
@@ -156,6 +87,7 @@ export default function FaturamentoPorTipo() {
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
+  const [clientRankingData, setClientRankingData] = useState<ClientRankingFaturamentoProps[]>([]);
 
   //só exibe o dashboard quando todas as requisições terminarem
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -216,15 +148,51 @@ export default function FaturamentoPorTipo() {
     );
   };
 
-  const totalClientRevenue = CLIENT_RANKING_MOCK.reduce((sum, c) => sum + c.faturamento, 0);
-  const clientRankingFull = CLIENT_RANKING_MOCK.filter(
-    (c) => selectedClientTypes.length === 0 || selectedClientTypes.includes(c.tipo_contrato)
-  )
-    .sort((a, b) => b.faturamento - a.faturamento)
-    .map((c, i) => ({
-      ...c,
+  // A API retorna uma linha por (cliente, tipo_contrato), então o mesmo cliente aparece
+  // repetido quando tem faturamento em mais de um tipo. Agrupamos por id_parceiro (não pelo
+  // nome, já que clientes com o mesmo nome podem ser CNPJs/filiais diferentes) somando os
+  // tipos relevantes ao filtro ativo.
+  // A cor/degradê do card segue o filtro ativo (não os tipos que aquele cliente específico
+  // teve faturamento): nenhum ou os 3 selecionados -> degradê das 3 cores; 1 selecionado ->
+  // cor sólida; 2 selecionados -> degradê das 2 cores.
+  const activeClientTypes: ClientOrderType[] =
+    selectedClientTypes.length > 0
+      ? CLIENT_TYPE_FILTERS.filter((t) => selectedClientTypes.includes(t))
+      : CLIENT_TYPE_FILTERS;
+
+  const clientGroups = new Map<
+    string,
+    { cliente: string; faturamento: number; qtd_pedidos: number }
+  >();
+  clientRankingData
+    .filter((c) => activeClientTypes.includes(c.tipo_contrato))
+    .forEach((c) => {
+      const group = clientGroups.get(c.id_parceiro) ?? {
+        cliente: c.cliente,
+        faturamento: 0,
+        qtd_pedidos: 0,
+      };
+      group.faturamento += Number(c.faturamento);
+      group.qtd_pedidos += Number(c.qtd_pedidos);
+      clientGroups.set(c.id_parceiro, group);
+    });
+
+  const totalClientRevenue = Array.from(clientGroups.values()).reduce(
+    (sum, g) => sum + g.faturamento,
+    0
+  );
+  const clientRankingFull = Array.from(clientGroups.entries())
+    .sort((a, b) => b[1].faturamento - a[1].faturamento)
+    .map(([id, group], i) => ({
+      id,
+      cliente: group.cliente,
+      faturamento: group.faturamento,
+      qtd_pedidos: group.qtd_pedidos,
+      tipo_contrato: activeClientTypes.length > 1 ? activeClientTypes : activeClientTypes[0],
       posicao: String(i + 1),
-      perc_participacao: ((c.faturamento / totalClientRevenue) * 100).toFixed(1),
+      perc_participacao: totalClientRevenue
+        ? ((group.faturamento / totalClientRevenue) * 100).toFixed(1)
+        : '0',
     }));
   // No mobile o auto-scroll do ranking fica desativado (vira lista estática), então uma
   // lista grande de clientes fica cansativa de rolar manualmente.
@@ -249,8 +217,10 @@ export default function FaturamentoPorTipo() {
         getFaturamentoPorTipo(),
         getRitmoMetaFaturamento(params),
         getSituacaoPedidos(params),
+        getRankingClientesFaturamento(params),
       ]);
-      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes] = results;
+      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes, rankingClientes] =
+        results;
 
       if (ranking.status === 'fulfilled') setSellerRanking(ranking.value.data ?? []);
       else console.error(ranking.reason);
@@ -269,6 +239,10 @@ export default function FaturamentoPorTipo() {
       if (situacaoPedidosRes.status === 'fulfilled')
         setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
       else console.error(situacaoPedidosRes.reason);
+
+      if (rankingClientes.status === 'fulfilled')
+        setClientRankingData(rankingClientes.value.data ?? []);
+      else console.error(rankingClientes.reason);
 
       setIsLoading(false);
     }
@@ -545,7 +519,7 @@ export default function FaturamentoPorTipo() {
             </div>
             <div className={styles.top3Container}>
               {top3Clients.map((c) => (
-                <ClientCard key={c.cliente} {...c} color={accentColor} />
+                <ClientCard key={c.id} {...c} color={accentColor} />
               ))}
             </div>
           </div>
@@ -557,13 +531,13 @@ export default function FaturamentoPorTipo() {
             >
               <div className={styles.vendorGroup}>
                 {otherClients.map((c) => (
-                  <ClientCard key={c.cliente} {...c} color={accentColor} />
+                  <ClientCard key={c.id} {...c} color={accentColor} />
                 ))}
               </div>
               <div className={styles.vendorGroup} aria-hidden="true">
                 {otherClients.length >= 10 &&
                   otherClients.map((c) => (
-                    <ClientCard key={`dup-${c.cliente}`} {...c} color={accentColor} />
+                    <ClientCard key={`dup-${c.id}`} {...c} color={accentColor} />
                   ))}
               </div>
             </div>
