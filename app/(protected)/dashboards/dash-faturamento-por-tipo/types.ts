@@ -33,10 +33,15 @@ export interface FaturamentoMensalProps {
 export interface FaturamentoPorTipoProps {
   mes: number;
   ano: number;
-  tipo_contrato: string;
+  tipo_contrato: 'CONTRATO' | 'SPOT' | 'SEM CLASSIFICAÇÃO';
   faturamento: string;
+  percentual_qtd_nfs: string;
+  percentual_faturamento: string;
   qtd_nfs: string;
 }
+
+// A API agrupa o faturamento por mês, cada bucket vem chaveado como "MM/YYYY".
+export type FaturamentoPorTipoPorMesProps = Record<string, FaturamentoPorTipoProps[]>;
 
 export interface RitmoMetaFaturamentoProps {
   mes: number;

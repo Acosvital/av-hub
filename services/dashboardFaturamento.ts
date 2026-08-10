@@ -2,6 +2,7 @@ import {
   DetalheVendedorFaturamentoPedidoProps,
   DetalheVendedorFaturamentoResumoProps,
   FaturamentoMensalProps,
+  FaturamentoPorTipoPorMesProps,
   FaturamentoPorTipoProps,
   ResumoMensalFaturamentoProps,
   RitmoMetaFaturamentoProps,
@@ -72,7 +73,7 @@ interface GetFaturamentoPorTipoParams {
 }
 
 interface FaturamentoPorTipoResponse extends PaginatedResponse {
-  data: FaturamentoPorTipoProps[];
+  data: FaturamentoPorTipoPorMesProps[];
 }
 
 export async function getFaturamentoPorTipo(params: GetFaturamentoPorTipoParams = {}) {
@@ -86,6 +87,26 @@ export async function getFaturamentoPorTipo(params: GetFaturamentoPorTipoParams 
     `/api/dashboard/faturamento/faturamento-por-tipo?${query}`,
     'Erro ao buscar faturamento por tipo'
   );
+}
+
+export interface FaturamentoPorTipoBucket {
+  mes: number;
+  ano: number;
+  entries: FaturamentoPorTipoProps[];
+}
+
+// Achata a resposta agrupada por mês ("MM/YYYY" -> entries) em uma lista de
+// buckets ordenada cronologicamente (mais antigo primeiro).
+export function parseFaturamentoPorTipoBuckets(
+  data: FaturamentoPorTipoPorMesProps[] = []
+): FaturamentoPorTipoBucket[] {
+  return data
+    .flatMap((bucket) => Object.values(bucket))
+    .filter(
+      (entries): entries is FaturamentoPorTipoProps[] => Array.isArray(entries) && entries.length > 0
+    )
+    .map((entries) => ({ mes: entries[0].mes, ano: entries[0].ano, entries }))
+    .sort((a, b) => a.ano * 12 + a.mes - (b.ano * 12 + b.mes));
 }
 /************************* RITMO DE META *************************/
 interface GetRitmoMetaFaturamentoParams {

@@ -10,6 +10,7 @@ import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import toBRL from '@/utils/toBRL';
+import toCompactBRL from '@/utils/toCompactBRL';
 import { useEffect, useState } from 'react';
 import {
   FaturamentoMensalProps,
@@ -19,11 +20,13 @@ import {
   SituacaoPedidosFaturadosProps,
 } from './types';
 import {
+  FaturamentoPorTipoBucket,
   getFaturamentoMensal,
   getFaturamentoPorTipo,
   getRankingVendedores,
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
+  parseFaturamentoPorTipoBuckets,
 } from '@/services/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
@@ -60,10 +63,16 @@ const MESES_FATURAMENTO_MENSAL = [
   'nov',
   'dez',
 ];
-const FATURAMENTO_MENSAL_SPOT = [2, 4, 6, 8, 10, 8, 6, 8, 6, 10, 12, 9];
-const FATURAMENTO_MENSAL_CONTRATO = [12, 8, 5, 7, 4, 2, 10, 9, 11, 8, 10, 11];
-const FATURAMENTO_MENSAL_SEM_CLASSIFICACAO = [2, 3, 4, 8.5, 1.5, 5, 1, 8, 8, 8, 9, 6];
+const TIPO_FATURAMENTO_DEFINITIONS: FaturamentoPorTipoProps['tipo_contrato'][] = [
+  'SPOT',
+  'CONTRATO',
+  'SEM CLASSIFICAÇÃO',
+];
+const MAX_MESES_FATURAMENTO_MENSAL = 12;
 const MAX_CLIENTES_RANKING_MOBILE = 15;
+
+const labelMesAno = (mes: number, ano: number) =>
+  `${MESES_FATURAMENTO_MENSAL[mes - 1]}/${String(ano).slice(-2)}`;
 
 // TODO: mock enquanto não existe endpoint de ranking de clientes
 interface ClientRankingMockProps {
@@ -141,7 +150,9 @@ export default function FaturamentoPorTipo() {
   const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
   const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
   const [faturamentoMensal, setFaturamentoMensal] = useState<FaturamentoMensalProps | null>(null);
-  const [faturamentoPorTipo, setFaturamentoPorTipo] = useState<FaturamentoPorTipoProps[]>([]);
+  const [faturamentoPorTipoBuckets, setFaturamentoPorTipoBuckets] = useState<
+    FaturamentoPorTipoBucket[]
+  >([]);
   const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
@@ -157,11 +168,37 @@ export default function FaturamentoPorTipo() {
   const otherVendors = sellerRanking.slice(3);
   const scrollDuration = `${otherVendors.length * 1.7}s`;
   const gauge = Number(faturamentoMensal?.perc_atingimento);
-  const billingTypes = faturamentoPorTipo.map((tipo) => ({
-    label: tipo.tipo_contrato,
-    value: Number(tipo.faturamento),
+
+  const anchorMes = completeDate.month() + 1;
+  const anchorAno = completeDate.year();
+  const anchorKey = anchorAno * 12 + anchorMes;
+
+  const faturamentoPorTipoMesAtual =
+    faturamentoPorTipoBuckets.find((b) => b.ano * 12 + b.mes === anchorKey)?.entries ?? [];
+  const ultimos12MesesFaturamento = faturamentoPorTipoBuckets
+    .filter((b) => b.ano * 12 + b.mes <= anchorKey)
+    .slice(-MAX_MESES_FATURAMENTO_MENSAL);
+
+  const faturamentoPorTipoPorLabel = new Map(
+    faturamentoPorTipoMesAtual.map((t) => [t.tipo_contrato, t])
+  );
+  const billingTypes = TIPO_FATURAMENTO_DEFINITIONS.map((label) => ({
+    label,
+    value: Number(faturamentoPorTipoPorLabel.get(label)?.faturamento) || 0,
   }));
   const totalBillingTypes = billingTypes.reduce((sum, t) => sum + t.value, 0);
+
+  const faturamentoMensalLabels = ultimos12MesesFaturamento.map((b) => labelMesAno(b.mes, b.ano));
+  const faturamentoMensalPorTipo = TIPO_FATURAMENTO_DEFINITIONS.reduce<Record<string, number[]>>(
+    (acc, tipo) => {
+      acc[tipo] = ultimos12MesesFaturamento.map(
+        (b) => Number(b.entries.find((e) => e.tipo_contrato === tipo)?.faturamento) || 0
+      );
+      return acc;
+    },
+    {}
+  );
+
   const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
   const situations = SITUACAO_DEFINITIONS.map(({ id, label, color }) => {
     const situacao = situacaoPorGrupo.get(id);
@@ -208,7 +245,8 @@ export default function FaturamentoPorTipo() {
       const results = await Promise.allSettled([
         getRankingVendedores(params),
         getFaturamentoMensal(params),
-        getFaturamentoPorTipo(params),
+        // Sem mes/ano o endpoint retorna todo o período, necessário para os últimos 12 meses do LineChart.
+        getFaturamentoPorTipo(),
         getRitmoMetaFaturamento(params),
         getSituacaoPedidos(params),
       ]);
@@ -222,7 +260,7 @@ export default function FaturamentoPorTipo() {
       else console.error(faturamento.reason);
 
       if (faturamentoTipos.status === 'fulfilled')
-        setFaturamentoPorTipo(faturamentoTipos.value.data ?? []);
+        setFaturamentoPorTipoBuckets(parseFaturamentoPorTipoBuckets(faturamentoTipos.value.data));
       else console.error(faturamentoTipos.reason);
 
       if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
@@ -395,41 +433,52 @@ export default function FaturamentoPorTipo() {
             xAxis={[
               {
                 scaleType: 'band',
-                data: isMobile ? MESES_FATURAMENTO_MENSAL.slice(-6) : MESES_FATURAMENTO_MENSAL,
+                data: isMobile ? faturamentoMensalLabels.slice(-6) : faturamentoMensalLabels,
+              },
+            ]}
+            yAxis={[
+              {
+                width: 64,
+                valueFormatter: (value: number) => toCompactBRL(value),
               },
             ]}
             series={[
               {
                 id: 'SPOT',
                 label: 'SPOT',
-                data: isMobile ? FATURAMENTO_MENSAL_SPOT.slice(-6) : FATURAMENTO_MENSAL_SPOT,
+                data: isMobile
+                  ? faturamentoMensalPorTipo.SPOT.slice(-6)
+                  : faturamentoMensalPorTipo.SPOT,
                 color: 'var(--green)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
               {
                 id: 'CONTRATO',
                 label: 'CONTRATO',
                 data: isMobile
-                  ? FATURAMENTO_MENSAL_CONTRATO.slice(-6)
-                  : FATURAMENTO_MENSAL_CONTRATO,
+                  ? faturamentoMensalPorTipo.CONTRATO.slice(-6)
+                  : faturamentoMensalPorTipo.CONTRATO,
                 color: 'var(--purple)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
               {
                 id: 'SEM CLASSIFICAÇÃO',
                 label: 'SEM CLASSIFICAÇÃO',
                 data: isMobile
-                  ? FATURAMENTO_MENSAL_SEM_CLASSIFICACAO.slice(-6)
-                  : FATURAMENTO_MENSAL_SEM_CLASSIFICACAO,
+                  ? faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'].slice(-6)
+                  : faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'],
                 color: 'var(--white)',
                 curve: 'natural',
                 area: true,
+                valueFormatter: (value: number | null) => toBRL(value),
               },
             ]}
-            height={260}
             margin={{ left: 0 }}
+            height={260}
             sx={{
               '& .MuiChartsAxis-line': {
                 stroke: 'var(--border-strong) !important',
