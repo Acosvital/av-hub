@@ -29,7 +29,7 @@ import {
   getRitmoMetaFaturamento,
   getSituacaoPedidos,
   parseFaturamentoPorTipoBuckets,
-} from '@/services/dashboardFaturamento';
+} from '@/services/dashboards/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import { LineChart, PieChart } from '@mui/x-charts';

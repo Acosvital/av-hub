@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { UsuarioProps } from '@/app/(protected)/cadastros/acessos/usuarios/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../../types';
 
 interface GetUsuariosParams {
   page?: number;

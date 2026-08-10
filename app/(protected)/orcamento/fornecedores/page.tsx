@@ -18,8 +18,8 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { ParceirosProps } from './types';
-import { getTodosFornecedores } from '@/services/todosFornecedores';
-import { getVinculos } from '@/services/vinculosOrcamento';
+import { getTodosFornecedores } from '@/services/orcamento/todosFornecedores';
+import { getVinculos } from '@/services/orcamento/vinculosOrcamento';
 import { VinculoProps } from '../vinculos/types';
 import normalizeText from '@/utils/normalizeText';
 

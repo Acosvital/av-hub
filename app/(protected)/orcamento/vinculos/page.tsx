@@ -24,8 +24,8 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getCategorias } from '@/services/categoriasOrcamento';
-import { getVinculos } from '@/services/vinculosOrcamento';
+import { getCategorias } from '@/services/orcamento/categoriasOrcamento';
+import { getVinculos } from '@/services/orcamento/vinculosOrcamento';
 import { VinculoProps } from './types';
 import normalizeText from '@/utils/normalizeText';
 

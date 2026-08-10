@@ -19,7 +19,7 @@ import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent'
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { usePermission } from '@/hooks/usePermission';
-import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/perfis';
+import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/cadastros/acessos/perfis';
 import { FormPerfil, PerfilProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 

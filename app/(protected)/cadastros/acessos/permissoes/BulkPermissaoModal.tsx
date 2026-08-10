@@ -16,7 +16,7 @@ import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 import { TelaProps } from '../telas/types';
-import { getPermissoes } from '@/services/permissoes';
+import { getPermissoes } from '@/services/cadastros/acessos/permissoes';
 import styles from './styles.module.css';
 
 interface PerfilRef {

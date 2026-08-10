@@ -1,5 +1,5 @@
 import { ProdutoProps } from '@/app/(protected)/orcamento/historico-produtos/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 import produtosData from '@/app/(protected)/orcamento/_data/produtos.json';
 
 interface GetProdutosParams {

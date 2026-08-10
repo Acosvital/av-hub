@@ -13,8 +13,8 @@ import CommissionRankingTable, {
 import CommissionDetailsModal from '@/components/Dashboards/CommissionDetailsModal/CommissionDetailsModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import { CoordenadorProps, CoordenadoresProps, ComissoesProvisoriasProps } from './types';
-import { getComissoesProvisorias } from '@/services/dashboardComissoes';
-import { getFaturamentoMensal } from '@/services/dashboardFaturamento';
+import { getComissoesProvisorias } from '@/services/dashboards/dashboardComissoes';
+import { getFaturamentoMensal } from '@/services/dashboards/dashboardFaturamento';
 import coordenadoresJson from './coordenadores.json';
 import { Skeleton } from '@mui/material';
 

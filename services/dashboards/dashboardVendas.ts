@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 import {
   ClientRankingVendasProps,
   DetalheVendedorVendasPedidoProps,
@@ -20,6 +20,7 @@ interface GetRankingVendedoresVendasParams {
   vendedor?: string;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface RankingVendedoresVendasResponse extends PaginatedResponse {
@@ -34,6 +35,7 @@ export async function getRankingVendedoresVendas(params: GetRankingVendedoresVen
   if (params.vendedor) query.set('vendedor', String(params.vendedor));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<RankingVendedoresVendasResponse>(
     `/api/dashboard/vendas/ranking-vendedores?${query}`,
     'Erro ao buscar ranking de vendedores'
@@ -45,6 +47,7 @@ interface GetVendaMensalParams {
   ano?: number;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface VendaMensalResponse extends PaginatedResponse {
@@ -57,6 +60,7 @@ export async function getVendaMensal(params: GetVendaMensalParams = {}) {
   if (params.ano) query.set('ano', String(params.ano));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<VendaMensalResponse>(
     `/api/dashboard/vendas?${query}`,
     'Erro ao buscar vendas mensais'
@@ -69,6 +73,7 @@ interface GetVendasPorTipoParams {
   tipo_contrato?: string;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface VendasPorTipoResponse extends PaginatedResponse {
@@ -82,6 +87,7 @@ export async function getVendasPorTipo(params: GetVendasPorTipoParams = {}) {
   if (params.tipo_contrato) query.set('tipo_contrato', String(params.tipo_contrato));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<VendasPorTipoResponse>(
     `/api/dashboard/vendas/vendas-por-tipo?${query}`,
     'Erro ao buscar vendas por tipo'
@@ -101,7 +107,9 @@ export function parseVendasPorTipoBuckets(
 ): VendasPorTipoBucket[] {
   return data
     .flatMap((bucket) => Object.values(bucket))
-    .filter((entries): entries is VendasPorTipoProps[] => Array.isArray(entries) && entries.length > 0)
+    .filter(
+      (entries): entries is VendasPorTipoProps[] => Array.isArray(entries) && entries.length > 0
+    )
     .map((entries) => ({ mes: entries[0].mes, ano: entries[0].ano, entries }))
     .sort((a, b) => a.ano * 12 + a.mes - (b.ano * 12 + b.mes));
 }
@@ -115,6 +123,7 @@ interface GetRankingClientesVendasParams {
   cliente?: string;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface RankingClientesVendasResponse extends PaginatedResponse {
@@ -130,6 +139,7 @@ export async function getRankingClientesVendas(params: GetRankingClientesVendasP
   if (params.cliente) query.set('cliente', String(params.cliente));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<RankingClientesVendasResponse>(
     `/api/dashboard/vendas/ranking-clientes?${query}`,
     'Erro ao buscar ranking de clientes'
@@ -142,6 +152,7 @@ interface GetRitmoMetaVendasParams {
   status_ritmo?: string;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface RitmoMetaVendasResponse extends PaginatedResponse {
@@ -155,6 +166,7 @@ export async function getRitmoMetaVendas(params: GetRitmoMetaVendasParams = {}) 
   if (params.status_ritmo) query.set('status_ritmo', String(params.status_ritmo));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<RitmoMetaVendasResponse>(
     `/api/dashboard/vendas/ritmo-de-meta?${query}`,
     'Erro ao buscar ritmo de meta'
@@ -177,6 +189,7 @@ interface GetDetalheVendedorVendasParams {
   data_fim?: string;
   page?: string;
   limit?: string;
+  historico?: boolean;
 }
 
 interface DetalheVendedorVendasResponse {
@@ -205,6 +218,7 @@ export async function getDetalheVendedorVendas(params: GetDetalheVendedorVendasP
   if (params.data_fim) query.set('data_fim', String(params.data_fim));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
+  if (params.historico) query.set('historico', 'true');
   return apiFetch<DetalheVendedorVendasResponse>(
     `/api/dashboard/vendas/detalhe-vendedor?${query}`,
     'Erro ao buscar detalhe do vendedor'

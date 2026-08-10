@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { PedidoVendaProps } from '@/app/(protected)/vendas/pedidos-de-venda/types';
-import { PaginatedResponse } from './types';
+import { PaginatedResponse } from '../types';
 
 interface GetPedidosVendaParams {
   page?: number;
