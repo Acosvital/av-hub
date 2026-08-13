@@ -169,6 +169,7 @@
   margin-left: auto;
   transition: transform var(--t-base);
   flex-shrink: 0;
+  color: var(--border-strong);
 }
 
 .expandIcon.rotated {
