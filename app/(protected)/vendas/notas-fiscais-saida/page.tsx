@@ -3,7 +3,7 @@ import styles from './styles.module.css';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import Card from '@/components/Ui/Card/Card';
-import { getNotasFiscaisSaida } from '@/services/notasFiscaisSaida';
+import { getNotasFiscaisSaida } from '@/services/vendas/notasFiscaisSaida';
 import { useEffect, useState } from 'react';
 import { NotasFiscaisSaidaProps } from './types';
 import { notify } from '@/lib/toast/toast';

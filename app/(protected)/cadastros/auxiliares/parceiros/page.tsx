@@ -24,7 +24,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { criarParceiro, editarParceiro, deletarParceiro, getParceiros } from '@/services/parceiros';
+import { criarParceiro, editarParceiro, deletarParceiro, getParceiros } from '@/services/cadastros/auxiliares/parceiros';
 import { FormParceiro, ParceiroProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';

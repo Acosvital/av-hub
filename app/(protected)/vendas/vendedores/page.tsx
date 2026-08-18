@@ -32,14 +32,14 @@ import {
   criarVendedor,
   editarVendedor,
   deletarVendedor,
-} from '@/services/vendedores';
-import { getUsuarios } from '@/services/usuarios';
+} from '@/services/vendas/vendedores';
+import { getUsuarios } from '@/services/cadastros/acessos/usuarios';
 import { UsuarioProps } from '@/app/(protected)/cadastros/acessos/usuarios/types';
 import { FormVendedorCadastro, VendedorCadastroProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
-import { getUnidades, UnidadeProps } from '@/services/referenciais';
+import { getUnidades, UnidadeProps } from '@/services/rh/referenciais';
 
 const FORM_INICIAL: FormVendedorCadastro = {
   codigo_vendedor_omie: '',

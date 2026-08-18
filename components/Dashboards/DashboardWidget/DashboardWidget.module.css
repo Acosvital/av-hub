@@ -8,8 +8,8 @@
 @media (max-width: 1024px) {
   .widget {
     grid-column: span var(--tablet-cols);
-    /* grid-row: auto;
-    height: auto; */
+    grid-row: auto;
+    height: auto;
     order: var(--tablet-order, 0);
   }
   .hideOnTablet {

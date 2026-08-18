@@ -5,7 +5,7 @@ import { TextField } from '@mui/material';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import { notify } from '@/lib/toast/toast';
-import { alterarSenha } from '@/services/usuarios';
+import { alterarSenha } from '@/services/cadastros/acessos/usuarios';
 import styles from './AlterarSenhaModal.module.css';
 
 interface AlterarSenhaModalProps {

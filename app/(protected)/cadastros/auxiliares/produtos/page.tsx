@@ -32,8 +32,8 @@ import {
   criarProduto,
   editarProduto,
   deletarProduto,
-} from '@/services/produtos';
-import { getFamilias } from '@/services/familias';
+} from '@/services/cadastros/auxiliares/produtos';
+import { getFamilias } from '@/services/orcamento/familias';
 import { FormProdutoCadastro, ProdutoCadastroProps } from './types';
 import { FamiliaProdutosProps } from '@/app/(protected)/orcamento/historico-produtos/types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';

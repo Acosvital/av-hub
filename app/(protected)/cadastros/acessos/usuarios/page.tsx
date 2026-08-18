@@ -27,7 +27,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/usuarios';
+import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/cadastros/acessos/usuarios';
 import { FormUsuario, UsuarioProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';

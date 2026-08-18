@@ -25,10 +25,10 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getPedidosVenda } from '@/services/pedidosVenda';
-import { getVendedores } from '@/services/vendedores';
-import { getUnidades, UnidadeProps } from '@/services/referenciais';
-import { VendedorProps } from '@/services/vendedores';
+import { getPedidosVenda } from '@/services/vendas/pedidosVenda';
+import { getVendedores } from '@/services/vendas/vendedores';
+import { getUnidades, UnidadeProps } from '@/services/rh/referenciais';
+import { VendedorProps } from '@/services/vendas/vendedores';
 import { PedidoVendaProps } from './types';
 import { usePermission } from '@/hooks/usePermission';
 import toBRL from '@/utils/toBRL';
@@ -116,7 +116,7 @@ export default function PedidosVenda() {
 
   const unidadeLabel = (id: string) => {
     const found = unidades.find((u) => u.id === id);
-    return found ? found.nome : id;
+    return found ? found.nome_fantasia : id;
   };
 
   const limparFiltros = () => {
@@ -183,7 +183,7 @@ export default function PedidosVenda() {
                 <MenuItem value="">Todas</MenuItem>
                 {unidades.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
-                    {u.nome}
+                    {u.nome_fantasia}
                   </MenuItem>
                 ))}
               </Select>

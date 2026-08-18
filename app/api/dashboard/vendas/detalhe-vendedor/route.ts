@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const params = new URLSearchParams();
     [
       'cod_vendedor',
+      'codigo_empresa',
       'mes',
       'ano',
       'numero_pedido',
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
       'data_fim',
       'page',
       'limit',
+      'historico',
     ].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);

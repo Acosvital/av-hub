@@ -16,13 +16,13 @@ import Button from '@/components/Ui/Button/Button';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
-import { getUsuarios } from '@/services/usuarios';
-import { getPerfis } from '@/services/perfis';
+import { getUsuarios } from '@/services/cadastros/acessos/usuarios';
+import { getPerfis } from '@/services/cadastros/acessos/perfis';
 import {
   getUsuariosPerfis,
   criarUsuarioPerfil,
   deletarUsuarioPerfil,
-} from '@/services/usuariosPerfis';
+} from '@/services/cadastros/acessos/usuariosPerfis';
 import { FormUsuarioPerfil, UsuarioPerfilProps } from './types';
 import { UsuarioProps } from '../usuarios/types';
 import { PerfilProps } from '../perfis/types';

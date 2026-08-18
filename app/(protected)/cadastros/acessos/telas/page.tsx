@@ -28,7 +28,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getTelas, criarTela, editarTela, deletarTela } from '@/services/telas';
+import { getTelas, criarTela, editarTela, deletarTela } from '@/services/cadastros/acessos/telas';
 import { FormTela, TelaProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';

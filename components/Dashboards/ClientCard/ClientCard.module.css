@@ -1,0 +1,142 @@
+.clientCard {
+  display: flex;
+  min-height: 52px;
+  max-height: 52px;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  align-items: center;
+  gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-color) 20%, var(--card-bg-secondary)) 0%,
+    var(--card-bg-secondary) 80%
+  );
+  border-left: 3px solid var(--row-color);
+  font-family: var(--font-sans);
+  transition:
+    border-color var(--t-slow),
+    background var(--t-slow);
+}
+
+.podium {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-color) 40%, var(--card-bg-secondary)) 0%,
+    var(--card-bg-secondary) 90%
+  );
+}
+
+.clientRank {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.client {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.clientName {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clientDetails {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  overflow: hidden;
+}
+
+.clientInfo {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  color: var(--foreground-secondary);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.clientType {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.clientTotal {
+  font-size: var(--fs-md);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  flex: 0 0 auto;
+  align-self: center;
+  text-align: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .clientCard {
+    min-height: unset;
+    max-height: unset;
+    padding: var(--space-3);
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .clientRank {
+    zoom: 0.75;
+    flex-shrink: 0;
+    padding-top: var(--space-1);
+    align-self: center;
+  }
+
+  .client {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .clientName {
+    font-size: var(--fs-md);
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .clientDetails {
+    gap: var(--space-2);
+    flex-wrap: nowrap;
+    margin-top: var(--space-1);
+  }
+
+  .clientInfo {
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+
+  .clientTotal {
+    font-size: var(--fs-sm);
+    font-weight: var(--w-black);
+    flex: unset;
+    flex-shrink: 0;
+    align-self: flex-start;
+    white-space: nowrap;
+    text-align: end;
+  }
+}

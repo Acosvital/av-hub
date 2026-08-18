@@ -7,8 +7,8 @@ import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import OrderType from '@/components/Dashboards/OrderType/OrderType';
 import Order from '@/components/Dashboards/Order/Order';
 import toBRL from '@/utils/toBRL';
-import { getDetalheVendedorVendas } from '@/services/dashboardVendas';
-import { getDetalheVendedorFaturamento } from '@/services/dashboardFaturamento';
+import { getDetalheVendedorVendas } from '@/services/dashboards/dashboardVendas';
+import { getDetalheVendedorFaturamento } from '@/services/dashboards/dashboardFaturamento';
 import styles from './VendorDetailsModal.module.css';
 
 interface VendorDetailsModalProps {
@@ -204,6 +204,7 @@ const VendorDetailsModal = ({
           cod_vendedor: String(vendorId),
           mes,
           ano,
+          limit: '500',
         });
         setDetails(mapVendorDetails(dashboard, res.vendedor, res.detalhes));
       } catch (err) {
