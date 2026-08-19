@@ -1,5 +1,5 @@
 .header {
-  background-color: var(--header-bg);
+  background-color: var(--navy-925);
   height: var(--header-h);
   display: flex;
   justify-content: space-between;
