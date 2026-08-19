@@ -1,5 +1,5 @@
 .expanded {
-  background-color: var(--av-primary);
+  background-color: var(--navy-925);
   min-width: var(--menu-w-min);
   padding: var(--space-4) 0;
   display: flex;
@@ -12,7 +12,7 @@
 }
 
 .minimized {
-  background-color: var(--av-primary);
+  background-color: var(--navy-925);
   min-width: var(--menu-w-min);
   padding: var(--space-4) 0;
   display: flex;
@@ -29,13 +29,13 @@
 .toggleBtn {
   position: absolute;
   right: -14px;
-  top: 40px;
+  top: calc((var(--header-h) - 28px) / 2);
   z-index: 120;
   width: 28px;
   height: 28px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--av-secondary);
-  background-color: var(--av-primary);
+  background-color: var(--navy-925);
   color: var(--navy-200);
   display: flex;
   align-items: center;

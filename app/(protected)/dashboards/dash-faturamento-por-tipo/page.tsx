@@ -207,14 +207,29 @@ export default function FaturamentoPorTipo() {
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
 
+    // O endpoint de faturamento-por-tipo exige mes/ano e só devolve um mês por chamada
+    // (sem parâmetros ele quebra com 500 no backend) — para montar os últimos 12
+    // meses do LineChart, buscamos mês a mês em paralelo.
+    const mesesHistorico = Array.from({ length: MAX_MESES_FATURAMENTO_MENSAL }, (_, i) => {
+      const data = completeDate.subtract(MAX_MESES_FATURAMENTO_MENSAL - 1 - i, 'month');
+      return { mes: data.month() + 1, ano: data.year() };
+    });
+
     async function loadAll() {
       setIsLoading(true);
+
+      const faturamentoPorTipoHistorico = Promise.allSettled(
+        mesesHistorico.map((mesAno) => getFaturamentoPorTipo(mesAno))
+      ).then((respostas) =>
+        respostas
+          .filter((r) => r.status === 'fulfilled')
+          .flatMap((r) => r.value.data ?? [])
+      );
 
       const results = await Promise.allSettled([
         getRankingVendedores(params),
         getFaturamentoMensal(params),
-        // Sem mes/ano o endpoint retorna todo o período, necessário para os últimos 12 meses do LineChart.
-        getFaturamentoPorTipo(),
+        faturamentoPorTipoHistorico,
         getRitmoMetaFaturamento(params),
         getSituacaoPedidos(params),
         getRankingClientesFaturamento(params),
@@ -230,7 +245,7 @@ export default function FaturamentoPorTipo() {
       else console.error(faturamento.reason);
 
       if (faturamentoTipos.status === 'fulfilled')
-        setFaturamentoPorTipoBuckets(parseFaturamentoPorTipoBuckets(faturamentoTipos.value.data));
+        setFaturamentoPorTipoBuckets(parseFaturamentoPorTipoBuckets(faturamentoTipos.value));
       else console.error(faturamentoTipos.reason);
 
       if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);

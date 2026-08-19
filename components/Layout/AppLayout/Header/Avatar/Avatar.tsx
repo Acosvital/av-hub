@@ -19,9 +19,10 @@ function stringAvatar(name: string, border: string, size: number) {
     sx: {
       // bgcolor: `${stringToColor(name)}`,
       bgcolor: `color-mix(in srgb, ${stringToColor(name)} 85%, black)`,
-      border: border ? `3px solid ${border}` : 'none',
+      border: '1px solid var(--navy-950)',
       height: size ? `${size}px` : '40px',
       width: size ? `${size}px` : '40px',
+      fontSize: size ? `${size * 0.4}px` : '16px',
     },
     children: `${splitted[0][0]}${splitted[1]?.[0] || ''}`,
   };

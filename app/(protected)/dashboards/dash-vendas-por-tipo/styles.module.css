@@ -73,7 +73,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  background-color: var(--navy-850);
+  background-color: var(--navy-925);
   color: var(--foreground);
   border: 1px solid var(--navy-915);
   border-radius: var(--radius-md);
@@ -93,8 +93,12 @@
   border-bottom: 1px solid var(--border);
 }
 
+.cardHeader span {
+  font-size: var(--fs-sm);
+}
+
 .rankingTitle {
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-xl);
   text-transform: uppercase;
   color: var(--foreground-secondary);
 }
@@ -107,6 +111,7 @@
   flex-direction: column;
   gap: var(--space-2);
   border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
   font-weight: var(--w-bold);
   font-family: var(--font-sans);
   background-color: var(--navy-925);

@@ -213,15 +213,30 @@ const VendasPorTipo = () => {
   useEffect(() => {
     const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
 
+    // O endpoint de vendas-por-tipo exige mes/ano e só devolve um mês por chamada
+    // (sem parâmetros ele quebra com 500 no backend) — para montar os últimos 12
+    // meses do LineChart, buscamos mês a mês em paralelo.
+    const mesesHistorico = Array.from({ length: MAX_MESES_FATURAMENTO_MENSAL }, (_, i) => {
+      const data = completeDate.subtract(MAX_MESES_FATURAMENTO_MENSAL - 1 - i, 'month');
+      return { mes: data.month() + 1, ano: data.year() };
+    });
+
     async function loadAll() {
       setIsLoading(true);
+
+      const vendasPorTipoHistorico = Promise.allSettled(
+        mesesHistorico.map((mesAno) => getVendasPorTipo(mesAno))
+      ).then((respostas) =>
+        respostas
+          .filter((r) => r.status === 'fulfilled')
+          .flatMap((r) => r.value.data ?? [])
+      );
 
       const results = await Promise.allSettled([
         getRankingVendedoresVendas(params),
         getVendaMensal(params),
         getRitmoMetaVendas(params),
-        // Sem mes/ano o endpoint retorna todo o período, necessário para os últimos 12 meses do LineChart.
-        getVendasPorTipo(),
+        vendasPorTipoHistorico,
         getRankingClientesVendas(params),
         getSituacaoPedidos(params),
       ]);
@@ -238,7 +253,7 @@ const VendasPorTipo = () => {
       else console.error(ritmoVendas.reason);
 
       if (vendasTipo.status === 'fulfilled')
-        setVendasPorTipoBuckets(parseVendasPorTipoBuckets(vendasTipo.value.data));
+        setVendasPorTipoBuckets(parseVendasPorTipoBuckets(vendasTipo.value));
       else console.error(vendasTipo.reason);
 
       if (rankingClientes.status === 'fulfilled')
@@ -287,6 +302,7 @@ const VendasPorTipo = () => {
                 setSelectedFilialId(v.codigo_empresa);
               }}
               color={accentColor}
+              tieredMetaColor
             />
           ))}
         </div>
@@ -307,6 +323,7 @@ const VendasPorTipo = () => {
                   setSelectedFilialId(v.codigo_empresa);
                 }}
                 color={accentColor}
+                tieredMetaColor
               />
             ))}
           </div>
@@ -321,6 +338,7 @@ const VendasPorTipo = () => {
                     setSelectedFilialId(v.codigo_empresa);
                   }}
                   color={accentColor}
+                  tieredMetaColor
                 />
               ))}
           </div>
