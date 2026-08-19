@@ -21,11 +21,11 @@
 
 .todayLabel {
   color: var(--success);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
 }
 
 .todayValue {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: var(--w-bold);
   color: var(--foreground);
   display: block;
@@ -34,11 +34,11 @@
 
 .yesterdayLabel {
   color: var(--foreground-secondary);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
 }
 
 .yesterdayValue {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: var(--w-bold);
   color: var(--foreground-secondary);
   display: block;

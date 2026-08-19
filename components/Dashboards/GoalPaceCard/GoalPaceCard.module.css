@@ -68,11 +68,11 @@
 }
 
 .textSm {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
 }
 
 .textLg {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-xl);
   font-weight: var(--w-bold);
 }
 

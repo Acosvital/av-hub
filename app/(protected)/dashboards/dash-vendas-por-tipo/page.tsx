@@ -302,6 +302,7 @@ const VendasPorTipo = () => {
                 setSelectedFilialId(v.codigo_empresa);
               }}
               color={accentColor}
+              tieredMetaColor
             />
           ))}
         </div>
@@ -322,6 +323,7 @@ const VendasPorTipo = () => {
                   setSelectedFilialId(v.codigo_empresa);
                 }}
                 color={accentColor}
+                tieredMetaColor
               />
             ))}
           </div>
@@ -336,6 +338,7 @@ const VendasPorTipo = () => {
                     setSelectedFilialId(v.codigo_empresa);
                   }}
                   color={accentColor}
+                  tieredMetaColor
                 />
               ))}
           </div>
