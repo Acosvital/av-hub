@@ -9,6 +9,7 @@
   transition: min-width var(--t-base);
   position: relative;
   z-index: 110;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
 }
 
 .minimized {
@@ -22,6 +23,7 @@
   transition: min-width var(--t-base);
   position: relative;
   z-index: 110;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
 }
 
 /* Botão de recolher/expandir, flutuando meio dentro / meio fora da
@@ -55,8 +57,9 @@
   justify-content: center;
   align-items: center;
   color: var(--neutral-50);
-  padding: 0 var(--space-2);
-  margin-bottom: var(--space-4);
+  padding: 0 var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--neutral-50) 8%, transparent);
 }
 
 .logoImg {
@@ -70,10 +73,21 @@
   flex-direction: column;
   gap: var(--space-1);
   list-style: none;
-  padding: 0;
+  padding: 0 var(--space-1) 0 0;
   margin: 0;
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--av-secondary) transparent;
+}
+
+.menuContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menuContainer::-webkit-scrollbar-thumb {
+  background-color: var(--av-secondary);
+  border-radius: var(--radius-pill);
 }
 
 .menuWrapper {
@@ -97,15 +111,17 @@
 }
 
 .menuCard {
-  height: 36px;
+  height: 38px;
   margin: 0 var(--space-2);
-  padding: 0 var(--space-2);
+  padding: 0 var(--space-3);
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: var(--fs-sm);
   cursor: pointer;
-  transition: all var(--t-base);
+  transition:
+    background-color var(--t-base),
+    box-shadow var(--t-base);
   gap: var(--space-3);
   position: relative;
   border-radius: var(--radius-md);
@@ -134,13 +150,18 @@
 }
 
 .menuCard:hover:not(.selectedMenu) {
-  background-color: color-mix(in srgb, var(--av-secondary) 45%, transparent);
+  background-color: color-mix(in srgb, var(--neutral-50) 6%, transparent);
 }
 
-/* Item ativo: fundo suave + barrinha de destaque, em vez de um pill
-   sólido — mais parecido com o padrão de mercado (Notion/GitHub). */
+/* Item ativo: fundo em degradê sutil + barrinha de destaque com brilho —
+   padrão de mercado (Notion/GitHub/Linear). */
 .selectedMenu {
-  background-color: color-mix(in srgb, var(--av-accent) 18%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--av-accent) 20%, transparent) 0%,
+    color-mix(in srgb, var(--av-accent) 8%, transparent) 100%
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--av-accent) 20%, transparent);
 }
 
 .selectedMenu::before {
@@ -150,9 +171,10 @@
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
-  height: 55%;
+  height: 60%;
   border-radius: var(--radius-pill);
   background-color: var(--av-accent);
+  box-shadow: 0 0 6px var(--av-accent);
 }
 
 .selectedMenu .menuIcon {
@@ -179,29 +201,32 @@
 .submenu {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
   list-style: none;
-  padding: 0;
-  margin: 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  margin: 2px 0 0 var(--space-2);
   font-family: var(--font-sans);
-  background-color: rgba(0, 0, 0, 0.18);
-  border-left: 3px solid var(--av-accent);
-  animation: slideDown var(--t-base);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  border-left: 2px solid color-mix(in srgb, var(--av-accent) 45%, transparent);
+  box-sizing: border-box;
 }
 
 .submenuItem {
-  padding: var(--space-2) var(--space-4);
-  margin: 2px var(--space-2);
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
   border-radius: var(--radius-sm);
   color: var(--navy-100);
   font-size: var(--fs-sm);
   cursor: pointer;
   transition: all var(--t-base);
-  padding-left: var(--space-7);
 }
 
 .submenuItem:hover {
-  background-color: color-mix(in srgb, var(--av-secondary) 60%, transparent);
+  background-color: color-mix(in srgb, var(--neutral-50) 8%, transparent);
+  color: var(--neutral-50);
 }
 
 .submenuItemExpandable {
@@ -214,7 +239,6 @@
 .submenuItemSelected {
   background-color: color-mix(in srgb, var(--av-accent) 25%, transparent);
   color: var(--neutral-50);
-  width: 100%;
 }
 
 .subsubmenu {
@@ -223,22 +247,24 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  animation: slideDown var(--t-base);
 }
 
 .subsubmenuItem {
-  padding: var(--space-2) var(--space-4);
-  margin: 2px var(--space-2);
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
+  margin: 2px 0;
   border-radius: var(--radius-sm);
   color: var(--navy-100);
   font-size: var(--fs-sm);
   cursor: pointer;
   transition: all var(--t-base);
-  padding-left: var(--space-8);
 }
 
 .subsubmenuItem:hover {
-  background-color: color-mix(in srgb, var(--av-secondary) 50%, transparent);
+  background-color: color-mix(in srgb, var(--neutral-50) 8%, transparent);
+  color: var(--neutral-50);
 }
 
 .hidden {
@@ -253,53 +279,49 @@
 .footer {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   padding: var(--space-3) var(--space-2) 0;
   margin-top: auto;
   border-top: 1px solid color-mix(in srgb, var(--neutral-50) 12%, transparent);
   flex-shrink: 0;
 }
 
-.footerBtn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  width: 100%;
-  height: 36px;
-  padding: 0 var(--space-2);
-  border: 0;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--navy-200);
-  font-family: var(--font-sans);
-  font-size: var(--fs-sm);
-  font-weight: var(--w-semibold);
-  cursor: pointer;
-  transition: all var(--t-base);
-  white-space: nowrap;
-}
-
-.footerBtn span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.footerBtn:hover {
-  background-color: color-mix(in srgb, var(--av-secondary) 45%, transparent);
-  color: var(--neutral-50);
-}
-
-.logoutBtn:hover {
-  background-color: color-mix(in srgb, var(--danger) 18%, transparent);
-  color: var(--danger);
-}
-
-.profile {
+.profileTrigger {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
   padding: var(--space-2);
-  margin-top: var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--neutral-50) 4%, transparent);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: left;
+  transition:
+    background-color var(--t-base),
+    border-color var(--t-base);
+}
+
+.profileTrigger:hover {
+  background-color: color-mix(in srgb, var(--neutral-50) 8%, transparent);
+  border-color: color-mix(in srgb, var(--neutral-50) 10%, transparent);
+}
+
+.profileTriggerOpen {
+  background-color: color-mix(in srgb, var(--av-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--av-accent) 30%, transparent);
+}
+
+.profileChevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--navy-300);
+  transition: transform var(--t-base);
+}
+
+.profileChevron.rotated {
+  transform: rotate(180deg);
+  color: var(--av-accent);
 }
 
 .profileInfo {
