@@ -9,6 +9,14 @@
   justify-content: flex-end;
 }
 
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
 .loading {
   display: flex;
   flex-direction: column;

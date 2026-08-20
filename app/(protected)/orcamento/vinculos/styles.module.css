@@ -31,6 +31,14 @@
   color: var(--av-accent);
 }
 
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
 .badgeOk {
   color: var(--success, #10b981);
   font-weight: var(--w-bold);

@@ -18,3 +18,11 @@
 .loading svg {
   color: var(--av-accent);
 }
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}

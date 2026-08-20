@@ -240,13 +240,22 @@ export default function CatalogoDeProdutos() {
           </div>
         </Card>
         <Card title="Produtos Encontrados" download={exportToExcel}>
+          <div className={styles.tableCard}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
-            <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+            <TableContainer
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflow: 'auto',
+                borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0',
+                borderBottom: 'none',
+              }}
+            >
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
@@ -292,7 +301,12 @@ export default function CatalogoDeProdutos() {
             </TableContainer>
           )}
           <TablePagination
-            sx={{ flexShrink: 0 }}
+            sx={{
+              flexShrink: 0,
+              border: '1px solid var(--border-strong)',
+              borderTop: '1px solid var(--border)',
+              borderRadius: '0 0 var(--radius-sm) var(--radius-sm)',
+            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={filteredRows.length}
@@ -308,6 +322,7 @@ export default function CatalogoDeProdutos() {
               setPage(0);
             }}
           />
+          </div>
         </Card>
       </PageContent>
       <Modal
