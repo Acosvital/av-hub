@@ -44,8 +44,8 @@ const SITUACAO_DEFINITIONS = [
 ];
 
 const BILLING_TYPE_COLORS: Record<string, string> = {
-  SPOT: 'var(--green)',
-  CONTRATO: 'var(--purple)',
+  SPOT: 'var(--fuchsia)',
+  CONTRATO: 'var(--teal)',
   'SEM CLASSIFICAÇÃO': 'var(--white)',
 };
 
@@ -162,7 +162,12 @@ export default function FaturamentoPorTipo() {
 
   const clientGroups = new Map<
     string,
-    { cliente: string; faturamento: number; qtd_pedidos: number }
+    {
+      cliente: string;
+      faturamento: number;
+      qtd_pedidos: number;
+      porTipo: Partial<Record<ClientOrderType, number>>;
+    }
   >();
   clientRankingData
     .filter((c) => activeClientTypes.includes(c.tipo_contrato))
@@ -171,9 +176,12 @@ export default function FaturamentoPorTipo() {
         cliente: c.cliente,
         faturamento: 0,
         qtd_pedidos: 0,
+        porTipo: {},
       };
       group.faturamento += Number(c.faturamento);
       group.qtd_pedidos += Number(c.qtd_pedidos);
+      group.porTipo[c.tipo_contrato] =
+        (group.porTipo[c.tipo_contrato] ?? 0) + Number(c.faturamento);
       clientGroups.set(c.id_parceiro, group);
     });
 
@@ -189,6 +197,10 @@ export default function FaturamentoPorTipo() {
       faturamento: group.faturamento,
       qtd_pedidos: group.qtd_pedidos,
       tipo_contrato: activeClientTypes.length > 1 ? activeClientTypes : activeClientTypes[0],
+      breakdown: CLIENT_TYPE_FILTERS.map((tipo) => ({
+        tipo,
+        valor: group.porTipo[tipo] ?? 0,
+      })),
       posicao: String(i + 1),
       perc_participacao: totalClientRevenue
         ? ((group.faturamento / totalClientRevenue) * 100).toFixed(1)
@@ -405,12 +417,12 @@ export default function FaturamentoPorTipo() {
           <svg width="0" height="0" style={{ position: 'absolute' }}>
             <defs>
               <linearGradient id="lineAreaGradient-spot" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--green)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--green)" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--fuchsia)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--fuchsia)" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="lineAreaGradient-contrato" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--purple)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--purple)" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--teal)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--teal)" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="lineAreaGradient-semclass" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--white)" stopOpacity={0.35} />
@@ -438,7 +450,7 @@ export default function FaturamentoPorTipo() {
                 data: isMobile
                   ? faturamentoMensalPorTipo.SPOT.slice(-6)
                   : faturamentoMensalPorTipo.SPOT,
-                color: 'var(--green)',
+                color: 'var(--fuchsia)',
                 curve: 'natural',
                 area: true,
                 valueFormatter: (value: number | null) => toBRL(value),
@@ -449,7 +461,7 @@ export default function FaturamentoPorTipo() {
                 data: isMobile
                   ? faturamentoMensalPorTipo.CONTRATO.slice(-6)
                   : faturamentoMensalPorTipo.CONTRATO,
-                color: 'var(--purple)',
+                color: 'var(--teal)',
                 curve: 'natural',
                 area: true,
                 valueFormatter: (value: number | null) => toBRL(value),

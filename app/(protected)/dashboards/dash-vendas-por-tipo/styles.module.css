@@ -140,6 +140,11 @@
 
 .defaultRank:hover {
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.defaultRank:hover::-webkit-scrollbar {
+  display: none;
 }
 
 .defaultRank:hover .autoScroll {

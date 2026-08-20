@@ -8,27 +8,24 @@
   gap: var(--space-3);
   position: relative;
   overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--row-color) 20%, var(--card-bg-secondary)) 0%,
-    var(--card-bg-secondary) 80%
-  );
-  border-left: 3px solid var(--row-color);
+  background: var(--card-bg-secondary);
   font-family: var(--font-sans);
-  transition:
-    border-color var(--t-slow),
-    background var(--t-slow);
 }
 
-.podium {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--row-color) 40%, var(--card-bg-secondary)) 0%,
-    var(--card-bg-secondary) 90%
-  );
+.typeSegment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  opacity: 0.4;
+  transition:
+    left var(--t-slow),
+    width var(--t-slow);
 }
 
 .clientRank {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -36,6 +33,8 @@
 }
 
 .client {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -81,6 +80,8 @@
 }
 
 .clientTotal {
+  position: relative;
+  z-index: 1;
   font-size: var(--fs-md);
   font-weight: var(--w-black);
   color: var(--foreground);
