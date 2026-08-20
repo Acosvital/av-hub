@@ -99,9 +99,47 @@ export const componentOverrides: Components<Theme> = {
   MuiTablePagination: {
     styleOverrides: {
       root: {
-        color: 'var(--table-head-fg)',
-        fontWeight: 'var(--w-bold)',
+        color: 'var(--foreground-secondary)',
+        fontFamily: 'var(--font-sans)',
         fontSize: 'var(--fs-sm)',
+        borderTop: '1px solid var(--border)',
+        backgroundColor: 'var(--card-bg-secondary)',
+      },
+      toolbar: {
+        minHeight: 52,
+        paddingLeft: 'var(--space-3)',
+        paddingRight: 'var(--space-2)',
+      },
+      selectLabel: {
+        color: 'var(--foreground-secondary)',
+        fontSize: 'var(--fs-sm)',
+      },
+      displayedRows: {
+        color: 'var(--foreground)',
+        fontWeight: 'var(--w-semibold)',
+        fontSize: 'var(--fs-sm)',
+      },
+      select: {
+        color: 'var(--foreground)',
+      },
+      selectIcon: {
+        color: 'var(--foreground-secondary)',
+      },
+      actions: {
+        marginLeft: 'var(--space-3)',
+        color: 'var(--foreground)',
+        '& .MuiIconButton-root': {
+          color: 'var(--foreground)',
+          borderRadius: 'var(--radius-md)',
+          transition: 'background-color 0.15s ease',
+        },
+        '& .MuiIconButton-root:hover': {
+          backgroundColor: 'color-mix(in srgb, var(--neutral-50) 10%, transparent)',
+        },
+        '& .MuiIconButton-root.Mui-disabled': {
+          color: 'var(--foreground-secondary)',
+          opacity: 0.35,
+        },
       },
     },
   },

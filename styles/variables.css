@@ -248,7 +248,7 @@
   --shadow-card: 0 5px 15px rgba(0, 0, 0, 0.45);
 
   /* Theme-aware surface overrides — these flip cards, tables, inputs to dark variants */
-  --card-bg: #1e293b;
+  --card-bg: var(--navy-850);
   --card-bg-secondary: var(--navy-800);
   /* slate-700 — cards pop forward */
   --header-bg: #131d33;
@@ -262,7 +262,7 @@
   --input-border-disabled: var(--navy-600);
   --input-text-disabled: var(--navy-400);
   --input-label-disabled: var(--navy-300);
-  --table-head-bg: #131d33;
+  --table-head-bg: var(--navy-925);
   --table-head-fg: var(--neutral-50);
   --table-row-fg: var(--neutral-50);
   --table-row-hover: #334155;

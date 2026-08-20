@@ -15,6 +15,7 @@ import {
   Chip,
   CircularProgress,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -26,7 +27,9 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
 } from '@mui/material';
+import { LuMessageSquareText, LuX } from 'react-icons/lu';
 import dateFormatter from '@/utils/dateFormatter';
 import toBRL from '@/utils/toBRL';
 import {
@@ -62,11 +65,55 @@ const FORM_INICIAL: FormSolicitacaoVaga = {
   observacao_situacao: '',
 };
 
-const SITUACAO_COR: Record<SituacaoVaga, 'warning' | 'success' | 'error'> = {
-  pendente: 'warning',
-  aprovado: 'success',
-  reprovado: 'error',
+const SITUACAO_ESTILO: Record<SituacaoVaga, { bg: string; color: string }> = {
+  pendente: { bg: 'color-mix(in srgb, var(--yellow) 20%, transparent)', color: 'var(--yellow)' },
+  aprovado: { bg: 'color-mix(in srgb, var(--success) 20%, transparent)', color: 'var(--success)' },
+  reprovado: { bg: 'color-mix(in srgb, var(--danger) 20%, transparent)', color: 'var(--danger)' },
 };
+
+function SituacaoChip({ situacao }: { situacao: SituacaoVaga }) {
+  const estilo = SITUACAO_ESTILO[situacao];
+  return (
+    <Chip
+      label={SITUACAO_LABEL[situacao]}
+      size="small"
+      sx={{
+        bgcolor: estilo.bg,
+        color: estilo.color,
+        fontWeight: 700,
+        border: `1px solid ${estilo.color}`,
+      }}
+    />
+  );
+}
+
+function ObservacoesCell({ row }: { row: SolicitacaoVagaProps }) {
+  const notas = [
+    row.observacao_motivo && { label: 'Vaga', texto: row.observacao_motivo },
+    row.observacao && { label: 'Remuneração', texto: row.observacao },
+    row.observacao_situacao && { label: 'Situação', texto: row.observacao_situacao },
+  ].filter((n): n is { label: string; texto: string } => Boolean(n));
+
+  if (!notas.length) return <span>—</span>;
+
+  return (
+    <Tooltip
+      title={
+        <div>
+          {notas.map((n) => (
+            <div key={n.label}>
+              <strong>{n.label}:</strong> {n.texto}
+            </div>
+          ))}
+        </div>
+      }
+    >
+      <span style={{ display: 'inline-flex', cursor: 'help' }}>
+        <LuMessageSquareText size={18} />
+      </span>
+    </Tooltip>
+  );
+}
 
 function calcularCustoTotal(form: FormSolicitacaoVaga): number {
   const quantidade = Number(form.quantidade) || 0;
@@ -269,23 +316,25 @@ const SolicitacoesDeVagas = () => {
     <>
       <PageHeader title="Solicitações de Vagas" subtitle="Consulte as vagas cadastradas" />
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
+        <Card title="Lista de Vagas" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
+          <div className={styles.filterBar}>
             <TextField
-              sx={{ flex: 2, minWidth: 300 }}
+              size="small"
+              sx={{ flex: 2, minWidth: 200 }}
               label="Cargo / Vaga"
               variant="outlined"
               value={cargoInput}
               onChange={(e) => setCargoInput(e.target.value)}
             />
             <TextField
-              sx={{ flex: 1, minWidth: 260 }}
+              size="small"
+              sx={{ flex: 1, minWidth: 160 }}
               label="Solicitante"
               variant="outlined"
               value={solicitanteInput}
               onChange={(e) => setSolicitanteInput(e.target.value)}
             />
-            <FormControl sx={{ minWidth: 220 }}>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel>Setor</InputLabel>
               <Select
                 value={setorFiltro}
@@ -300,7 +349,7 @@ const SolicitacoesDeVagas = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 220 }}>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel>Situação</InputLabel>
               <Select
                 value={situacaoFiltro}
@@ -315,14 +364,15 @@ const SolicitacoesDeVagas = () => {
                 ))}
               </Select>
             </FormControl>
+            {(cargoInput || solicitanteInput || setorFiltro || situacaoFiltro !== 'todos') && (
+              <Tooltip title="Limpar filtros">
+                <IconButton size="small" onClick={limparFiltros} sx={{ color: 'var(--foreground-secondary)' }}>
+                  <LuX size={18} />
+                </IconButton>
+              </Tooltip>
+            )}
           </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-        <Card title="Lista de Vagas" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
+          <div className={styles.tableCard}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -331,8 +381,16 @@ const SolicitacoesDeVagas = () => {
           ) : (
             <>
               <div className={styles.tableWrapper}>
-                <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-                  <Table stickyHeader size="small">
+                <TableContainer
+                  sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    overflow: 'auto',
+                    borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0',
+                    borderBottom: 'none',
+                  }}
+                >
+                  <Table stickyHeader>
                     <TableHead>
                       <TableRow>
                         {[
@@ -340,23 +398,21 @@ const SolicitacoesDeVagas = () => {
                           'Solicitante',
                           'Setor',
                           'Cargo / Vaga',
-                          'Obs. Motivo',
                           'Qtd',
                           'Tipo de Vaga',
                           'Salário',
-                          'Obs.',
                           'Insalubridade',
                           'VR',
                           'Custo Total',
                           'Situação',
-                          'Obs. status',
+                          'Obs.',
                         ].map((label) => (
                           <TableCell key={label}>{label}</TableCell>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {rows.map((row) => (
+                      {rows.map((row, index) => (
                         <TableRow
                           hover={can('pode_editar') || can('pode_deletar')}
                           key={row.id}
@@ -368,28 +424,28 @@ const SolicitacoesDeVagas = () => {
                           sx={{
                             cursor:
                               can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
+                            backgroundColor:
+                              index % 2 === 1
+                                ? 'color-mix(in srgb, var(--neutral-50) 3%, transparent)'
+                                : 'transparent',
                           }}
                         >
                           <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
                           <TableCell>{row.solicitante}</TableCell>
                           <TableCell>{setorNome(row.id_setor)}</TableCell>
                           <TableCell>{row.cargo_vaga}</TableCell>
-                          <TableCell>{row.observacao_motivo || '—'}</TableCell>
                           <TableCell>{row.quantidade}</TableCell>
                           <TableCell>{row.tipo_vaga || '—'}</TableCell>
                           <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
-                          <TableCell>{row.observacao || '—'}</TableCell>
                           <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
                           <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
                           <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
                           <TableCell>
-                            <Chip
-                              label={SITUACAO_LABEL[row.situacao]}
-                              color={SITUACAO_COR[row.situacao]}
-                              size="small"
-                            />
+                            <SituacaoChip situacao={row.situacao} />
                           </TableCell>
-                          <TableCell>{row.observacao_situacao || '—'}</TableCell>
+                          <TableCell>
+                            <ObservacoesCell row={row} />
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -415,11 +471,7 @@ const SolicitacoesDeVagas = () => {
                               {dateFormatter(row.data_solicitacao)}
                             </span>
                           </div>
-                          <Chip
-                            label={SITUACAO_LABEL[row.situacao]}
-                            color={SITUACAO_COR[row.situacao]}
-                            size="small"
-                          />
+                          <SituacaoChip situacao={row.situacao} />
                         </div>
                         <div className={styles.mobileCardHeaderMain}>
                           <span className={styles.mobileCardTitle}>{row.cargo_vaga}</span>
@@ -466,7 +518,12 @@ const SolicitacoesDeVagas = () => {
             </>
           )}
           <TablePagination
-            sx={{ flexShrink: 0 }}
+            sx={{
+              flexShrink: 0,
+              border: '1px solid var(--border-strong)',
+              borderTop: '1px solid var(--border)',
+              borderRadius: '0 0 var(--radius-sm) var(--radius-sm)',
+            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
             count={rowCount}
@@ -480,6 +537,7 @@ const SolicitacoesDeVagas = () => {
               setPage(0);
             }}
           />
+          </div>
         </Card>
       </PageContent>
       <Modal

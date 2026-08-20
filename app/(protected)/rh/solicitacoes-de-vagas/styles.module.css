@@ -1,13 +1,11 @@
-.inputContainers {
+.filterBar {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
-  margin: var(--space-4) 0;
-}
-
-.cardButtons {
-  display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
 }
 
 .loading {
@@ -32,6 +30,14 @@
 }
 
 /***************** RESPONSIVE LIST / MOBILE CARDS ******************/
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
 
 .tableWrapper {
   display: flex;

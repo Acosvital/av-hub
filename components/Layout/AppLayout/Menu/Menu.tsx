@@ -4,6 +4,7 @@ import {
   LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
+  LuChevronsUpDown,
   LuKeyRound,
   LuLogOut,
   LuMoon,
@@ -13,6 +14,7 @@ import { Fragment, startTransition, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { Collapse, Divider, ListItemIcon, Menu as MuiMenu, MenuItem as MuiMenuItem, Tooltip } from '@mui/material';
 import type { MenuItem } from './MenuItem/MenuItem';
 import iconMap from './MenuItem/iconMap';
 import groupMap from './MenuItem/groupMap';
@@ -21,6 +23,30 @@ import Avatar from '../Header/Avatar/Avatar';
 import AlterarSenhaModal from '../Header/AlterarSenhaModal';
 import useLayout from '@/hooks/useLayout';
 import { usePathname } from 'next/navigation';
+
+// Estilo dos itens do dropdown de perfil, alinhado ao visual do sidebar
+// (mesma fonte/peso dos itens de navegação e mesmo hover neutro).
+const menuItemSx = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: 'var(--fs-sm)',
+  fontWeight: 'var(--w-semibold)',
+  color: 'var(--navy-100)',
+  borderRadius: 'var(--radius-md)',
+  py: 1,
+  px: 1.5,
+  '&:hover': {
+    backgroundColor: 'color-mix(in srgb, var(--neutral-50) 8%, transparent)',
+    color: 'var(--neutral-50)',
+  },
+};
+
+const logoutMenuItemSx = {
+  color: 'var(--danger)',
+  '&:hover': {
+    backgroundColor: 'color-mix(in srgb, var(--danger) 18%, transparent)',
+    color: 'var(--danger)',
+  },
+};
 
 const containerClass: Partial<Record<number, string>> = {
   1: styles.submenu,
@@ -63,55 +89,61 @@ const MenuNode = ({
 
     if (!hasChildren) {
       return (
-        <li className={styles.menuWrapper}>
-          <Link href={`/${item.id}`} className={styles.link}>
-            <div className={`${styles.menuCard} ${isActive ? styles.selectedMenu : ''}`}>
-              <span className={styles.menuIcon}>{iconMap[item.id as keyof typeof iconMap]}</span>
-              <span className={`${styles.menuLabel} ${isMinimized ? styles.hidden : ''}`}>
-                {item.label}
-              </span>
-            </div>
-          </Link>
-        </li>
+        <Tooltip title={isMinimized ? item.label : ''} placement="right" arrow>
+          <li className={styles.menuWrapper}>
+            <Link href={`/${item.id}`} className={styles.link}>
+              <div className={`${styles.menuCard} ${isActive ? styles.selectedMenu : ''}`}>
+                <span className={styles.menuIcon}>
+                  {iconMap[item.id as keyof typeof iconMap]}
+                </span>
+                <span className={`${styles.menuLabel} ${isMinimized ? styles.hidden : ''}`}>
+                  {item.label}
+                </span>
+              </div>
+            </Link>
+          </li>
+        </Tooltip>
       );
     }
 
     return (
-      <li className={styles.menuWrapper}>
-        <div
-          className={`${styles.menuCard} ${isActive ? styles.selectedMenu : ''}`}
-          onClick={() => {
-            if (isMinimized) setIsMinimized(false);
-            onRootExpand(path);
-          }}
-        >
-          <span className={styles.menuIcon}>{iconMap[item.id as keyof typeof iconMap]}</span>
-          <span className={`${styles.menuLabel} ${isMinimized ? styles.hidden : ''}`}>
-            {item.label}
-          </span>
-          <LuChevronDown
-            className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ''} ${isMinimized ? styles.hidden : ''}`}
-          />
-        </div>
-        {isExpanded && !isMinimized && (
-          <ul className={styles.submenu}>
-            {item.submenu!.map((child) => (
-              <MenuNode
-                key={child.id}
-                item={child}
-                depth={1}
-                path={`${path}/${child.id}`}
-                isMinimized={isMinimized}
-                setIsMinimized={setIsMinimized}
-                expandedItems={expandedItems}
-                toggleItem={toggleItem}
-                onRootExpand={onRootExpand}
-                pathname={pathname}
-              />
-            ))}
-          </ul>
-        )}
-      </li>
+      <Tooltip title={isMinimized ? item.label : ''} placement="right" arrow>
+        <li className={styles.menuWrapper}>
+          <div
+            className={`${styles.menuCard} ${isActive ? styles.selectedMenu : ''}`}
+            onClick={() => {
+              if (isMinimized) setIsMinimized(false);
+              onRootExpand(path);
+            }}
+          >
+            <span className={styles.menuIcon}>{iconMap[item.id as keyof typeof iconMap]}</span>
+            <span className={`${styles.menuLabel} ${isMinimized ? styles.hidden : ''}`}>
+              {item.label}
+            </span>
+            <LuChevronDown
+              className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ''} ${isMinimized ? styles.hidden : ''}`}
+            />
+          </div>
+          <Collapse in={isExpanded && !isMinimized} timeout="auto" unmountOnExit>
+            <ul className={styles.submenu}>
+              {item.submenu!.map((child) => (
+                <MenuNode
+                  key={child.id}
+                  item={child}
+                  depth={1}
+                  path={`${path}/${child.id}`}
+                  isMinimized={isMinimized}
+                  setIsMinimized={setIsMinimized}
+                  expandedItems={expandedItems}
+                  toggleItem={toggleItem}
+                  onRootExpand={onRootExpand}
+                  pathname={pathname}
+                />
+              ))}
+            </ul>
+          </Collapse>
+        </li>
+      </Tooltip>
     );
   }
 
@@ -128,7 +160,7 @@ const MenuNode = ({
           {item.label}
           <LuChevronDown className={`${styles.expandIcon} ${isExpanded ? styles.rotated : ''}`} />
         </div>
-        {isExpanded && (
+        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
           <ul className={cssContainer}>
             {item.submenu!.map((child) => (
               <MenuNode
@@ -145,7 +177,7 @@ const MenuNode = ({
               />
             ))}
           </ul>
-        )}
+        </Collapse>
       </li>
     );
   }
@@ -165,6 +197,7 @@ const Menu = () => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [isAlterarSenhaOpen, setIsAlterarSenhaOpen] = useState(false);
   const [themeMounted, setThemeMounted] = useState(false);
+  const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const { mobileMenuOpen, setMobileMenuOpen } = useLayout();
@@ -313,37 +346,91 @@ const Menu = () => {
         </ul>
         {status === 'authenticated' && (
           <div className={styles.footer}>
-            {themeMounted && (
+            <Tooltip title={effectiveMinimized ? userName : ''} placement="right" arrow>
               <button
-                className={styles.footerBtn}
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                className={`${styles.profileTrigger} ${profileAnchor ? styles.profileTriggerOpen : ''}`}
+                onClick={(e) => setProfileAnchor(e.currentTarget)}
+                aria-haspopup="true"
+                aria-expanded={!!profileAnchor}
               >
-                {isDark ? <LuSun size={18} /> : <LuMoon size={18} />}
-                <span className={effectiveMinimized ? styles.hidden : ''}>
-                  {isDark ? 'Tema claro' : 'Tema escuro'}
-                </span>
+                <Avatar name={userName} size={36} />
+                <div
+                  className={`${styles.profileInfo} ${effectiveMinimized ? styles.hidden : ''}`}
+                >
+                  <span className={styles.profileName}>{userName}</span>
+                  <span className={styles.profileEmail}>{session?.user?.email}</span>
+                </div>
+                <LuChevronsUpDown
+                  size={16}
+                  className={`${styles.profileChevron} ${profileAnchor ? styles.rotated : ''} ${effectiveMinimized ? styles.hidden : ''}`}
+                />
               </button>
-            )}
-            {isCredentials && idUsuario && (
-              <button className={styles.footerBtn} onClick={() => setIsAlterarSenhaOpen(true)}>
-                <LuKeyRound size={18} />
-                <span className={effectiveMinimized ? styles.hidden : ''}>Alterar senha</span>
-              </button>
-            )}
-            <button
-              className={`${styles.footerBtn} ${styles.logoutBtn}`}
-              onClick={handleLogout}
+            </Tooltip>
+            <MuiMenu
+              anchorEl={profileAnchor}
+              open={!!profileAnchor}
+              onClose={() => setProfileAnchor(null)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              marginThreshold={0}
+              slotProps={{
+                paper: {
+                  sx: {
+                    width: 'calc(var(--menu-w) - var(--space-4))',
+                    bgcolor: 'var(--navy-850)',
+                    color: 'var(--foreground)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    mb: 1,
+                  },
+                },
+                list: {
+                  sx: { py: 0.75, px: 0.75 },
+                },
+              }}
             >
-              <LuLogOut size={18} />
-              <span className={effectiveMinimized ? styles.hidden : ''}>Sair</span>
-            </button>
-            <div className={styles.profile}>
-              <Avatar name={userName} size={36} />
-              <div className={`${styles.profileInfo} ${effectiveMinimized ? styles.hidden : ''}`}>
-                <span className={styles.profileName}>{userName}</span>
-                <span className={styles.profileEmail}>{session?.user?.email}</span>
-              </div>
-            </div>
+              {themeMounted && (
+                <MuiMenuItem
+                  onClick={() => {
+                    setTheme(isDark ? 'light' : 'dark');
+                    setProfileAnchor(null);
+                  }}
+                  sx={menuItemSx}
+                >
+                  <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+                    {isDark ? <LuSun size={18} /> : <LuMoon size={18} />}
+                  </ListItemIcon>
+                  {isDark ? 'Tema claro' : 'Tema escuro'}
+                </MuiMenuItem>
+              )}
+              {isCredentials && idUsuario && (
+                <MuiMenuItem
+                  onClick={() => {
+                    setIsAlterarSenhaOpen(true);
+                    setProfileAnchor(null);
+                  }}
+                  sx={menuItemSx}
+                >
+                  <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+                    <LuKeyRound size={18} />
+                  </ListItemIcon>
+                  Alterar senha
+                </MuiMenuItem>
+              )}
+              <Divider sx={{ borderColor: 'var(--border)', my: 0.5, mx: 1 }} />
+              <MuiMenuItem
+                onClick={() => {
+                  setProfileAnchor(null);
+                  handleLogout();
+                }}
+                sx={{ ...menuItemSx, ...logoutMenuItemSx }}
+              >
+                <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+                  <LuLogOut size={18} />
+                </ListItemIcon>
+                Sair
+              </MuiMenuItem>
+            </MuiMenu>
           </div>
         )}
       </aside>
