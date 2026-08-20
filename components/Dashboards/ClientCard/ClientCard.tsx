@@ -6,10 +6,15 @@ import toBRL from '@/utils/toBRL';
 export type ClientOrderType = 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
 
 const CLIENT_TYPE_COLORS: Record<ClientOrderType, string> = {
-  SPOT: 'var(--green)',
-  CONTRATO: 'var(--purple)',
+  SPOT: 'var(--fuchsia)',
+  CONTRATO: 'var(--teal)',
   'SEM CLASSIFICAÇÃO': 'var(--gray-light)',
 };
+
+export interface ClientTypeBreakdown {
+  tipo: ClientOrderType;
+  valor: number;
+}
 
 interface ClientCardProps {
   cliente: string;
@@ -17,6 +22,7 @@ interface ClientCardProps {
   perc_participacao: string;
   faturamento: number;
   tipo_contrato?: ClientOrderType | ClientOrderType[];
+  breakdown?: ClientTypeBreakdown[];
   posicao: string;
   color?: string;
 }
@@ -27,10 +33,10 @@ const ClientCard = ({
   perc_participacao,
   faturamento,
   tipo_contrato,
+  breakdown = [],
   posicao,
   color = 'var(--gold)',
 }: ClientCardProps) => {
-  const isPodium = Number(posicao) <= 3;
   const tipos = tipo_contrato
     ? Array.isArray(tipo_contrato)
       ? tipo_contrato
@@ -40,27 +46,34 @@ const ClientCard = ({
   const typeColor =
     tipos.length > 0 ? (CLIENT_TYPE_COLORS[tipos[0]] ?? 'var(--foreground)') : color;
 
-  // Vários tipos de contrato agrupados no mesmo card: sinaliza com um degradê nas cores de cada tipo.
-  const compositeStyle: React.CSSProperties = isComposite
-    ? {
-        borderLeft: '3px solid transparent',
-        borderImage: `linear-gradient(180deg, ${tipos.map((t) => CLIENT_TYPE_COLORS[t]).join(', ')}) 1`,
-        background: `linear-gradient(90deg, ${tipos
-          .map(
-            (t, i) =>
-              `color-mix(in srgb, ${CLIENT_TYPE_COLORS[t]} ${isPodium ? 40 : 20}%, var(--card-bg-secondary)) ${
-                (i * 100) / (tipos.length - 1)
-              }%`
-          )
-          .join(', ')})`,
-      }
-    : {};
+  // Divide a linha inteira do card entre os tipos de contrato do cliente,
+  // proporcional ao faturamento de cada um — cores sólidas, sem degradê.
+  const totalBreakdown = breakdown.reduce((sum, b) => sum + b.valor, 0);
+  let acumulado = 0;
+  const segments = totalBreakdown
+    ? breakdown
+        .filter((b) => b.valor > 0)
+        .map((b) => {
+          const largura = (b.valor / totalBreakdown) * 100;
+          const inicio = acumulado;
+          acumulado += largura;
+          return { tipo: b.tipo, inicio, largura };
+        })
+    : [];
 
   return (
-    <div
-      className={`${styles.clientCard} ${isPodium ? styles.podium : ''}`}
-      style={{ '--row-color': typeColor, ...compositeStyle } as React.CSSProperties}
-    >
+    <div className={styles.clientCard} style={{ '--row-color': typeColor } as React.CSSProperties}>
+      {segments.map((s) => (
+        <div
+          key={s.tipo}
+          className={styles.typeSegment}
+          style={{
+            left: `${s.inicio}%`,
+            width: `${s.largura}%`,
+            background: CLIENT_TYPE_COLORS[s.tipo],
+          }}
+        />
+      ))}
       <div className={styles.clientRank}>
         <RankingBadge rank={Number(posicao)} />
         <Avatar name={cliente} border={color} size={38} />

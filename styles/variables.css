@@ -145,6 +145,14 @@
   --pink-light: #f9a8d4;
   --pink: #db2777;
 
+  /* Teal */
+  --teal-light: #5eead4;
+  --teal: #0d9488;
+
+  /* Fúcsia */
+  --fuchsia-light: #f0abfc;
+  --fuchsia: #c026d3;
+
   /* ---------- ELEVATION / SHADOWS ---------- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.12);
