@@ -14,11 +14,21 @@ const EXTENSAO_POR_MIME: Record<string, string> = {
 export const MIME_TYPES_PERMITIDOS = Object.keys(EXTENSAO_POR_MIME);
 export const TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024;
 
-// Bucket é privado — armazenamos só a key do objeto (não uma URL), e toda
-// exibição passa por uma URL assinada gerada na hora, com validade curta.
+// O bucket 'pessoas' também é lido pelo Organograma (sistema legado), que
+// guarda em photo_url o caminho do seu proxy de leitura autenticado, no
+// formato "/api/fotos/uploads/<uuid>.<ext>" — e não uma key de S3 pura.
+// Escrevemos nesse mesmo formato para que a foto cadastrada por um sistema
+// apareça no outro; fotos migradas de antes de qualquer um dos dois apps
+// seguem soltas em outras pastas (ex: "Setor/Cargo/nome.webp"), sem esse
+// prefixo, mas continuam servindo pois a normalização abaixo é condicional.
+const PREFIXO_PROXY_FOTOS = '/api/fotos/';
+
+// Bucket é privado — armazenamos o caminho do proxy (ou, para fotos antigas,
+// a key crua), e toda exibição passa por uma URL assinada gerada na hora,
+// com validade curta.
 export async function uploadFoto(bucket: S3Bucket, buffer: Buffer, mimeType: string): Promise<string> {
   const extensao = EXTENSAO_POR_MIME[mimeType] ?? 'jpg';
-  const key = `${randomUUID()}.${extensao}`;
+  const key = `uploads/${randomUUID()}.${extensao}`;
   await s3Client.send(
     new PutObjectCommand({
       Bucket: getBucketName(bucket),
@@ -27,17 +37,12 @@ export async function uploadFoto(bucket: S3Bucket, buffer: Buffer, mimeType: str
       ContentType: mimeType,
     })
   );
-  return key;
+  return `${PREFIXO_PROXY_FOTOS}${key}`;
 }
 
-// Funcionários migrados do sistema antigo guardam photo_url no formato
-// "/api/fotos/Setor/Cargo/nome.webp" (endpoint do sistema legado), mas a key
-// real do objeto no bucket é o path sem esse prefixo, ex: "Setor/Cargo/nome.webp".
-const PREFIXO_FOTO_LEGADO = '/api/fotos/';
-
 function normalizarKey(key: string): string {
-  if (!key.startsWith(PREFIXO_FOTO_LEGADO)) return key;
-  return decodeURIComponent(key.slice(PREFIXO_FOTO_LEGADO.length));
+  if (!key.startsWith(PREFIXO_PROXY_FOTOS)) return key;
+  return decodeURIComponent(key.slice(PREFIXO_PROXY_FOTOS.length));
 }
 
 export async function assinarUrlFoto(bucket: S3Bucket, key: string): Promise<string> {
@@ -46,5 +51,5 @@ export async function assinarUrlFoto(bucket: S3Bucket, key: string): Promise<str
 }
 
 export async function deletarFoto(bucket: S3Bucket, key: string): Promise<void> {
-  await s3Client.send(new DeleteObjectCommand({ Bucket: getBucketName(bucket), Key: key }));
+  await s3Client.send(new DeleteObjectCommand({ Bucket: getBucketName(bucket), Key: normalizarKey(key) }));
 }
