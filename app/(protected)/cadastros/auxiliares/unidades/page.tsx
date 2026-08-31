@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -427,22 +428,15 @@ export default function Unidades() {
               </Select>
             </FormControl>
             {form.tipo_unidade === 'filial' && (
-              <FormControl sx={{ flex: 1, minWidth: 220 }} required>
-                <InputLabel>Matriz</InputLabel>
-                <Select
-                  value={form.matriz_id}
-                  label="Matriz"
-                  onChange={(e) => setField('matriz_id', e.target.value)}
-                >
-                  {matrizes
-                    .filter((m) => m.id !== editingId)
-                    .map((m) => (
-                      <MenuItem key={m.id} value={m.id}>
-                        {m.nome_fantasia}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                sx={{ flex: 1, minWidth: 220 }}
+                options={matrizes.filter((m) => m.id !== editingId)}
+                getOptionLabel={(m) => m.nome_fantasia}
+                value={matrizes.find((m) => m.id === form.matriz_id) ?? null}
+                onChange={(_, v) => setField('matriz_id', v?.id ?? '')}
+                isOptionEqualToValue={(o, v) => o.id === v.id}
+                renderInput={(params) => <TextField {...params} label="Matriz" required />}
+              />
             )}
           </div>
           <div className={styles.formRow}>

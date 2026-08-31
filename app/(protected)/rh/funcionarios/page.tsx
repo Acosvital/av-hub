@@ -9,9 +9,9 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   CircularProgress,
   FormControl,
-  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -423,60 +423,42 @@ export default function Funcionarios() {
               value={nomeInput}
               onChange={(e) => setNomeInput(e.target.value)}
             />
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={unidadeFiltro}
-                label="Unidade"
-                onChange={(e) => {
-                  setUnidadeFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.nome_fantasia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={setorFiltro}
-                label="Setor"
-                onChange={(e) => {
-                  setSetorFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {setores.map((s) => (
-                  <MenuItem key={s.id} value={s.id}>
-                    {s.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Cargo</InputLabel>
-              <Select
-                value={cargoFiltro}
-                label="Cargo"
-                onChange={(e) => {
-                  setCargoFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {cargos.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>
-                    {c.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ minWidth: 200 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidades.find((u) => u.id === unidadeFiltro) ?? null}
+              onChange={(_, v) => {
+                setUnidadeFiltro(v?.id ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Unidade" />}
+            />
+            <Autocomplete
+              sx={{ minWidth: 200 }}
+              options={setores}
+              getOptionLabel={(s) => s.nome}
+              value={setores.find((s) => s.id === setorFiltro) ?? null}
+              onChange={(_, v) => {
+                setSetorFiltro(v?.id ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Setor" />}
+            />
+            <Autocomplete
+              sx={{ minWidth: 200 }}
+              options={cargos}
+              getOptionLabel={(c) => c.nome}
+              value={cargos.find((c) => c.id === cargoFiltro) ?? null}
+              onChange={(_, v) => {
+                setCargoFiltro(v?.id ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Cargo" />}
+            />
           </div>
           <div className={styles.cardButtons}>
             <Button variant="secondary" onClick={limparFiltros}>
@@ -618,56 +600,43 @@ export default function Funcionarios() {
           <p className={styles.sectionTitle}>Vínculo</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={form.codigo_empresa}
-                label="Unidade"
-                onChange={(e) => {
-                  setField('codigo_empresa', e.target.value);
-                  setField('id_setor', '');
-                  setField('id_cargo', '');
-                }}
-              >
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.nome_fantasia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required disabled={!form.codigo_empresa}>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={form.id_setor}
-                label="Setor"
-                onChange={(e) => {
-                  setField('id_setor', e.target.value);
-                  // As opções de "reporta a" são só do setor — muda o setor, some a escolha.
-                  setField('reporta_a_id', '');
-                }}
-              >
-                {setoresDoForm.map((s) => (
-                  <MenuItem key={s.id} value={s.id}>
-                    {s.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required disabled={!form.codigo_empresa}>
-              <InputLabel>Cargo</InputLabel>
-              <Select
-                value={form.id_cargo}
-                label="Cargo"
-                onChange={(e) => setField('id_cargo', e.target.value)}
-              >
-                {cargosDoForm.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>
-                    {c.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 200 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidades.find((u) => u.id === form.codigo_empresa) ?? null}
+              onChange={(_, v) => {
+                setField('codigo_empresa', v?.id ?? '');
+                setField('id_setor', '');
+                setField('id_cargo', '');
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Unidade" required />}
+            />
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 200 }}
+              options={setoresDoForm}
+              getOptionLabel={(s) => s.nome}
+              value={setoresDoForm.find((s) => s.id === form.id_setor) ?? null}
+              onChange={(_, v) => {
+                setField('id_setor', v?.id ?? '');
+                // As opções de "reporta a" são só do setor — muda o setor, some a escolha.
+                setField('reporta_a_id', '');
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              disabled={!form.codigo_empresa}
+              renderInput={(params) => <TextField {...params} label="Setor" required />}
+            />
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 200 }}
+              options={cargosDoForm}
+              getOptionLabel={(c) => c.nome}
+              value={cargosDoForm.find((c) => c.id === form.id_cargo) ?? null}
+              onChange={(_, v) => setField('id_cargo', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              disabled={!form.codigo_empresa}
+              renderInput={(params) => <TextField {...params} label="Cargo" required />}
+            />
             <TextField
               sx={{ flex: 1, minWidth: 220 }}
               label="E-mail"
@@ -680,25 +649,22 @@ export default function Funcionarios() {
           </div>
           {mostrarReportaA && (
             <div className={styles.formRow}>
-              <FormControl sx={{ flex: 1, minWidth: 260 }}>
-                <InputLabel>Reporta a</InputLabel>
-                <Select
-                  value={form.reporta_a_id}
-                  label="Reporta a"
-                  onChange={(e) => setField('reporta_a_id', e.target.value)}
-                >
-                  <MenuItem value="">— Automático pelo setor</MenuItem>
-                  {candidatosReportaAOrdenados.map((f) => (
-                    <MenuItem key={f.id} value={f.id}>
-                      {f.nome_completo} — {cargoLabel(f.id_cargo)}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText>
-                  Opcional. Se não escolher, o sistema define automaticamente com base no cargo
-                  dentro do setor.
-                </FormHelperText>
-              </FormControl>
+              <Autocomplete
+                sx={{ flex: 1, minWidth: 260 }}
+                options={candidatosReportaAOrdenados}
+                getOptionLabel={(f) => `${f.nome_completo} — ${cargoLabel(f.id_cargo)}`}
+                value={candidatosReportaAOrdenados.find((f) => f.id === form.reporta_a_id) ?? null}
+                onChange={(_, v) => setField('reporta_a_id', v?.id ?? '')}
+                isOptionEqualToValue={(o, v) => o.id === v.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Reporta a"
+                    placeholder="— Automático pelo setor"
+                    helperText="Opcional. Se não escolher, o sistema define automaticamente com base no cargo dentro do setor."
+                  />
+                )}
+              />
             </div>
           )}
           <div className={styles.formRow}>
