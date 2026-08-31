@@ -143,6 +143,42 @@ export const componentOverrides: Components<Theme> = {
       },
     },
   },
+  MuiAutocomplete: {
+    styleOverrides: {
+      popupIndicator: {
+        color: 'var(--foreground-secondary)',
+        '&:hover': {
+          color: 'var(--foreground)',
+          backgroundColor: 'color-mix(in srgb, var(--neutral-50) 10%, transparent)',
+        },
+      },
+      clearIndicator: {
+        color: 'var(--foreground-secondary)',
+        '&:hover': {
+          color: 'var(--foreground)',
+          backgroundColor: 'color-mix(in srgb, var(--neutral-50) 10%, transparent)',
+        },
+      },
+    },
+  },
+  MuiChip: {
+    styleOverrides: {
+      root: {
+        fontFamily: 'var(--font-sans)',
+      },
+      outlined: {
+        color: 'var(--foreground)',
+        borderColor: 'var(--border-strong)',
+        backgroundColor: 'var(--card-bg-secondary)',
+      },
+      deleteIcon: {
+        color: 'var(--foreground-secondary)',
+        '&:hover': {
+          color: 'var(--foreground)',
+        },
+      },
+    },
+  },
   MuiFormHelperText: {
     styleOverrides: {
       root: {
