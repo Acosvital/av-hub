@@ -40,6 +40,18 @@ export async function editarUsuario(id: string, data: object) {
   });
 }
 
+export async function getUsuarioUnidades(id: string) {
+  return apiFetch<{ unidades: string[] }>(`/api/usuarios/${id}/unidades`, 'Erro ao buscar unidades do usuário');
+}
+
+export async function editarUsuarioUnidades(id: string, unidades: string[]) {
+  return apiFetch(`/api/usuarios/${id}/unidades`, 'Erro ao atualizar unidades do usuário', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ unidades }),
+  });
+}
+
 export async function alterarSenha(id: string, data: { senha_atual: string; senha_nova: string }) {
   return apiFetch(`/api/usuarios/${id}`, 'Erro ao alterar senha', {
     method: 'PATCH',

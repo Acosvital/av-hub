@@ -28,9 +28,18 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
-import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/cadastros/acessos/usuarios';
+import {
+  getUsuarios,
+  criarUsuario,
+  editarUsuario,
+  deletarUsuario,
+  getUsuarioUnidades,
+  editarUsuarioUnidades,
+} from '@/services/cadastros/acessos/usuarios';
 import { getFuncionarios } from '@/services/rh/funcionarios';
 import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
+import { getUnidades } from '@/services/cadastros/auxiliares/unidades';
+import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/types';
 import { FormUsuario, UsuarioProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
@@ -57,6 +66,8 @@ export default function Usuarios() {
   const [rows, setRows] = useState<UsuarioProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [funcionarios, setFuncionarios] = useState<FuncionarioProps[]>([]);
+  const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
+  const [unidadesSelecionadas, setUnidadesSelecionadas] = useState<UnidadeProps[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
@@ -81,7 +92,16 @@ export default function Usuarios() {
         notify.error('Erro ao carregar funcionários');
       }
     }
+    async function loadUnidades() {
+      try {
+        const { unidades: lista } = await getUnidades({ limit: 500 });
+        setUnidades(lista ?? []);
+      } catch {
+        notify.error('Erro ao carregar unidades');
+      }
+    }
     loadFuncionarios();
+    loadUnidades();
   }, []);
 
   useEffect(() => {
@@ -118,10 +138,11 @@ export default function Usuarios() {
   const abrirCriacaoModal = () => {
     setEditingId(null);
     setForm(FORM_INICIAL);
+    setUnidadesSelecionadas([]);
     setIsModalOpen(true);
   };
 
-  const abrirEdicaoModal = (usuario: UsuarioProps) => {
+  const abrirEdicaoModal = async (usuario: UsuarioProps) => {
     setEditingId(usuario.id);
     setForm({
       username: usuario.username,
@@ -130,6 +151,15 @@ export default function Usuarios() {
       id_funcionario: usuario.id_funcionario ?? '',
       ativo: usuario.ativo,
     });
+
+    setUnidadesSelecionadas([]);
+    try {
+      const { unidades: idsVinculados } = await getUsuarioUnidades(usuario.id);
+      setUnidadesSelecionadas(unidades.filter((u) => idsVinculados.includes(u.id)));
+    } catch {
+      // best-effort — se falhar, o campo só volta vazio (sem restrição visível aqui)
+    }
+
     setIsModalOpen(true);
   };
 
@@ -163,12 +193,26 @@ export default function Usuarios() {
         payload.senha = form.senha;
       }
 
+      let novoId = editingId;
       if (editingId) {
         await editarUsuario(editingId, payload);
         notify.success('Usuário atualizado com sucesso');
       } else {
-        await criarUsuario(payload);
+        const criado = (await criarUsuario(payload)) as { id: string };
+        novoId = criado.id;
         notify.success('Usuário cadastrado com sucesso');
+      }
+
+      if (novoId) {
+        try {
+          await editarUsuarioUnidades(
+            novoId,
+            unidadesSelecionadas.map((u) => u.id)
+          );
+        } catch (err) {
+          console.error('Falha ao atualizar unidades do usuário', err);
+          notify.error('Usuário salvo, mas houve falha ao atualizar as unidades vinculadas');
+        }
       }
 
       setIsModalOpen(false);
@@ -391,6 +435,25 @@ export default function Usuarios() {
                   label="Funcionário vinculado"
                   placeholder="Busque por nome ou e-mail"
                   helperText="Sem funcionário vinculado, o usuário não visualiza a tela de Funcionários. Com o vínculo, o acesso é restrito ao setor do funcionário."
+                />
+              )}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <Autocomplete
+              multiple
+              sx={{ flex: 1, minWidth: 260 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidadesSelecionadas}
+              onChange={(_, v) => setUnidadesSelecionadas(v)}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Unidades"
+                  placeholder="Todas (sem restrição)"
+                  helperText="Restringe o que este usuário vê/gerencia às unidades selecionadas (matriz e/ou filiais). Sem seleção, o acesso é irrestrito por unidade."
                 />
               )}
             />
