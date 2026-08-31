@@ -31,3 +31,13 @@
   background-color: var(--default);
   color: var(--neutral-0);
 }
+
+@media (max-width: 768px) {
+  .default {
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    color: var(--foreground-secondary);
+    font-size: var(--fs-sm);
+  }
+}

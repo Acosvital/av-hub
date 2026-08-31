@@ -452,7 +452,7 @@ const VendasPorTipo = () => {
   const dashboardDetalhado = (
     <DashboardGrid>
       {/* Ranking Clientes */}
-      <DashboardWidget cols={6} rows={6}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking Clientes</h2>
@@ -506,7 +506,7 @@ const VendasPorTipo = () => {
         </div>
       </DashboardWidget>
       {/* Faturamento Mensal */}
-      <DashboardWidget cols={6} rows={3}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
         <div className={styles.defaultCard}>
           <h3>Faturamento Mensal</h3>
           <svg width="0" height="0" style={{ position: 'absolute' }}>
@@ -612,7 +612,7 @@ const VendasPorTipo = () => {
         </div>
       </DashboardWidget>
       {/* Faturamento por tipo */}
-      <DashboardWidget cols={3} rows={3}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
           <div className={styles.pieWrapper}>
             <div className={styles.pieTotal}>
@@ -666,7 +666,7 @@ const VendasPorTipo = () => {
         </div>
       </DashboardWidget>
       {/* Situação */}
-      <DashboardWidget cols={3} rows={3}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         <div className={styles.defaultCard}>
           <h3>Situação</h3>
           <div className={styles.situationGroup}>

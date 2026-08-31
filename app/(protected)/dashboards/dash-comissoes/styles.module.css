@@ -36,3 +36,11 @@
   font-weight: var(--w-bold);
   font-variant-numeric: tabular-nums;
 }
+
+@media screen and (max-width: 768px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+  }
+}

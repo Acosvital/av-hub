@@ -136,7 +136,9 @@
   .datePickerMenu {
     position: absolute;
     top: 125%;
-    right: -150;
+    right: -150px;
     z-index: 50;
+    max-width: calc(100vw - var(--space-4) * 2);
+    overflow-x: auto;
   }
 }
