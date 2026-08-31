@@ -368,3 +368,11 @@
     min-height: 320px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .situationGroup {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+  }
+}

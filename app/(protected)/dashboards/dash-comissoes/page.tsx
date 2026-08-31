@@ -146,13 +146,13 @@ export default function Comissoes() {
 
   const skeleton = (
     <DashboardGrid>
-      <DashboardWidget cols={4} rows={2} tabletCols={12} mobileOrder={1} tabletOrder={1}>
+      <DashboardWidget cols={4} rows={2} tabletCols={12} mobileOrder={2} tabletOrder={2}>
         {skeletonWidget}
       </DashboardWidget>
       <DashboardWidget cols={8} rows={6} tabletCols={12} mobileOrder={3} tabletOrder={3}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={4} rows={4} tabletCols={12} mobileOrder={2} tabletOrder={2}>
+      <DashboardWidget cols={4} rows={4} tabletCols={12} mobileOrder={1} tabletOrder={1}>
         {skeletonWidget}
       </DashboardWidget>
     </DashboardGrid>
@@ -165,7 +165,7 @@ export default function Comissoes() {
   return (
     <div className={styles.dashboardContainer}>
       <DashboardGrid>
-        <DashboardWidget cols={4} rows={2} tabletCols={12} mobileOrder={1} tabletOrder={1}>
+        <DashboardWidget cols={4} rows={2} tabletCols={12} mobileOrder={2} tabletOrder={2}>
           <div className={styles.kpiGrid}>
             {kpiCards.map((kpi) => (
               <div key={kpi.label} className={styles.kpiCard}>
@@ -184,7 +184,7 @@ export default function Comissoes() {
             onRowClick={setSelectedVendor}
           />
         </DashboardWidget>
-        <DashboardWidget cols={4} rows={4} tabletCols={12} mobileOrder={2} tabletOrder={2}>
+        <DashboardWidget cols={4} rows={4} tabletCols={12} mobileOrder={1} tabletOrder={1}>
           <CommissionDonutChart data={donutData} total={total} />
         </DashboardWidget>
       </DashboardGrid>

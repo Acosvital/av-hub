@@ -104,6 +104,27 @@
   white-space: nowrap;
 }
 
+.vendorDetailsMobile {
+  display: none;
+}
+
+.vendorDetailItem {
+  white-space: nowrap;
+}
+
+.vendorDetailLabel {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  color: var(--foreground-secondary);
+  letter-spacing: -0.02em;
+}
+
+.vendorDetailValue {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+}
+
 @media (max-width: 768px) {
   .vendorCard {
     min-height: unset;
@@ -114,7 +135,6 @@
   }
 
   .vendorRank {
-    zoom: 0.75;
     flex-shrink: 0;
     padding-top: var(--space-1);
     align-self: center;
@@ -126,31 +146,24 @@
   }
 
   .vendorName {
-    font-size: var(--fs-md);
+    font-size: var(--fs-xs);
     white-space: normal;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow-wrap: break-word;
   }
 
   .vendorDetails {
-    gap: var(--space-2);
-    flex-wrap: nowrap;
-    margin-top: var(--space-1);
-  }
-
-  .vendorInfo {
-    font-size: var(--fs-sm);
-    white-space: nowrap;
+    display: none;
   }
 
   .vendorTotal {
-    font-size: var(--fs-sm);
-    font-weight: var(--w-black);
-    flex: unset;
-    flex-shrink: 0;
-    align-self: flex-start;
-    white-space: nowrap;
-    text-align: end;
+    display: none;
+  }
+
+  .vendorDetailsMobile {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    column-gap: var(--space-4);
+    row-gap: 2px;
+    margin-top: var(--space-1);
   }
 }

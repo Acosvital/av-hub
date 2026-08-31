@@ -30,8 +30,18 @@ export async function uploadFoto(bucket: S3Bucket, buffer: Buffer, mimeType: str
   return key;
 }
 
+// Funcionários migrados do sistema antigo guardam photo_url no formato
+// "/api/fotos/Setor/Cargo/nome.webp" (endpoint do sistema legado), mas a key
+// real do objeto no bucket é o path sem esse prefixo, ex: "Setor/Cargo/nome.webp".
+const PREFIXO_FOTO_LEGADO = '/api/fotos/';
+
+function normalizarKey(key: string): string {
+  if (!key.startsWith(PREFIXO_FOTO_LEGADO)) return key;
+  return decodeURIComponent(key.slice(PREFIXO_FOTO_LEGADO.length));
+}
+
 export async function assinarUrlFoto(bucket: S3Bucket, key: string): Promise<string> {
-  const command = new GetObjectCommand({ Bucket: getBucketName(bucket), Key: key });
+  const command = new GetObjectCommand({ Bucket: getBucketName(bucket), Key: normalizarKey(key) });
   return getSignedUrl(s3Client, command, { expiresIn: URL_ASSINADA_TTL_SEGUNDOS });
 }
 

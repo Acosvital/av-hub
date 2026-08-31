@@ -411,7 +411,7 @@ export default function FaturamentoPorTipo() {
   const faturamentoDetalhado = (
     <DashboardGrid>
       {/* Faturamento Mensal */}
-      <DashboardWidget cols={6} rows={3}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
         <div className={styles.defaultCard}>
           <h3>Faturamento Mensal</h3>
           <svg width="0" height="0" style={{ position: 'absolute' }}>
@@ -517,7 +517,7 @@ export default function FaturamentoPorTipo() {
         </div>
       </DashboardWidget>
       {/* Ranking Clientes */}
-      <DashboardWidget cols={6} rows={6}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking Clientes</h2>
@@ -572,7 +572,7 @@ export default function FaturamentoPorTipo() {
         </div>
       </DashboardWidget>
       {/* Situação */}
-      <DashboardWidget cols={3} rows={3}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         <div className={styles.defaultCard}>
           <h3>Situação</h3>
           <div className={styles.situationGroup}>
@@ -595,7 +595,7 @@ export default function FaturamentoPorTipo() {
         </div>
       </DashboardWidget>
       {/* Faturamento por tipo */}
-      <DashboardWidget cols={3} rows={3}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         <div className={styles.defaultCard} style={{ backgroundColor: 'transparent' }}>
           <div className={styles.pieWrapper}>
             <div className={styles.pieTotal}>
@@ -603,6 +603,7 @@ export default function FaturamentoPorTipo() {
               <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
             </div>
             <PieChart
+              height={isMobile ? 260 : undefined}
               series={[
                 {
                   innerRadius: 50,
@@ -629,6 +630,9 @@ export default function FaturamentoPorTipo() {
                 },
               }}
               sx={{
+                flex: 1,
+                minHeight: 0,
+                width: '100%',
                 '& .MuiChartsArcLabel-root': {
                   fill: 'var(--navy-950)',
                   fontFamily: 'var(--font-sans)',
@@ -643,8 +647,6 @@ export default function FaturamentoPorTipo() {
                 },
                 gap: '3rem',
               }}
-              width={200}
-              height={200}
             />
           </div>
         </div>
