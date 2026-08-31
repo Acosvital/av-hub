@@ -6,6 +6,7 @@ interface GetFuncionariosParams {
   page?: number;
   limit?: number;
   nome_completo?: string;
+  email?: string;
   codigo_empresa?: string;
   id_setor?: string;
   id_cargo?: string;
@@ -20,6 +21,7 @@ export async function getFuncionarios(params: GetFuncionariosParams = {}) {
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome_completo) query.set('nome_completo', params.nome_completo);
+  if (params.email) query.set('email', params.email);
   if (params.codigo_empresa) query.set('codigo_empresa', params.codigo_empresa);
   if (params.id_setor) query.set('id_setor', params.id_setor);
   if (params.id_cargo) query.set('id_cargo', params.id_cargo);

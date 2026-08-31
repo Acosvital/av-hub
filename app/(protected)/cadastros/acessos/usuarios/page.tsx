@@ -13,6 +13,7 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -28,6 +29,8 @@ import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent'
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getUsuarios, criarUsuario, editarUsuario, deletarUsuario } from '@/services/cadastros/acessos/usuarios';
+import { getFuncionarios } from '@/services/rh/funcionarios';
+import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
 import { FormUsuario, UsuarioProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
@@ -53,6 +56,7 @@ export default function Usuarios() {
 
   const [rows, setRows] = useState<UsuarioProps[]>([]);
   const [rowCount, setRowCount] = useState(0);
+  const [funcionarios, setFuncionarios] = useState<FuncionarioProps[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
@@ -67,6 +71,18 @@ export default function Usuarios() {
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
+
+  useEffect(() => {
+    async function loadFuncionarios() {
+      try {
+        const { funcionarios: lista } = await getFuncionarios({ limit: 500 });
+        setFuncionarios(lista ?? []);
+      } catch {
+        notify.error('Erro ao carregar funcionários');
+      }
+    }
+    loadFuncionarios();
+  }, []);
 
   useEffect(() => {
     async function fetchUsuarios() {
@@ -362,14 +378,25 @@ export default function Usuarios() {
           <p className={styles.sectionTitle}>Vínculos</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label="ID do Funcionário"
-              value={form.id_funcionario}
-              onChange={(e) => setField('id_funcionario', e.target.value)}
-              helperText="UUID do funcionário vinculado — opcional"
-              slotProps={{ htmlInput: { pattern: '[0-9a-fA-F-]{36}' } }}
-            />
+            <FormControl sx={{ flex: 1, minWidth: 260 }}>
+              <InputLabel>Funcionário vinculado</InputLabel>
+              <Select
+                value={form.id_funcionario}
+                label="Funcionário vinculado"
+                onChange={(e) => setField('id_funcionario', e.target.value)}
+              >
+                <MenuItem value="">Nenhum</MenuItem>
+                {funcionarios.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>
+                    {f.nome_completo} {f.email ? `— ${f.email}` : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                Sem funcionário vinculado, o usuário não visualiza a tela de Funcionários.
+                Com o vínculo, o acesso é restrito ao setor do funcionário.
+              </FormHelperText>
+            </FormControl>
           </div>
 
           {/* Configuração */}
