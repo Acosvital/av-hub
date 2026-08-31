@@ -127,7 +127,7 @@ export default function PhotoUpload({
             closeAfterSave
             savingPixelRatio={1}
             previewPixelRatio={1}
-            Crop={{ ratio: shape === 'circle' ? 1 : 16 / 9 }}
+            Crop={{ ratio: shape === 'circle' ? 1 : 16 / 9, noPresets: true }}
             defaultSavedImageType="jpeg"
           />
         </div>
