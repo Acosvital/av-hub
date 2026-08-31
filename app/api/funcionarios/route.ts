@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { comEscopoUnidade } from '@/lib/api/escopoUnidade';
+import { assinarUrlFoto } from '@/lib/s3/fotos';
+import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +13,7 @@ export async function GET(request: NextRequest) {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });
-    const data = await apiFetch(
+    const data = await apiFetch<{ funcionarios: FuncionarioProps[]; total: number }>(
       await comEscopoUnidade(`${process.env.API_URL}/funcionarios?${params}`),
       'Erro ao buscar funcionários',
       {
@@ -19,7 +21,17 @@ export async function GET(request: NextRequest) {
         cache: 'no-store',
       }
     );
-    return NextResponse.json(data);
+
+    // photo_url guarda a key do objeto no S3 (bucket privado) — resolve pra
+    // URL assinada aqui, sem alterar o valor que será regravado no PUT/POST.
+    const funcionarios = await Promise.all(
+      (data.funcionarios ?? []).map(async (funcionario) => ({
+        ...funcionario,
+        photo_signed_url: funcionario.photo_url ? await assinarUrlFoto('pessoas', funcionario.photo_url) : null,
+      }))
+    );
+
+    return NextResponse.json({ ...data, funcionarios });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

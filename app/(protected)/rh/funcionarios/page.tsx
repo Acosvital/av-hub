@@ -49,6 +49,7 @@ import { FormFuncionario, FuncionarioProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import PhotoUpload from '@/components/Ui/PhotoUpload/PhotoUpload';
 import { UFS } from '@/utils/consts';
 
 const FORM_INICIAL: FormFuncionario = {
@@ -117,6 +118,7 @@ export default function Funcionarios() {
   const [cargoFiltro, setCargoFiltro] = useState('');
 
   const [form, setForm] = useState<FormFuncionario>(FORM_INICIAL);
+  const [fotoPreviewUrl, setFotoPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -230,12 +232,14 @@ export default function Funcionarios() {
     setOriginal(null);
     setReportaAOriginal('');
     setForm(FORM_INICIAL);
+    setFotoPreviewUrl(null);
     setIsModalOpen(true);
   };
 
   const abrirEdicaoModal = async (funcionario: FuncionarioProps) => {
     setEditingId(funcionario.id);
     setOriginal({ id_cargo: funcionario.id_cargo, id_setor: funcionario.id_setor });
+    setFotoPreviewUrl(funcionario.photo_signed_url ?? null);
 
     // O nó só conta como "reporta a" manual quando aponta pra uma pessoa —
     // se aponta pro próprio setor, é o resultado do cálculo automático.
@@ -503,7 +507,17 @@ export default function Funcionarios() {
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
                       sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
-                      <TableCell>{row.nome_completo}</TableCell>
+                      <TableCell>
+                        <div className={styles.avatarCell}>
+                          {row.photo_signed_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={row.photo_signed_url} alt="" className={styles.avatarThumb} />
+                          ) : (
+                            <div className={styles.avatarThumbPlaceholder} />
+                          )}
+                          {row.nome_completo}
+                        </div>
+                      </TableCell>
                       <TableCell>{row.email ?? '—'}</TableCell>
                       <TableCell>{cargoLabel(row.id_cargo)}</TableCell>
                       <TableCell>{setorLabel(row.id_setor)}</TableCell>
@@ -549,6 +563,17 @@ export default function Funcionarios() {
           <p className={styles.sectionTitle}>Dados Pessoais</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
+            <PhotoUpload
+              label="Foto"
+              bucket="pessoas"
+              previewUrl={fotoPreviewUrl}
+              onChange={(key, url) => {
+                setField('photo_url', key);
+                setFotoPreviewUrl(url);
+              }}
+            />
+          </div>
+          <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 260 }}
               label="Nome Completo"
@@ -586,13 +611,6 @@ export default function Funcionarios() {
               value={form.cnpj}
               onChange={(e) => setField('cnpj', e.target.value)}
               helperText="Opcional — para contrato PJ"
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="URL da Foto"
-              value={form.photo_url}
-              onChange={(e) => setField('photo_url', e.target.value)}
-              helperText="Opcional"
             />
           </div>
 

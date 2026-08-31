@@ -36,6 +36,7 @@ import { FormUnidade, TIPOS_UNIDADE, UnidadeProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import PhotoUpload from '@/components/Ui/PhotoUpload/PhotoUpload';
 import { UFS } from '@/utils/consts';
 
 const FORM_INICIAL: FormUnidade = {
@@ -44,6 +45,7 @@ const FORM_INICIAL: FormUnidade = {
   nome_fantasia: '',
   tipo_unidade: 'matriz',
   matriz_id: '',
+  foto_url: '',
   nome_contato: '',
   email: '',
   telefone: '',
@@ -87,6 +89,7 @@ export default function Unidades() {
   const [tipoFiltro, setTipoFiltro] = useState('');
 
   const [form, setForm] = useState<FormUnidade>(FORM_INICIAL);
+  const [fotoPreviewUrl, setFotoPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -142,17 +145,20 @@ export default function Unidades() {
   const abrirCriacaoModal = () => {
     setEditingId(null);
     setForm(FORM_INICIAL);
+    setFotoPreviewUrl(null);
     setIsModalOpen(true);
   };
 
   const abrirEdicaoModal = (unidade: UnidadeProps) => {
     setEditingId(unidade.id);
+    setFotoPreviewUrl(unidade.foto_signed_url ?? null);
     setForm({
       cnpj: unidade.cnpj,
       razao_social: unidade.razao_social,
       nome_fantasia: unidade.nome_fantasia,
       tipo_unidade: unidade.tipo_unidade,
       matriz_id: unidade.matriz_id ?? '',
+      foto_url: unidade.foto_url ?? '',
       nome_contato: unidade.nome_contato ?? '',
       email: unidade.email ?? '',
       telefone: unidade.telefone ?? '',
@@ -215,6 +221,7 @@ export default function Unidades() {
         razao_social: form.razao_social.trim(),
         tipo_unidade: form.tipo_unidade,
         matriz_id: form.tipo_unidade === 'filial' ? form.matriz_id || null : null,
+        foto_url: form.foto_url || null,
         nome_contato: form.nome_contato.trim(),
         email: form.email.trim(),
         telefone: form.telefone.trim(),
@@ -354,7 +361,17 @@ export default function Unidades() {
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
                       sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
-                      <TableCell>{row.nome_fantasia}</TableCell>
+                      <TableCell>
+                        <div className={styles.avatarCell}>
+                          {row.foto_signed_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={row.foto_signed_url} alt="" className={styles.avatarThumb} />
+                          ) : (
+                            <div className={styles.avatarThumbPlaceholder} />
+                          )}
+                          {row.nome_fantasia}
+                        </div>
+                      </TableCell>
                       <TableCell>{row.cnpj ? row.cnpj : '—'}</TableCell>
                       <TableCell>
                         <Chip
@@ -404,6 +421,18 @@ export default function Unidades() {
           {/* Identificação */}
           <p className={styles.sectionTitle}>Identificação</p>
           <hr className={styles.divider} />
+          <div className={styles.formRow}>
+            <PhotoUpload
+              label="Foto/Logo"
+              bucket="empresa"
+              shape="rounded"
+              previewUrl={fotoPreviewUrl}
+              onChange={(key, url) => {
+                setField('foto_url', key);
+                setFotoPreviewUrl(url);
+              }}
+            />
+          </div>
           <div className={styles.formRow}>
             <TextField
               sx={{ flex: 1, minWidth: 200 }}
