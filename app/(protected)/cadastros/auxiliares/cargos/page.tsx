@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -217,24 +218,18 @@ export default function Cargos() {
               value={nomeInput}
               onChange={(e) => setNomeInput(e.target.value)}
             />
-            <FormControl sx={{ minWidth: 220 }}>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={unidadeFiltro}
-                label="Unidade"
-                onChange={(e) => {
-                  setUnidadeFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.nome_fantasia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ minWidth: 220 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidades.find((u) => u.id === unidadeFiltro) ?? null}
+              onChange={(_, v) => {
+                setUnidadeFiltro(v?.id ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Unidade" />}
+            />
             <FormControl sx={{ minWidth: 160 }}>
               <InputLabel>Status</InputLabel>
               <Select
@@ -340,20 +335,15 @@ export default function Cargos() {
           <p className={styles.sectionTitle}>Identificação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 220 }} required>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={form.codigo_empresa}
-                label="Unidade"
-                onChange={(e) => setField('codigo_empresa', e.target.value)}
-              >
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.nome_fantasia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 220 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidades.find((u) => u.id === form.codigo_empresa) ?? null}
+              onChange={(_, v) => setField('codigo_empresa', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Unidade" required />}
+            />
             <FormControl sx={{ minWidth: 220 }} required>
               <InputLabel>Nível Hierárquico</InputLabel>
               <Select

@@ -12,6 +12,7 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -334,21 +335,16 @@ const SolicitacoesDeVagas = () => {
               value={solicitanteInput}
               onChange={(e) => setSolicitanteInput(e.target.value)}
             />
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={setorFiltro}
-                label="Setor"
-                onChange={(e) => setSetorFiltro(e.target.value)}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {setores.map((f) => (
-                  <MenuItem key={f.id} value={f.id}>
-                    {f.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              size="small"
+              sx={{ minWidth: 160 }}
+              options={setores}
+              getOptionLabel={(f) => f.nome}
+              value={setores.find((f) => f.id === setorFiltro) ?? null}
+              onChange={(_, v) => setSetorFiltro(v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Setor" />}
+            />
             <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel>Situação</InputLabel>
               <Select
@@ -564,21 +560,16 @@ const SolicitacoesDeVagas = () => {
               value={form.solicitante}
               onChange={(e) => setField('solicitante', e.target.value)}
             />
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={form.id_setor}
-                label="Setor"
-                disabled={canOnly('pode_editar', 'pode_visualizar')}
-                onChange={(e) => setField('id_setor', e.target.value)}
-              >
-                {setores.map((f) => (
-                  <MenuItem key={f.id} value={f.id}>
-                    {f.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 200 }}
+              options={setores}
+              getOptionLabel={(f) => f.nome}
+              value={setores.find((f) => f.id === form.id_setor) ?? null}
+              disabled={canOnly('pode_editar', 'pode_visualizar')}
+              onChange={(_, v) => setField('id_setor', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Setor" required />}
+            />
           </div>
 
           <p className={styles.sectionTitle}>Vaga</p>

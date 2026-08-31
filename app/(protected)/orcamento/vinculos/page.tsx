@@ -10,6 +10,7 @@ import {
   TableRow,
   TablePagination,
   TextField,
+  Autocomplete,
   FormControl,
   InputLabel,
   Select,
@@ -115,22 +116,15 @@ export default function Vinculos() {
       <PageContent>
         <Card height="fit" title="Filtrar vínculos">
           <div className={styles.inputContainers}>
-            <FormControl sx={{ flex: 1, minWidth: 240 }}>
-              <InputLabel id="categoria-filtro">Categoria</InputLabel>
-              <Select
-                labelId="categoria-filtro"
-                label="Categoria"
-                value={categoriaSelecionada}
-                onChange={(e) => setCategoriaSelecionada(e.target.value)}
-              >
-                <MenuItem value="">Todas as categorias</MenuItem>
-                {categorias.map((categoria) => (
-                  <MenuItem key={categoria} value={categoria}>
-                    {categoria}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 240 }}
+              options={categorias}
+              value={categoriaSelecionada || null}
+              onChange={(_, v) => setCategoriaSelecionada(v ?? '')}
+              renderInput={(params) => (
+                <TextField {...params} label="Categoria" placeholder="Todas as categorias" />
+              )}
+            />
             <FormControl sx={{ flex: 1, minWidth: 200 }}>
               <InputLabel id="status-filtro">Status</InputLabel>
               <Select
@@ -229,21 +223,13 @@ export default function Vinculos() {
       </PageContent>
       <Modal title="Novo Vínculo" isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <div className={styles.modalContent}>
-          <FormControl fullWidth>
-            <InputLabel id="nova-categoria">Categoria</InputLabel>
-            <Select
-              labelId="nova-categoria"
-              label="Categoria"
-              value={novaCategoria}
-              onChange={(e) => setNovaCategoria(e.target.value)}
-            >
-              {categorias.map((categoria) => (
-                <MenuItem key={categoria} value={categoria}>
-                  {categoria}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            fullWidth
+            options={categorias}
+            value={novaCategoria || null}
+            onChange={(_, v) => setNovaCategoria(v ?? '')}
+            renderInput={(params) => <TextField {...params} label="Categoria" />}
+          />
           <TextField
             label="Fornecedor"
             variant="outlined"

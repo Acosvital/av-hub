@@ -8,15 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {
-  Chip,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, Chip, CircularProgress, TextField } from '@mui/material';
 import styles from './styles.module.css';
 import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
@@ -152,42 +144,30 @@ export default function PedidosVenda() {
               value={clienteInput}
               onChange={(e) => setClienteInput(e.target.value)}
             />
-            <FormControl sx={{ minWidth: 220 }}>
-              <InputLabel>Vendedor</InputLabel>
-              <Select
-                value={vendedorFiltro}
-                label="Vendedor"
-                onChange={(e) => {
-                  setVendedorFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {vendedores.map((v) => (
-                  <MenuItem key={v.codigo_vendedor_omie} value={v.codigo_vendedor_omie}>
-                    {v.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: 220 }}>
-              <InputLabel>Unidade</InputLabel>
-              <Select
-                value={empresaFiltro}
-                label="Unidade"
-                onChange={(e) => {
-                  setEmpresaFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {unidades.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.nome_fantasia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ minWidth: 220 }}
+              options={vendedores}
+              getOptionLabel={(v) => v.nome}
+              value={vendedores.find((v) => v.codigo_vendedor_omie === vendedorFiltro) ?? null}
+              onChange={(_, v) => {
+                setVendedorFiltro(v?.codigo_vendedor_omie ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.codigo_vendedor_omie === v.codigo_vendedor_omie}
+              renderInput={(params) => <TextField {...params} label="Vendedor" />}
+            />
+            <Autocomplete
+              sx={{ minWidth: 220 }}
+              options={unidades}
+              getOptionLabel={(u) => u.nome_fantasia}
+              value={unidades.find((u) => u.id === empresaFiltro) ?? null}
+              onChange={(_, v) => {
+                setEmpresaFiltro(v?.id ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Unidade" />}
+            />
           </div>
           <div className={styles.cardButtons}>
             <Button variant="secondary" onClick={limparFiltros}>

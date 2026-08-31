@@ -10,10 +10,7 @@ import {
   TableRow,
   TablePagination,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Autocomplete,
   CircularProgress,
 } from '@mui/material';
 import styles from './styles.module.css';
@@ -93,22 +90,15 @@ export default function SemCadastro() {
         </div>
         <Card height="fit" title="Filtrar">
           <div className={styles.inputContainers}>
-            <FormControl sx={{ flex: 1, minWidth: 240 }}>
-              <InputLabel id="categoria-filtro">Categoria</InputLabel>
-              <Select
-                labelId="categoria-filtro"
-                label="Categoria"
-                value={categoriaSelecionada}
-                onChange={(e) => setCategoriaSelecionada(e.target.value)}
-              >
-                <MenuItem value="">Todas as categorias</MenuItem>
-                {categorias.map((categoria) => (
-                  <MenuItem key={categoria} value={categoria}>
-                    {categoria}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 240 }}
+              options={categorias}
+              value={categoriaSelecionada || null}
+              onChange={(_, v) => setCategoriaSelecionada(v ?? '')}
+              renderInput={(params) => (
+                <TextField {...params} label="Categoria" placeholder="Todas as categorias" />
+              )}
+            />
             <TextField
               sx={{ flex: 1, minWidth: 300 }}
               label="Buscar fornecedor"
