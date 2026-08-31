@@ -9,11 +9,11 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
   FormControlLabel,
-  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -378,25 +378,22 @@ export default function Usuarios() {
           <p className={styles.sectionTitle}>Vínculos</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 260 }}>
-              <InputLabel>Funcionário vinculado</InputLabel>
-              <Select
-                value={form.id_funcionario}
-                label="Funcionário vinculado"
-                onChange={(e) => setField('id_funcionario', e.target.value)}
-              >
-                <MenuItem value="">Nenhum</MenuItem>
-                {funcionarios.map((f) => (
-                  <MenuItem key={f.id} value={f.id}>
-                    {f.nome_completo} {f.email ? `— ${f.email}` : ''}
-                  </MenuItem>
-                ))}
-              </Select>
-              <FormHelperText>
-                Sem funcionário vinculado, o usuário não visualiza a tela de Funcionários.
-                Com o vínculo, o acesso é restrito ao setor do funcionário.
-              </FormHelperText>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 260 }}
+              options={funcionarios}
+              getOptionLabel={(f) => `${f.nome_completo}${f.email ? ` — ${f.email}` : ''}`}
+              value={funcionarios.find((f) => f.id === form.id_funcionario) ?? null}
+              onChange={(_, v) => setField('id_funcionario', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Funcionário vinculado"
+                  placeholder="Busque por nome ou e-mail"
+                  helperText="Sem funcionário vinculado, o usuário não visualiza a tela de Funcionários. Com o vínculo, o acesso é restrito ao setor do funcionário."
+                />
+              )}
+            />
           </div>
 
           {/* Configuração */}

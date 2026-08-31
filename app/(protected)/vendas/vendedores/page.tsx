@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -429,21 +430,15 @@ export default function Vendedores() {
               onChange={(e) => setField('ajuda_custo', e.target.value)}
               helperText="Opcional — valor em R$"
             />
-            <FormControl sx={{ flex: 1, minWidth: 220 }}>
-              <InputLabel>Usuário Vinculado</InputLabel>
-              <Select
-                value={form.id_usuario}
-                label="Usuário Vinculado"
-                onChange={(e) => setField('id_usuario', e.target.value)}
-              >
-                <MenuItem value="">Nenhum</MenuItem>
-                {usuarios.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.username}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 220 }}
+              options={usuarios}
+              getOptionLabel={(u) => u.username}
+              value={usuarios.find((u) => u.id === form.id_usuario) ?? null}
+              onChange={(_, v) => setField('id_usuario', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => <TextField {...params} label="Usuário Vinculado" />}
+            />
           </div>
 
           <hr className={styles.divider} />

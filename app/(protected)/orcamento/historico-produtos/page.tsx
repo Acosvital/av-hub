@@ -11,15 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import * as XLSX from 'xlsx';
 import styles from './styles.module.css';
 import Card from '@/components/Ui/Card/Card';
-import {
-  Autocomplete,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import AppLineChart from '@/components/Charts/AppLineChart/AppLineChart';
@@ -190,26 +182,18 @@ export default function CatalogoDeProdutos() {
                 setDescricaoInput(e.target.value);
               }}
             />
-            <FormControl sx={{ flex: 1, minWidth: 300 }}>
-              <InputLabel id="familia-produto">Família de Produtos</InputLabel>
-              <Select
-                labelId="familia-produto"
-                id="demo-simple-select"
-                value={familiaProdutosSelected}
-                label="FamiliaProdutos"
-                onChange={(e) => {
-                  setFamiliaProdutosSelected(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value=""> </MenuItem>
-                {familiaProdutos.map((familia, index) => (
-                  <MenuItem key={index} value={familia.nome}>
-                    {familia.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 300 }}
+              options={familiaProdutos}
+              getOptionLabel={(familia) => familia.nome}
+              value={familiaProdutos.find((f) => f.nome === familiaProdutosSelected) ?? null}
+              onChange={(_, v) => {
+                setFamiliaProdutosSelected(v?.nome ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.nome === v.nome}
+              renderInput={(params) => <TextField {...params} label="Família de Produtos" />}
+            />
             <Autocomplete
               sx={{ flex: 1, minWidth: 300 }}
               disablePortal

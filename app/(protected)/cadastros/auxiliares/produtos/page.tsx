@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Autocomplete,
   Chip,
   CircularProgress,
   FormControl,
@@ -257,24 +258,18 @@ export default function Produtos() {
               value={descricaoInput}
               onChange={(e) => setDescricaoInput(e.target.value)}
             />
-            <FormControl sx={{ minWidth: 220 }}>
-              <InputLabel>Família</InputLabel>
-              <Select
-                value={familiaFiltro}
-                label="Família"
-                onChange={(e) => {
-                  setFamiliaFiltro(e.target.value);
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {familias.map((f) => (
-                  <MenuItem key={f.codigo_fprodutos} value={f.codigo_fprodutos}>
-                    {f.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ minWidth: 220 }}
+              options={familias}
+              getOptionLabel={(f) => f.nome}
+              value={familias.find((f) => f.codigo_fprodutos === familiaFiltro) ?? null}
+              onChange={(_, v) => {
+                setFamiliaFiltro(v?.codigo_fprodutos ?? '');
+                setPage(0);
+              }}
+              isOptionEqualToValue={(o, v) => o.codigo_fprodutos === v.codigo_fprodutos}
+              renderInput={(params) => <TextField {...params} label="Família" />}
+            />
             <FormControl sx={{ minWidth: 200 }}>
               <InputLabel>Status</InputLabel>
               <Select
@@ -416,20 +411,15 @@ export default function Produtos() {
           <p className={styles.sectionTitle}>Classificação</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
-            <FormControl sx={{ flex: 1, minWidth: 200 }} required>
-              <InputLabel>Família de Produtos</InputLabel>
-              <Select
-                value={form.familias_produtos}
-                label="Família de Produtos"
-                onChange={(e) => setField('familias_produtos', e.target.value)}
-              >
-                {familias.map((f) => (
-                  <MenuItem key={f.codigo_fprodutos} value={f.codigo_fprodutos}>
-                    {f.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 200 }}
+              options={familias}
+              getOptionLabel={(f) => f.nome}
+              value={familias.find((f) => f.codigo_fprodutos === form.familias_produtos) ?? null}
+              onChange={(_, v) => setField('familias_produtos', v?.codigo_fprodutos ?? '')}
+              isOptionEqualToValue={(o, v) => o.codigo_fprodutos === v.codigo_fprodutos}
+              renderInput={(params) => <TextField {...params} label="Família de Produtos" required />}
+            />
             <TextField
               sx={{ minWidth: 110 }}
               label="Unid. Medida"
