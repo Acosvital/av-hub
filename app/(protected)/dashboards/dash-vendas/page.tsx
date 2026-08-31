@@ -243,19 +243,19 @@ const Vendas = () => {
 
   const skeleton = (
     <DashboardGrid>
-      <DashboardWidget cols={6} rows={3} tabletCols={12}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={6} tabletCols={12}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={2}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={3}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+      <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4}>
         {skeletonWidget}
       </DashboardWidget>
     </DashboardGrid>

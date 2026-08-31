@@ -78,6 +78,29 @@ const VendorCard = ({
           <span className={styles.vendorInfo}>·</span>
           <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
         </div>
+        {/* Grade "rótulo: valor" — usada só no layout mobile (ver @media em VendorCard.module.css) */}
+        <div className={styles.vendorDetailsMobile}>
+          <span className={styles.vendorDetailItem}>
+            <span className={styles.vendorDetailLabel}>{qtd_pedidos ? 'Pedidos: ' : 'NFs: '}</span>
+            <span className={styles.vendorDetailValue}>{qtd_pedidos || total_nfs}</span>
+          </span>
+          <span className={styles.vendorDetailItem}>
+            <span className={styles.vendorDetailLabel}>Meta: </span>
+            <span className={styles.vendorDetailValue} style={{ color: metaColor }}>
+              {`${perc_meta || 0}%`}
+            </span>
+          </span>
+          <span className={styles.vendorDetailItem}>
+            <span className={styles.vendorDetailLabel}>Part.: </span>
+            <span className={styles.vendorDetailValue}>{`${perc_participacao || 0}%`}</span>
+          </span>
+          <span className={styles.vendorDetailItem}>
+            <span className={styles.vendorDetailLabel}>Total: </span>
+            <span className={styles.vendorDetailValue}>
+              {faturamento ? toBRL(faturamento) : toBRL(vendas)}
+            </span>
+          </span>
+        </div>
       </div>
       <div className={styles.vendorTotal}>{faturamento ? toBRL(faturamento) : toBRL(vendas)}</div>
     </div>
