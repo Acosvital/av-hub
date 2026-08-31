@@ -56,6 +56,7 @@ const FORM_INICIAL: FormFuncionario = {
   id_cargo: '',
   id_setor: '',
   codigo_empresa: '',
+  email: '',
   photo_url: '',
   cpf: '',
   rg: '',
@@ -254,6 +255,7 @@ export default function Funcionarios() {
       id_cargo: funcionario.id_cargo,
       id_setor: funcionario.id_setor,
       codigo_empresa: funcionario.codigo_empresa,
+      email: funcionario.email ?? '',
       photo_url: funcionario.photo_url ?? '',
       cpf: funcionario.cpf ?? '',
       rg: funcionario.rg ?? '',
@@ -295,6 +297,14 @@ export default function Funcionarios() {
       notify.error('Cargo é obrigatório');
       return;
     }
+    if (!form.email.trim()) {
+      notify.error('E-mail é obrigatório');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      notify.error('E-mail inválido');
+      return;
+    }
 
     try {
       setSaving(true);
@@ -303,6 +313,7 @@ export default function Funcionarios() {
         id_cargo: form.id_cargo,
         id_setor: form.id_setor,
         codigo_empresa: form.codigo_empresa,
+        email: form.email.trim(),
         photo_url: form.photo_url.trim() || null,
         cpf: form.cpf.trim() || null,
         rg: form.rg.trim() || null,
@@ -495,7 +506,7 @@ export default function Funcionarios() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    {['Nome Completo', 'Cargo', 'Setor', 'Unidade', 'Telefone', 'Contrato'].map(
+                    {['Nome Completo', 'E-mail', 'Cargo', 'Setor', 'Unidade', 'Telefone', 'Contrato'].map(
                       (label) => (
                         <TableCell key={label}>{label}</TableCell>
                       )
@@ -511,6 +522,7 @@ export default function Funcionarios() {
                       sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
                     >
                       <TableCell>{row.nome_completo}</TableCell>
+                      <TableCell>{row.email ?? '—'}</TableCell>
                       <TableCell>{cargoLabel(row.id_cargo)}</TableCell>
                       <TableCell>{setorLabel(row.id_setor)}</TableCell>
                       <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
@@ -656,6 +668,15 @@ export default function Funcionarios() {
                 ))}
               </Select>
             </FormControl>
+            <TextField
+              sx={{ flex: 1, minWidth: 220 }}
+              label="E-mail"
+              required
+              type="email"
+              value={form.email}
+              onChange={(e) => setField('email', e.target.value)}
+              helperText="Usado para vincular o funcionário a um usuário do sistema"
+            />
           </div>
           {mostrarReportaA && (
             <div className={styles.formRow}>
