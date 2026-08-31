@@ -166,6 +166,10 @@ export const componentOverrides: Components<Theme> = {
       root: {
         fontFamily: 'var(--font-sans)',
       },
+      colorDefault: {
+        color: 'var(--foreground)',
+        backgroundColor: 'var(--card-bg-secondary)',
+      },
       outlined: {
         color: 'var(--foreground)',
         borderColor: 'var(--border-strong)',
