@@ -6,6 +6,8 @@ export interface FuncionarioProps {
   codigo_empresa: string;
   email: string | null;
   photo_url: string | null;
+  // Preenchido só no GET (URL assinada, gerada na hora) — nunca reenviar no PUT/POST.
+  photo_signed_url?: string | null;
   cpf: string | null;
   rg: string | null;
   cnpj: string | null;

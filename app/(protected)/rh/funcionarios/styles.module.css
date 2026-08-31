@@ -96,3 +96,26 @@
   display: flex;
   gap: var(--space-3);
 }
+
+.avatarCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.avatarThumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.avatarThumbPlaceholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  flex-shrink: 0;
+}

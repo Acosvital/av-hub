@@ -10,6 +10,9 @@ export interface UnidadeProps {
   nome_fantasia: string;
   tipo_unidade: string;
   matriz_id: string | null;
+  foto_url: string | null;
+  // Preenchido só no GET (URL assinada, gerada na hora) — nunca reenviar no PUT/POST.
+  foto_signed_url?: string | null;
   nome_contato: string;
   email: string;
   telefone: string;
@@ -36,6 +39,7 @@ export interface FormUnidade {
   nome_fantasia: string;
   tipo_unidade: string;
   matriz_id: string;
+  foto_url: string;
   nome_contato: string;
   email: string;
   telefone: string;
