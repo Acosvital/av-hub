@@ -35,6 +35,13 @@ import { FormSetor, SetorProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
+import normalizeText from '@/utils/normalizeText';
+
+// Setores de topo (Diretoria/Gerência Geral) não devem ser escolhidos como pai de
+// subsetor — servem só para agrupar a hierarquia no topo de cada unidade.
+const NOMES_SETOR_PAI_BLOQUEADOS = ['gerencia geral', 'diretoria'].map(normalizeText);
+
+const podeSerSetorPai = (setor: SetorProps) => !NOMES_SETOR_PAI_BLOQUEADOS.includes(normalizeText(setor.nome));
 
 const FORM_INICIAL: FormSetor = {
   codigo_empresa: '',
@@ -385,7 +392,7 @@ export default function Setores() {
             />
             <Autocomplete
               sx={{ flex: 1, minWidth: 220 }}
-              options={setoresDaUnidade.filter((s) => s.id !== editingId)}
+              options={setoresDaUnidade.filter((s) => s.id !== editingId && podeSerSetorPai(s))}
               getOptionLabel={(s) => s.nome}
               value={setoresDaUnidade.find((s) => s.id === form.parent_id) ?? null}
               onChange={(_, v) => setField('parent_id', v?.id ?? '')}
