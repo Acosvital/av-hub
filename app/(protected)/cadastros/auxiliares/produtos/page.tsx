@@ -314,8 +314,6 @@ export default function Produtos() {
                 flex: 1,
                 minHeight: 0,
                 overflow: 'auto',
-                borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0',
-                borderBottom: 'none',
               }}
             >
               <Table stickyHeader size="small">
@@ -357,9 +355,7 @@ export default function Produtos() {
           <TablePagination
             sx={{
               flexShrink: 0,
-              border: '1px solid var(--border-strong)',
               borderTop: '1px solid var(--border)',
-              borderRadius: '0 0 var(--radius-sm) var(--radius-sm)',
             }}
             rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
