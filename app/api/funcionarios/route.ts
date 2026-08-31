@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'nome_completo', 'codigo_empresa', 'id_setor', 'id_cargo'].forEach((key) => {
+    ['page', 'limit', 'nome_completo', 'email', 'codigo_empresa', 'id_setor', 'id_cargo'].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });

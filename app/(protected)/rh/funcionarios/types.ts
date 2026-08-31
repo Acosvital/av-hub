@@ -4,6 +4,7 @@ export interface FuncionarioProps {
   id_cargo: string;
   id_setor: string;
   codigo_empresa: string;
+  email: string | null;
   photo_url: string | null;
   cpf: string | null;
   rg: string | null;
@@ -32,6 +33,7 @@ export interface FormFuncionario {
   id_cargo: string;
   id_setor: string;
   codigo_empresa: string;
+  email: string;
   // Campo só de UI — não existe em /funcionarios. Vira o parent_id do nó
   // desse funcionário no organograma (core_organograma.node); vazio =
   // hierarquia automática pelo setor (ver services/rh/organogramaNodes.ts).
