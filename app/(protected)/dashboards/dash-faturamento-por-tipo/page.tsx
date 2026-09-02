@@ -5,7 +5,7 @@ import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWi
 import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
 import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ClientRankingFaturamentoProps,
   FaturamentoPorTipoProps,
@@ -60,6 +60,9 @@ const TIPO_FATURAMENTO_DEFINITIONS: FaturamentoPorTipoProps['tipo_contrato'][] =
   'SEM CLASSIFICAÇÃO',
 ];
 const MAX_CLIENTES_RANKING_MOBILE = 15;
+// Altura que a legenda "bottom" do PieChart consome por fora da área de
+// desenho (até 3 linhas de rótulo + gap — "SEM CLASSIFICAÇÃO" é o mais longo).
+const PIE_LEGEND_RESERVED_HEIGHT = 70;
 
 const labelMesAno = (mes: number, ano: number) =>
   `${MESES_FATURAMENTO_MENSAL[mes - 1]}/${String(ano).slice(-2)}`;
@@ -79,6 +82,34 @@ export default function FaturamentoPorTipo() {
   const { codigoEmpresa } = useDashboardEmpresa();
   const accentColor = 'var(--gold)';
   const isMobile = useMediaQuery('(max-width: 1024px)');
+
+  // O X-Charts calcula o layout da legenda a partir do tamanho do container
+  // via ResizeObserver interno, e esse cálculo não reconverge direito depois
+  // de um resize (ex: colapsar a sidebar) — a legenda fica desenhada fora da
+  // área do gráfico. Medindo a área real aqui e passando width/height
+  // explícitos evita depender do auto-cálculo problemático (mesmo padrão do
+  // CommissionDonutChart).
+  // Callback ref em vez de useRef+useEffect: o card só existe no DOM depois
+  // que os dados terminam de carregar (antes disso a página mostra o
+  // skeleton), então um efeito com deps [] rodaria uma vez só, com o ref
+  // ainda nulo, e nunca mais depois que o elemento real aparecesse.
+  const [pieChartSize, setPieChartSize] = useState({ width: 260, height: 220 });
+  const pieChartObserverRef = useRef<ResizeObserver | null>(null);
+  const pieChartRef = useCallback((el: HTMLDivElement | null) => {
+    pieChartObserverRef.current?.disconnect();
+    pieChartObserverRef.current = null;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) setPieChartSize({ width: rect.width, height: rect.height });
+
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      if (width > 0 && height > 0) setPieChartSize({ width, height });
+    });
+    observer.observe(el);
+    pieChartObserverRef.current = observer;
+  }, []);
 
   const anchorMes = completeDate.month() + 1;
   const anchorAno = completeDate.year();
@@ -158,7 +189,7 @@ export default function FaturamentoPorTipo() {
         porTipo: {},
       };
       group.faturamento += Number(c.faturamento);
-      group.qtd_pedidos += Number(c.qtd_pedidos);
+      group.qtd_pedidos += Number(c.total_nfs);
       group.porTipo[c.tipo_contrato] =
         (group.porTipo[c.tipo_contrato] ?? 0) + Number(c.faturamento);
       clientGroups.set(c.id_parceiro, group);
@@ -387,7 +418,7 @@ export default function FaturamentoPorTipo() {
             </div>
             <div className={styles.top3Container}>
               {top3Clients.map((c) => (
-                <ClientCard key={c.id} {...c} color={accentColor} />
+                <ClientCard key={c.id} {...c} color={accentColor} unidadeLabel="NFs" />
               ))}
             </div>
           </div>
@@ -399,13 +430,13 @@ export default function FaturamentoPorTipo() {
             >
               <div className={styles.vendorGroup}>
                 {otherClients.map((c) => (
-                  <ClientCard key={c.id} {...c} color={accentColor} />
+                  <ClientCard key={c.id} {...c} color={accentColor} unidadeLabel="NFs" />
                 ))}
               </div>
               <div className={styles.vendorGroup} aria-hidden="true">
                 {otherClients.length >= 10 &&
                   otherClients.map((c) => (
-                    <ClientCard key={`dup-${c.id}`} {...c} color={accentColor} />
+                    <ClientCard key={`dup-${c.id}`} {...c} color={accentColor} unidadeLabel="NFs" />
                   ))}
               </div>
             </div>
@@ -443,52 +474,56 @@ export default function FaturamentoPorTipo() {
               <span className={styles.tipoFaturamentoLabel}>Total Faturado por tipo</span>
               <span className={styles.tipoFaturamentoValue}>{toBRL(totalBillingTypes)}</span>
             </div>
-            <PieChart
-              height={isMobile ? 260 : undefined}
-              series={[
-                {
-                  innerRadius: 50,
-                  outerRadius: 100,
-                  data: billingTypes.map(({ label, value }) => ({
-                    id: label,
-                    value,
-                    label,
-                    color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
-                  })),
+            <div ref={pieChartRef} style={{ flex: 1, minHeight: 0, width: '100%' }}>
+              <PieChart
+                width={pieChartSize.width}
+                // O height do PieChart só reserva espaço pro donut — a legenda
+                // ("bottom") é desenhada por baixo, somando altura em vez de
+                // dividir o espaço dado. Sem descontar isso aqui, a legenda
+                // vaza pra fora do card em containers baixos (notebook).
+                height={isMobile ? 260 : Math.max(120, pieChartSize.height - PIE_LEGEND_RESERVED_HEIGHT)}
+                series={[
+                  {
+                    innerRadius: 50,
+                    outerRadius: 100,
+                    data: billingTypes.map(({ label, value }) => ({
+                      id: label,
+                      value,
+                      label,
+                      color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
+                    })),
 
-                  valueFormatter: ({ value }) => toBRL(value),
-                  arcLabel: (item) =>
-                    totalBillingTypes
-                      ? `${Math.round((item.value / totalBillingTypes) * 100)}%`
-                      : '',
-                  arcLabelMinAngle: 15,
-                },
-              ]}
-              slotProps={{
-                legend: {
-                  direction: 'horizontal',
-                  position: { vertical: 'bottom', horizontal: 'center' },
-                },
-              }}
-              sx={{
-                flex: 1,
-                minHeight: 0,
-                width: '100%',
-                '& .MuiChartsArcLabel-root': {
-                  fill: 'var(--navy-950)',
-                  fontFamily: 'var(--font-sans)',
-                  fontWeight: 'var(--w-bold)',
-                  fontSize: 'var(--fs-xs)',
-                },
-                '& .MuiChartsLegend-label': {
-                  color: 'var(--foreground) !important',
-                  fontFamily: 'var(--font-sans)',
-                  fontWeight: 'var(--w-regular)',
-                  textTransform: 'none',
-                },
-                gap: '3rem',
-              }}
-            />
+                    valueFormatter: ({ value }) => toBRL(value),
+                    arcLabel: (item) =>
+                      totalBillingTypes
+                        ? `${Math.round((item.value / totalBillingTypes) * 100)}%`
+                        : '',
+                    arcLabelMinAngle: 15,
+                  },
+                ]}
+                slotProps={{
+                  legend: {
+                    direction: 'horizontal',
+                    position: { vertical: 'bottom', horizontal: 'center' },
+                  },
+                }}
+                sx={{
+                  '& .MuiChartsArcLabel-root': {
+                    fill: 'var(--navy-950)',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-bold)',
+                    fontSize: 'var(--fs-xs)',
+                  },
+                  '& .MuiChartsLegend-label': {
+                    color: 'var(--foreground) !important',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-regular)',
+                    textTransform: 'none',
+                  },
+                  gap: 'var(--space-2)',
+                }}
+              />
+            </div>
           </div>
         </div>
       </DashboardWidget>
