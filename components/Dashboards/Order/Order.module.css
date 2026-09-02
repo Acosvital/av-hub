@@ -4,60 +4,88 @@
   background-color: var(--card-bg-secondary);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  text-transform: uppercase;
-  max-height: 180px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
   height: fit-content;
   width: 100%;
   max-width: 280px;
+  overflow: hidden;
 }
 
 .orderHeader {
   display: flex;
   justify-content: space-between;
   font-size: var(--fs-xs);
-  padding: var(--space-2);
+  color: var(--foreground-secondary);
+  font-variant-numeric: tabular-nums;
+  padding: var(--space-2) var(--space-2) 0;
 }
 
 .orderPartner {
-  font-size: var(--fs-sm);
+  padding: var(--space-1) var(--space-2) var(--space-2);
   border-bottom: 1px solid var(--border);
-  padding: var(--space-2);
 }
 
-.orderPartner > span {
+.orderPartnerLabel {
   display: flex;
   align-items: center;
   gap: var(--space-1);
   font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+  margin-bottom: 2px;
 }
 
 .orderPartner > h4 {
   font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
+/* Valor em destaque numa linha só sua, com a(s) categoria(s) como chip
+   abaixo — antes o rótulo e a categoria dividiam a mesma linha (flex
+   space-between sem limite de largura) e "SEM CLASSIFICAÇÃO" quebrava
+   por cima do valor. */
 .orderValues {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2px;
   padding: var(--space-2);
 }
 
-.orderTotal {
+.orderTotalLabel {
   font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
 }
 
-.orderStatus {
+.orderTotalValue {
+  font-size: var(--fs-md);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.orderChips {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--fs-sm);
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: 2px;
 }
 
-.statusPill {
+.chip {
   border-radius: var(--radius-pill);
-  padding: 0 var(--space-1);
+  padding: 2px var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
