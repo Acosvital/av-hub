@@ -76,7 +76,7 @@ export interface ClientRankingFaturamentoProps {
   codigos_cliente: string[];
   cliente: string;
   faturamento: string;
-  qtd_pedidos: string;
+  total_nfs: string;
   perc_participacao: string;
   empresas: string[];
 }

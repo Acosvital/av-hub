@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
@@ -59,6 +59,9 @@ const MESES_ABREVIADOS = [
   'dez',
 ];
 const MAX_CLIENTES_RANKING_MOBILE = 15;
+// Altura que a legenda "bottom" do PieChart consome por fora da área de
+// desenho (até 3 linhas de rótulo + gap — "SEM CLASSIFICAÇÃO" é o mais longo).
+const PIE_LEGEND_RESERVED_HEIGHT = 70;
 
 const labelMesAno = (mes: number, ano: number) =>
   `${MESES_ABREVIADOS[mes - 1]}/${String(ano).slice(-2)}`;
@@ -77,6 +80,34 @@ const VendasPorTipo = () => {
   const { codigoEmpresa } = useDashboardEmpresa();
   const accentColor = 'var(--green)';
   const isMobile = useMediaQuery('(max-width: 1024px)');
+
+  // O X-Charts calcula o layout da legenda a partir do tamanho do container
+  // via ResizeObserver interno, e esse cálculo não reconverge direito depois
+  // de um resize (ex: colapsar a sidebar) — a legenda fica desenhada fora da
+  // área do gráfico. Medindo a área real aqui e passando width/height
+  // explícitos evita depender do auto-cálculo problemático (mesmo padrão do
+  // CommissionDonutChart).
+  // Callback ref em vez de useRef+useEffect: o card só existe no DOM depois
+  // que os dados terminam de carregar (antes disso a página mostra o
+  // skeleton), então um efeito com deps [] rodaria uma vez só, com o ref
+  // ainda nulo, e nunca mais depois que o elemento real aparecesse.
+  const [pieChartSize, setPieChartSize] = useState({ width: 260, height: 220 });
+  const pieChartObserverRef = useRef<ResizeObserver | null>(null);
+  const pieChartRef = useCallback((el: HTMLDivElement | null) => {
+    pieChartObserverRef.current?.disconnect();
+    pieChartObserverRef.current = null;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) setPieChartSize({ width: rect.width, height: rect.height });
+
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      if (width > 0 && height > 0) setPieChartSize({ width, height });
+    });
+    observer.observe(el);
+    pieChartObserverRef.current = observer;
+  }, []);
 
   const anchorMes = completeDate.month() + 1;
   const anchorAno = completeDate.year();
@@ -446,49 +477,53 @@ const VendasPorTipo = () => {
               <span className={styles.tipoFaturamentoLabel}>Total Vendas por tipo</span>
               <span className={styles.tipoFaturamentoValue}>{toBRL(totalVendaTipos)}</span>
             </div>
-            <PieChart
-              height={isMobile ? 260 : undefined}
-              series={[
-                {
-                  innerRadius: 50,
-                  outerRadius: 100,
-                  data: tiposVendaPercentual.map(({ label, value }) => ({
-                    id: label,
-                    value,
-                    label,
-                    color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
-                  })),
+            <div ref={pieChartRef} style={{ flex: 1, minHeight: 0, width: '100%' }}>
+              <PieChart
+                width={pieChartSize.width}
+                // O height do PieChart só reserva espaço pro donut — a legenda
+                // ("bottom") é desenhada por baixo, somando altura em vez de
+                // dividir o espaço dado. Sem descontar isso aqui, a legenda
+                // vaza pra fora do card em containers baixos (notebook).
+                height={isMobile ? 260 : Math.max(120, pieChartSize.height - PIE_LEGEND_RESERVED_HEIGHT)}
+                series={[
+                  {
+                    innerRadius: 50,
+                    outerRadius: 100,
+                    data: tiposVendaPercentual.map(({ label, value }) => ({
+                      id: label,
+                      value,
+                      label,
+                      color: BILLING_TYPE_COLORS[label] ?? 'var(--gray-light)',
+                    })),
 
-                  valueFormatter: ({ value }) => `${value.toFixed(1)}%`,
-                  arcLabel: (item) => `${Math.round(item.value)}%`,
-                  arcLabelMinAngle: 15,
-                },
-              ]}
-              slotProps={{
-                legend: {
-                  direction: 'horizontal',
-                  position: { vertical: 'bottom', horizontal: 'center' },
-                },
-              }}
-              sx={{
-                flex: 1,
-                minHeight: 0,
-                width: '100%',
-                '& .MuiChartsArcLabel-root': {
-                  fill: 'var(--navy-950)',
-                  fontFamily: 'var(--font-sans)',
-                  fontWeight: 'var(--w-bold)',
-                  fontSize: 'var(--fs-xs)',
-                },
-                '& .MuiChartsLegend-label': {
-                  color: 'var(--foreground) !important',
-                  fontFamily: 'var(--font-sans)',
-                  fontWeight: 'var(--w-regular)',
-                  textTransform: 'none',
-                },
-                gap: '3rem',
-              }}
-            />
+                    valueFormatter: ({ value }) => `${value.toFixed(1)}%`,
+                    arcLabel: (item) => `${Math.round(item.value)}%`,
+                    arcLabelMinAngle: 15,
+                  },
+                ]}
+                slotProps={{
+                  legend: {
+                    direction: 'horizontal',
+                    position: { vertical: 'bottom', horizontal: 'center' },
+                  },
+                }}
+                sx={{
+                  '& .MuiChartsArcLabel-root': {
+                    fill: 'var(--navy-950)',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-bold)',
+                    fontSize: 'var(--fs-xs)',
+                  },
+                  '& .MuiChartsLegend-label': {
+                    color: 'var(--foreground) !important',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 'var(--w-regular)',
+                    textTransform: 'none',
+                  },
+                  gap: 'var(--space-2)',
+                }}
+              />
+            </div>
           </div>
         </div>
       </DashboardWidget>
