@@ -51,15 +51,15 @@
   /* deepest neutral from brand notes */
 
   /* ---------- SEMANTIC: SURFACES ---------- */
-  --background: var(--navy-900);
-  /* outer container fill */
+  --background: var(--neutral-75);
+  /* outer container fill — soft cool canvas, not stark white */
   --surface: var(--neutral-0);
   /* cards, sheets */
   --surface-secondary: var(--neutral-200);
 
   /* Card / data-surface semantic tokens (theme-aware) */
   --card-bg: var(--neutral-0);
-  --card-bg-secondary: var(--neutral-0);
+  --card-bg-secondary: var(--neutral-50);
   --card-bg-tertiary: #3f4857;
   --header-bg: var(--neutral-0);
   --card-title: var(--av-primary);
@@ -70,7 +70,7 @@
   --input-border-disabled: var(--border);
   --input-text-disabled: var(--navy-300);
   --input-label-disabled: var(--navy-200);
-  --table-head-bg: var(--neutral-0);
+  --table-head-bg: var(--neutral-75);
   --table-head-fg: var(--neutral-900);
   --table-row-fg: var(--neutral-900);
   --table-row-hover: var(--neutral-75);
@@ -81,6 +81,13 @@
   --primary-button-hover: var(--av-secondary);
   --secondary-button-hover: var(--navy-50);
   --waves-bg: url('../public/layered-waves.svg');
+
+  /* Glow background opacity (dashboards/list pages) — soft "morning light"
+     wash in light mode; dark mode gets the stronger "aurora" look via the
+     .dark override below. Keeps every .pageGlow::before in sync from one
+     place instead of a hardcoded % per page. */
+  --glow-accent-op: 10%;
+  --glow-blue-op: 9%;
 
   /* ---------- SEMANTIC: TEXT ---------- */
   --foreground: var(--neutral-900);
@@ -186,7 +193,8 @@
   --space-8: 3rem;
 
   /* ---------- LAYOUT ---------- */
-  --header-h: 60px;
+  --sidebar-header-h: 84px;
+  --header-h: 84px;
   --menu-w: 220px;
   --menu-w-min: 60px;
   --content-pad: 1rem;
@@ -246,6 +254,10 @@
   --danger-hover: #fca5a5;
 
   --shadow-card: 0 5px 15px rgba(0, 0, 0, 0.45);
+
+  /* Glow background — stronger "aurora" look on the near-black canvas */
+  --glow-accent-op: 30%;
+  --glow-blue-op: 24%;
 
   /* Theme-aware surface overrides — these flip cards, tables, inputs to dark variants */
   --card-bg: var(--navy-850);

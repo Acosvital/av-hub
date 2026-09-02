@@ -8,7 +8,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   TextField,
   Autocomplete,
   FormControl,
@@ -29,6 +28,8 @@ import { getCategorias } from '@/services/orcamento/categoriasOrcamento';
 import { getVinculos } from '@/services/orcamento/vinculosOrcamento';
 import { VinculoProps } from './types';
 import normalizeText from '@/utils/normalizeText';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 
 type StatusFiltro = '' | 'ok' | 'nf';
 
@@ -155,6 +156,8 @@ export default function Vinculos() {
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -199,22 +202,37 @@ export default function Vinculos() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={pagedRows}
+              getRowKey={(row) => `${row.categoria}-${row.cnpj}-${row.fornecedor}`}
+              emptyMessage="Nenhum vínculo encontrado."
+              renderTitle={(row) => row.fornecedor}
+              renderSubtitle={(row) => row.razao_social}
+              renderBadge={(row) =>
+                row.sem_cadastro ? (
+                  <span className={styles.badgeWarning}>Sem cadastro</span>
+                ) : (
+                  <span className={styles.badgeOk}>Com cadastro</span>
+                )
+              }
+              fields={(row) => [
+                { label: 'Categoria', value: row.categoria },
+                { label: 'CNPJ', value: row.cnpj },
+                { label: 'Situação', value: row.situacao || '—' },
+                { label: 'Cidade', value: row.cidade },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}
-            labelRowsPerPage={'Resultados por página'}
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
             page={page}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />

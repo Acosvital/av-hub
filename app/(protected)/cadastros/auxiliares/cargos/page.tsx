@@ -6,7 +6,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
   Autocomplete,
@@ -20,10 +20,12 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -110,12 +112,21 @@ export default function Cargos() {
 
   const unidadeLabel = (id: string) => unidades.find((u) => u.id === id)?.nome_fantasia ?? '—';
 
-  const limparFiltros = () => {
-    setNomeInput('');
-    setUnidadeFiltro('');
-    setStatusFiltro('todos');
-    setPage(0);
-  };
+  const FILTROS_CARGO = [
+    {
+      key: 'unidade',
+      label: 'Unidade',
+      options: unidades.map((u) => ({ value: u.id, label: u.nome_fantasia })),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ativo', label: 'Ativo' },
+        { value: 'inativo', label: 'Inativo' },
+      ],
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -207,63 +218,48 @@ export default function Cargos() {
 
   return (
     <>
-      <PageHeader title="Cargos" subtitle="Gerencie os cargos cadastrados no sistema" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Cargos" subtitle="Gerencie os cargos cadastrados no sistema" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="Nome"
-              variant="outlined"
-              value={nomeInput}
-              onChange={(e) => setNomeInput(e.target.value)}
-            />
-            <Autocomplete
-              sx={{ minWidth: 220 }}
-              options={unidades}
-              getOptionLabel={(u) => u.nome_fantasia}
-              value={unidades.find((u) => u.id === unidadeFiltro) ?? null}
-              onChange={(_, v) => {
-                setUnidadeFiltro(v?.id ?? '');
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={nomeInput}
+            onSearchChange={(value) => {
+              setNomeInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por nome..."
+            filters={FILTROS_CARGO}
+            activeValues={{
+              unidade: unidadeFiltro || undefined,
+              status: statusFiltro !== 'todos' ? statusFiltro : undefined,
+            }}
+            onFilterChange={(key, value) => {
+              if (key === 'unidade') {
+                setUnidadeFiltro(value ?? '');
                 setPage(0);
-              }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label="Unidade" />}
-            />
-            <FormControl sx={{ minWidth: 160 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFiltro}
-                label="Status"
-                onChange={(e) => {
-                  setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="ativo">Ativo</MenuItem>
-                <MenuItem value="inativo">Inativo</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Cargos Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
+              } else if (key === 'status') {
+                setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
+                setPage(0);
+              }
+            }}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -275,7 +271,16 @@ export default function Cargos() {
                 <TableHead>
                   <TableRow>
                     {['Nome', 'Unidade', 'Nível Hierárquico', 'Status'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
+                      <TableCell
+                        key={label}
+                        sx={{
+                          background:
+                            'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                        }}
+                      >
+                        {label}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -285,7 +290,12 @@ export default function Cargos() {
                       hover={can('pode_editar')}
                       key={row.id}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
@@ -302,28 +312,44 @@ export default function Cargos() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => row.id}
+              emptyMessage="Nenhum cargo encontrado."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => row.nome}
+              renderSubtitle={(row) => unidadeLabel(row.codigo_empresa)}
+              renderBadge={(row) => (
+                <Chip
+                  label={row.ativo ? 'Ativo' : 'Inativo'}
+                  color={row.ativo ? 'success' : 'error'}
+                  size="small"
+                />
+              )}
+              fields={(row) => [
+                {
+                  label: 'Nível Hierárquico',
+                  value: NIVEIS_HIERARQUICOS[row.nvl_permissao] ?? row.nvl_permissao,
+                },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={editingId ? 'Editar Cargo' : 'Novo Cargo'}
@@ -338,6 +364,7 @@ export default function Cargos() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 220 }}
               options={unidades}
+              getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.nome_fantasia}
               value={unidades.find((u) => u.id === form.codigo_empresa) ?? null}
               onChange={(_, v) => setField('codigo_empresa', v?.id ?? '')}

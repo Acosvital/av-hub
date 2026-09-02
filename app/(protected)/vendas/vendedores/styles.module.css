@@ -1,12 +1,45 @@
-.inputContainers {
+.pageGlow {
+  position: relative;
+  z-index: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
 }
 
-.cardButtons {
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+@media screen and (max-width: 768px) {
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
+}
+
+.pageHeaderRow {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
 }
 
 .loading {
@@ -26,9 +59,26 @@
   flex: 1;
   min-height: 0;
   gap: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   overflow: hidden;
+}
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
 }
 
 .loading span {

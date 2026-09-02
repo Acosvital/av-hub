@@ -5,10 +5,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'mes', 'ano', 'tipo_contrato', 'historico'].forEach((key) => {
-      const value = searchParams.get(key);
-      if (value !== null) params.set(key, value);
-    });
+    ['page', 'limit', 'mes', 'ano', 'tipo_contrato', 'codigo_empresa', 'is_track_record'].forEach(
+      (key) => {
+        const value = searchParams.get(key);
+        if (value !== null) params.set(key, value);
+      }
+    );
     const data = await apiFetch(
       `${process.env.API_URL}/vendas_por_tipo_contrato?${params}`,
       'Erro ao buscar vendas por tipo',

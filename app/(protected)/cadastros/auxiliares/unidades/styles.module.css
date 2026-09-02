@@ -1,12 +1,48 @@
-.inputContainers {
+.pageGlow {
+  position: relative;
+  z-index: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
 }
 
-.cardButtons {
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+@media screen and (max-width: 768px) {
+  /* No mobile o topo ganha um respiro pro botao de menu fixo (ver
+     Layout.module.css .mainAreaMobileOffset) - estica o glow pra cima
+     tambem, senao sobra uma faixa lisa sem o efeito ali. */
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
+}
+
+.pageHeaderRow {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
 }
 
 .tableCard {
@@ -15,8 +51,12 @@
   flex: 1;
   min-height: 0;
   gap: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   overflow: hidden;
 }
 
@@ -43,27 +83,111 @@
 
 /***************** MODAL FORM ******************/
 
+.formModalWrap {
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 90vw);
+}
+
+.formModalNav {
+  display: flex;
+  min-height: 0;
+  width: calc(100% + var(--space-5));
+  margin-left: calc(var(--space-5) * -1);
+  border-bottom: 1px solid var(--border);
+}
+
+.formNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: calc(190px + var(--space-5));
+  flex-shrink: 0;
+  margin-top: calc(var(--space-3) * -1);
+  padding: var(--space-4) 0;
+  background-color: var(--navy-925);
+  border-right: 1px solid var(--border);
+}
+
+.navFooter {
+  margin: auto 0 0;
+  padding: var(--space-3) var(--space-3) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  text-align: center;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-5) + var(--space-3));
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.navItem:hover {
+  background-color: var(--table-row-hover);
+  color: var(--foreground);
+}
+
+.navItemActive {
+  background-color: color-mix(in srgb, var(--av-accent) 16%, transparent);
+  color: var(--foreground);
+}
+
+.navDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--border-strong);
+  flex-shrink: 0;
+}
+
+.navItemActive .navDot {
+  background-color: var(--av-accent);
+}
+
+.navItemDone .navDot {
+  background-color: var(--success);
+}
+
+.formNavBody {
+  flex: 1;
+  min-width: 0;
+  max-height: 54vh;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-2) 10vh var(--space-5);
+}
+
 .formModal {
   display: flex;
   flex-direction: column;
+  gap: var(--space-5);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
-  width: 640px;
-  max-width: 100%;
 }
 
 .sectionTitle {
   font-size: var(--fs-sm);
-  font-weight: var(--w-semibold);
-  color: var(--foreground-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: var(--space-2) 0 0;
-}
-
-.divider {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 0;
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  margin: 0 0 var(--space-3);
 }
 
 .formRow {
@@ -73,13 +197,28 @@
   align-items: flex-start;
 }
 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fieldLabel {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+}
+
+.fieldRequired {
+  color: var(--red-light);
+}
+
 .formActions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
   padding-top: var(--space-3);
   margin-top: var(--space-1);
-  border-top: 1px solid var(--border);
 }
 
 .formActionsWithDelete {
@@ -89,7 +228,6 @@
   gap: var(--space-3);
   padding-top: var(--space-3);
   margin-top: var(--space-1);
-  border-top: 1px solid var(--border);
 }
 
 .formActionsMain {
@@ -118,4 +256,69 @@
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   flex-shrink: 0;
+}
+
+/***************** MODAL FORM — RESPONSIVE ******************/
+
+@media screen and (max-width: 768px) {
+  .formModalNav {
+    flex-direction: column;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .formNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+    gap: var(--space-2);
+    margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1) 0;
+    padding: var(--space-3) var(--space-4);
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navItem {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: var(--space-2);
+  }
+
+  .navFooter {
+    flex-basis: 100%;
+    margin-top: 0;
+    padding: var(--space-2) 0 0;
+    text-align: center;
+  }
+
+  .formNavBody {
+    max-height: none;
+    padding: var(--space-4);
+  }
+
+  .formActionsWithDelete {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formActionsMain {
+    justify-content: stretch;
+  }
+
+  .formActionsMain > * {
+    flex: 1;
+  }
+}
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
 }

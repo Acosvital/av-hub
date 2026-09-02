@@ -6,7 +6,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
   CircularProgress,
@@ -16,10 +16,12 @@ import {
   Select,
   TextField,
 } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -67,10 +69,8 @@ export default function Parceiros() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
-  const [nomeInput, setNomeInput] = useState('');
-  const [cpfCnpjInput, setCpfCnpjInput] = useState('');
-  const nome = useDebounce(nomeInput, 500);
-  const cpfCnpj = useDebounce(cpfCnpjInput, 500);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
 
   const [form, setForm] = useState<FormParceiro>(FORM_INICIAL);
 
@@ -82,11 +82,12 @@ export default function Parceiros() {
     async function fetchParceiros() {
       try {
         setLoading(true);
+        const isCnpjQuery = /\d/.test(search);
         const response = await getParceiros({
           page: page + 1,
           limit: rowsPerPage,
-          nome_fantasia: nome || undefined,
-          cpf_cnpj: cpfCnpj || undefined,
+          nome_fantasia: !isCnpjQuery && search ? search : undefined,
+          cpf_cnpj: isCnpjQuery && search ? search : undefined,
         });
         setRows(response.parceiros ?? []);
         setRowCount(response.total ?? 0);
@@ -98,13 +99,7 @@ export default function Parceiros() {
       }
     }
     fetchParceiros();
-  }, [page, rowsPerPage, nome, cpfCnpj, refreshTrigger]);
-
-  const limparFiltros = () => {
-    setNomeInput('');
-    setCpfCnpjInput('');
-    setPage(0);
-  };
+  }, [page, rowsPerPage, search, refreshTrigger]);
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -222,43 +217,37 @@ export default function Parceiros() {
 
   return (
     <>
-      <PageHeader title="Parceiros" subtitle="Gerencie os parceiros cadastrados no sistema" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Parceiros" subtitle="Gerencie os parceiros cadastrados no sistema" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="Nome Fantasia"
-              variant="outlined"
-              value={nomeInput}
-              onChange={(e) => setNomeInput(e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 200 }}
-              label="CPF/CNPJ"
-              variant="outlined"
-              value={cpfCnpjInput}
-              onChange={(e) => setCpfCnpjInput(e.target.value)}
-            />
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Parceiros Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={searchInput}
+            onSearchChange={(value) => {
+              setSearchInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por nome ou CPF/CNPJ..."
+            filters={[]}
+            activeValues={{}}
+            onFilterChange={() => {}}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -271,7 +260,16 @@ export default function Parceiros() {
                   <TableRow>
                     {['Nome Fantasia', 'CPF/CNPJ', 'Cidade/UF', 'Telefone', 'Email'].map(
                       (label) => (
-                        <TableCell key={label}>{label}</TableCell>
+                        <TableCell
+                          key={label}
+                          sx={{
+                            background:
+                              'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                            borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                          }}
+                        >
+                          {label}
+                        </TableCell>
                       )
                     )}
                   </TableRow>
@@ -282,7 +280,12 @@ export default function Parceiros() {
                       hover={can('pode_editar')}
                       key={row.id}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{row.nome_fantasia}</TableCell>
                       <TableCell>{row.cpf_cnpj ? row.cpf_cnpj : '—'}</TableCell>
@@ -294,28 +297,36 @@ export default function Parceiros() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => row.id}
+              emptyMessage="Nenhum parceiro encontrado."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => row.nome_fantasia}
+              renderSubtitle={(row) => (row.cpf_cnpj ? row.cpf_cnpj : '—')}
+              fields={(row) => [
+                { label: 'Cidade/UF', value: row.cidade ? `${row.cidade}` : '—' },
+                { label: 'Telefone', value: row.telefone ?? '—' },
+                { label: 'Email', value: row.email ?? '—' },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={editingId ? 'Editar Parceiro' : 'Novo Parceiro'}

@@ -2,35 +2,24 @@
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
-import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
-import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
 import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
-import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
-import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
-import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
-import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
 import { useEffect, useState } from 'react';
 import {
   ClientRankingFaturamentoProps,
-  FaturamentoMensalProps,
   FaturamentoPorTipoProps,
-  RitmoMetaFaturamentoProps,
-  SellerRankingProps,
   SituacaoPedidosFaturadosProps,
 } from './types';
 import {
   FaturamentoPorTipoBucket,
-  getFaturamentoMensal,
   getFaturamentoPorTipo,
   getRankingClientesFaturamento,
-  getRankingVendedores,
-  getRitmoMetaFaturamento,
   getSituacaoPedidos,
   parseFaturamentoPorTipoBuckets,
 } from '@/services/dashboards/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
@@ -70,21 +59,15 @@ const TIPO_FATURAMENTO_DEFINITIONS: FaturamentoPorTipoProps['tipo_contrato'][] =
   'CONTRATO',
   'SEM CLASSIFICAÇÃO',
 ];
-const MAX_MESES_FATURAMENTO_MENSAL = 12;
 const MAX_CLIENTES_RANKING_MOBILE = 15;
 
 const labelMesAno = (mes: number, ano: number) =>
   `${MESES_FATURAMENTO_MENSAL[mes - 1]}/${String(ano).slice(-2)}`;
 
 export default function FaturamentoPorTipo() {
-  const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
-  const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
-  const [sellerRanking, setSellerRanking] = useState<SellerRankingProps[]>([]);
-  const [faturamentoMensal, setFaturamentoMensal] = useState<FaturamentoMensalProps | null>(null);
   const [faturamentoPorTipoBuckets, setFaturamentoPorTipoBuckets] = useState<
     FaturamentoPorTipoBucket[]
   >([]);
-  const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaFaturamentoProps | null>(null);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
   const [selectedClientTypes, setSelectedClientTypes] = useState<ClientOrderType[]>([]);
   const [clientRankingData, setClientRankingData] = useState<ClientRankingFaturamentoProps[]>([]);
@@ -93,13 +76,9 @@ export default function FaturamentoPorTipo() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { completeDate } = useDashboardDate();
+  const { codigoEmpresa } = useDashboardEmpresa();
   const accentColor = 'var(--gold)';
   const isMobile = useMediaQuery('(max-width: 1024px)');
-
-  const top3 = sellerRanking.slice(0, 3);
-  const otherVendors = sellerRanking.slice(3);
-  const scrollDuration = `${otherVendors.length * 1.7}s`;
-  const gauge = Number(faturamentoMensal?.perc_atingimento);
 
   const anchorMes = completeDate.month() + 1;
   const anchorAno = completeDate.year();
@@ -107,9 +86,9 @@ export default function FaturamentoPorTipo() {
 
   const faturamentoPorTipoMesAtual =
     faturamentoPorTipoBuckets.find((b) => b.ano * 12 + b.mes === anchorKey)?.entries ?? [];
-  const ultimos12MesesFaturamento = faturamentoPorTipoBuckets
-    .filter((b) => b.ano * 12 + b.mes <= anchorKey)
-    .slice(-MAX_MESES_FATURAMENTO_MENSAL);
+  // O gráfico mostra só jan-mês atual do ano selecionado — nunca "vaza" pro
+  // ano anterior, mesmo que o mês atual seja janeiro ou fevereiro.
+  const mesesAnoVigenteFaturamento = faturamentoPorTipoBuckets.filter((b) => b.ano === anchorAno);
 
   const faturamentoPorTipoPorLabel = new Map(
     faturamentoPorTipoMesAtual.map((t) => [t.tipo_contrato, t])
@@ -120,10 +99,10 @@ export default function FaturamentoPorTipo() {
   }));
   const totalBillingTypes = billingTypes.reduce((sum, t) => sum + t.value, 0);
 
-  const faturamentoMensalLabels = ultimos12MesesFaturamento.map((b) => labelMesAno(b.mes, b.ano));
+  const faturamentoMensalLabels = mesesAnoVigenteFaturamento.map((b) => labelMesAno(b.mes, b.ano));
   const faturamentoMensalPorTipo = TIPO_FATURAMENTO_DEFINITIONS.reduce<Record<string, number[]>>(
     (acc, tipo) => {
-      acc[tipo] = ultimos12MesesFaturamento.map(
+      acc[tipo] = mesesAnoVigenteFaturamento.map(
         (b) => Number(b.entries.find((e) => e.tipo_contrato === tipo)?.faturamento) || 0
       );
       return acc;
@@ -217,14 +196,23 @@ export default function FaturamentoPorTipo() {
 
   //Carrega os dados do dashboard a partir do filtro de data
   useEffect(() => {
-    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+    const params = {
+      mes: completeDate.month() + 1,
+      ano: completeDate.year(),
+      codigo_empresa: codigoEmpresa ?? undefined,
+    };
 
     // O endpoint de faturamento-por-tipo exige mes/ano e só devolve um mês por chamada
-    // (sem parâmetros ele quebra com 500 no backend) — para montar os últimos 12
-    // meses do LineChart, buscamos mês a mês em paralelo.
-    const mesesHistorico = Array.from({ length: MAX_MESES_FATURAMENTO_MENSAL }, (_, i) => {
-      const data = completeDate.subtract(MAX_MESES_FATURAMENTO_MENSAL - 1 - i, 'month');
-      return { mes: data.month() + 1, ano: data.year() };
+    // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
+    // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
+    // nunca cruzar pro ano anterior.
+    const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
+      const data = completeDate.startOf('year').add(i, 'month');
+      return {
+        mes: data.month() + 1,
+        ano: data.year(),
+        codigo_empresa: codigoEmpresa ?? undefined,
+      };
     });
 
     async function loadAll() {
@@ -233,35 +221,19 @@ export default function FaturamentoPorTipo() {
       const faturamentoPorTipoHistorico = Promise.allSettled(
         mesesHistorico.map((mesAno) => getFaturamentoPorTipo(mesAno))
       ).then((respostas) =>
-        respostas
-          .filter((r) => r.status === 'fulfilled')
-          .flatMap((r) => r.value.data ?? [])
+        respostas.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value.data ?? [])
       );
 
       const results = await Promise.allSettled([
-        getRankingVendedores(params),
-        getFaturamentoMensal(params),
         faturamentoPorTipoHistorico,
-        getRitmoMetaFaturamento(params),
         getSituacaoPedidos(params),
         getRankingClientesFaturamento(params),
       ]);
-      const [ranking, faturamento, faturamentoTipos, ritmoMeta, situacaoPedidosRes, rankingClientes] =
-        results;
-
-      if (ranking.status === 'fulfilled') setSellerRanking(ranking.value.data ?? []);
-      else console.error(ranking.reason);
-
-      if (faturamento.status === 'fulfilled')
-        setFaturamentoMensal(faturamento.value.data?.[0] ?? null);
-      else console.error(faturamento.reason);
+      const [faturamentoTipos, situacaoPedidosRes, rankingClientes] = results;
 
       if (faturamentoTipos.status === 'fulfilled')
         setFaturamentoPorTipoBuckets(parseFaturamentoPorTipoBuckets(faturamentoTipos.value));
       else console.error(faturamentoTipos.reason);
-
-      if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
-      else console.error(ritmoMeta.reason);
 
       if (situacaoPedidosRes.status === 'fulfilled')
         setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
@@ -275,138 +247,7 @@ export default function FaturamentoPorTipo() {
     }
 
     loadAll();
-  }, [completeDate]);
-
-  const faturamento = (
-    <DashboardGrid>
-      {/* Ranking */}
-      <DashboardWidget cols={6} rows={6} tabletCols={12}>
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-            <span>{sellerRanking.length} vendedores</span>
-          </div>
-          <div className={styles.fixedRank}>
-            Destaques do Pódio
-            <div className={styles.top3Container}>
-              {top3.map((v) => (
-                <VendorCard
-                  key={v.cod_vendedor}
-                  {...v}
-                  onClick={() => {
-                    setSelectedVendorId(Number(v.cod_vendedor));
-                    setSelectedFilialId(v.codigo_empresa);
-                  }}
-                  color={accentColor}
-                />
-              ))}
-            </div>
-          </div>
-          <div className={styles.defaultRank}>
-            {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-            <div
-              className={sellerRanking.length > 9 ? styles.autoScroll : ''}
-              style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-            >
-              <div className={styles.vendorGroup}>
-                {otherVendors.map((v) => (
-                  <VendorCard
-                    key={v.cod_vendedor}
-                    {...v}
-                    onClick={() => {
-                      setSelectedVendorId(Number(v.cod_vendedor));
-                      setSelectedFilialId(v.codigo_empresa);
-                    }}
-                    color={accentColor}
-                  />
-                ))}
-              </div>
-              <div className={styles.vendorGroup} aria-hidden="true">
-                {sellerRanking.length >= 10 &&
-                  otherVendors.map((v) => (
-                    <VendorCard
-                      key={`dup-${v.cod_vendedor}`}
-                      {...v}
-                      onClick={() => {
-                        setSelectedVendorId(Number(v.cod_vendedor));
-                        setSelectedFilialId(v.codigo_empresa);
-                      }}
-                      color={accentColor}
-                    />
-                  ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </DashboardWidget>
-      {/* Gauge */}
-      <DashboardWidget cols={6} rows={3} tabletCols={12}>
-        <RevenueGauge
-          totalOrders={faturamentoMensal?.qtd_nfs}
-          value={gauge || 0}
-          target={Number(faturamentoMensal?.meta) || 0}
-          totalRevenue={Number(faturamentoMensal?.faturamento_total) || 0}
-          lastMonthRevenue={Number(faturamentoMensal?.fat_mes_anterior) || 0}
-          lastMonthOrders={Number(faturamentoMensal?.qtd_nfs_mes_anterior) || 0}
-          color={accentColor}
-        />
-      </DashboardWidget>
-      {/* Faturamento Diário / Volume NFs */}
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        <div className={styles.stackedSections}>
-          <SectionCard
-            header={{
-              title: 'Faturamento Diário',
-              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-            }}
-            background="var(--navy-850)"
-          >
-            <DailyStatCard
-              todayValue={toBRL(Number(faturamentoMensal?.fat_hoje) || 0)}
-              yesterdayValue={toBRL(Number(faturamentoMensal?.fat_ontem) || 0)}
-            />
-          </SectionCard>
-          <SectionCard
-            header={{
-              title: 'Volume de Notas Fiscais',
-              icon: <span className={`${styles.titleDot} ${styles.dotGold}`} />,
-            }}
-            background="var(--navy-850)"
-          >
-            <DailyStatCard
-              todayValue={faturamentoMensal?.pedidos_hoje || 0}
-              yesterdayValue={faturamentoMensal?.pedidos_ontem || 0}
-            />
-          </SectionCard>
-        </div>
-      </DashboardWidget>
-      {/* Ritmo de meta */}
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
-        <GoalPaceCard
-          status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-          idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-          currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-          workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-          elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-          orientation="column"
-        />
-      </DashboardWidget>
-      {/* Faturamento por tipo */}
-      <DashboardWidget cols={6} rows={1} tabletCols={12}>
-        <div className={styles.defaultCard}>
-          <h3>Faturamento por tipo</h3>
-          <div className={styles.tipoFaturamentoRow}>
-            {billingTypes.map(({ label, value }) => (
-              <div key={label} className={styles.tipoFaturamentoItem}>
-                <h4 className={styles.tipoFaturamentoLabel}>{label}</h4>
-                <span className={styles.tipoFaturamentoValue}>{toBRL(value)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </DashboardWidget>
-    </DashboardGrid>
-  );
+  }, [completeDate, codigoEmpresa]);
 
   const faturamentoDetalhado = (
     <DashboardGrid>
@@ -665,19 +506,16 @@ export default function FaturamentoPorTipo() {
 
   const skeleton = (
     <DashboardGrid>
-      <DashboardWidget cols={6} rows={6} tabletCols={12}>
-        {skeletonWidget}
-      </DashboardWidget>
       <DashboardWidget cols={6} rows={3} tabletCols={12}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         {skeletonWidget}
       </DashboardWidget>
     </DashboardGrid>
@@ -689,19 +527,7 @@ export default function FaturamentoPorTipo() {
 
   return (
     <div className={styles.dashboardContainer}>
-      <DashboardScrollStack
-        accentColor={accentColor}
-        panels={[faturamento, faturamentoDetalhado]}
-      />
-      <VendorDetailsModal
-        isOpen={selectedVendorId !== null}
-        onClose={() => setSelectedVendorId(null)}
-        vendorId={selectedVendorId}
-        filialId={selectedFilialId}
-        dashboard="faturamento"
-        mes={completeDate.month() + 1}
-        ano={completeDate.year()}
-      />
+      <DashboardScrollStack accentColor={accentColor} panels={[faturamentoDetalhado]} />
     </div>
   );
 }

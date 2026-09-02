@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import DashboardHeroLayout from '@/components/Dashboards/DashboardHeroLayout/DashboardHeroLayout';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
@@ -13,6 +13,9 @@ import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import toBRL from '@/utils/toBRL';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
+import useDashboardVendorModal from '@/hooks/useDashboardVendorModal';
+import useDashboardHistorico from '@/hooks/useDashboardHistorico';
 import {
   getRankingVendedoresVendas,
   getRitmoMetaVendas,
@@ -46,7 +49,21 @@ const Vendas = () => {
   //só exibe o dashboard quando todas as requisições terminarem
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { completeDate } = useDashboardDate();
+  const { codigoEmpresa } = useDashboardEmpresa();
+  const { vendorModalRequest, clearVendorModalRequest } = useDashboardVendorModal();
+  const { isHistorico } = useDashboardHistorico();
   const accentColor = 'var(--green)';
+
+  // Resultado da busca de pedido/NF no header abre o modal desse vendedor
+  // diretamente aqui — a data/empresa já foram ajustadas pelo header.
+  useEffect(() => {
+    if (vendorModalRequest?.dashboard !== 'vendas') return;
+    startTransition(() => {
+      setSelectedVendorId(vendorModalRequest.vendorId);
+      setSelectedFilialId(vendorModalRequest.filialId);
+      clearVendorModalRequest();
+    });
+  }, [vendorModalRequest, clearVendorModalRequest]);
 
   const top3 = rankingVendedores.slice(0, 3);
   const otherVendors = rankingVendedores.slice(3);
@@ -60,7 +77,12 @@ const Vendas = () => {
   }));
 
   useEffect(() => {
-    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+    const params = {
+      mes: completeDate.month() + 1,
+      ano: completeDate.year(),
+      codigo_empresa: codigoEmpresa ?? undefined,
+      is_track_record: isHistorico,
+    };
 
     async function loadAll() {
       setIsLoading(true);
@@ -91,7 +113,7 @@ const Vendas = () => {
     }
 
     loadAll();
-  }, [completeDate]);
+  }, [completeDate, codigoEmpresa, isHistorico]);
 
   const hero = (
     <RevenueGauge

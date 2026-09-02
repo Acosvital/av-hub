@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
@@ -16,21 +16,13 @@ import {
   Chip,
   CircularProgress,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
   TextField,
-  Tooltip,
 } from '@mui/material';
-import { LuMessageSquareText, LuX } from 'react-icons/lu';
+import { FaPlus } from 'react-icons/fa';
+import { LuCheck, LuClock, LuX } from 'react-icons/lu';
 import dateFormatter from '@/utils/dateFormatter';
 import toBRL from '@/utils/toBRL';
 import {
@@ -49,6 +41,7 @@ import {
   TIPOS_VAGA,
 } from './types';
 import { getSetores } from '@/services/rh/referenciais';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 
 const FORM_INICIAL: FormSolicitacaoVaga = {
   data_solicitacao: new Date().toISOString().slice(0, 10),
@@ -88,34 +81,6 @@ function SituacaoChip({ situacao }: { situacao: SituacaoVaga }) {
   );
 }
 
-function ObservacoesCell({ row }: { row: SolicitacaoVagaProps }) {
-  const notas = [
-    row.observacao_motivo && { label: 'Vaga', texto: row.observacao_motivo },
-    row.observacao && { label: 'Remuneração', texto: row.observacao },
-    row.observacao_situacao && { label: 'Situação', texto: row.observacao_situacao },
-  ].filter((n): n is { label: string; texto: string } => Boolean(n));
-
-  if (!notas.length) return <span>—</span>;
-
-  return (
-    <Tooltip
-      title={
-        <div>
-          {notas.map((n) => (
-            <div key={n.label}>
-              <strong>{n.label}:</strong> {n.texto}
-            </div>
-          ))}
-        </div>
-      }
-    >
-      <span style={{ display: 'inline-flex', cursor: 'help' }}>
-        <LuMessageSquareText size={18} />
-      </span>
-    </Tooltip>
-  );
-}
-
 function calcularCustoTotal(form: FormSolicitacaoVaga): number {
   const quantidade = Number(form.quantidade) || 0;
   const salario = Number(form.salario) || 0;
@@ -141,14 +106,33 @@ const SolicitacoesDeVagas = () => {
 
   const [cargoInput, setCargoInput] = useState('');
   const cargo = useDebounce(cargoInput, 500);
-  const [solicitanteInput, setSolicitanteInput] = useState('');
-  const solicitante = useDebounce(solicitanteInput, 500);
 
   const [setores, setSetores] = useState<SetoresProps[]>([]);
   const [setorFiltro, setSetorFiltro] = useState('');
   const [situacaoFiltro, setSituacaoFiltro] = useState<SituacaoVaga | 'todos'>('todos');
 
   const [form, setForm] = useState<FormSolicitacaoVaga>(FORM_INICIAL);
+
+  // Resumo pro diretor: quantas pendentes e quanto custam, além do total já
+  // aprovado. Busca à parte da tabela paginada, senão os números refletiriam
+  // só a página atual.
+  const [resumoPendentes, setResumoPendentes] = useState({ count: 0, custo: 0 });
+  const [resumoAprovadas, setResumoAprovadas] = useState(0);
+
+  // Decisão rápida direto na linha (sem abrir o modal) — qual solicitação
+  // está "em decisão" e o que foi escolhido, antes de confirmar.
+  const [decisaoRapida, setDecisaoRapida] = useState<{ id: string; situacao: SituacaoVaga } | null>(
+    null
+  );
+  const [obsRapida, setObsRapida] = useState('');
+  const [salvandoRapida, setSalvandoRapida] = useState(false);
+
+  // Lista + detalhe fixo: qual solicitação está selecionada no painel da
+  // direita, e o estado de decisão (situação/observação) pendente nela.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [painelSituacao, setPainelSituacao] = useState<SituacaoVaga>('pendente');
+  const [painelObs, setPainelObs] = useState('');
+  const [salvandoPainel, setSalvandoPainel] = useState(false);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -176,7 +160,6 @@ const SolicitacoesDeVagas = () => {
           page: page + 1,
           limit: rowsPerPage,
           cargo: cargo || undefined,
-          solicitante: solicitante || undefined,
           setor: setorFiltro || undefined,
           situacao,
         });
@@ -190,21 +173,149 @@ const SolicitacoesDeVagas = () => {
       }
     };
     fetchData();
-  }, [page, rowsPerPage, cargo, solicitante, setorFiltro, situacaoFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, cargo, setorFiltro, situacaoFiltro, refreshTrigger]);
 
   useEffect(() => {
     setPage(0);
-  }, [cargo, solicitante, setorFiltro, situacaoFiltro]);
+  }, [cargo, setorFiltro, situacaoFiltro]);
+
+  useEffect(() => {
+    async function fetchResumo() {
+      try {
+        const [pendentesRes, aprovadasRes] = await Promise.all([
+          getSolicitacoesDeVagas({ situacao: 'pendente', limit: 500 }),
+          getSolicitacoesDeVagas({ situacao: 'aprovado', limit: 1 }),
+        ]);
+        const custo = (pendentesRes.vagas ?? []).reduce(
+          (soma, v) => soma + (v.custo_total ?? 0),
+          0
+        );
+        setResumoPendentes({ count: pendentesRes.total ?? 0, custo });
+        setResumoAprovadas(aprovadasRes.total ?? 0);
+      } catch (err) {
+        console.error('Erro ao carregar resumo de vagas', err);
+      }
+    }
+    fetchResumo();
+  }, [refreshTrigger]);
+
+  useEffect(() => {
+    if (rows.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+    if (!rows.some((r) => r.id === selectedId)) {
+      setSelectedId(rows[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows]);
+
+  useEffect(() => {
+    const row = rows.find((r) => r.id === selectedId);
+    if (row) {
+      setPainelSituacao(row.situacao);
+      setPainelObs(row.observacao_situacao ?? '');
+    }
+  }, [selectedId, rows]);
 
   const setorNome = (id: string) => setores.find((s) => s.id === id)?.nome ?? '—';
 
-  const limparFiltros = () => {
-    setCargoInput('');
-    setSolicitanteInput('');
-    setSetorFiltro('');
-    setSituacaoFiltro('todos');
-    setPage(0);
+  // Quem só tem editar+visualizar (sem criar/deletar) é o papel "diretor" —
+  // decide, mas não registra a solicitação. Ver contrato de permissões em
+  // hooks/usePermission.ts.
+  const isApprover = canOnly('pode_editar', 'pode_visualizar');
+
+  const abrirDecisaoRapida = (row: SolicitacaoVagaProps, situacao: SituacaoVaga) => {
+    setDecisaoRapida({ id: row.id, situacao });
+    setObsRapida('');
   };
+
+  const cancelarDecisaoRapida = () => {
+    setDecisaoRapida(null);
+    setObsRapida('');
+  };
+
+  const confirmarDecisaoRapida = async (row: SolicitacaoVagaProps) => {
+    if (!decisaoRapida) return;
+    try {
+      setSalvandoRapida(true);
+      await editarSolicitacaoVaga(row.id, {
+        data_solicitacao: row.data_solicitacao,
+        solicitante: row.solicitante,
+        id_setor: row.id_setor,
+        cargo_vaga: row.cargo_vaga,
+        observacao_motivo: row.observacao_motivo,
+        quantidade: row.quantidade,
+        tipo_vaga: row.tipo_vaga,
+        salario: row.salario,
+        observacao: row.observacao,
+        insalubridade: row.insalubridade,
+        vr: row.vr,
+        custo_total: row.custo_total,
+        situacao: decisaoRapida.situacao,
+        observacao_situacao: obsRapida.trim(),
+      });
+      notify.success(
+        decisaoRapida.situacao === 'aprovado' ? 'Solicitação aprovada' : 'Solicitação reprovada'
+      );
+      setDecisaoRapida(null);
+      setObsRapida('');
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      notify.error('Erro ao atualizar a solicitação');
+    } finally {
+      setSalvandoRapida(false);
+    }
+  };
+
+  const selecionarSolicitacao = (row: SolicitacaoVagaProps) => {
+    setSelectedId(row.id);
+  };
+
+  const confirmarDecisaoPainel = async () => {
+    const row = rows.find((r) => r.id === selectedId);
+    if (!row) return;
+    try {
+      setSalvandoPainel(true);
+      await editarSolicitacaoVaga(row.id, {
+        data_solicitacao: row.data_solicitacao,
+        solicitante: row.solicitante,
+        id_setor: row.id_setor,
+        cargo_vaga: row.cargo_vaga,
+        observacao_motivo: row.observacao_motivo,
+        quantidade: row.quantidade,
+        tipo_vaga: row.tipo_vaga,
+        salario: row.salario,
+        observacao: row.observacao,
+        insalubridade: row.insalubridade,
+        vr: row.vr,
+        custo_total: row.custo_total,
+        situacao: painelSituacao,
+        observacao_situacao: painelObs.trim(),
+      });
+      notify.success('Decisão salva com sucesso');
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      notify.error('Erro ao salvar a decisão');
+    } finally {
+      setSalvandoPainel(false);
+    }
+  };
+
+  const FILTROS_VAGA = [
+    {
+      key: 'setor',
+      label: 'Setor',
+      options: setores.map((s) => ({ value: s.id, label: s.nome })),
+    },
+    {
+      key: 'situacao',
+      label: 'Situação',
+      options: SITUACOES_VAGA.map((s) => ({ value: s, label: SITUACAO_LABEL[s] })),
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -312,63 +423,53 @@ const SolicitacoesDeVagas = () => {
   });
 
   const custoTotal = calcularCustoTotal(form);
+  const selectedRow = rows.find((r) => r.id === selectedId) ?? null;
 
   return (
     <>
-      <PageHeader title="Solicitações de Vagas" subtitle="Consulte as vagas cadastradas" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Solicitações de Vagas" subtitle="Consulte as vagas cadastradas" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
+      {isApprover && (
+        <div className={styles.kpiStrip}>
+          <span className={`${styles.kpiChip} ${styles.kpiChipWarn}`}>
+            <LuClock size={13} />
+            {resumoPendentes.count} pendente{resumoPendentes.count === 1 ? '' : 's'}
+          </span>
+          <span className={styles.kpiChip}>{toBRL(resumoPendentes.custo)} em aprovação</span>
+          <span className={styles.kpiChip}>
+            {resumoAprovadas} aprovada{resumoAprovadas === 1 ? '' : 's'} ao todo
+          </span>
+        </div>
+      )}
       <PageContent>
-        <Card title="Lista de Vagas" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
-          <div className={styles.filterBar}>
-            <TextField
-              size="small"
-              sx={{ flex: 2, minWidth: 200 }}
-              label="Cargo / Vaga"
-              variant="outlined"
-              value={cargoInput}
-              onChange={(e) => setCargoInput(e.target.value)}
-            />
-            <TextField
-              size="small"
-              sx={{ flex: 1, minWidth: 160 }}
-              label="Solicitante"
-              variant="outlined"
-              value={solicitanteInput}
-              onChange={(e) => setSolicitanteInput(e.target.value)}
-            />
-            <Autocomplete
-              size="small"
-              sx={{ minWidth: 160 }}
-              options={setores}
-              getOptionLabel={(f) => f.nome}
-              value={setores.find((f) => f.id === setorFiltro) ?? null}
-              onChange={(_, v) => setSetorFiltro(v?.id ?? '')}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label="Setor" />}
-            />
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Situação</InputLabel>
-              <Select
-                value={situacaoFiltro}
-                label="Situação"
-                onChange={(e) => setSituacaoFiltro(e.target.value as SituacaoVaga | 'todos')}
-              >
-                <MenuItem value="todos">Todas</MenuItem>
-                {SITUACOES_VAGA.map((situacao) => (
-                  <MenuItem key={situacao} value={situacao}>
-                    {SITUACAO_LABEL[situacao]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {(cargoInput || solicitanteInput || setorFiltro || situacaoFiltro !== 'todos') && (
-              <Tooltip title="Limpar filtros">
-                <IconButton size="small" onClick={limparFiltros} sx={{ color: 'var(--foreground-secondary)' }}>
-                  <LuX size={18} />
-                </IconButton>
-              </Tooltip>
-            )}
-          </div>
-          <div className={styles.tableCard}>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={cargoInput}
+            onSearchChange={(value) => {
+              setCargoInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por cargo/vaga..."
+            filters={FILTROS_VAGA}
+            activeValues={{
+              setor: setorFiltro || undefined,
+              situacao: situacaoFiltro !== 'todos' ? situacaoFiltro : undefined,
+            }}
+            onFilterChange={(key, value) => {
+              if (key === 'setor') setSetorFiltro(value ?? '');
+              else if (key === 'situacao')
+                setSituacaoFiltro((value as SituacaoVaga | null) ?? 'todos');
+              setPage(0);
+            }}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
@@ -377,74 +478,176 @@ const SolicitacoesDeVagas = () => {
           ) : (
             <>
               <div className={styles.tableWrapper}>
-                <TableContainer
-                  sx={{
-                    flex: 1,
-                    minHeight: 0,
-                    overflow: 'auto',
-                  }}
-                >
-                  <Table stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        {[
-                          'Data da Solicitação',
-                          'Solicitante',
-                          'Setor',
-                          'Cargo / Vaga',
-                          'Qtd',
-                          'Tipo de Vaga',
-                          'Salário',
-                          'Insalubridade',
-                          'VR',
-                          'Custo Total',
-                          'Situação',
-                          'Obs.',
-                        ].map((label) => (
-                          <TableCell key={label}>{label}</TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row, index) => (
-                        <TableRow
-                          hover={can('pode_editar') || can('pode_deletar')}
+                <div className={styles.splitWrap}>
+                  <div className={styles.splitList}>
+                    {rows.length === 0 ? (
+                      <div className={styles.mobileEmpty}>Nenhuma solicitação encontrada.</div>
+                    ) : (
+                      rows.map((row) => (
+                        <div
                           key={row.id}
-                          onClick={
-                            can('pode_editar') || can('pode_deletar')
-                              ? () => abrirEdicaoModal(row)
-                              : undefined
-                          }
-                          sx={{
-                            cursor:
-                              can('pode_editar') || can('pode_deletar') ? 'pointer' : 'default',
-                            backgroundColor:
-                              index % 2 === 1
-                                ? 'color-mix(in srgb, var(--neutral-50) 3%, transparent)'
-                                : 'transparent',
-                          }}
+                          className={`${styles.splitItem} ${
+                            row.id === selectedId ? styles.splitItemSelected : ''
+                          }`}
+                          onClick={() => selecionarSolicitacao(row)}
                         >
-                          <TableCell>{dateFormatter(row.data_solicitacao)}</TableCell>
-                          <TableCell>{row.solicitante}</TableCell>
-                          <TableCell>{setorNome(row.id_setor)}</TableCell>
-                          <TableCell>{row.cargo_vaga}</TableCell>
-                          <TableCell>{row.quantidade}</TableCell>
-                          <TableCell>{row.tipo_vaga || '—'}</TableCell>
-                          <TableCell>{toBRL(row.salario ?? 0)}</TableCell>
-                          <TableCell>{toBRL(row.insalubridade ?? 0)}</TableCell>
-                          <TableCell>{toBRL(row.vr ?? 0)}</TableCell>
-                          <TableCell>{toBRL(row.custo_total ?? 0)}</TableCell>
-                          <TableCell>
+                          <div className={styles.splitItemTop}>
+                            <span className={styles.splitItemTitle}>{row.cargo_vaga}</span>
                             <SituacaoChip situacao={row.situacao} />
-                          </TableCell>
-                          <TableCell>
-                            <ObservacoesCell row={row} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                          </div>
+                          <span className={styles.splitItemSub}>
+                            {setorNome(row.id_setor)} · {row.solicitante}
+                          </span>
+                          <div className={styles.splitItemFoot}>
+                            <span>{dateFormatter(row.data_solicitacao)}</span>
+                            <span className={styles.splitItemCusto}>
+                              {toBRL(row.custo_total ?? 0)}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className={styles.splitDetail}>
+                    {selectedRow ? (
+                      <>
+                        <div className={styles.reviewSummary}>
+                          <div className={styles.reviewTitleRow}>
+                            <span className={styles.mobileCardTitle}>
+                              {selectedRow.cargo_vaga}
+                            </span>
+                            <SituacaoChip situacao={selectedRow.situacao} />
+                          </div>
+                          <span className={styles.reviewSub}>
+                            {setorNome(selectedRow.id_setor)} · {selectedRow.solicitante} ·{' '}
+                            {dateFormatter(selectedRow.data_solicitacao)}
+                          </span>
+                        </div>
+
+                        <div className={styles.reviewFacts}>
+                          <div>
+                            <span className={styles.factLabel}>Qtd / Tipo</span>
+                            <span className={styles.factValue}>
+                              {selectedRow.quantidade} · {selectedRow.tipo_vaga || '—'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className={styles.factLabel}>Salário unit.</span>
+                            <span className={styles.factValue}>
+                              {toBRL(selectedRow.salario ?? 0)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className={styles.factLabel}>Insalubridade</span>
+                            <span className={styles.factValue}>
+                              {toBRL(selectedRow.insalubridade ?? 0)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className={styles.factLabel}>VR unit.</span>
+                            <span className={styles.factValue}>{toBRL(selectedRow.vr ?? 0)}</span>
+                          </div>
+                          <div>
+                            <span className={styles.factLabel}>Custo Total</span>
+                            <span className={`${styles.factValue} ${styles.factHighlight}`}>
+                              {toBRL(selectedRow.custo_total ?? 0)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {(selectedRow.observacao_motivo || selectedRow.observacao) && (
+                          <div className={styles.notesList}>
+                            {selectedRow.observacao_motivo && (
+                              <div className={styles.reviewNote}>
+                                <strong>Obs. da vaga:</strong> {selectedRow.observacao_motivo}
+                              </div>
+                            )}
+                            {selectedRow.observacao && (
+                              <div className={styles.reviewNote}>
+                                <strong>Obs. da remuneração:</strong> {selectedRow.observacao}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {isApprover ? (
+                          <>
+                            <div>
+                              <p className={styles.decisionLabel}>Decisão</p>
+                              <div className={styles.decisionRow}>
+                                {SITUACOES_VAGA.map((situacao) => (
+                                  <button
+                                    key={situacao}
+                                    type="button"
+                                    className={`${styles.decisionBtn} ${
+                                      styles[`decision_${situacao}`]
+                                    } ${painelSituacao === situacao ? styles.decisionSelected : ''}`}
+                                    onClick={() => setPainelSituacao(situacao)}
+                                  >
+                                    {situacao === 'aprovado' && <LuCheck size={14} />}
+                                    {situacao === 'reprovado' && <LuX size={14} />}
+                                    {situacao === 'pendente' && <LuClock size={14} />}
+                                    {SITUACAO_LABEL[situacao]}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <TextField
+                              fullWidth
+                              multiline
+                              minRows={2}
+                              label="Observação (opcional)"
+                              placeholder="Ex.: aprovado, mas peço para ajustar o salário..."
+                              value={painelObs}
+                              onChange={(e) => setPainelObs(e.target.value)}
+                            />
+                            <div className={styles.formActions}>
+                              <Button
+                                variant="primary"
+                                onClick={confirmarDecisaoPainel}
+                                disabled={salvandoPainel}
+                              >
+                                {salvandoPainel ? 'Salvando...' : 'Confirmar decisão'}
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          (can('pode_editar') || can('pode_deletar')) && (
+                            <div className={styles.formActionsWithDelete}>
+                              {can('pode_deletar') && (
+                                <PermissionButton
+                                  acao="pode_deletar"
+                                  variant="danger"
+                                  onClick={() => {
+                                    setEditingId(selectedRow.id);
+                                    openDeleteDialog();
+                                  }}
+                                >
+                                  Excluir
+                                </PermissionButton>
+                              )}
+                              <div className={styles.formActionsMain}>
+                                {can('pode_editar') && (
+                                  <Button
+                                    variant="primary"
+                                    onClick={() => abrirEdicaoModal(selectedRow)}
+                                  >
+                                    Editar Solicitação
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </>
+                    ) : (
+                      <div className={styles.mobileEmpty}>
+                        Selecione uma solicitação para ver os detalhes.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className={styles.mobileList}>
@@ -453,11 +656,12 @@ const SolicitacoesDeVagas = () => {
                 ) : (
                   rows.map((row) => {
                     const podeAbrir = can('pode_editar') || can('pode_deletar');
+                    const emDecisao = decisaoRapida?.id === row.id;
                     return (
                       <div
                         key={row.id}
-                        className={`${styles.mobileCard} ${podeAbrir ? styles.mobileCardClickable : ''}`}
-                        onClick={podeAbrir ? () => abrirEdicaoModal(row) : undefined}
+                        className={`${styles.mobileCard} ${podeAbrir && !emDecisao ? styles.mobileCardClickable : ''}`}
+                        onClick={podeAbrir && !emDecisao ? () => abrirEdicaoModal(row) : undefined}
                       >
                         <div className={styles.mobileCardHeader}>
                           <div className={styles.mobileField}>
@@ -504,6 +708,76 @@ const SolicitacoesDeVagas = () => {
                             {toBRL(row.custo_total ?? 0)}
                           </span>
                         </div>
+
+                        {isApprover && row.situacao === 'pendente' && !emDecisao && (
+                          <div className={styles.quickActions}>
+                            <button
+                              type="button"
+                              className={`${styles.quickBtn} ${styles.quickApprove}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                abrirDecisaoRapida(row, 'aprovado');
+                              }}
+                            >
+                              <LuCheck size={13} /> Aprovar
+                            </button>
+                            <button
+                              type="button"
+                              className={`${styles.quickBtn} ${styles.quickReject}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                abrirDecisaoRapida(row, 'reprovado');
+                              }}
+                            >
+                              <LuX size={13} /> Reprovar
+                            </button>
+                          </div>
+                        )}
+
+                        {emDecisao && decisaoRapida && (
+                          <div className={styles.quickExpand} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.quickExpandHead}>
+                              {decisaoRapida.situacao === 'aprovado' ? (
+                                <span className={`${styles.decisionLabel} ${styles.decision_aprovado}`}>
+                                  <LuCheck size={14} /> Aprovando
+                                </span>
+                              ) : (
+                                <span className={`${styles.decisionLabel} ${styles.decision_reprovado}`}>
+                                  <LuX size={14} /> Reprovando
+                                </span>
+                              )}
+                            </div>
+                            <TextField
+                              fullWidth
+                              multiline
+                              minRows={2}
+                              placeholder={
+                                decisaoRapida.situacao === 'aprovado'
+                                  ? 'Ex.: aprovado, mas peço para ajustar o salário...'
+                                  : 'Ex.: motivo da reprovação...'
+                              }
+                              value={obsRapida}
+                              onChange={(e) => setObsRapida(e.target.value)}
+                            />
+                            <span className={styles.quickOptional}>Observação opcional</span>
+                            <div className={styles.quickExpandActions}>
+                              <Button
+                                variant="secondary"
+                                onClick={cancelarDecisaoRapida}
+                                disabled={salvandoRapida}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button
+                                variant="primary"
+                                onClick={() => confirmarDecisaoRapida(row)}
+                                disabled={salvandoRapida}
+                              >
+                                {salvandoRapida ? 'Salvando...' : 'Confirmar decisão'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })
@@ -512,26 +786,19 @@ const SolicitacoesDeVagas = () => {
             </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage=""
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
       <Modal
         title={editingId ? 'Editar Solicitação' : 'Nova Solicitação de Vaga'}
         subtitle={editingId ? form.cargo_vaga : 'Preencha os dados da nova vaga'}
@@ -563,6 +830,7 @@ const SolicitacoesDeVagas = () => {
             <Autocomplete
               sx={{ flex: 1, minWidth: 200 }}
               options={setores}
+              getOptionKey={(f) => f.id}
               getOptionLabel={(f) => f.nome}
               value={setores.find((f) => f.id === form.id_setor) ?? null}
               disabled={canOnly('pode_editar', 'pode_visualizar')}

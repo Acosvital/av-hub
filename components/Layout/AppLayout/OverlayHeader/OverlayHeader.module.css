@@ -24,7 +24,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 150;
 }
 
 .hidden {
@@ -112,6 +112,165 @@
   border-radius: 0 0 8px 8px;
 }
 
+.empresaOptionsList {
+  min-width: 220px;
+  padding: var(--space-2);
+  gap: 2px;
+}
+
+.empresaOption {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--t-base);
+}
+
+.empresaOption:hover {
+  background-color: var(--surface-secondary);
+}
+
+.empresaOptionActive {
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+}
+
+.empresaOptionActive:hover {
+  background-color: var(--av-secondary);
+}
+
+.searchCard {
+  width: 320px;
+  max-width: 88vw;
+}
+
+.searchForm {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--av-accent);
+}
+
+.searchSubmitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+  cursor: pointer;
+}
+
+.searchSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.searchEmpty {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  text-align: center;
+  padding: var(--space-2) 0;
+}
+
+.searchResultItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--t-base);
+}
+
+.searchResultItem:hover {
+  background-color: var(--surface-secondary);
+}
+
+.searchResultHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+}
+
+.searchResultBadge {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background-color: var(--av-secondary);
+  color: var(--neutral-50);
+}
+
+.searchResultDate {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-regular);
+  color: var(--foreground-secondary);
+}
+
+.searchResultRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.searchResultRow strong {
+  color: var(--foreground);
+  font-weight: var(--w-semibold);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .historic {
   display: flex;
   align-items: center;
@@ -133,12 +292,25 @@
   .title {
     display: none;
   }
+  /* No mobile o botão fica perto da borda direita — em vez de tentar
+     posicionar o menu relativo a ele (o "right: -150px" antigo era um chute
+     que descentralizava o calendário), ele vira fixo na tela, com a mesma
+     margem dos dois lados, sempre alinhado. */
   .datePickerMenu {
-    position: absolute;
-    top: 125%;
-    right: -150px;
+    position: fixed;
+    top: calc(var(--header-h, 84px) + var(--space-2));
+    left: var(--space-4);
+    right: var(--space-4);
     z-index: 50;
-    max-width: calc(100vw - var(--space-4) * 2);
-    overflow-x: auto;
+  }
+
+  .datePickerCard {
+    border-top: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .searchCard {
+    width: 100%;
+    max-width: none;
   }
 }

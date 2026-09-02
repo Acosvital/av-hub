@@ -42,45 +42,40 @@ interface Order {
   status?: 'CANCELADOS' | 'DEVOLVIDOS' | 'RECUSADOS' | 'REFATURAMENTO';
 }
 
+// "Sem classificação" não tem cor própria (usa --foreground) — como chip
+// sólido isso vira texto branco em fundo branco no tema claro (ou preto em
+// preto no escuro), então esse único caso ganha um chip neutro à parte.
+function chipStyle(key: keyof typeof orderTypes) {
+  if (key === 'SEM CLASSIFICAÇÃO') {
+    return { backgroundColor: 'var(--card-bg-tertiary)', color: 'var(--foreground-secondary)' };
+  }
+  return { backgroundColor: orderTypes[key].default, color: 'var(--white)' };
+}
+
 const Order = ({ id, category, date, partner, value, status }: Order) => {
+  const accentColor = orderTypes[status ? status : category].light;
   return (
-    <div
-      className={styles.order}
-      style={{ border: `2px solid ${orderTypes[status ? status : category].light}` }}
-    >
-      <div
-        className={styles.orderHeader}
-        style={{ color: `${orderTypes[status ? status : category].light}` }}
-      >
-        <span>{id}</span>
+    <div className={styles.order} style={{ borderLeftColor: accentColor }}>
+      <div className={styles.orderHeader}>
+        <span>#{id}</span>
         <span>{date}</span>
       </div>
       <div className={styles.orderPartner}>
-        <span style={{ color: `${orderTypes[status ? status : category].default}` }}>
-          <GoPersonFill size={12} />
+        <span className={styles.orderPartnerLabel}>
+          <GoPersonFill size={11} />
           Cliente
         </span>
         <h4>{partner}</h4>
       </div>
       <div className={styles.orderValues}>
-        <div className={styles.orderTotal}>
-          <span style={{ color: `${orderTypes[status ? status : category].default}` }}>
-            Valor do pedido
+        <span className={styles.orderTotalLabel}>Valor do pedido</span>
+        <span className={styles.orderTotalValue}>{toBRL(value)}</span>
+        <div className={styles.orderChips}>
+          <span className={styles.chip} style={chipStyle(category)}>
+            {category}
           </span>
-          <h4 style={{ color: `${orderTypes[status ? status : category].light}` }}>
-            {toBRL(value)}
-          </h4>
-        </div>
-        <div className={styles.orderStatus}>
-          <span style={{ color: `${orderTypes[category].light}` }}>{category}</span>
           {status && (
-            <span
-              className={styles.statusPill}
-              style={{
-                backgroundColor: `${orderTypes[status].default}`,
-                color: `1px solid ${orderTypes[status].light}`,
-              }}
-            >
+            <span className={styles.chip} style={chipStyle(status)}>
               {status}
             </span>
           )}

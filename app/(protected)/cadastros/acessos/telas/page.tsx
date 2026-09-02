@@ -6,24 +6,15 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {
-  Autocomplete,
-  Chip,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Switch,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, Chip, CircularProgress, FormControlLabel, Switch, TextField } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -116,11 +107,16 @@ export default function Telas() {
     fetchTelas();
   }, [page, rowsPerPage, nome, statusFiltro, refreshTrigger]);
 
-  const limparFiltros = () => {
-    setNomeInput('');
-    setStatusFiltro('todos');
-    setPage(0);
-  };
+  const FILTROS_TELA = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ativo', label: 'Ativo' },
+        { value: 'inativo', label: 'Inativo' },
+      ],
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -236,48 +232,42 @@ export default function Telas() {
 
   return (
     <>
-      <PageHeader title="Telas" subtitle="Gerencie as telas do sistema para montagem dos menus" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Telas" subtitle="Gerencie as telas do sistema para montagem dos menus" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 300 }}
-              label="Nome"
-              variant="outlined"
-              value={nomeInput}
-              onChange={(e) => setNomeInput(e.target.value)}
-            />
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFiltro}
-                label="Status"
-                onChange={(e) => {
-                  setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="ativo">Ativo</MenuItem>
-                <MenuItem value="inativo">Inativo</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card title="Telas Cadastradas" create={can('pode_criar') ? abrirCriacaoModal : undefined}>
-          <div className={styles.tableCard}>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={nomeInput}
+            onSearchChange={(value) => {
+              setNomeInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por nome..."
+            filters={FILTROS_TELA}
+            activeValues={{ status: statusFiltro !== 'todos' ? statusFiltro : undefined }}
+            onFilterChange={(key, value) => {
+              if (key === 'status') {
+                setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
+                setPage(0);
+              }
+            }}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -289,7 +279,16 @@ export default function Telas() {
                 <TableHead>
                   <TableRow>
                     {['Nome', 'Slug', 'Tela Pai', 'Ordem', 'Status'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
+                      <TableCell
+                        key={label}
+                        sx={{
+                          background:
+                            'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                        }}
+                      >
+                        {label}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -299,7 +298,12 @@ export default function Telas() {
                       hover={can('pode_editar')}
                       key={row.id}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{row.slug}</TableCell>
@@ -319,28 +323,45 @@ export default function Telas() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => row.id}
+              emptyMessage="Nenhuma tela encontrada."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => row.nome}
+              renderSubtitle={(row) => row.slug}
+              renderBadge={(row) => (
+                <Chip
+                  label={row.ativo ? 'Ativo' : 'Inativo'}
+                  color={row.ativo ? 'success' : 'error'}
+                  size="small"
+                />
+              )}
+              fields={(row) => [
+                {
+                  label: 'Tela Pai',
+                  value: rows.find((parent) => parent.id === row.id_parent)?.nome ?? '—',
+                },
+                { label: 'Ordem', value: row.ordem },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={editingId ? 'Editar Tela' : 'Nova Tela'}
@@ -380,6 +401,7 @@ export default function Telas() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={parentOptions}
+              getOptionKey={(t) => t.id}
               getOptionLabel={(t) => t.nome}
               value={parentSelecionado}
               onChange={(_, v) => {

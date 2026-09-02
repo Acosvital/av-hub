@@ -20,9 +20,10 @@ interface GetSellerRankingParams {
   ano?: number;
   cod_vendedor?: string;
   vendedor?: string;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface SellerRankingResponse extends PaginatedResponse {
@@ -35,9 +36,10 @@ export async function getRankingVendedores(params: GetSellerRankingParams = {}) 
   if (params.ano) query.set('ano', String(params.ano));
   if (params.cod_vendedor) query.set('cod_vendedor', String(params.cod_vendedor));
   if (params.vendedor) query.set('vendedor', String(params.vendedor));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<SellerRankingResponse>(
     `/api/dashboard/faturamento/ranking-vendedores?${query}`,
     'Erro ao buscar ranking de vendedores'
@@ -47,9 +49,10 @@ export async function getRankingVendedores(params: GetSellerRankingParams = {}) 
 interface GetFaturamentoMensalParams {
   mes?: number;
   ano?: number;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface FaturamentoMensalResponse extends PaginatedResponse {
@@ -60,9 +63,10 @@ export async function getFaturamentoMensal(params: GetFaturamentoMensalParams = 
   const query = new URLSearchParams();
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<FaturamentoMensalResponse>(
     `/api/dashboard/faturamento?${query}`,
     'Erro ao buscar faturamento mensal'
@@ -73,9 +77,10 @@ interface GetFaturamentoPorTipoParams {
   mes?: number;
   ano?: number;
   tipo_contrato?: string;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface FaturamentoPorTipoResponse extends PaginatedResponse {
@@ -87,9 +92,10 @@ export async function getFaturamentoPorTipo(params: GetFaturamentoPorTipoParams 
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
   if (params.tipo_contrato) query.set('tipo_contrato', String(params.tipo_contrato));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<FaturamentoPorTipoResponse>(
     `/api/dashboard/faturamento/faturamento-por-tipo?${query}`,
     'Erro ao buscar faturamento por tipo'
@@ -124,9 +130,10 @@ interface GetRankingClientesFaturamentoParams {
   codigo_cliente?: string;
   cpf_cnpj?: string;
   cliente?: string;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface RankingClientesFaturamentoResponse extends PaginatedResponse {
@@ -142,9 +149,10 @@ export async function getRankingClientesFaturamento(
   if (params.codigo_cliente) query.set('codigo_cliente', String(params.codigo_cliente));
   if (params.cpf_cnpj) query.set('cpf_cnpj', String(params.cpf_cnpj));
   if (params.cliente) query.set('cliente', String(params.cliente));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<RankingClientesFaturamentoResponse>(
     `/api/dashboard/faturamento/ranking-clientes?${query}`,
     'Erro ao buscar ranking de clientes'
@@ -155,9 +163,10 @@ interface GetRitmoMetaFaturamentoParams {
   mes?: number;
   ano?: number;
   status_ritmo?: string;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface RitmoMetaFaturamentoResponse extends PaginatedResponse {
@@ -169,9 +178,10 @@ export async function getRitmoMetaFaturamento(params: GetRitmoMetaFaturamentoPar
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
   if (params.status_ritmo) query.set('status_ritmo', String(params.status_ritmo));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<RitmoMetaFaturamentoResponse>(
     `/api/dashboard/faturamento/ritmo-de-meta?${query}`,
     'Erro ao buscar ritmo de meta'
@@ -182,9 +192,10 @@ interface GetSituacaoPedidosParams {
   mes?: number;
   ano?: number;
   grupo_deducao?: string;
+  codigo_empresa?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface SituacaoPedidosResponse extends PaginatedResponse {
@@ -196,9 +207,10 @@ export async function getSituacaoPedidos(params: GetSituacaoPedidosParams = {}) 
   if (params.mes) query.set('mes', String(params.mes));
   if (params.ano) query.set('ano', String(params.ano));
   if (params.grupo_deducao) query.set('grupo_deducao', String(params.grupo_deducao));
+  if (params.codigo_empresa) query.set('codigo_empresa', String(params.codigo_empresa));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<SituacaoPedidosResponse>(
     `/api/dashboard/faturamento/situacao-pedidos?${query}`,
     'Erro ao buscar situacao dos pedidos'
@@ -212,7 +224,7 @@ interface GetResumoMensalFaturamentoParams {
   periodo_fim?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface ResumoMensalFaturamentoResponse extends PaginatedResponse {
@@ -226,7 +238,7 @@ export async function getResumoMensalFaturamento(params: GetResumoMensalFaturame
   if (params.periodo_fim) query.set('periodo_fim', String(params.periodo_fim));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<ResumoMensalFaturamentoResponse>(
     `/api/dashboard/faturamento/resumo-mensal?${query}`,
     'Erro ao buscar resumo mensal de faturamento'
@@ -250,7 +262,7 @@ interface GetDetalheVendedorFaturamentoParams {
   data_fim?: string;
   page?: string;
   limit?: string;
-  historico?: boolean;
+  is_track_record?: boolean;
 }
 
 interface DetalheVendedorFaturamentoResponse {
@@ -279,7 +291,7 @@ export async function getDetalheVendedorFaturamento(params: GetDetalheVendedorFa
   if (params.data_fim) query.set('data_fim', String(params.data_fim));
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
-  if (params.historico) query.set('historico', 'true');
+  query.set('is_track_record', params.is_track_record ? 'TRUE' : 'FALSE');
   return apiFetch<DetalheVendedorFaturamentoResponse>(
     `/api/dashboard/faturamento/detalhe-vendedor?${query}`,
     'Erro ao buscar detalhe do vendedor'
