@@ -19,6 +19,9 @@ export interface ClientTypeBreakdown {
 interface ClientCardProps {
   cliente: string;
   qtd_pedidos: number;
+  // "Pedidos" no ranking de vendas (qtd_pedidos de verdade); no de faturamento
+  // o mesmo campo carrega total_nfs, então o rótulo vira "NFs" nesse contexto.
+  unidadeLabel?: string;
   perc_participacao: string;
   faturamento: number;
   tipo_contrato?: ClientOrderType | ClientOrderType[];
@@ -30,6 +33,7 @@ interface ClientCardProps {
 const ClientCard = ({
   cliente,
   qtd_pedidos,
+  unidadeLabel = 'Pedidos',
   perc_participacao,
   faturamento,
   tipo_contrato,
@@ -81,7 +85,7 @@ const ClientCard = ({
       <div className={styles.client}>
         <h4 className={styles.clientName}>{cliente}</h4>
         <div className={styles.clientDetails}>
-          <span className={styles.clientInfo}>{`${qtd_pedidos} Pedidos`}</span>
+          <span className={styles.clientInfo}>{`${qtd_pedidos} ${unidadeLabel}`}</span>
           <span className={styles.clientInfo}>·</span>
           <span
             className={styles.clientType}
