@@ -6,12 +6,12 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Chip, CircularProgress, TextField } from '@mui/material';
+import { Chip, CircularProgress } from '@mui/material';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
-import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -110,45 +110,35 @@ export default function Permissoes() {
 
   return (
     <>
-      <PageHeader
-        title="Permissões"
-        subtitle="Gerencie as permissões de acesso dos perfis às telas do sistema"
-      />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader
+          title="Permissões"
+          subtitle="Gerencie as permissões de acesso dos perfis às telas do sistema"
+        />
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              label="Buscar por perfil"
-              value={filtroNome}
-              onChange={(e) => {
-                setFiltroNome(e.target.value);
-                setPage(0);
-              }}
-              size="small"
-              sx={{ flex: 1, minWidth: 260 }}
-            />
-          </div>
-          <div className={styles.cardButtons}>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setFiltroNome('');
-                setPage(0);
-              }}
-            >
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card title="Permissões por Perfil">
-          <div className={styles.tableCard}>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={filtroNome}
+            onSearchChange={(value) => {
+              setFiltroNome(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por perfil..."
+            filters={[]}
+            activeValues={{}}
+            onFilterChange={() => {}}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -159,9 +149,18 @@ export default function Permissoes() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Perfil</TableCell>
-                    <TableCell>Telas Configuradas</TableCell>
-                    <TableCell>Status</TableCell>
+                    {['Perfil', 'Telas Configuradas', 'Status'].map((label) => (
+                      <TableCell
+                        key={label}
+                        sx={{
+                          background:
+                            'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                        }}
+                      >
+                        {label}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -172,7 +171,12 @@ export default function Permissoes() {
                         hover={can('pode_criar')}
                         key={perfil.id}
                         onClick={can('pode_criar') ? () => handlePerfilClick(perfil) : undefined}
-                        sx={{ cursor: can('pode_criar') ? 'pointer' : 'default' }}
+                        sx={{
+                          cursor: can('pode_criar') ? 'pointer' : 'default',
+                          '& .MuiTableCell-root': {
+                            borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                          },
+                        }}
                       >
                         <TableCell>{perfil.nome}</TableCell>
                         <TableCell>{count > 0 ? `${count} tela(s)` : '—'}</TableCell>
@@ -189,28 +193,44 @@ export default function Permissoes() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={perfisPaginados}
+              getRowKey={(perfil) => perfil.id}
+              emptyMessage="Nenhum perfil encontrado."
+              onRowClick={can('pode_criar') ? handlePerfilClick : undefined}
+              renderTitle={(perfil) => perfil.nome}
+              renderBadge={(perfil) => {
+                const count = permissoesPorPerfil[perfil.id] ?? 0;
+                return (
+                  <Chip
+                    label={count > 0 ? 'Configurado' : 'Sem permissões'}
+                    color={count > 0 ? 'success' : 'warning'}
+                    size="small"
+                  />
+                );
+              }}
+              fields={(perfil) => {
+                const count = permissoesPorPerfil[perfil.id] ?? 0;
+                return [{ label: 'Telas Configuradas', value: count > 0 ? `${count} tela(s)` : '—' }];
+              }}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={perfisFiltrados.length}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <BulkPermissaoModal
         isOpen={isBulkModalOpen}

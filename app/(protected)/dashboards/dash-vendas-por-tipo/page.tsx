@@ -1,24 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
-import DashboardHeroLayout from '@/components/Dashboards/DashboardHeroLayout/DashboardHeroLayout';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
-import SectionCard from '@/components/Dashboards/SectionCard/SectionCard';
-import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import styles from './styles.module.css';
-import VendorCard from '@/components/Dashboards/VendorCard/VendorCard';
-import RevenueGauge from '@/components/Dashboards/RevenueGauge/RevenueGauge';
-import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
-import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
 import {
   getRankingClientesVendas,
-  getRankingVendedoresVendas,
-  getRitmoMetaVendas,
-  getVendaMensal,
   getVendasPorTipo,
   parseVendasPorTipoBuckets,
   VendasPorTipoBucket,
@@ -27,13 +18,7 @@ import {
 // então reaproveitamos o mesmo endpoint usado pelo dashboard de faturamento por tipo.
 import { getSituacaoPedidos } from '@/services/dashboards/dashboardFaturamento';
 import { SituacaoPedidosFaturadosProps } from '../dash-faturamento-por-tipo/types';
-import {
-  ClientRankingVendasProps,
-  RankingVendedoresVendasProps,
-  RitmoMetaVendasProps,
-  VendaMensalProps,
-  VendasPorTipoProps,
-} from './types';
+import { ClientRankingVendasProps, VendasPorTipoProps } from './types';
 import { Skeleton, useMediaQuery } from '@mui/material';
 import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
 import { chartsGridClasses, LineChart, PieChart } from '@mui/x-charts';
@@ -73,18 +58,12 @@ const MESES_ABREVIADOS = [
   'nov',
   'dez',
 ];
-const MAX_MESES_FATURAMENTO_MENSAL = 12;
 const MAX_CLIENTES_RANKING_MOBILE = 15;
 
 const labelMesAno = (mes: number, ano: number) =>
   `${MESES_ABREVIADOS[mes - 1]}/${String(ano).slice(-2)}`;
 
 const VendasPorTipo = () => {
-  const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
-  const [selectedFilialId, setSelectedFilialId] = useState<string | null>(null);
-  const [rankingVendedores, setRankingVendedores] = useState<RankingVendedoresVendasProps[]>([]);
-  const [vendaMensal, setVendaMensal] = useState<VendaMensalProps | null>(null);
-  const [ritmoDeMeta, setRitmoDeMeta] = useState<RitmoMetaVendasProps | null>(null);
   const [vendasPorTipoBuckets, setVendasPorTipoBuckets] = useState<VendasPorTipoBucket[]>([]);
   const [situacaoPedidos, setSituacaoPedidos] = useState<SituacaoPedidosFaturadosProps[]>([]);
 
@@ -95,13 +74,9 @@ const VendasPorTipo = () => {
   //só exibe o dashboard quando todas as requisições terminarem
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { completeDate } = useDashboardDate();
+  const { codigoEmpresa } = useDashboardEmpresa();
   const accentColor = 'var(--green)';
   const isMobile = useMediaQuery('(max-width: 1024px)');
-
-  const top3 = rankingVendedores.slice(0, 3);
-  const otherVendors = rankingVendedores.slice(3);
-  const gauge = Number(vendaMensal?.perc_atingimento);
-  const scrollDuration = `${otherVendors.length * 1.7}s`;
 
   const anchorMes = completeDate.month() + 1;
   const anchorAno = completeDate.year();
@@ -109,9 +84,9 @@ const VendasPorTipo = () => {
 
   const vendasPorTipoMesAtual =
     vendasPorTipoBuckets.find((b) => b.ano * 12 + b.mes === anchorKey)?.entries ?? [];
-  const ultimos12Meses = vendasPorTipoBuckets
-    .filter((b) => b.ano * 12 + b.mes <= anchorKey)
-    .slice(-MAX_MESES_FATURAMENTO_MENSAL);
+  // O gráfico mostra só jan-mês atual do ano selecionado — nunca "vaza" pro
+  // ano anterior, mesmo que o mês atual seja janeiro ou fevereiro.
+  const mesesAnoVigente = vendasPorTipoBuckets.filter((b) => b.ano === anchorAno);
 
   const vendasPorTipoPorLabel = new Map(vendasPorTipoMesAtual.map((t) => [t.tipo_contrato, t]));
   const tiposVenda = TIPO_VENDA_DEFINITIONS.map((label) => ({
@@ -124,10 +99,10 @@ const VendasPorTipo = () => {
     value: Number(vendasPorTipoPorLabel.get(label)?.percentual_vendas) || 0,
   }));
 
-  const faturamentoMensalLabels = ultimos12Meses.map((b) => labelMesAno(b.mes, b.ano));
+  const faturamentoMensalLabels = mesesAnoVigente.map((b) => labelMesAno(b.mes, b.ano));
   const faturamentoMensalPorTipo = TIPO_VENDA_DEFINITIONS.reduce<Record<string, number[]>>(
     (acc, tipo) => {
-      acc[tipo] = ultimos12Meses.map(
+      acc[tipo] = mesesAnoVigente.map(
         (b) => Number(b.entries.find((e) => e.tipo_contrato === tipo)?.vendas) || 0
       );
       return acc;
@@ -222,14 +197,23 @@ const VendasPorTipo = () => {
   };
 
   useEffect(() => {
-    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+    const params = {
+      mes: completeDate.month() + 1,
+      ano: completeDate.year(),
+      codigo_empresa: codigoEmpresa ?? undefined,
+    };
 
     // O endpoint de vendas-por-tipo exige mes/ano e só devolve um mês por chamada
-    // (sem parâmetros ele quebra com 500 no backend) — para montar os últimos 12
-    // meses do LineChart, buscamos mês a mês em paralelo.
-    const mesesHistorico = Array.from({ length: MAX_MESES_FATURAMENTO_MENSAL }, (_, i) => {
-      const data = completeDate.subtract(MAX_MESES_FATURAMENTO_MENSAL - 1 - i, 'month');
-      return { mes: data.month() + 1, ano: data.year() };
+    // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
+    // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
+    // nunca cruzar pro ano anterior.
+    const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
+      const data = completeDate.startOf('year').add(i, 'month');
+      return {
+        mes: data.month() + 1,
+        ano: data.year(),
+        codigo_empresa: codigoEmpresa ?? undefined,
+      };
     });
 
     async function loadAll() {
@@ -238,30 +222,15 @@ const VendasPorTipo = () => {
       const vendasPorTipoHistorico = Promise.allSettled(
         mesesHistorico.map((mesAno) => getVendasPorTipo(mesAno))
       ).then((respostas) =>
-        respostas
-          .filter((r) => r.status === 'fulfilled')
-          .flatMap((r) => r.value.data ?? [])
+        respostas.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value.data ?? [])
       );
 
       const results = await Promise.allSettled([
-        getRankingVendedoresVendas(params),
-        getVendaMensal(params),
-        getRitmoMetaVendas(params),
         vendasPorTipoHistorico,
         getRankingClientesVendas(params),
         getSituacaoPedidos(params),
       ]);
-      const [ranking, vendas, ritmoVendas, vendasTipo, rankingClientes, situacaoPedidosRes] =
-        results;
-
-      if (ranking.status === 'fulfilled') setRankingVendedores(ranking.value.data ?? []);
-      else console.error(ranking.reason);
-
-      if (vendas.status === 'fulfilled') setVendaMensal(vendas.value.data?.[0] ?? null);
-      else console.error(vendas.reason);
-
-      if (ritmoVendas.status === 'fulfilled') setRitmoDeMeta(ritmoVendas.value.data?.[0] ?? null);
-      else console.error(ritmoVendas.reason);
+      const [vendasTipo, rankingClientes, situacaoPedidosRes] = results;
 
       if (vendasTipo.status === 'fulfilled')
         setVendasPorTipoBuckets(parseVendasPorTipoBuckets(vendasTipo.value));
@@ -279,136 +248,7 @@ const VendasPorTipo = () => {
     }
 
     loadAll();
-  }, [completeDate]);
-
-  const hero = (
-    <RevenueGauge
-      totalOrders={vendaMensal?.qtd_pedidos}
-      type="venda"
-      value={gauge || 0}
-      target={Number(vendaMensal?.meta) || 0}
-      totalRevenue={Number(vendaMensal?.vendas_total) || 0}
-      lastMonthRevenue={Number(vendaMensal?.vendas_mes_anterior) || 0}
-      lastMonthOrders={Number(vendaMensal?.qtd_pedidos_mes_anterior) || 0}
-      color={accentColor}
-      gradientColor="var(--blue)"
-    />
-  );
-
-  const ranking = (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
-        <span>{rankingVendedores.length} vendedores</span>
-      </div>
-      <div className={styles.fixedRank}>
-        Destaques do Pódio
-        <div className={styles.top3Container}>
-          {top3.map((v) => (
-            <VendorCard
-              key={Number(v.cod_vendedor)}
-              {...v}
-              onClick={() => {
-                setSelectedVendorId(Number(v.cod_vendedor));
-                setSelectedFilialId(v.codigo_empresa);
-              }}
-              color={accentColor}
-              tieredMetaColor
-            />
-          ))}
-        </div>
-      </div>
-      <div className={styles.defaultRank}>
-        {/* Se o tamanho do Array dos vendedores for menor que 8, não adicionar autoScroll - vai ficar estranho! */}
-        <div
-          className={rankingVendedores.length > 9 ? styles.autoScroll : ''}
-          style={{ '--scroll-duration': scrollDuration } as React.CSSProperties}
-        >
-          <div className={styles.vendorGroup}>
-            {otherVendors.map((v) => (
-              <VendorCard
-                key={Number(v.cod_vendedor)}
-                {...v}
-                onClick={() => {
-                  setSelectedVendorId(Number(v.cod_vendedor));
-                  setSelectedFilialId(v.codigo_empresa);
-                }}
-                color={accentColor}
-                tieredMetaColor
-              />
-            ))}
-          </div>
-          <div className={styles.vendorGroup} aria-hidden="true">
-            {rankingVendedores.length >= 10 &&
-              otherVendors.map((v) => (
-                <VendorCard
-                  key={`dup-${Number(v.cod_vendedor)}`}
-                  {...v}
-                  onClick={() => {
-                    setSelectedVendorId(Number(v.cod_vendedor));
-                    setSelectedFilialId(v.codigo_empresa);
-                  }}
-                  color={accentColor}
-                  tieredMetaColor
-                />
-              ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const secondaryStats = (
-    <div className={styles.stackedSections}>
-      <SectionCard
-        header={{
-          title: 'Venda Diária',
-          icon: <span className={`${styles.titleDot} ${styles.dotGreen}`} />,
-        }}
-        background="var(--navy-850)"
-      >
-        <DailyStatCard
-          todayValue={toBRL(Number(vendaMensal?.vendas_hoje) || 0)}
-          yesterdayValue={toBRL(Number(vendaMensal?.vendas_ontem) || 0)}
-        />
-      </SectionCard>
-      <SectionCard
-        header={{
-          title: 'Volume de Pedidos',
-          icon: <span className={`${styles.titleDot} ${styles.dotBlue}`} />,
-        }}
-        background="var(--navy-850)"
-      >
-        <DailyStatCard
-          todayValue={vendaMensal?.pedidos_hoje || 0}
-          yesterdayValue={vendaMensal?.pedidos_ontem || 0}
-        />
-      </SectionCard>
-    </div>
-  );
-
-  const secondaryPace = (
-    <GoalPaceCard
-      status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
-      idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
-      currentDailyTarget={Number(ritmoDeMeta?.meta_diaria_atual) || 0}
-      workingDays={Number(ritmoDeMeta?.dias_uteis_mes) || 0}
-      elapsedDays={Number(ritmoDeMeta?.dias_uteis_decorridos) || 0}
-    />
-  );
-
-  const tertiary = (
-    <SectionCard header={{ title: 'Vendas por Tipo' }} background="var(--navy-850)">
-      <div className={styles.tipoVendaRow}>
-        {tiposVenda.map((tipo) => (
-          <div key={tipo.label} className={styles.tipoVendaItem}>
-            <h4 className={styles.tipoVendaLabel}>{tipo.label}</h4>
-            <span className={styles.tipoVendaValue}>{toBRL(tipo.value)}</span>
-          </div>
-        ))}
-      </div>
-    </SectionCard>
-  );
+  }, [completeDate, codigoEmpresa]);
 
   const skeletonWidget = (
     <Skeleton
@@ -421,32 +261,19 @@ const VendasPorTipo = () => {
 
   const skeleton = (
     <DashboardGrid>
-      <DashboardWidget cols={6} rows={3} tabletCols={12}>
-        {skeletonWidget}
-      </DashboardWidget>
       <DashboardWidget cols={6} rows={6} tabletCols={12}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={1} tabletCols={12}>
+      <DashboardWidget cols={3} rows={3} tabletCols={6}>
         {skeletonWidget}
       </DashboardWidget>
     </DashboardGrid>
-  );
-
-  const dashboard = (
-    <DashboardHeroLayout
-      hero={hero}
-      ranking={ranking}
-      secondaryStats={secondaryStats}
-      secondaryPace={secondaryPace}
-      tertiary={tertiary}
-    />
   );
 
   const dashboardDetalhado = (
@@ -697,17 +524,7 @@ const VendasPorTipo = () => {
 
   return (
     <div className={styles.dashboardContainer}>
-      {/* Adicionar ao array panels os dashboards desejados, que serão exibidos em sequência */}
-      <DashboardScrollStack accentColor={accentColor} panels={[dashboard, dashboardDetalhado]} />
-      <VendorDetailsModal
-        isOpen={selectedVendorId !== null}
-        filialId={selectedFilialId}
-        onClose={() => setSelectedVendorId(null)}
-        vendorId={selectedVendorId}
-        dashboard="vendas"
-        mes={completeDate.month() + 1}
-        ano={completeDate.year()}
-      />
+      <DashboardScrollStack accentColor={accentColor} panels={[dashboardDetalhado]} />
     </div>
   );
 };

@@ -1,0 +1,200 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--card-bg-secondary);
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  font-family: var(--font-sans);
+  flex-shrink: 0;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.rppGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rppLabel {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+}
+
+.rppSelect {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+}
+
+.rppSelect:hover {
+  border-color: var(--border-strong);
+}
+
+.count {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.count strong {
+  color: var(--foreground);
+  font-weight: var(--w-semibold);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.pill:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground);
+}
+
+.pill:disabled {
+  color: var(--foreground-secondary);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pill.current {
+  background-color: color-mix(in srgb, var(--av-accent) 18%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--av-accent) 40%, transparent);
+}
+
+.pill.ellipsis {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.pill.ellipsis:hover {
+  background-color: transparent;
+  color: var(--foreground-secondary);
+}
+
+.gotoWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-2);
+  padding-left: var(--space-3);
+  border-left: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.gotoLabel {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+}
+
+.gotoInput {
+  width: 3.25rem;
+  height: 28px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition: border-color var(--t-fast);
+}
+
+.gotoInput:focus {
+  outline: none;
+  border-color: var(--av-accent);
+}
+
+.gotoInput::-webkit-outer-spin-button,
+.gotoInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.gotoInput {
+  -moz-appearance: textfield;
+}
+
+.gotoTotal {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+  .wrap {
+    justify-content: center;
+  }
+
+  .gotoWrap {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  /* Alvos de toque maiores no celular — 28px é fácil de errar com o dedo;
+     mira em ~44px (recomendação Apple HIG / WCAG 2.5.5). */
+  .right {
+    gap: var(--space-2);
+  }
+
+  .pill {
+    min-width: 44px;
+    height: 44px;
+    font-size: var(--fs-base);
+  }
+
+  .rppSelect {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .gotoInput {
+    width: 3.75rem;
+    height: 44px;
+  }
+}

@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-br" suppressHydrationWarning>
-      <body className={`${inter.variable}`}>
+      <body className={`${inter.variable}`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

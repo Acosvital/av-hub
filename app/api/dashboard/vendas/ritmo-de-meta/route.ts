@@ -5,10 +5,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'mes', 'ano', 'status_ritmo', 'historico'].forEach((key) => {
-      const value = searchParams.get(key);
-      if (value !== null) params.set(key, value);
-    });
+    ['page', 'limit', 'mes', 'ano', 'status_ritmo', 'codigo_empresa', 'is_track_record'].forEach(
+      (key) => {
+        const value = searchParams.get(key);
+        if (value !== null) params.set(key, value);
+      }
+    );
     const data = await apiFetch(
       `${process.env.API_URL}/ritmo_meta_vendas?${params}`,
       'Erro ao buscar ritmo de meta de vendas',

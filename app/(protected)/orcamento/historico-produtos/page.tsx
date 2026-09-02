@@ -6,7 +6,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import * as XLSX from 'xlsx';
 import styles from './styles.module.css';
@@ -32,6 +32,7 @@ import dateFormatter from '@/utils/dateFormatter';
 import { getPriceHistory } from '@/services/orcamento/historicoPrecos';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 
 export default function CatalogoDeProdutos() {
   //States utilitarios
@@ -185,6 +186,7 @@ export default function CatalogoDeProdutos() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 300 }}
               options={familiaProdutos}
+              getOptionKey={(familia) => familia.codigo_fprodutos}
               getOptionLabel={(familia) => familia.nome}
               value={familiaProdutos.find((f) => f.nome === familiaProdutosSelected) ?? null}
               onChange={(_, v) => {
@@ -231,6 +233,8 @@ export default function CatalogoDeProdutos() {
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -281,24 +285,40 @@ export default function CatalogoDeProdutos() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={pagedRows}
+              getRowKey={(row) => `${row.id_produto_omie}-${row.id_parceiro_mais_recente}`}
+              emptyMessage="Nenhum produto encontrado."
+              onRowClick={(row) => {
+                handleModal(row.id_produto_omie, row.id_parceiro_mais_recente);
+                setRowData(row);
+                setIsOpen(true);
+              }}
+              renderMeta={(row) => row.data_cotacao_mais_recente?.split('-').join('/')}
+              renderTitle={(row) => row.descricao}
+              renderSubtitle={(row) => `${row.nome_fantasia} · ${row.estado}`}
+              fields={(row) => [
+                { label: 'Cód.', value: row.codigo_produto },
+                { label: 'Família', value: row.familia },
+                { label: 'UN', value: row.unidade_medida },
+                { label: 'Valor médio', value: toBRL(Number(row.preco_medio_ultimas_cotacoes)) },
+              ]}
+              renderHighlight={(row) => ({
+                label: 'Último valor',
+                value: toBRL(Number(row.cotacao_mais_recente)),
+              })}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}
-            labelRowsPerPage={'Resultados por página'}
-            labelDisplayedRows={({ from, to, count }) => {
-              return `${from}-${to} de ${count}`;
-            }}
             page={page}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />

@@ -108,3 +108,16 @@
   font-size: var(--fs-sm);
   font-family: var(--font-sans);
 }
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
+}

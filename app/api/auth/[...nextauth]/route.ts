@@ -85,7 +85,7 @@ export const authOptions: AuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user, trigger }) {
       if (account?.provider === 'azure-ad') {
         token.authProvider = 'azure';
         const id_usuario = await findUserByEmail(token.email ?? '');
@@ -106,6 +106,14 @@ export const authOptions: AuthOptions = {
         token.name = userSession?.usuario.username ?? token.name ?? token.email;
         token.picture = userSession?.usuario.avatar_url ?? token.picture;
         token.menu = userSession?.menu ?? [];
+      }
+
+      // Disparado pelo client via `useSession().update()` — recarrega o menu
+      // (telas/permissões) sem exigir logout/login. Sem isso, uma permissão
+      // nova concedida a um usuário só aparecia pra ele na próxima sessão.
+      if (trigger === 'update' && token.id_usuario) {
+        const userSession = await fetchMenu(token.id_usuario as string);
+        if (userSession) token.menu = userSession.menu ?? token.menu;
       }
 
       return token;

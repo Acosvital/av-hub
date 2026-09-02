@@ -6,26 +6,24 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
   Autocomplete,
   Chip,
   CircularProgress,
-  FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   TextField,
 } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import {
@@ -71,10 +69,8 @@ export default function Vendedores() {
   const [usuarios, setUsuarios] = useState<UsuarioProps[]>([]);
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
 
-  const [codigoInput, setCodigoInput] = useState('');
-  const [nomeInput, setNomeInput] = useState('');
-  const codigo = useDebounce(codigoInput, 500);
-  const nome = useDebounce(nomeInput, 500);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
 
   const [form, setForm] = useState<FormVendedorCadastro>(FORM_INICIAL);
@@ -108,11 +104,14 @@ export default function Vendedores() {
       try {
         setLoading(true);
         const ativo = statusFiltro === 'todos' ? undefined : statusFiltro === 'ativo';
+        // Código do vendedor é só dígitos (ex.: "001") — o mesmo campo de busca
+        // decide entre código e nome pelo formato do termo digitado.
+        const isCodigoQuery = /^\d+$/.test(search);
         const response = await getVendedoresCadastro({
           page: page + 1,
           limit: rowsPerPage,
-          codigo_vendedor_omie: codigo || undefined,
-          nome: nome || undefined,
+          codigo_vendedor_omie: isCodigoQuery && search ? search : undefined,
+          nome: !isCodigoQuery && search ? search : undefined,
           ativo,
         });
         setRows(response.data ?? []);
@@ -125,7 +124,7 @@ export default function Vendedores() {
       }
     }
     fetchVendedores();
-  }, [page, rowsPerPage, codigo, nome, statusFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, search, statusFiltro, refreshTrigger]);
 
   const usuarioLabel = (id: string | null) => {
     if (!id) return '—';
@@ -139,12 +138,16 @@ export default function Vendedores() {
     return found ? found.nome_fantasia : id;
   };
 
-  const limparFiltros = () => {
-    setCodigoInput('');
-    setNomeInput('');
-    setStatusFiltro('todos');
-    setPage(0);
-  };
+  const FILTROS_VENDEDOR = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ativo', label: 'Ativo' },
+        { value: 'inativo', label: 'Inativo' },
+      ],
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -247,129 +250,153 @@ export default function Vendedores() {
 
   return (
     <>
-      <PageHeader title="Vendedores" subtitle="Gerencie os vendedores cadastrados no sistema" />
-      <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label="Código"
-              variant="outlined"
-              value={codigoInput}
-              onChange={(e) => setCodigoInput(e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label="Nome"
-              variant="outlined"
-              value={nomeInput}
-              onChange={(e) => setNomeInput(e.target.value)}
-            />
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFiltro}
-                label="Status"
-                onChange={(e) => {
-                  setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="ativo">Ativo</MenuItem>
-                <MenuItem value="inativo">Inativo</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
+      <div className={styles.pageGlow}>
+        <div className={styles.pageHeaderRow}>
+          <PageHeader title="Vendedores" subtitle="Gerencie os vendedores cadastrados no sistema" />
+          {can('pode_criar') && (
+            <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+              Novo
             </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Vendedores Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
-          {loading ? (
-            <div className={styles.loading}>
-              <CircularProgress size={50} />
-              <span>Carregando...</span>
-            </div>
-          ) : (
-            <TableContainer
-              sx={{
-                flex: 1,
-                minHeight: 0,
-                overflow: 'auto',
-              }}
-            >
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    {['Nome', 'Email', 'Filial', 'Usuário', 'Comissão', 'Status', 'Sistema'].map(
-                      (label) => (
-                        <TableCell key={label}>{label}</TableCell>
-                      )
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      hover={can('pode_editar')}
-                      key={row.id}
-                      onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
-                    >
-                      <TableCell>{row.nome}</TableCell>
-                      <TableCell>{row.email ?? '—'}</TableCell>
-                      <TableCell>{row.filial ?? '—'}</TableCell>
-                      <TableCell>{usuarioLabel(row.id_usuario)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.comissao ? 'Sim' : 'Não'}
-                          color={row.comissao ? 'success' : 'warning'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.ativo ? 'Ativo' : 'Inativo'}
-                          color={row.ativo ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
           )}
-          <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
-            count={rowCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
-              setPage(0);
-            }}
-          />
+        </div>
+        <PageContent>
+          <div className={styles.tableCard}>
+            <SearchFilterBar
+              searchValue={searchInput}
+              onSearchChange={(value) => {
+                setSearchInput(value);
+                setPage(0);
+              }}
+              searchPlaceholder="Buscar por código ou nome..."
+              filters={FILTROS_VENDEDOR}
+              activeValues={{
+                status: statusFiltro !== 'todos' ? statusFiltro : undefined,
+              }}
+              onFilterChange={(key, value) => {
+                if (key === 'status') {
+                  setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
+                  setPage(0);
+                }
+              }}
+              glass
+            />
+            {loading ? (
+              <div className={styles.loading}>
+                <CircularProgress size={50} />
+                <span>Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className={styles.tableWrapper}>
+                  <TableContainer
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                      overflow: 'auto',
+                    }}
+                  >
+                    <Table stickyHeader size="small">
+                      <TableHead>
+                        <TableRow>
+                          {[
+                            'Nome',
+                            'Email',
+                            'Filial',
+                            'Usuário',
+                            'Comissão',
+                            'Status',
+                            'Sistema',
+                          ].map((label) => (
+                            <TableCell
+                              key={label}
+                              sx={{
+                                background:
+                                  'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                                borderBottom:
+                                  '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                              }}
+                            >
+                              {label}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {rows.map((row) => (
+                          <TableRow
+                            hover={can('pode_editar')}
+                            key={row.id}
+                            onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
+                            sx={{
+                              cursor: can('pode_editar') ? 'pointer' : 'default',
+                              '& .MuiTableCell-root': {
+                                borderBottom:
+                                  '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                              },
+                            }}
+                          >
+                            <TableCell>{row.nome}</TableCell>
+                            <TableCell>{row.email ?? '—'}</TableCell>
+                            <TableCell>{row.filial ?? '—'}</TableCell>
+                            <TableCell>{usuarioLabel(row.id_usuario)}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.comissao ? 'Sim' : 'Não'}
+                                color={row.comissao ? 'success' : 'warning'}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.ativo ? 'Ativo' : 'Inativo'}
+                                color={row.ativo ? 'success' : 'error'}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </div>
+                <MobileCardList
+                  rows={rows}
+                  getRowKey={(row) => row.id}
+                  emptyMessage="Nenhum vendedor encontrado."
+                  onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+                  renderTitle={(row) => row.nome}
+                  renderSubtitle={(row) => row.email ?? '—'}
+                  renderBadge={(row) => (
+                    <Chip
+                      label={row.ativo ? 'Ativo' : 'Inativo'}
+                      color={row.ativo ? 'success' : 'error'}
+                      size="small"
+                    />
+                  )}
+                  fields={(row) => [
+                    { label: 'Filial', value: row.filial ?? '—' },
+                    { label: 'Usuário', value: usuarioLabel(row.id_usuario) },
+                    { label: 'Comissão', value: row.comissao ? 'Sim' : 'Não' },
+                    { label: 'Sistema', value: unidadeLabel(row.codigo_empresa) },
+                  ]}
+                />
+              </>
+            )}
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              count={rowCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={setPage}
+              onRowsPerPageChange={(rpp) => {
+                setRowsPerPage(rpp);
+                setPage(0);
+              }}
+            />
           </div>
-        </Card>
-      </PageContent>
+        </PageContent>
+      </div>
 
       <Modal
         title={editingId ? 'Editar Vendedor' : 'Novo Vendedor'}
@@ -433,6 +460,7 @@ export default function Vendedores() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 220 }}
               options={usuarios}
+              getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.username}
               value={usuarios.find((u) => u.id === form.id_usuario) ?? null}
               onChange={(_, v) => setField('id_usuario', v?.id ?? '')}

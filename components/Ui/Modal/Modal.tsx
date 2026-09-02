@@ -51,11 +51,11 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.modalHeader}>
-          <div>
+          <div className={styles.modalHeaderText}>
             {title && <h2 className={styles.modalTitle}>{title}</h2>}
             {subtitle && <h3 className={styles.modalSubTitle}>{subtitle}</h3>}
           </div>
-          <IoMdClose onClick={onClose} />
+          <IoMdClose className={styles.modalClose} onClick={onClose} />
         </div>
         {children}
       </div>

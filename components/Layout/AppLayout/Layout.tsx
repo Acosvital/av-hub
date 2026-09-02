@@ -41,7 +41,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <GiHamburgerMenu />
             </button>
           )}
-          <main className={styles.mainArea}>{children}</main>
+          <main
+            className={`${styles.mainArea} ${mode !== 'dashboard' ? styles.mainAreaMobileOffset : ''}`}
+          >
+            {children}
+          </main>
         </div>
       </div>
       <ToastContainer

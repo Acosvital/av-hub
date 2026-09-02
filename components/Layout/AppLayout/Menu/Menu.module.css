@@ -1,3 +1,22 @@
+.spinning {
+  animation: menuSpin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinning {
+    animation: none;
+  }
+}
+
+@keyframes menuSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .expanded {
   background-color: var(--navy-925);
   min-width: var(--menu-w-min);
@@ -26,12 +45,54 @@
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
 }
 
+/* Fio de luz minimalista na borda direita do sidebar — um único aceno de
+   brilho na cor de destaque, não um efeito RGB de "gamer". Some nas
+   pontas (gradiente) pra não virar uma linha reta e dura de cantoã canto. */
+.expanded::after,
+.minimized::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--av-accent) 65%, transparent) 18%,
+    color-mix(in srgb, var(--av-accent) 65%, transparent) 82%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--av-accent) 45%, transparent);
+  pointer-events: none;
+  animation: sidebarLed 5s ease-in-out infinite;
+}
+
+@keyframes sidebarLed {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expanded::after,
+  .minimized::after {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
 /* Botão de recolher/expandir, flutuando meio dentro / meio fora da
    borda direita do sidebar — padrão usado em Notion/Linear. */
 .toggleBtn {
   position: absolute;
   right: -14px;
-  top: calc((var(--header-h) - 28px) / 2);
+  top: calc((var(--sidebar-header-h) - 28px) / 2);
   z-index: 120;
   width: 28px;
   height: 28px;
@@ -58,18 +119,184 @@
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  height: var(--header-h);
+  height: var(--sidebar-header-h);
   color: var(--neutral-50);
-  padding: 0 var(--space-2);
+  padding: 0 var(--space-3);
   border-bottom: 1px solid color-mix(in srgb, var(--neutral-50) 8%, transparent);
 }
 
 .logoImg {
   display: flex;
-  height: 30px;
+  height: 34px;
+  width: auto;
+}
+
+/* ---------- busca + recentes ---------- */
+
+.searchWrap {
+  padding: var(--space-3) var(--space-3) 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: color-mix(in srgb, var(--neutral-50) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neutral-50) 12%, transparent);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  transition:
+    border-color var(--t-fast),
+    background-color var(--t-fast);
+}
+
+.searchBox:focus-within {
+  border-color: var(--av-accent);
+  background: color-mix(in srgb, var(--neutral-50) 8%, transparent);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--navy-300);
+}
+
+.searchInput {
+  all: unset;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--neutral-50);
+}
+
+.searchInput::placeholder {
+  color: var(--navy-300);
+}
+
+.kbdHint {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: var(--w-bold);
+  color: var(--navy-300);
+  border: 1px solid color-mix(in srgb, var(--neutral-50) 15%, transparent);
+  border-radius: var(--radius-xs);
+  padding: 0.05rem 0.35rem;
+}
+
+.recentsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-bottom: var(--space-1);
+}
+
+.recentChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: var(--w-semibold);
+  color: var(--navy-100);
+  background: color-mix(in srgb, var(--neutral-50) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neutral-50) 10%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 0.3rem 0.65rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.recentChip:hover {
+  background: color-mix(in srgb, var(--av-accent) 16%, transparent);
+  color: var(--neutral-50);
+  border-color: color-mix(in srgb, var(--av-accent) 35%, transparent);
+}
+
+.recentChipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--t-fast),
+    opacity var(--t-fast);
+}
+
+.recentChipRemove:hover {
+  background: color-mix(in srgb, var(--neutral-50) 25%, transparent);
+  opacity: 1;
+}
+
+.searchResultWrapper {
+  list-style: none;
+}
+
+.searchResultItem {
+  height: auto;
+  min-height: 38px;
+  margin: 0 var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--t-base);
+}
+
+.searchResultItem:hover {
+  background-color: color-mix(in srgb, var(--neutral-50) 6%, transparent);
+}
+
+.searchResultText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.searchResultBreadcrumb {
+  font-size: 0.68rem;
+  color: var(--navy-300);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchMark {
+  background: color-mix(in srgb, var(--av-accent) 55%, transparent);
+  color: var(--neutral-50);
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.searchEmpty {
+  list-style: none;
+  padding: var(--space-4) var(--space-4);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--navy-300);
 }
 
 .menuContainer {
+  /* neutro levemente aquecido (não cinza puro) — some no repouso, some
+     de leve na borda visível quando aparece, no scroll ou hover. */
+  --scrollbar-tint: color-mix(in srgb, var(--neutral-50) 88%, var(--av-accent) 12%);
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -79,36 +306,83 @@
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--av-secondary) transparent;
+  scrollbar-color: transparent transparent;
+}
+
+.menuContainer:hover {
+  scrollbar-color: color-mix(in srgb, var(--scrollbar-tint) 28%, transparent) transparent;
 }
 
 .menuContainer::-webkit-scrollbar {
   width: 4px;
 }
 
+.menuContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .menuContainer::-webkit-scrollbar-thumb {
-  background-color: var(--av-secondary);
+  background-color: transparent;
   border-radius: var(--radius-pill);
+  transition: background-color var(--t-base);
+}
+
+.menuContainer:hover::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--scrollbar-tint) 28%, transparent);
+}
+
+.menuContainer::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--scrollbar-tint) 55%, transparent);
 }
 
 .menuWrapper {
   list-style: none;
 }
 
-.groupLabel {
+.groupLabelItem {
   list-style: none;
-  padding: var(--space-2) var(--space-4);
   margin-top: var(--space-3);
+}
+
+.groupLabelItem:first-child {
+  margin-top: 0;
+}
+
+.groupLabel {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
   font-size: 0.7rem;
   font-weight: var(--w-bold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--navy-300);
   opacity: 0.7;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    opacity var(--t-fast),
+    color var(--t-fast);
 }
 
-.groupLabel:first-child {
-  margin-top: 0;
+.groupLabel:hover {
+  opacity: 1;
+  color: var(--neutral-50);
+}
+
+.groupChevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform var(--t-base);
+}
+
+.groupChevron.rotated {
+  transform: rotate(180deg);
 }
 
 .menuCard {
@@ -240,6 +514,14 @@
 .submenuItemSelected {
   background-color: color-mix(in srgb, var(--av-accent) 25%, transparent);
   color: var(--neutral-50);
+}
+
+/* Grupo (com submenu) que contém a página ativa em algum nível abaixo —
+   sinaliza "você está aqui dentro" sem o preenchimento cheio de item
+   selecionado, que fica reservado pra folha ativa de verdade. */
+.submenuItemOnPath {
+  color: var(--neutral-50);
+  font-weight: var(--w-bold);
 }
 
 .subsubmenu {

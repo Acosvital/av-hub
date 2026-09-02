@@ -9,7 +9,7 @@ import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import toBRL from '@/utils/toBRL';
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import {
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
@@ -24,6 +24,9 @@ import {
   parseFaturamentoPorTipoBuckets,
 } from '@/services/dashboards/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
+import useDashboardVendorModal from '@/hooks/useDashboardVendorModal';
+import useDashboardHistorico from '@/hooks/useDashboardHistorico';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import { Skeleton } from '@mui/material';
 
@@ -39,7 +42,21 @@ export default function Faturamento() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { completeDate } = useDashboardDate();
+  const { codigoEmpresa } = useDashboardEmpresa();
+  const { vendorModalRequest, clearVendorModalRequest } = useDashboardVendorModal();
+  const { isHistorico } = useDashboardHistorico();
   const accentColor = 'var(--gold)';
+
+  // Resultado da busca de pedido/NF no header abre o modal desse vendedor
+  // diretamente aqui — a data/empresa já foram ajustadas pelo header.
+  useEffect(() => {
+    if (vendorModalRequest?.dashboard !== 'faturamento') return;
+    startTransition(() => {
+      setSelectedVendorId(vendorModalRequest.vendorId);
+      setSelectedFilialId(vendorModalRequest.filialId);
+      clearVendorModalRequest();
+    });
+  }, [vendorModalRequest, clearVendorModalRequest]);
 
   const top3 = sellerRanking.slice(0, 3);
   const otherVendors = sellerRanking.slice(3);
@@ -51,7 +68,12 @@ export default function Faturamento() {
   }));
   //Carrega os dados do dashboard a partir do filtro de data
   useEffect(() => {
-    const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
+    const params = {
+      mes: completeDate.month() + 1,
+      ano: completeDate.year(),
+      codigo_empresa: codigoEmpresa ?? undefined,
+      is_track_record: isHistorico,
+    };
 
     async function loadAll() {
       setIsLoading(true);
@@ -83,7 +105,7 @@ export default function Faturamento() {
     }
 
     loadAll();
-  }, [completeDate]);
+  }, [completeDate, codigoEmpresa, isHistorico]);
 
   const faturamento = (
     <DashboardGrid>

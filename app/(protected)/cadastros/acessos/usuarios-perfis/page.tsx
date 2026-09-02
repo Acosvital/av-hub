@@ -6,15 +6,16 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import { notify } from '@/lib/toast/toast';
 import { getUsuarios } from '@/services/cadastros/acessos/usuarios';
 import { getPerfis } from '@/services/cadastros/acessos/perfis';
@@ -103,12 +104,6 @@ export default function UsuariosPerfis() {
     fetchVinculos();
   }, [page, rowsPerPage, usuarioFiltro, perfilFiltro, refreshTrigger]);
 
-  const limparFiltros = () => {
-    setUsuarioFiltro(null);
-    setPerfilFiltro(null);
-    setPage(0);
-  };
-
   const abrirCriacaoModal = () => {
     setIsEditing(false);
     setForm(FORM_INICIAL);
@@ -187,16 +182,25 @@ export default function UsuariosPerfis() {
 
   return (
     <>
-      <PageHeader
-        title="Usuários × Perfis"
-        subtitle="Gerencie os vínculos entre usuários e perfis de acesso"
-      />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader
+          title="Usuários × Perfis"
+          subtitle="Gerencie os vínculos entre usuários e perfis de acesso"
+        />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
+        <div className={styles.tableCard}>
+          <div className={styles.filterBar}>
             <Autocomplete
-              sx={{ flex: 1, minWidth: 260 }}
+              sx={{ flex: '1 1 240px', minWidth: 240 }}
               options={allUsuarios}
+              getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.username}
               value={usuarioFiltro}
               onChange={(_, v) => {
@@ -207,8 +211,9 @@ export default function UsuariosPerfis() {
               renderInput={(params) => <TextField {...params} label="Usuário" variant="outlined" />}
             />
             <Autocomplete
-              sx={{ flex: 1, minWidth: 260 }}
+              sx={{ flex: '1 1 240px', minWidth: 240 }}
               options={allPerfis}
+              getOptionKey={(p) => p.id}
               getOptionLabel={(p) => p.nome}
               value={perfilFiltro}
               onChange={(_, v) => {
@@ -219,24 +224,14 @@ export default function UsuariosPerfis() {
               renderInput={(params) => <TextField {...params} label="Perfil" variant="outlined" />}
             />
           </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Vínculos Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -248,7 +243,16 @@ export default function UsuariosPerfis() {
                 <TableHead>
                   <TableRow>
                     {['Usuário', 'Perfil', 'Criado em'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
+                      <TableCell
+                        key={label}
+                        sx={{
+                          background:
+                            'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                        }}
+                      >
+                        {label}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -258,7 +262,12 @@ export default function UsuariosPerfis() {
                       hover={can('pode_editar')}
                       key={key}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{getUsuarioNome(row)}</TableCell>
                       <TableCell>{getPerfilNome(row)}</TableCell>
@@ -272,28 +281,37 @@ export default function UsuariosPerfis() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => `${row.id_usuario}-${row.id_perfil}`}
+              emptyMessage="Nenhum vínculo encontrado."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => getUsuarioNome(row)}
+              renderSubtitle={(row) => getPerfilNome(row)}
+              fields={(row) => [
+                {
+                  label: 'Criado em',
+                  value: row.created_at ? new Date(row.created_at).toLocaleDateString('pt-BR') : '—',
+                },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={isEditing ? 'Detalhes do Vínculo' : 'Novo Vínculo'}
@@ -312,6 +330,7 @@ export default function UsuariosPerfis() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={allUsuarios}
+              getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.username}
               value={usuarioSelecionado}
               onChange={(_, v) => {
@@ -332,6 +351,7 @@ export default function UsuariosPerfis() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={allPerfis}
+              getOptionKey={(p) => p.id}
               getOptionLabel={(p) => p.nome}
               value={perfilSelecionado}
               onChange={(_, v) => {

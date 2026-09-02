@@ -1,0 +1,144 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.glass {
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--foreground) 5%, transparent),
+    transparent
+  );
+}
+
+.glass .searchInput {
+  background-color: color-mix(in srgb, var(--foreground) 6%, transparent);
+  border-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.glass .filterButton {
+  border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+}
+
+.searchField {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 240px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-3);
+  display: flex;
+  color: var(--foreground-secondary);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--foreground);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) * 2 + 14px);
+  outline: none;
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+
+.searchInput::placeholder {
+  color: var(--foreground-secondary);
+}
+
+.searchInput:focus {
+  border-color: var(--border-strong);
+  border-width: 2px;
+}
+
+.filterButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  color: var(--foreground-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition:
+    background-color var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast);
+  white-space: nowrap;
+}
+
+.filterButton:hover {
+  background-color: var(--secondary-button-hover);
+  color: var(--foreground);
+  border-color: var(--border-strong);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--av-accent);
+  background-color: color-mix(in srgb, var(--av-accent) 12%, transparent);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  white-space: nowrap;
+}
+
+.chipLabel {
+  color: var(--foreground-secondary);
+  font-weight: var(--w-regular);
+}
+
+.chipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--av-accent) 20%, transparent);
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--t-fast);
+}
+
+.chipRemove:hover {
+  background-color: color-mix(in srgb, var(--av-accent) 35%, transparent);
+}
+
+@media screen and (max-width: 768px) {
+  /* Alvos de toque maiores no celular — mesma ideia da paginação. */
+  .searchInput,
+  .filterButton,
+  .chip {
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .chipRemove {
+    width: 24px;
+    height: 24px;
+  }
+}

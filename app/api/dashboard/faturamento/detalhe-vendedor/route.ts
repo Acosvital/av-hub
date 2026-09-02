@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       'data_fim',
       'page',
       'limit',
-      'historico',
+      'is_track_record',
     ].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);

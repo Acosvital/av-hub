@@ -329,6 +329,7 @@ export default function BulkPermissaoModal({
             <div className={styles.perfilRow}>
               <Autocomplete
                 options={allPerfis}
+                getOptionKey={(p) => p.id}
                 getOptionLabel={(p) => p.nome}
                 value={perfilSelecionado}
                 onChange={(_, v) => handlePerfilChange(v)}
