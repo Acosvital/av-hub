@@ -29,6 +29,20 @@
   margin-top: var(--space-2);
 }
 
+/* Coluna da esquerda alinhada à esquerda, coluna da direita alinhada à
+   direita — em vez de ambas coladas no centro/esquerda. */
+.totalRevenueValues > div:first-child {
+  text-align: left;
+}
+
+.totalRevenueValues > div:last-child {
+  text-align: right;
+}
+
+.totalRevenueValues > div:last-child .secondarySubtitle {
+  justify-content: flex-end;
+}
+
 .defaultTitle {
   font-size: var(--fs-base);
 }
@@ -52,4 +66,38 @@
 
 .meta {
   font-size: var(--fs-lg);
+}
+
+.totalOrders {
+  font-size: var(--fs-base);
+  margin: 0 0 var(--space-1);
+}
+
+/* Reduz o gauge e os textos ao redor na mesma proporção (~71%, mesma escala
+   do gauge de 240px pra 170px) em vez de só encolher o arco e deixar os
+   números do mesmo tamanho — "para eu visualizar" um preview proporcional. */
+@media (max-width: 768px) {
+  .totalRevenueValues {
+    gap: var(--space-6);
+  }
+
+  .totalOrders {
+    font-size: var(--fs-sm);
+  }
+
+  .defaultTitle {
+    font-size: var(--fs-xs);
+  }
+
+  .revenueValue {
+    font-size: var(--fs-md);
+  }
+
+  .meta {
+    font-size: var(--fs-sm);
+  }
+
+  .secondarySubtitle {
+    font-size: var(--fs-xs);
+  }
 }

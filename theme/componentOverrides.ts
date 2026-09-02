@@ -4,21 +4,51 @@ import { Components } from '@mui/material/styles';
 export const componentOverrides: Components<Theme> = {
   MuiButton: {},
   MuiTextField: {},
+  MuiPaper: {
+    styleOverrides: {
+      root: {
+        backgroundColor: 'var(--card-bg)',
+        color: 'var(--foreground)',
+        backgroundImage: 'none',
+      },
+    },
+  },
+  MuiMenuItem: {
+    styleOverrides: {
+      root: {
+        fontFamily: 'var(--font-sans)',
+        fontSize: 'var(--fs-sm)',
+        '&:hover': {
+          backgroundColor: 'var(--table-row-hover)',
+        },
+        '&.Mui-selected': {
+          backgroundColor: 'color-mix(in srgb, var(--av-accent) 15%, transparent)',
+        },
+        '&.Mui-selected:hover': {
+          backgroundColor: 'color-mix(in srgb, var(--av-accent) 22%, transparent)',
+        },
+      },
+    },
+  },
   MuiOutlinedInput: {
     styleOverrides: {
       root: {
         backgroundColor: 'var(--input-bg)',
         color: 'var(--foreground)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-md)',
+        transition: 'box-shadow var(--t-fast), border-color var(--t-fast)',
         '& .MuiOutlinedInput-notchedOutline': {
           borderColor: 'var(--input-border)',
         },
         '&:hover .MuiOutlinedInput-notchedOutline': {
           borderColor: 'var(--border-strong)',
         },
+        '&.Mui-focused': {
+          boxShadow: '0 0 0 3px color-mix(in srgb, var(--av-accent) 20%, transparent)',
+        },
         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'var(--border-strong)',
-          borderWidth: '2px',
+          borderColor: 'var(--av-accent)',
+          borderWidth: '1px',
         },
         '&.Mui-disabled': {
           backgroundColor: 'var(--input-bg-disabled)',
@@ -32,6 +62,20 @@ export const componentOverrides: Components<Theme> = {
           },
         },
       },
+      input: {
+        padding: '10.5px 12px',
+        fontSize: 'var(--fs-sm)',
+        height: '1.4375em',
+        boxSizing: 'content-box',
+      },
+    },
+  },
+  MuiSelect: {
+    styleOverrides: {
+      select: {
+        height: '1.4375em',
+        minHeight: '1.4375em',
+      },
     },
   },
   MuiInputLabel: {
@@ -39,6 +83,11 @@ export const componentOverrides: Components<Theme> = {
       root: {
         color: 'var(--input-label)',
         fontFamily: 'var(--font-sans)',
+        fontSize: 'var(--fs-sm)',
+        transform: 'translate(12px, 11px) scale(1)',
+        '&.MuiInputLabel-shrink': {
+          transform: 'translate(12px, -9px) scale(0.75)',
+        },
         '&.Mui-focused': {
           color: 'var(--foreground)',
           backgroundColor: 'var(--card-bg)',
@@ -53,7 +102,7 @@ export const componentOverrides: Components<Theme> = {
     styleOverrides: {
       root: {
         color: 'var(--foreground)',
-        backgroundColor: 'var(--table-bg)',
+        backgroundColor: 'var(--card-bg)',
         borderRadius: 'var(--radius-sm)',
         border: '1px solid var(--border-strong)',
       },
@@ -81,18 +130,20 @@ export const componentOverrides: Components<Theme> = {
       head: {
         backgroundColor: 'var(--table-head-bg)',
         color: 'var(--table-head-fg)',
-        fontFamily: 'var(--font-mono)',
+        fontFamily: 'var(--font-sans)',
         fontWeight: 'var(--w-bold)',
-        fontSize: 'var(--fs-sm)',
-        letterSpacing: '0.02em',
+        fontSize: '0.72rem',
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
         borderBottom: '1px solid var(--border-strong)',
-        padding: '0 var(--space-4)',
+        padding: 'var(--space-3) var(--space-4)',
       },
       body: {
         borderColor: 'var(--border)',
         fontFamily: 'var(--font-sans)',
         color: 'var(--table-row-fg)',
         fontSize: 'var(--fs-xs)',
+        padding: 'var(--space-3) var(--space-4)',
       },
     },
   },
@@ -145,6 +196,11 @@ export const componentOverrides: Components<Theme> = {
   },
   MuiAutocomplete: {
     styleOverrides: {
+      inputRoot: {
+        paddingTop: '3px',
+        paddingBottom: '3px',
+        paddingLeft: '12px',
+      },
       popupIndicator: {
         color: 'var(--foreground-secondary)',
         '&:hover': {

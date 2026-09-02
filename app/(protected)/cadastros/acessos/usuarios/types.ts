@@ -4,6 +4,7 @@ export interface UsuarioProps {
   email: string;
   id_funcionario: string | null;
   ativo: boolean;
+  setor_irrestrito: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -14,4 +15,5 @@ export interface FormUsuario {
   senha: string;
   id_funcionario: string;
   ativo: boolean;
+  setor_irrestrito: boolean;
 }

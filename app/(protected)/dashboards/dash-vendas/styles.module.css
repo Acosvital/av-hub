@@ -200,3 +200,18 @@
     height: fit-content;
   }
 }
+
+@media screen and (max-width: 768px) {
+  /* 3 colunas lado a lado não cabem no celular — o valor de cada tipo
+     estoura a largura do card. Empilha em vez de espremer. */
+  .tipoVendaRow {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .tipoVendaItem:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-3);
+  }
+}

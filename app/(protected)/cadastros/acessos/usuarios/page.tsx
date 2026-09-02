@@ -6,24 +6,15 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {
-  Autocomplete,
-  Chip,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Switch,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, Chip, CircularProgress, FormControlLabel, Switch, TextField } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -51,6 +42,7 @@ const FORM_INICIAL: FormUsuario = {
   senha: '',
   id_funcionario: '',
   ativo: true,
+  setor_irrestrito: false,
 };
 
 export default function Usuarios() {
@@ -71,10 +63,8 @@ export default function Usuarios() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
-  const [usernameInput, setUsernameInput] = useState('');
-  const [emailInput, setEmailInput] = useState('');
-  const username = useDebounce(usernameInput, 500);
-  const email = useDebounce(emailInput, 500);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
 
   const [form, setForm] = useState<FormUsuario>(FORM_INICIAL);
@@ -109,11 +99,12 @@ export default function Usuarios() {
       try {
         setLoading(true);
         const ativo = statusFiltro === 'todos' ? undefined : statusFiltro === 'ativo';
+        const isEmailQuery = /@/.test(search);
         const response = await getUsuarios({
           page: page + 1,
           limit: rowsPerPage,
-          username,
-          email,
+          username: !isEmailQuery && search ? search : undefined,
+          email: isEmailQuery && search ? search : undefined,
           ativo,
         });
         setRows(response.usuarios ?? []);
@@ -126,14 +117,18 @@ export default function Usuarios() {
       }
     }
     fetchUsuarios();
-  }, [page, rowsPerPage, username, email, statusFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, search, statusFiltro, refreshTrigger]);
 
-  const limparFiltros = () => {
-    setUsernameInput('');
-    setEmailInput('');
-    setStatusFiltro('todos');
-    setPage(0);
-  };
+  const FILTROS_USUARIO = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ativo', label: 'Ativo' },
+        { value: 'inativo', label: 'Inativo' },
+      ],
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -150,6 +145,7 @@ export default function Usuarios() {
       senha: '',
       id_funcionario: usuario.id_funcionario ?? '',
       ativo: usuario.ativo,
+      setor_irrestrito: usuario.setor_irrestrito,
     });
 
     setUnidadesSelecionadas([]);
@@ -188,6 +184,7 @@ export default function Usuarios() {
         email: form.email.trim(),
         id_funcionario: form.id_funcionario.trim() || null,
         ativo: form.ativo,
+        setor_irrestrito: form.setor_irrestrito,
       };
       if (!editingId && form.senha.trim()) {
         payload.senha = form.senha;
@@ -251,58 +248,42 @@ export default function Usuarios() {
 
   return (
     <>
-      <PageHeader title="Usuários" subtitle="Gerencie os usuários com acesso ao sistema" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Usuários" subtitle="Gerencie os usuários com acesso ao sistema" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label="Nome de usuário"
-              variant="outlined"
-              value={usernameInput}
-              onChange={(e) => setUsernameInput(e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label="E-mail"
-              variant="outlined"
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-            />
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFiltro}
-                label="Status"
-                onChange={(e) => {
-                  setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="ativo">Ativo</MenuItem>
-                <MenuItem value="inativo">Inativo</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Usuários Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={searchInput}
+            onSearchChange={(value) => {
+              setSearchInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por usuário ou e-mail..."
+            filters={FILTROS_USUARIO}
+            activeValues={{ status: statusFiltro !== 'todos' ? statusFiltro : undefined }}
+            onFilterChange={(key, value) => {
+              if (key === 'status') {
+                setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
+                setPage(0);
+              }
+            }}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -314,7 +295,16 @@ export default function Usuarios() {
                 <TableHead>
                   <TableRow>
                     {['Nome de usuário', 'E-mail', 'Status', 'Criado em'].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
+                      <TableCell
+                        key={label}
+                        sx={{
+                          background:
+                            'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                        }}
+                      >
+                        {label}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -324,7 +314,12 @@ export default function Usuarios() {
                       hover={can('pode_editar')}
                       key={row.id}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{row.username}</TableCell>
                       <TableCell>{row.email}</TableCell>
@@ -345,28 +340,44 @@ export default function Usuarios() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => row.id}
+              emptyMessage="Nenhum usuário encontrado."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => row.username}
+              renderSubtitle={(row) => row.email}
+              renderBadge={(row) => (
+                <Chip
+                  label={row.ativo ? 'Ativo' : 'Inativo'}
+                  color={row.ativo ? 'success' : 'error'}
+                  size="small"
+                />
+              )}
+              fields={(row) => [
+                {
+                  label: 'Criado em',
+                  value: row.created_at ? new Date(row.created_at).toLocaleDateString('pt-BR') : '—',
+                },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={editingId ? 'Editar Usuário' : 'Novo Usuário'}
@@ -425,6 +436,7 @@ export default function Usuarios() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 260 }}
               options={funcionarios}
+              getOptionKey={(f) => f.id}
               getOptionLabel={(f) => `${f.nome_completo}${f.email ? ` — ${f.email}` : ''}`}
               value={funcionarios.find((f) => f.id === form.id_funcionario) ?? null}
               onChange={(_, v) => setField('id_funcionario', v?.id ?? '')}
@@ -440,10 +452,23 @@ export default function Usuarios() {
             />
           </div>
           <div className={styles.formRow}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={form.setor_irrestrito}
+                  onChange={(e) => setField('setor_irrestrito', e.target.checked)}
+                  color="warning"
+                />
+              }
+              label="Acesso a todos os setores"
+            />
+          </div>
+          <div className={styles.formRow}>
             <Autocomplete
               multiple
               sx={{ flex: 1, minWidth: 260 }}
               options={unidades}
+              getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.nome_fantasia}
               value={unidadesSelecionadas}
               onChange={(_, v) => setUnidadesSelecionadas(v)}

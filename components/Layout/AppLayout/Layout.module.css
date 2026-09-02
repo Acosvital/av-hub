@@ -51,4 +51,12 @@
     z-index: 190;
     box-shadow: var(--shadow-md);
   }
+
+  /* Reserva espaço pro botão de menu fixo, pra ele nunca cobrir o título da
+     página. Fica sempre presente fora do modo dashboard (não só quando o
+     botão está visível), senão o conteúdo pula de posição toda vez que o
+     drawer do menu abre/fecha. */
+  .mainAreaMobileOffset {
+    padding-top: calc(var(--space-4) + 40px + var(--space-2));
+  }
 }

@@ -6,15 +6,15 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Autocomplete, Chip, CircularProgress, TextField } from '@mui/material';
+import { Chip, CircularProgress } from '@mui/material';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
-import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getPedidosVenda } from '@/services/vendas/pedidosVenda';
@@ -53,10 +53,8 @@ export default function PedidosVenda() {
   const [vendedores, setVendedores] = useState<VendedorProps[]>([]);
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
 
-  const [numeroInput, setNumeroInput] = useState('');
-  const [clienteInput, setClienteInput] = useState('');
-  const numero = useDebounce(numeroInput, 500);
-  const cliente = useDebounce(clienteInput, 500);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
   const [vendedorFiltro, setVendedorFiltro] = useState('');
   const [empresaFiltro, setEmpresaFiltro] = useState('');
 
@@ -81,11 +79,14 @@ export default function PedidosVenda() {
     async function fetchPedidos() {
       try {
         setLoading(true);
+        // Número do pedido é só dígitos — o mesmo campo de busca decide entre
+        // número e cliente pelo formato do termo digitado.
+        const isNumeroQuery = /^\d+$/.test(search);
         const response = await getPedidosVenda({
           page: page + 1,
           limit: rowsPerPage,
-          numero_pedido: numero || undefined,
-          codigo_cliente: cliente || undefined,
+          numero_pedido: isNumeroQuery && search ? search : undefined,
+          codigo_cliente: !isNumeroQuery && search ? search : undefined,
           codigo_vendedor: vendedorFiltro || undefined,
           codigo_empresa: empresaFiltro || undefined,
         });
@@ -99,7 +100,7 @@ export default function PedidosVenda() {
       }
     }
     fetchPedidos();
-  }, [page, rowsPerPage, numero, cliente, vendedorFiltro, empresaFiltro]);
+  }, [page, rowsPerPage, search, vendedorFiltro, empresaFiltro]);
 
   const vendedorLabel = (codigo: string) => {
     const found = vendedores.find((v) => v.codigo_vendedor_omie === codigo);
@@ -111,159 +112,186 @@ export default function PedidosVenda() {
     return found ? found.nome_fantasia : id;
   };
 
-  const limparFiltros = () => {
-    setNumeroInput('');
-    setClienteInput('');
-    setVendedorFiltro('');
-    setEmpresaFiltro('');
-    setPage(0);
-  };
-
   const abrirDetalhes = (pedido: PedidoVendaProps) => {
     setSelected(pedido);
     setIsModalOpen(true);
   };
 
+  const FILTROS_PEDIDO = [
+    {
+      key: 'vendedor',
+      label: 'Vendedor',
+      options: vendedores.map((v) => ({ value: v.codigo_vendedor_omie, label: v.nome })),
+    },
+    {
+      key: 'unidade',
+      label: 'Unidade',
+      options: unidades.map((u) => ({ value: u.id, label: u.nome_fantasia })),
+    },
+  ];
+
   return (
     <>
-      <PageHeader title="Pedidos de Venda" subtitle="Consulte os pedidos de venda sincronizados" />
-      <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label="Número do Pedido"
-              variant="outlined"
-              value={numeroInput}
-              onChange={(e) => setNumeroInput(e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 220 }}
-              label="Cliente"
-              variant="outlined"
-              value={clienteInput}
-              onChange={(e) => setClienteInput(e.target.value)}
-            />
-            <Autocomplete
-              sx={{ minWidth: 220 }}
-              options={vendedores}
-              getOptionLabel={(v) => v.nome}
-              value={vendedores.find((v) => v.codigo_vendedor_omie === vendedorFiltro) ?? null}
-              onChange={(_, v) => {
-                setVendedorFiltro(v?.codigo_vendedor_omie ?? '');
-                setPage(0);
-              }}
-              isOptionEqualToValue={(o, v) => o.codigo_vendedor_omie === v.codigo_vendedor_omie}
-              renderInput={(params) => <TextField {...params} label="Vendedor" />}
-            />
-            <Autocomplete
-              sx={{ minWidth: 220 }}
-              options={unidades}
-              getOptionLabel={(u) => u.nome_fantasia}
-              value={unidades.find((u) => u.id === empresaFiltro) ?? null}
-              onChange={(_, v) => {
-                setEmpresaFiltro(v?.id ?? '');
-                setPage(0);
-              }}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={(params) => <TextField {...params} label="Unidade" />}
-            />
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card title="Pedidos de Venda">
-          <div className={styles.tableCard}>
-          {loading ? (
-            <div className={styles.loading}>
-              <CircularProgress size={50} />
-              <span>Carregando...</span>
-            </div>
-          ) : (
-            <TableContainer
-              sx={{
-                flex: 1,
-                minHeight: 0,
-                overflow: 'auto',
-              }}
-            >
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    {[
-                      'Nº Pedido',
-                      'Sequencial',
-                      'Data Inclusão',
-                      'Etapa',
-                      'Cliente',
-                      'Vendedor',
-                      'Valor Total',
-                      'Situação',
-                    ].map((label) => (
-                      <TableCell key={label}>{label}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      hover={can('pode_visualizar')}
-                      key={row.codigo_pedido_omie}
-                      onClick={can('pode_visualizar') ? () => abrirDetalhes(row) : undefined}
-                      sx={{ cursor: can('pode_visualizar') ? 'pointer' : 'default' }}
-                    >
-                      <TableCell>{row.numero_pedido ?? '—'}</TableCell>
-                      <TableCell>{row.sequencial ?? 0}</TableCell>
-                      <TableCell>
-                        {row.data_inclusao ? dateFormatter(row.data_inclusao) : '—'}
-                      </TableCell>
-                      <TableCell>{row.etapa ?? '—'}</TableCell>
-                      <TableCell>{row.codigo_cliente ?? '—'}</TableCell>
-                      <TableCell>{vendedorLabel(row.codigo_vendedor_omie)}</TableCell>
-                      <TableCell>{toBRL(row.valor_total_pedido)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          sx={{
-                            backgroundColor: row.situacao
-                              ? (situacaoColor[row.situacao.toLowerCase()] ?? 'default')
-                              : 'default',
-                            color: 'var(--white)',
-                          }}
-                          label={row.situacao ?? '—'}
-                          size="small"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-          <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
-            count={rowCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
-              setPage(0);
-            }}
+      <div className={styles.pageGlow}>
+        <div className={styles.pageHeaderRow}>
+          <PageHeader
+            title="Pedidos de Venda"
+            subtitle="Consulte os pedidos de venda sincronizados"
           />
+        </div>
+        <PageContent>
+          <div className={styles.tableCard}>
+            <SearchFilterBar
+              searchValue={searchInput}
+              onSearchChange={(value) => {
+                setSearchInput(value);
+                setPage(0);
+              }}
+              searchPlaceholder="Buscar por número do pedido ou cliente..."
+              filters={FILTROS_PEDIDO}
+              activeValues={{
+                vendedor: vendedorFiltro || undefined,
+                unidade: empresaFiltro || undefined,
+              }}
+              onFilterChange={(key, value) => {
+                if (key === 'vendedor') {
+                  setVendedorFiltro(value ?? '');
+                  setPage(0);
+                } else if (key === 'unidade') {
+                  setEmpresaFiltro(value ?? '');
+                  setPage(0);
+                }
+              }}
+              glass
+            />
+            {loading ? (
+              <div className={styles.loading}>
+                <CircularProgress size={50} />
+                <span>Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className={styles.tableWrapper}>
+                  <TableContainer
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                      overflow: 'auto',
+                    }}
+                  >
+                    <Table stickyHeader size="small">
+                      <TableHead>
+                        <TableRow>
+                          {[
+                            'Nº Pedido',
+                            'Sequencial',
+                            'Data Inclusão',
+                            'Etapa',
+                            'Cliente',
+                            'Vendedor',
+                            'Valor Total',
+                            'Situação',
+                          ].map((label) => (
+                            <TableCell
+                              key={label}
+                              sx={{
+                                background:
+                                  'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                                borderBottom:
+                                  '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                              }}
+                            >
+                              {label}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {rows.map((row) => (
+                          <TableRow
+                            hover={can('pode_visualizar')}
+                            key={row.codigo_pedido_omie}
+                            onClick={can('pode_visualizar') ? () => abrirDetalhes(row) : undefined}
+                            sx={{
+                              cursor: can('pode_visualizar') ? 'pointer' : 'default',
+                              '& .MuiTableCell-root': {
+                                borderBottom:
+                                  '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                              },
+                            }}
+                          >
+                            <TableCell>{row.numero_pedido ?? '—'}</TableCell>
+                            <TableCell>{row.sequencial ?? 0}</TableCell>
+                            <TableCell>
+                              {row.data_inclusao ? dateFormatter(row.data_inclusao) : '—'}
+                            </TableCell>
+                            <TableCell>{row.etapa ?? '—'}</TableCell>
+                            <TableCell>{row.codigo_cliente ?? '—'}</TableCell>
+                            <TableCell>{vendedorLabel(row.codigo_vendedor_omie)}</TableCell>
+                            <TableCell>{toBRL(row.valor_total_pedido)}</TableCell>
+                            <TableCell>
+                              <Chip
+                                sx={{
+                                  backgroundColor: row.situacao
+                                    ? (situacaoColor[row.situacao.toLowerCase()] ?? 'default')
+                                    : 'default',
+                                  color: 'var(--white)',
+                                }}
+                                label={row.situacao ?? '—'}
+                                size="small"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </div>
+                <MobileCardList
+                  rows={rows}
+                  getRowKey={(row) => String(row.codigo_pedido_omie)}
+                  emptyMessage="Nenhum pedido encontrado."
+                  onRowClick={can('pode_visualizar') ? abrirDetalhes : undefined}
+                  renderMeta={(row) => (row.data_inclusao ? dateFormatter(row.data_inclusao) : '—')}
+                  renderTitle={(row) => row.numero_pedido ?? '—'}
+                  renderSubtitle={(row) => row.codigo_cliente ?? '—'}
+                  renderBadge={(row) => (
+                    <Chip
+                      sx={{
+                        backgroundColor: row.situacao
+                          ? (situacaoColor[row.situacao.toLowerCase()] ?? 'default')
+                          : 'default',
+                        color: 'var(--white)',
+                      }}
+                      label={row.situacao ?? '—'}
+                      size="small"
+                    />
+                  )}
+                  fields={(row) => [
+                    { label: 'Etapa', value: row.etapa ?? '—' },
+                    { label: 'Vendedor', value: vendedorLabel(row.codigo_vendedor_omie) },
+                  ]}
+                  renderHighlight={(row) => ({
+                    label: 'Valor Total',
+                    value: toBRL(row.valor_total_pedido),
+                  })}
+                />
+              </>
+            )}
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              count={rowCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={setPage}
+              onRowsPerPageChange={(rpp) => {
+                setRowsPerPage(rpp);
+                setPage(0);
+              }}
+            />
           </div>
-        </Card>
-      </PageContent>
+        </PageContent>
+      </div>
 
       <Modal
         title="Detalhes do Pedido"

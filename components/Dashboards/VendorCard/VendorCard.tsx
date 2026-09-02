@@ -69,37 +69,45 @@ const VendorCard = ({
         <div className={styles.vendorDetails}>
           <span
             className={styles.vendorInfo}
-          >{`${qtd_pedidos ? qtd_pedidos + ' Pedidos' : total_nfs + ' NFs'}`}</span>
+          >{`${qtd_pedidos ? qtd_pedidos + ' pedidos' : total_nfs + ' NFs'}`}</span>
           <span className={styles.vendorInfo}>·</span>
           <span
             className={styles.vendorMeta}
             style={{ color: metaColor }}
-          >{`${perc_meta || 0}% Meta`}</span>
+          >{`${perc_meta || 0}% da meta`}</span>
           <span className={styles.vendorInfo}>·</span>
-          <span className={styles.vendorInfo}>{`${perc_participacao || 0}% Part.`}</span>
+          <span className={styles.vendorInfo}>{`${perc_participacao || 0}% de participação`}</span>
         </div>
-        {/* Grade "rótulo: valor" — usada só no layout mobile (ver @media em VendorCard.module.css) */}
+        {/* Total em destaque + Pedidos/Meta/Participação como rodapé discreto
+            — usado só no layout mobile (ver @media em VendorCard.module.css) */}
         <div className={styles.vendorDetailsMobile}>
-          <span className={styles.vendorDetailItem}>
-            <span className={styles.vendorDetailLabel}>{qtd_pedidos ? 'Pedidos: ' : 'NFs: '}</span>
-            <span className={styles.vendorDetailValue}>{qtd_pedidos || total_nfs}</span>
-          </span>
-          <span className={styles.vendorDetailItem}>
-            <span className={styles.vendorDetailLabel}>Meta: </span>
-            <span className={styles.vendorDetailValue} style={{ color: metaColor }}>
-              {`${perc_meta || 0}%`}
+          <div className={styles.vendorHeroRow}>
+            <span className={styles.vendorHeroLabel}>
+              {faturamento ? 'Faturamento total' : 'Venda total'}
             </span>
-          </span>
-          <span className={styles.vendorDetailItem}>
-            <span className={styles.vendorDetailLabel}>Part.: </span>
-            <span className={styles.vendorDetailValue}>{`${perc_participacao || 0}%`}</span>
-          </span>
-          <span className={styles.vendorDetailItem}>
-            <span className={styles.vendorDetailLabel}>Total: </span>
-            <span className={styles.vendorDetailValue}>
+            <span className={styles.vendorHeroValue}>
               {faturamento ? toBRL(faturamento) : toBRL(vendas)}
             </span>
-          </span>
+          </div>
+          <div className={styles.vendorMetaRow}>
+            <span className={styles.vendorMetaItem}>
+              <span className={styles.vendorDetailLabel}>{qtd_pedidos ? 'Pedidos' : 'NFs'}</span>
+              <span className={styles.vendorDetailValue}>{qtd_pedidos || total_nfs}</span>
+            </span>
+            <span className={styles.vendorMetaItem}>
+              <span className={styles.vendorDetailLabel}>Meta</span>
+              <span
+                className={`${styles.vendorDetailValue} ${styles.vendorMetaValueStrong}`}
+                style={{ color: metaColor }}
+              >
+                {`${perc_meta || 0}%`}
+              </span>
+            </span>
+            <span className={styles.vendorMetaItem}>
+              <span className={styles.vendorDetailLabel}>Part.</span>
+              <span className={styles.vendorDetailValue}>{`${perc_participacao || 0}%`}</span>
+            </span>
+          </div>
         </div>
       </div>
       <div className={styles.vendorTotal}>{faturamento ? toBRL(faturamento) : toBRL(vendas)}</div>

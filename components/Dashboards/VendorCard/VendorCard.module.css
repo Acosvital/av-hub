@@ -1,11 +1,10 @@
 .vendorCard {
   display: flex;
-  min-height: 52px;
-  max-height: 52px;
+  min-height: 60px;
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
   position: relative;
   overflow: hidden;
   background: var(--card-bg-secondary);
@@ -59,8 +58,6 @@
   font-family: var(--font-sans);
   font-size: var(--fs-sm);
   font-weight: var(--w-bold);
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
   color: var(--foreground);
   white-space: nowrap;
   overflow: hidden;
@@ -78,75 +75,85 @@
 
 .vendorInfo {
   font-size: var(--fs-xs);
-  text-transform: uppercase;
   color: var(--foreground-secondary);
-  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
 .vendorMeta {
   font-size: var(--fs-xs);
   font-weight: var(--w-bold);
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
 .vendorTotal {
   position: relative;
   z-index: 1;
-  font-size: var(--fs-md);
+  font-size: var(--fs-lg);
   font-weight: var(--w-black);
   color: var(--foreground);
   flex: 0 0 auto;
   align-self: center;
   text-align: end;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .vendorDetailsMobile {
   display: none;
 }
 
-.vendorDetailItem {
-  white-space: nowrap;
-}
-
 .vendorDetailLabel {
   font-size: var(--fs-xs);
+  font-weight: var(--w-regular);
   text-transform: uppercase;
-  color: var(--foreground-secondary);
   letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
 }
 
 .vendorDetailValue {
   font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+}
+
+/* Só a Meta ganha o mesmo peso do Total — Pedidos/NFs e Participação ficam
+   discretos, sem competir de igual pra igual (era o motivo do card parecer
+   "explodido": tudo em negrito e caixa alta no mesmo tamanho). */
+.vendorMetaValueStrong {
   font-weight: var(--w-bold);
   color: var(--foreground);
 }
 
 @media (max-width: 768px) {
+  /* Rank + avatar + nome na mesma linha no topo; total e rodapé quebram pra
+     linha de baixo ocupando a largura inteira. ".vendor" vira "transparente"
+     no layout (display:contents) pra que "vendorName" saia da coluna e junte
+     com "vendorRank" na primeira linha, enquanto "vendorDetailsMobile" força
+     a quebra de linha via flex-basis:100%. */
   .vendorCard {
     min-height: unset;
-    max-height: unset;
-    padding: var(--space-3);
-    gap: var(--space-2);
-    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: var(--space-4);
+    gap: var(--space-3);
   }
 
   .vendorRank {
     flex-shrink: 0;
-    padding-top: var(--space-1);
-    align-self: center;
   }
 
   .vendor {
-    flex: 1;
-    min-width: 0;
+    display: contents;
   }
 
   .vendorName {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
     font-size: var(--fs-xs);
+    text-transform: none;
     white-space: normal;
     overflow-wrap: break-word;
   }
@@ -159,11 +166,72 @@
     display: none;
   }
 
+  /* Duas camadas em vez da grade 2x2 antiga: o Total vira uma linha de
+     destaque própria (rótulo pequeno + valor grande), e Pedidos/Meta/
+     Participação viram um rodapé discreto abaixo de uma divisória. */
   .vendorDetailsMobile {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    column-gap: var(--space-4);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    gap: var(--space-2);
+  }
+
+  /* Rótulo à esquerda, valor à direita — como no protótipo. Se o total for
+     grande demais para dividir a linha com o rótulo (ex.: R$ 10.247.414,95,
+     caso real do topo do ranking), o valor quebra pra linha de baixo (ainda
+     alinhado à direita via margin-left:auto) em vez de estourar a borda. */
+  .vendorHeroRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-1);
     row-gap: 2px;
-    margin-top: var(--space-1);
+  }
+
+  .vendorHeroLabel {
+    flex-shrink: 0;
+    font-size: var(--fs-xs);
+    font-weight: var(--w-semibold);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: var(--foreground-secondary);
+  }
+
+  .vendorHeroValue {
+    margin-left: auto;
+    max-width: 100%;
+    font-size: var(--fs-xs);
+    font-weight: var(--w-black);
+    color: var(--foreground);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vendorMetaRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+
+  .vendorMetaItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .vendorMetaItem .vendorDetailLabel,
+  .vendorMetaItem .vendorDetailValue {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

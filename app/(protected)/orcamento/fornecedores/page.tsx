@@ -7,7 +7,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import * as XLSX from 'xlsx';
 import Card from '@/components/Ui/Card/Card';
@@ -17,6 +17,7 @@ import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import { ParceirosProps } from './types';
 import { getTodosFornecedores } from '@/services/orcamento/todosFornecedores';
 import { getVinculos } from '@/services/orcamento/vinculosOrcamento';
@@ -150,6 +151,8 @@ export default function CatalogoDeFornecedores() {
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -195,24 +198,34 @@ export default function CatalogoDeFornecedores() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={pagedRows}
+              getRowKey={(row) => row.cpf_cnpj}
+              emptyMessage="Nenhum fornecedor encontrado."
+              onRowClick={(row) => {
+                setRowData(row);
+                setIsOpen(true);
+              }}
+              renderTitle={(row) => row.nome_fantasia}
+              renderSubtitle={(row) => row.razao_social}
+              fields={(row) => [
+                { label: 'CPF/CNPJ', value: row.cpf_cnpj },
+                { label: 'Cidade/UF', value: `${row.cidade ?? '—'} / ${row.estado ?? '—'}` },
+                { label: 'Telefone', value: row.telefone || '—' },
+                { label: 'E-mail', value: row.email || '—' },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={filteredRows.length}
             rowsPerPage={rowsPerPage}
-            labelRowsPerPage={'Resultados por página'}
-            labelDisplayedRows={({ from, to, count }) => {
-              return `${from}-${to} de ${count}`;
-            }}
             page={page}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />

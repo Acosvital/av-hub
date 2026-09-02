@@ -1,11 +1,48 @@
-.filterBar {
+.pageGlow {
+  position: relative;
+  z-index: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+}
+
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+@media screen and (max-width: 768px) {
+  /* No mobile o topo ganha um respiro pro botao de menu fixo (ver
+     Layout.module.css .mainAreaMobileOffset) - estica o glow pra cima
+     tambem, senao sobra uma faixa lisa sem o efeito ali. */
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
+}
+
+.pageHeaderRow {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-3);
-  padding-bottom: var(--space-4);
-  margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-4);
+  padding-top: var(--space-2);
 }
 
 .loading {
@@ -37,8 +74,12 @@
   flex: 1;
   min-height: 0;
   gap: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   overflow: hidden;
 }
 
@@ -198,8 +239,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: 640px;
-  max-width: 100%;
+  width: min(640px, 90vw);
 }
 
 .sectionTitle {
@@ -268,4 +308,373 @@
 .formActionsMain {
   display: flex;
   gap: var(--space-3);
+}
+
+/***************** RESUMO (KPIs DO DIRETOR) ******************/
+
+.kpiStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.kpiChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+  backdrop-filter: blur(10px);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+}
+
+.kpiChipWarn {
+  border-color: color-mix(in srgb, var(--yellow) 45%, transparent);
+  color: var(--yellow);
+  background: color-mix(in srgb, var(--yellow) 12%, transparent);
+}
+
+/***************** DECISÃO RÁPIDA NA LISTA ******************/
+
+.situacaoCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.quickActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.quickBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.quickBtn:hover {
+  filter: brightness(1.15);
+}
+
+.quickBtn:active {
+  transform: scale(0.97);
+}
+
+.quickApprove {
+  border-color: color-mix(in srgb, var(--success) 45%, transparent);
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+}
+
+.quickReject {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+@media screen and (max-width: 768px) {
+  /* No mobile a tabela já vira o .mobileCard (ver regra abaixo) — esses
+     botões só aparecem ali, então dá pra deixá-los preenchidos e esticados
+     sem afetar a versão compacta da tabela desktop. */
+  .quickActions {
+    width: 100%;
+  }
+
+  .quickBtn {
+    flex: 1;
+    justify-content: center;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--fs-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .quickApprove {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+  }
+
+  .quickReject {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+  }
+}
+
+.quickExpand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+}
+
+.quickExpandHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.quickOptional {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.quickExpandActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/***************** LISTA + DETALHE FIXO ******************/
+
+.splitWrap {
+  display: flex;
+  gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.splitList {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.splitItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--card-bg-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.splitItem:hover {
+  border-color: color-mix(in srgb, var(--foreground) 25%, transparent);
+}
+
+.splitItemSelected {
+  border-color: var(--av-accent);
+  background: color-mix(in srgb, var(--av-accent) 10%, var(--card-bg-secondary));
+}
+
+.splitItemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.splitItemTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+  line-height: 1.35;
+}
+
+.splitItemSub {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.splitItemFoot {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.splitItemCusto {
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+}
+
+.splitDetail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--card-bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  overflow-y: auto;
+}
+
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 900px é de propósito diferente do breakpoint padrão do app (768px, onde
+   a tabela vira cartão de mobile — ver .tableWrapper/.mobileList acima).
+   Esse aqui só empilha a lista+detalhe do modo desktop antes de ficarem
+   apertados lado a lado; abaixo de 768px o layout já trocou pra cartão. */
+@media screen and (max-width: 900px) {
+  .splitWrap {
+    flex-direction: column;
+  }
+
+  .splitList {
+    flex: 0 0 auto;
+    max-height: 240px;
+  }
+}
+
+.reviewSummary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.reviewTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.reviewSub {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+.reviewFacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.reviewFacts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background-secondary);
+}
+
+.factLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--foreground-secondary);
+}
+
+.factValue {
+  font-size: var(--fs-md);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+}
+
+.factHighlight {
+  color: var(--av-accent);
+  font-size: var(--fs-lg);
+}
+
+.reviewNote {
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--av-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--background-secondary);
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+.reviewNote strong {
+  color: var(--foreground);
+}
+
+.decisionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  margin: 0 0 var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.decision_aprovado {
+  color: var(--success);
+}
+
+.decision_reprovado {
+  color: var(--danger);
+}
+
+.decision_pendente {
+  color: var(--yellow);
+}
+
+.decisionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.decisionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--background-secondary);
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.decisionBtn:hover {
+  filter: brightness(1.1);
+}
+
+.decisionBtn.decision_aprovado.decisionSelected {
+  background: color-mix(in srgb, var(--success) 20%, transparent);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.decisionBtn.decision_reprovado.decisionSelected {
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.decisionBtn.decision_pendente.decisionSelected {
+  background: color-mix(in srgb, var(--yellow) 20%, transparent);
+  border-color: var(--yellow);
+  color: var(--yellow);
 }

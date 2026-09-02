@@ -14,7 +14,7 @@ const GaugeValue = ({ displayValue }: { displayValue: number }) => {
   return (
     <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
       <tspan style={{ fontSize: 'var(--fs-4xl)', fontWeight: 'var(--w-black)' }}>
-        {Math.round(displayValue)}
+        {Math.floor(displayValue)}
       </tspan>
       <tspan style={{ fontSize: 'var(--fs-lg)', fontWeight: 'var(--w-semibold)' }} dy="-0.9em">
         %

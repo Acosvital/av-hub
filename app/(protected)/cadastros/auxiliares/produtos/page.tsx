@@ -6,24 +6,22 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
   Autocomplete,
   Chip,
   CircularProgress,
-  FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   TextField,
 } from '@mui/material';
+import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
-import Card from '@/components/Ui/Card/Card';
 import Modal from '@/components/Ui/Modal/Modal';
 import Button from '@/components/Ui/Button/Button';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MobileCardList from '@/components/Ui/MobileCardList/MobileCardList';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import { notify } from '@/lib/toast/toast';
@@ -69,10 +67,8 @@ export default function Produtos() {
 
   const [familias, setFamilias] = useState<FamiliaProdutosProps[]>([]);
 
-  const [codigoInput, setCodigoInput] = useState('');
-  const [descricaoInput, setDescricaoInput] = useState('');
-  const codigo = useDebounce(codigoInput, 500);
-  const descricao = useDebounce(descricaoInput, 500);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
   const [familiaFiltro, setFamiliaFiltro] = useState('');
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
 
@@ -99,11 +95,12 @@ export default function Produtos() {
       try {
         setLoading(true);
         const ativo = statusFiltro === 'todos' ? undefined : statusFiltro === 'ativo';
+        const isDescricaoQuery = /\s/.test(search);
         const response = await getProdutosCadastro({
           page: page + 1,
           limit: rowsPerPage,
-          codigo_produto: codigo || undefined,
-          descricao: descricao || undefined,
+          codigo_produto: !isDescricaoQuery && search ? search : undefined,
+          descricao: isDescricaoQuery && search ? search : undefined,
           familias_produtos: familiaFiltro || undefined,
           ativo,
         });
@@ -117,20 +114,28 @@ export default function Produtos() {
       }
     }
     fetchProdutos();
-  }, [page, rowsPerPage, codigo, descricao, familiaFiltro, statusFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, search, familiaFiltro, statusFiltro, refreshTrigger]);
 
   const familiaLabel = (codigo: string) => {
     const found = familias.find((f) => f.codigo_fprodutos === codigo);
     return found ? found.nome : codigo;
   };
 
-  const limparFiltros = () => {
-    setCodigoInput('');
-    setDescricaoInput('');
-    setFamiliaFiltro('');
-    setStatusFiltro('todos');
-    setPage(0);
-  };
+  const FILTROS_PRODUTO = [
+    {
+      key: 'familia',
+      label: 'Família',
+      options: familias.map((f) => ({ value: f.codigo_fprodutos, label: f.nome })),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ativo', label: 'Ativo' },
+        { value: 'inativo', label: 'Inativo' },
+      ],
+    },
+  ];
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
@@ -240,70 +245,48 @@ export default function Produtos() {
 
   return (
     <>
-      <PageHeader title="Produtos" subtitle="Gerencie os produtos cadastrados no sistema" />
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader title="Produtos" subtitle="Gerencie os produtos cadastrados no sistema" />
+        {can('pode_criar') && (
+          <Button variant="primary" icon={<FaPlus size={14} />} onClick={abrirCriacaoModal}>
+            Novo
+          </Button>
+        )}
+      </div>
       <PageContent>
-        <Card title="Filtros" height="fit">
-          <div className={styles.inputContainers}>
-            <TextField
-              sx={{ flex: 1, minWidth: 180 }}
-              label="Código"
-              variant="outlined"
-              value={codigoInput}
-              onChange={(e) => setCodigoInput(e.target.value)}
-            />
-            <TextField
-              sx={{ flex: 1, minWidth: 260 }}
-              label="Descrição"
-              variant="outlined"
-              value={descricaoInput}
-              onChange={(e) => setDescricaoInput(e.target.value)}
-            />
-            <Autocomplete
-              sx={{ minWidth: 220 }}
-              options={familias}
-              getOptionLabel={(f) => f.nome}
-              value={familias.find((f) => f.codigo_fprodutos === familiaFiltro) ?? null}
-              onChange={(_, v) => {
-                setFamiliaFiltro(v?.codigo_fprodutos ?? '');
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={searchInput}
+            onSearchChange={(value) => {
+              setSearchInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por código ou descrição..."
+            filters={FILTROS_PRODUTO}
+            activeValues={{
+              familia: familiaFiltro || undefined,
+              status: statusFiltro !== 'todos' ? statusFiltro : undefined,
+            }}
+            onFilterChange={(key, value) => {
+              if (key === 'familia') {
+                setFamiliaFiltro(value ?? '');
                 setPage(0);
-              }}
-              isOptionEqualToValue={(o, v) => o.codigo_fprodutos === v.codigo_fprodutos}
-              renderInput={(params) => <TextField {...params} label="Família" />}
-            />
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFiltro}
-                label="Status"
-                onChange={(e) => {
-                  setStatusFiltro(e.target.value as 'todos' | 'ativo' | 'inativo');
-                  setPage(0);
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="ativo">Ativo</MenuItem>
-                <MenuItem value="inativo">Inativo</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={styles.cardButtons}>
-            <Button variant="secondary" onClick={limparFiltros}>
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          title="Produtos Cadastrados"
-          create={can('pode_criar') ? abrirCriacaoModal : undefined}
-        >
-          <div className={styles.tableCard}>
+              } else if (key === 'status') {
+                setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
+                setPage(0);
+              }
+            }}
+            glass
+          />
           {loading ? (
             <div className={styles.loading}>
               <CircularProgress size={50} />
               <span>Carregando...</span>
             </div>
           ) : (
+            <>
+            <div className={styles.tableWrapper}>
             <TableContainer
               sx={{
                 flex: 1,
@@ -316,7 +299,16 @@ export default function Produtos() {
                   <TableRow>
                     {['Código', 'Descrição', 'Família', 'Unid. Medida', 'NCM', 'Status'].map(
                       (label) => (
-                        <TableCell key={label}>{label}</TableCell>
+                        <TableCell
+                          key={label}
+                          sx={{
+                            background:
+                              'linear-gradient(180deg, color-mix(in srgb, var(--foreground) 6%, transparent), color-mix(in srgb, var(--foreground) 1.5%, transparent))',
+                            borderBottom: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+                          }}
+                        >
+                          {label}
+                        </TableCell>
                       )
                     )}
                   </TableRow>
@@ -327,7 +319,12 @@ export default function Produtos() {
                       hover={can('pode_editar')}
                       key={row.id}
                       onClick={can('pode_editar') ? () => abrirEdicaoModal(row) : undefined}
-                      sx={{ cursor: can('pode_editar') ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: can('pode_editar') ? 'pointer' : 'default',
+                        '& .MuiTableCell-root': {
+                          borderBottom: '1px solid color-mix(in srgb, var(--foreground) 7%, transparent)',
+                        },
+                      }}
                     >
                       <TableCell>{row.codigo_produto}</TableCell>
                       <TableCell>{row.descricao}</TableCell>
@@ -346,28 +343,43 @@ export default function Produtos() {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+            <MobileCardList
+              rows={rows}
+              getRowKey={(row) => row.id}
+              emptyMessage="Nenhum produto encontrado."
+              onRowClick={can('pode_editar') ? abrirEdicaoModal : undefined}
+              renderTitle={(row) => row.descricao}
+              renderSubtitle={(row) => `Código ${row.codigo_produto}`}
+              renderBadge={(row) => (
+                <Chip
+                  label={row.ativo ? 'Ativo' : 'Inativo'}
+                  color={row.ativo ? 'success' : 'error'}
+                  size="small"
+                />
+              )}
+              fields={(row) => [
+                { label: 'Família', value: familiaLabel(row.familias_produtos) },
+                { label: 'Unid. Medida', value: row.unidade_medida ?? '—' },
+                { label: 'NCM', value: row.ncm ?? '—' },
+              ]}
+            />
+            </>
           )}
           <TablePagination
-            sx={{
-              flexShrink: 0,
-              borderTop: '1px solid var(--border)',
-            }}
             rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
             count={rowCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            labelRowsPerPage="Resultados por página"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(+e.target.value);
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
               setPage(0);
             }}
           />
-          </div>
-        </Card>
+        </div>
       </PageContent>
+    </div>
 
       <Modal
         title={editingId ? 'Editar Produto' : 'Novo Produto'}
@@ -414,6 +426,7 @@ export default function Produtos() {
             <Autocomplete
               sx={{ flex: 1, minWidth: 200 }}
               options={familias}
+              getOptionKey={(f) => f.codigo_fprodutos}
               getOptionLabel={(f) => f.nome}
               value={familias.find((f) => f.codigo_fprodutos === form.familias_produtos) ?? null}
               onChange={(_, v) => setField('familias_produtos', v?.codigo_fprodutos ?? '')}

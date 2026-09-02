@@ -32,7 +32,7 @@ const RevenueGauge = ({
   return (
     <div className={styles.gaugeContainer}>
       {totalOrders && (
-        <h5>
+        <h5 className={styles.totalOrders}>
           {type === 'faturamento' ? 'Total de NFs: ' : 'Total de Pedidos: '}
           {totalOrders}{' '}
         </h5>

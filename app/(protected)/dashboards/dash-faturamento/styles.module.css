@@ -227,58 +227,6 @@
   color: var(--foreground);
 }
 
-/********* SITUAÇÃO *********/
-.situation > h3 {
-  font-size: var(--fs-sm);
-}
-
-.situationGroup {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  height: 100%;
-  margin: 0 calc(var(--space-4) * -1) calc(var(--space-3) * -1);
-  padding: var(--space-2) var(--space-4) var(--space-3);
-  background-color: var(--navy-925);
-}
-
-.situationCard {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  grid-column: span 1;
-  grid-row: span 1;
-  height: 100%;
-}
-
-.situationCard:nth-child(-n + 2) {
-  border-bottom: 1px solid var(--border);
-}
-
-.situationCard:nth-child(odd) {
-  border-right: 1px solid var(--border);
-}
-
-.situationCard > div {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  font-size: var(--fs-md);
-}
-
-.situationCard > div:last-child {
-  border-top: 1px solid var(--border);
-  font-size: var(--fs-lg);
-}
-
-.situationTitle {
-  color: var(--danger);
-}
-
 /************************************************* MOBILE / TABLET *************************************************/
 @media screen and (max-width: 1024px) {
   .cardHeader {
