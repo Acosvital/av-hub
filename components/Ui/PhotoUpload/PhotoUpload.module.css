@@ -104,3 +104,231 @@
   z-index: 2000;
   background: var(--background);
 }
+
+/* ===================================================================
+   Repaint do chrome do react-filerobot-image-editor (@scaleflex/ui).
+   As classes FIE_* são hooks estáveis expostos pela própria lib pra
+   customização — não são gerados por CSS Modules, por isso :global().
+   O tema (theme prop) já troca as cores; aqui é só o acabamento visual
+   (glass, sombra, cantos), pro editor parecer parte do HUB, não um
+   widget de terceiro colado por cima.
+   =================================================================== */
+
+/* Mesmo par de radial-gradient do .pageGlow::before usado nas outras telas do
+   HUB (cadastros, RH, vendas) — reaproveita --glow-accent-op/--glow-blue-op
+   em vez de opacidade fixa, então fica com a MESMA intensidade visível do
+   resto do sistema (30%/24% no escuro) em vez de um valor baixo demais pra
+   notar num viewport grande. */
+:global(.FIE_root) {
+  background:
+    radial-gradient(
+      1400px 900px at 8% -10%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1200px 950px at 100% 15%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    ),
+    var(--background) !important;
+}
+
+/* Fundo sólido atrás da própria foto (dentro da área de trabalho) — tampava
+   o glow do FIE_root. Removendo, o gradiente aparece por trás da imagem. */
+:global(.FIE_canvas-node) {
+  background: transparent !important;
+}
+
+:global(.FIE_topbar) {
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 24px color-mix(in srgb, black 25%, transparent);
+}
+
+:global(.FIE_buttons-save-btn-button) {
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--av-accent) 45%, transparent);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+:global(.FIE_buttons-save-btn-button):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--av-accent) 55%, transparent);
+}
+
+:global(.FIE_tabs_navbar) {
+  background: color-mix(in srgb, var(--card-bg) 55%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-right: 1px solid var(--border);
+}
+
+:global(.FIE_tab) {
+  border-radius: var(--radius-md);
+  margin: var(--space-1) var(--space-2);
+  transition: background-color 0.15s ease;
+}
+
+:global(.FIE_tab):hover {
+  background: var(--surface-secondary) !important;
+}
+
+:global(.FIE_tools-bar-wrapper) {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+:global(.FIE_tools-bar) {
+  background: color-mix(in srgb, var(--card-bg) 75%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:global(.FIE_crop-presets-menu),
+:global(.FIE_buttons-zoom-menu) {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* ---- Linha de ferramentas (crop/rotate/flip) — pill de destaque na ativa ---- */
+
+:global(.FIE_tools-items) {
+  gap: var(--space-1);
+}
+
+:global(.FIE_rotate-tool-button),
+:global(.FIE_flip-x-tool-button),
+:global(.FIE_flip-y-tool-button),
+:global(.FIE_crop-tool) {
+  border-radius: var(--radius-pill) !important;
+  padding: var(--space-1) var(--space-3) !important;
+  transition: background-color 0.15s ease;
+}
+
+:global(.FIE_rotate-tool-button):hover,
+:global(.FIE_flip-x-tool-button):hover,
+:global(.FIE_flip-y-tool-button):hover,
+:global(.FIE_crop-tool):hover {
+  background: var(--surface-secondary) !important;
+}
+
+:global([aria-selected='true'].FIE_rotate-tool-button),
+:global([aria-selected='true'].FIE_flip-x-tool-button),
+:global([aria-selected='true'].FIE_flip-y-tool-button) {
+  background: color-mix(in srgb, var(--orange-light) 18%, transparent) !important;
+}
+
+/* ---- Diálogo "Save as" — campos de texto (nome, largura, altura) ----
+   O tema (theme.palette) chega neles de forma inconsistente (o campo Nome
+   às vezes reverte pro branco default ao focar) — força direto nas classes
+   estáveis da lib em vez de depender só do theme prop. */
+:global(.FIE_save-file-name-input),
+:global(.FIE_resize-width-option),
+:global(.FIE_resize-height-option) {
+  background: var(--card-bg-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+:global(.FIE_save-file-name-input) input,
+:global(.FIE_resize-width-option) input,
+:global(.FIE_resize-height-option) input {
+  background: transparent !important;
+  color: var(--foreground) !important;
+}
+
+:global(.FIE_save-file-name-input):focus-within,
+:global(.FIE_resize-width-option):focus-within,
+:global(.FIE_resize-height-option):focus-within {
+  border-color: var(--av-accent) !important;
+}
+
+/* ---- Régua de rotação — pontinhos genéricos viram uma escala legível ---- */
+
+:global(.FIE_rotate-slider) {
+  padding: var(--space-2) var(--space-4) var(--space-3);
+}
+
+:global(.SfxRotationSlider-list) {
+  border-color: var(--border) !important;
+}
+
+:global(.SfxRotationSlider-big-dot) {
+  background: var(--foreground-secondary) !important;
+  opacity: 0.7;
+}
+
+:global(.SfxRotationSlider-small-dot) {
+  background: var(--border-strong) !important;
+}
+
+/* Marcador da posição atual — era só um traço fino, agora um pino na cor
+   de destaque do sistema, fácil de achar em qualquer ângulo. Laranja claro
+   (não --av-accent) por ser um elemento fino direto sobre o fundo escuro —
+   precisa do mesmo contraste que o texto/ícone ativo. */
+:global(.SfxRotationSlider-control) {
+  background: var(--orange-light) !important;
+  width: 3px !important;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--orange-light) 60%, transparent);
+}
+
+:global(.SfxSlider-label) {
+  color: var(--foreground) !important;
+  font-weight: var(--w-bold);
+  font-size: var(--fs-md);
+}
+
+/* Setas de navegação da tira de filtros — a lib crava um gradiente branco
+   opaco aqui direto no CSS do componente (não vem do theme, por isso o
+   override de paleta não bastava). Troca pelo fade escuro do card e dá um
+   círculo de fundo no ícone, em vez da mancha esticada cobrindo a altura
+   toda do carrossel. */
+:global(.FIE_carousel-prev-button),
+:global(.FIE_carousel-next-button) {
+  display: flex !important;
+  align-items: center !important;
+  background: linear-gradient(
+    90deg,
+    var(--card-bg) 0%,
+    color-mix(in srgb, var(--card-bg) 70%, transparent) 60%,
+    transparent 100%
+  ) !important;
+}
+
+:global(.FIE_carousel-next-button) {
+  justify-content: flex-end !important;
+  background: linear-gradient(
+    270deg,
+    var(--card-bg) 0%,
+    color-mix(in srgb, var(--card-bg) 70%, transparent) 60%,
+    transparent 100%
+  ) !important;
+}
+
+:global(.FIE_carousel-prev-button) svg,
+:global(.FIE_carousel-next-button) svg {
+  background: var(--card-bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  padding: var(--space-2);
+  width: 26px;
+  height: 26px;
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+:global(.FIE_carousel-prev-button):hover svg,
+:global(.FIE_carousel-next-button):hover svg {
+  background: var(--surface-secondary);
+  border-color: var(--border-strong);
+}
