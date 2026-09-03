@@ -95,6 +95,55 @@
   margin-top: var(--space-4);
 }
 
+/* Inputs no mesmo estilo "caixa" do login do Organograma (label pequena
+   maiúscula acima, input com borda e fundo translúcido) em vez do
+   underline padrão do MUI — mesma identidade visual entre os dois logins. */
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  color: var(--navy-100);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--neutral-50) 4%, transparent);
+  border: 1px solid var(--navy-400);
+  border-radius: var(--radius-md);
+  color: var(--neutral-50);
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.input::placeholder {
+  color: var(--navy-100);
+}
+
+.input:hover:not(:focus) {
+  border-color: var(--navy-200);
+}
+
+.input:focus {
+  border-color: var(--av-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--av-accent) 18%, transparent);
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: var(--neutral-50);
+  caret-color: var(--neutral-50);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .loginButton {
   display: flex;
   align-items: center;
