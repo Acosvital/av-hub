@@ -58,11 +58,34 @@ export interface SugestaoVinculo {
   id_funcionario: string;
   nome_funcionario: string;
   codigo_empresa_origem: string;
+  // Presentes na resposta real da API, além do que o contrato original
+  // previa — score de similaridade (0 a 1, como string) e a origem do
+  // match (hoje sempre "funcionario_similar").
+  score?: string;
+  origem?: string;
 }
 
-export async function getSugestaoVinculo(id: string) {
-  return apiFetch<{ sugestao: SugestaoVinculo | null }>(
-    `/api/vendedores/${id}/sugestoes`,
+interface SugestaoVinculoParams {
+  // Similaridade mínima (0 a 1) pra um candidato entrar na lista — o
+  // backend usa 0.3 como default quando omitido.
+  minScore?: number;
+  // Máximo de candidatos retornados em `candidatos` — default do backend
+  // parece ser 2 quando omitido.
+  limit?: number;
+}
+
+interface SugestaoVinculoResponse {
+  ja_vinculado: boolean;
+  sugestao: SugestaoVinculo | null;
+  candidatos: SugestaoVinculo[];
+}
+
+export async function getSugestaoVinculo(id: string, params: SugestaoVinculoParams = {}) {
+  const query = new URLSearchParams();
+  if (params.minScore !== undefined) query.set('min_score', String(params.minScore));
+  if (params.limit !== undefined) query.set('limit', String(params.limit));
+  return apiFetch<SugestaoVinculoResponse>(
+    `/api/vendedores/${id}/sugestoes?${query}`,
     'Erro ao buscar sugestão de vínculo'
   );
 }
