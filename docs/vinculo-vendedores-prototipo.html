@@ -1,0 +1,925 @@
+<title>Vínculo de Vendedores</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap">
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --card-bg-2: #f8fafc;
+    --fg: #191c1e;
+    --fg-2: #45464e;
+    --border: #e2e8f0;
+    --border-strong: #94a3b8;
+    --accent: #c2410c;
+    --accent-soft: color-mix(in srgb, #c2410c 14%, transparent);
+    --blue: #2563eb;
+    --green: #16a34a;
+    --green-soft: color-mix(in srgb, #16a34a 14%, transparent);
+    --amber: #d97706;
+    --amber-soft: color-mix(in srgb, #d97706 16%, transparent);
+    --shadow: 0 4px 10px rgba(15, 23, 42, 0.10);
+    --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #020617;
+      --card-bg: #181f32;
+      --card-bg-2: #131d33;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --border: #334155;
+      --border-strong: #64748b;
+      --shadow: 0 5px 15px rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #020617;
+    --card-bg: #181f32;
+    --card-bg-2: #131d33;
+    --fg: #f8fafc;
+    --fg-2: #cbd5e1;
+    --border: #334155;
+    --border-strong: #64748b;
+    --shadow: 0 5px 15px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .eyebrow {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 .6rem;
+  }
+  h1 {
+    font-size: 1.9rem;
+    font-weight: 900;
+    margin: 0 0 .9rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 .3rem;
+    letter-spacing: -0.005em;
+  }
+  .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: .78rem;
+    font-weight: 800;
+    margin-right: .6rem;
+  }
+  .lede {
+    margin: 0;
+    color: var(--fg-2);
+    font-size: .98rem;
+    line-height: 1.65;
+    max-width: 68ch;
+  }
+  .lede b { color: var(--fg); font-weight: 700; }
+  code {
+    font-family: var(--mono);
+    background: var(--card-bg-2);
+    border: 1px solid var(--border);
+    padding: .05rem .35rem;
+    border-radius: 4px;
+    font-size: .88em;
+  }
+  section { display: flex; flex-direction: column; gap: 1.1rem; }
+  .section-head { display: flex; align-items: center; }
+  .section-sub { margin: 0 0 0 2.1rem; color: var(--fg-2); font-size: .9rem; line-height: 1.6; max-width: 66ch; }
+
+  /* ---- Diagnóstico: cards comparando os dois mecanismos ---- */
+  .diag-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 720px) { .diag-grid { grid-template-columns: 1fr; } }
+  .diag-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+  .diag-tag {
+    align-self: flex-start;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+  }
+  .diag-tag.pronta { background: var(--green-soft); color: var(--green); }
+  .diag-tag.usada { background: var(--amber-soft); color: var(--amber); }
+  .diag-card h3 { margin: 0; font-size: 1rem; font-family: var(--mono); font-weight: 700; }
+  .diag-card p { margin: 0; font-size: .86rem; color: var(--fg-2); line-height: 1.55; }
+  .diag-card ul { margin: 0; padding-left: 1.1rem; font-size: .84rem; color: var(--fg-2); line-height: 1.6; }
+
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    font-size: .9rem;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .callout b { color: var(--accent); }
+
+  /* ---- Mermaid diagrams side by side ---- */
+  .diagrams {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 780px) { .diagrams { grid-template-columns: 1fr; } }
+  .diagram-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .diagram-card .label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--fg-2);
+    margin-bottom: .5rem;
+  }
+
+  /* ---- Code blocks ---- */
+  .code-block {
+    background: #0d1424;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .code-block .code-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .55rem 1rem;
+    background: #131d33;
+    border-bottom: 1px solid var(--border);
+    font-size: .76rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    font-family: var(--mono);
+  }
+  .code-block pre {
+    margin: 0;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+  .code-block .cm { color: #64748b; }
+  .code-block .kw { color: #93c5fd; }
+  .code-block .fn { color: #fdba74; }
+  .code-block .str { color: #86efac; }
+  .diff-rm { background: color-mix(in srgb, #dc2626 18%, transparent); display: block; }
+  .diff-add { background: color-mix(in srgb, #16a34a 18%, transparent); display: block; }
+
+  /* ---- API table ---- */
+  .api-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: .85rem;
+  }
+  .api-table th {
+    text-align: left;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--fg-2);
+    background: var(--card-bg-2);
+    padding: .65rem .9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .api-table td {
+    padding: .7rem .9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--fg);
+  }
+  .api-table tr:last-child td { border-bottom: none; }
+  .api-table .method {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: .75rem;
+    padding: .15rem .5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .method.get { background: color-mix(in srgb, var(--blue) 16%, transparent); color: var(--blue); }
+  .method.put { background: var(--amber-soft); color: var(--amber); }
+  .method.post { background: var(--green-soft); color: var(--green); }
+  .api-table .route { font-family: var(--mono); font-size: .8rem; color: var(--fg-2); }
+  .api-table .desc { color: var(--fg-2); font-size: .82rem; line-height: 1.5; }
+
+  /* =========================================================
+     PROTÓTIPO INTERATIVO — moldura de "janela" do HUB
+     ========================================================= */
+  .proto-frame {
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+    overflow: hidden;
+  }
+  .proto-titlebar {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1rem;
+    background: #131d33;
+    border-bottom: 1px solid #334155;
+  }
+  .proto-dot { width: 9px; height: 9px; border-radius: 50%; background: #334155; }
+  .proto-titlebar span {
+    margin-left: .5rem;
+    font-size: .75rem;
+    color: #94a3b8;
+    font-family: var(--mono);
+  }
+  .proto-body {
+    padding: 1.3rem 1.4rem 1.6rem;
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+  }
+  .proto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: .8rem;
+    margin-bottom: 1.1rem;
+  }
+  .proto-header h3 { margin: 0 0 .2rem; font-size: 1.15rem; font-weight: 800; }
+  .proto-header p { margin: 0; font-size: .8rem; color: #94a3b8; }
+
+  .proto-stats { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .proto-stat {
+    background: #131d33;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: .5rem .8rem;
+    min-width: 84px;
+    text-align: center;
+  }
+  .proto-stat .n { font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; display: block; }
+  .proto-stat .l { font-size: .66rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; }
+  .proto-stat.pend .n { color: #fbbf24; }
+  .proto-stat.link .n { color: #4ade80; }
+
+  .proto-tabs { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .proto-tab {
+    background: none;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: .4rem .85rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s ease;
+  }
+  .proto-tab.active { background: color-mix(in srgb, #c2410c 22%, transparent); border-color: #c2410c; color: #fdba74; }
+  .proto-tab:hover:not(.active) { border-color: #64748b; color: #f8fafc; }
+
+  .vendor-list { display: flex; flex-direction: column; gap: .6rem; }
+  .vendor-card {
+    background: #131d33;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: .85rem 1rem;
+    transition: border-color .15s ease;
+  }
+  .vendor-card.is-linked { opacity: .72; }
+  .vendor-card.is-linked.is-open { opacity: 1; }
+  .vendor-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    cursor: pointer;
+  }
+  .vendor-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: color-mix(in srgb, #2563eb 25%, transparent);
+    color: #93c5fd;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 800; flex-shrink: 0;
+  }
+  .vendor-main { flex: 1; min-width: 0; }
+  .vendor-name { font-size: .92rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+  .vendor-meta { font-size: .76rem; color: #94a3b8; margin-top: .1rem; font-family: var(--mono); }
+  .unit-chip {
+    font-size: .65rem; font-weight: 700; padding: .1rem .45rem; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: .02em;
+  }
+  .unit-chip.mogi { background: color-mix(in srgb, #2563eb 22%, transparent); color: #93c5fd; }
+  .unit-chip.uberaba { background: color-mix(in srgb, #7c3aed 22%, transparent); color: #d8b4fe; }
+  .status-pill {
+    font-size: .68rem; font-weight: 700; padding: .2rem .55rem; border-radius: 999px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .status-pill.pendente { background: color-mix(in srgb, #d97706 22%, transparent); color: #fbbf24; }
+  .status-pill.vinculado { background: color-mix(in srgb, #16a34a 22%, transparent); color: #4ade80; }
+  .chevron { color: #64748b; font-size: .8rem; transition: transform .15s ease; flex-shrink: 0; }
+  .vendor-card.is-open .chevron { transform: rotate(90deg); }
+
+  .link-panel {
+    display: none;
+    margin-top: .8rem;
+    padding-top: .8rem;
+    border-top: 1px dashed #334155;
+    flex-direction: column;
+    gap: .7rem;
+  }
+  .vendor-card.is-open .link-panel { display: flex; }
+
+  .suggestion-box {
+    background: color-mix(in srgb, #2563eb 12%, transparent);
+    border: 1px solid color-mix(in srgb, #2563eb 40%, transparent);
+    border-radius: 10px;
+    padding: .65rem .8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    flex-wrap: wrap;
+  }
+  .suggestion-box .txt { font-size: .82rem; color: #dbeafe; line-height: 1.45; }
+  .suggestion-box .txt b { color: #fff; }
+
+  .current-link-box {
+    background: color-mix(in srgb, #16a34a 12%, transparent);
+    border: 1px solid color-mix(in srgb, #16a34a 40%, transparent);
+    border-radius: 10px;
+    padding: .65rem .8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    flex-wrap: wrap;
+  }
+  .current-link-box .txt { font-size: .82rem; color: #bbf7d0; line-height: 1.45; }
+  .current-link-box .txt b { color: #fff; }
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    padding: .4rem .8rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary { background: #c2410c; color: #fff; }
+  .btn-primary:hover { background: #9a330a; }
+  .btn-ghost { background: none; border-color: #334155; color: #cbd5e1; }
+  .btn-ghost:hover { border-color: #64748b; color: #fff; }
+
+  .search-input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: .5rem .7rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    font-family: 'Inter', sans-serif;
+  }
+  .search-input:focus { outline: none; border-color: #c2410c; }
+
+  .candidate-list { display: flex; flex-direction: column; gap: .4rem; max-height: 160px; overflow-y: auto; }
+  .candidate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    padding: .45rem .6rem;
+    border-radius: 8px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+  }
+  .candidate .info { font-size: .8rem; }
+  .candidate .info .nm { font-weight: 600; }
+  .candidate .info .sub { color: #94a3b8; font-size: .72rem; }
+
+  .create-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    font-size: .78rem;
+    color: #94a3b8;
+  }
+
+  .toast {
+    position: sticky;
+    bottom: 0;
+  }
+
+  footer.notes {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    font-size: .88rem;
+    color: var(--fg-2);
+    line-height: 1.6;
+  }
+  footer.notes li { margin-bottom: .4rem; }
+  footer.notes b { color: var(--fg); }
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">Backend · SQL · API · Frontend — protótipo pra debate</p>
+    <h1>Vínculo entre vendedor (Omie) e funcionário (RH)</h1>
+    <p class="lede">
+      Hoje o Hub sincroniza vendedores de <b>duas contas Omie</b> (Mogi e Uberaba) numa
+      tabela própria, mas sem ligação com <code>core.funcionarios</code> — cargo, setor e
+      unidade de RH ficam de fora. Uns 5 vendedores vendem nas duas contas ao mesmo tempo,
+      cada um com um <code>codigo_vendedor_omie</code> diferente por conta. Isto aqui é uma
+      proposta de como resolver isso de forma automatizável, com o mínimo de trabalho manual
+      possível — pra ver, testar e discutir antes de eu mexer em qualquer coisa de verdade.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-head"><span class="section-num">1</span><h2>O que já existe hoje</h2></div>
+    <p class="section-sub">
+      Investiguei o dump do banco antes de propor qualquer coisa nova — e a boa notícia é que
+      metade do caminho já está pavimentada, só não está sendo usada.
+    </p>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <span class="diag-tag pronta">Existe, pronta, sem uso</span>
+        <h3>vendedores.id_funcionario</h3>
+        <p>
+          Cada linha de <code>core_vendas_faturamento.vendedores</code> (uma por conta Omie)
+          já tem uma coluna <code>id_funcionario</code>, com <b>FK de verdade</b> pra
+          <code>core.funcionarios(id)</code> e índice:
+        </p>
+        <ul>
+          <li><code>fk_vendedores_id_funcionario ... ON DELETE SET NULL</code></li>
+          <li><code>idx_vendedores_id_funcionario</code></li>
+          <li>Sem UNIQUE nela — várias linhas de vendedores (ex: Mogi + Uberaba) podem
+            apontar pro <b>mesmo</b> funcionário. É exatamente o caso dos 5.</li>
+        </ul>
+        <p>Nenhuma das views/functions de ranking usa essa coluna hoje.</p>
+      </div>
+      <div class="diag-card">
+        <span class="diag-tag usada">Usada em produção, mas solta</span>
+        <h3>pessoa_vendedor</h3>
+        <p>
+          Tabela separada: <code>nome text</code> + <code>codigos_vendedor text[]</code>
+          (array de strings tipo <code>"&lt;codigo_empresa&gt;:&lt;codigo_vendedor_omie&gt;"</code>).
+          É o que <code>fn_ranking_vendedores_vendas/faturamento</code> e
+          <code>fn_detalhe_vendedor_vendas/faturamento</code> usam pra juntar as duas contas
+          de uma mesma pessoa hoje.
+        </p>
+        <ul>
+          <li>Mantida manualmente, por texto — sem link com <code>core.funcionarios</code>.</li>
+          <li>Match por nome exato, sem CPF, cargo, setor, foto.</li>
+          <li>Vendedor não mapeado cai em <code>'sem_mapa:'||empresa||':'||codigo</code>
+            no ranking — funciona, mas aparece "solto".</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <b>A proposta central:</b> não criar uma terceira estrutura. Migrar o que
+      <code>pessoa_vendedor</code> faz hoje pra <code>vendedores.id_funcionario</code>, que já
+      é mais forte (FK real, ganha cargo/setor/foto de graça) e já existe. O "dicionário" que
+      você pediu é essa própria coluna — falta só a tela pra preenchê-la.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">2</span><h2>Arquitetura — hoje vs. proposto</h2></div>
+    <p class="section-sub">
+      Mesma origem (ETL Python, já existente e fora de escopo aqui), dois destinos possíveis
+      pro "quem é essa pessoa" que as views de ranking precisam responder.
+    </p>
+    <div class="diagrams">
+      <div class="diagram-card">
+        <div class="label">Hoje</div>
+        <pre class="mermaid">
+flowchart TB
+  OM[Omie Mogi] --> RAW[omie_raw.vendedores]
+  OU[Omie Uberaba] --> RAW
+  RAW -->|ETL upsert| V["vendedores: 2 linhas por pessoa"]
+  V -.->|"id_funcionario, não usado"| F[core.funcionarios]
+  PV["pessoa_vendedor: nome + codigos_vendedor[]"] -->|"match manual por texto"| RANK["fn_ranking_vendedores_*, fn_detalhe_vendedor_*"]
+  style F stroke-dasharray:4,3
+        </pre>
+      </div>
+      <div class="diagram-card">
+        <div class="label">Proposto</div>
+        <pre class="mermaid">
+flowchart TB
+  OM[Omie Mogi] --> RAW[omie_raw.vendedores]
+  OU[Omie Uberaba] --> RAW
+  RAW -->|"ETL upsert, intocado"| V["vendedores: 2 linhas por pessoa"]
+  V -->|id_funcionario| F["core.funcionarios: cargo, setor, unidade"]
+  ADM[Tela de vínculo] -->|"PUT id_funcionario"| V
+  V -->|"join direto"| RANK["fn_ranking_vendedores_*, fn_detalhe_vendedor_*"]
+  F --> RANK
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">3</span><h2>SQL</h2></div>
+    <p class="section-sub">
+      Duas partes: um backfill que aproveita o <code>pessoa_vendedor</code> já preenchido
+      hoje pra popular <code>id_funcionario</code> sem trabalho manual nenhum onde o nome já
+      bate; e a troca do JOIN nas 4 funções de ranking/detalhe.
+    </p>
+
+    <div class="code-block">
+      <div class="code-title"><span>backfill_id_funcionario.sql</span><span class="cm">roda uma vez, antes de ligar a tela</span></div>
+      <pre><span class="cm">-- 1) Cria funcionário pra quem já tem "pessoa_vendedor" mas ainda não tem</span>
+<span class="cm">--    core.funcionarios (heurística por nome — o que não bater cai na fila da tela)</span>
+<span class="kw">INSERT INTO</span> core.funcionarios (nome_completo, id_cargo, id_setor, codigo_empresa)
+<span class="kw">SELECT DISTINCT</span> pv.nome, :id_cargo_vendedor, :id_setor_vendas, v.codigo_empresa
+<span class="kw">FROM</span> core_vendas_faturamento.pessoa_vendedor pv
+<span class="kw">JOIN LATERAL</span> unnest(pv.codigos_vendedor) <span class="kw">AS</span> codigo(val) <span class="kw">ON TRUE</span>
+<span class="kw">JOIN</span> core_vendas_faturamento.vendedores v
+  <span class="kw">ON</span> v.codigo_empresa::text || <span class="str">':'</span> || v.codigo_vendedor_omie = codigo.val
+<span class="kw">WHERE</span> pv.deleted_at <span class="kw">IS NULL</span>
+  <span class="kw">AND NOT EXISTS</span> (
+    <span class="kw">SELECT</span> 1 <span class="kw">FROM</span> core.funcionarios f <span class="kw">WHERE</span> f.nome_completo = pv.nome
+  );
+
+<span class="cm">-- 2) Aponta cada linha de vendedores pro funcionario correspondente</span>
+<span class="kw">UPDATE</span> core_vendas_faturamento.vendedores v
+<span class="kw">SET</span> id_funcionario = f.id
+<span class="kw">FROM</span> core_vendas_faturamento.pessoa_vendedor pv
+<span class="kw">JOIN LATERAL</span> unnest(pv.codigos_vendedor) <span class="kw">AS</span> codigo(val) <span class="kw">ON TRUE</span>
+<span class="kw">JOIN</span> core.funcionarios f <span class="kw">ON</span> f.nome_completo = pv.nome
+<span class="kw">WHERE</span> pv.deleted_at <span class="kw">IS NULL</span>
+  <span class="kw">AND</span> v.codigo_empresa::text || <span class="str">':'</span> || v.codigo_vendedor_omie = codigo.val
+  <span class="kw">AND</span> v.id_funcionario <span class="kw">IS NULL</span>;
+
+<span class="cm">-- 3) O que sobrar com id_funcionario NULL é exatamente a fila</span>
+<span class="cm">--    inicial da tela de vínculo (seção 5) — nada se perde, só falta decidir.</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-title"><span>fn_ranking_vendedores_vendas — troca do JOIN</span><span class="cm">mesmo padrão nas outras 3 funções</span></div>
+      <pre><span class="diff-rm">- <span class="kw">LEFT JOIN</span> core_vendas_faturamento.pessoa_vendedor pv
+-   <span class="kw">ON</span> (b.codigo_empresa::text || <span class="str">':'</span> || b.cod_vendedor) = <span class="kw">ANY</span> (pv.codigos_vendedor)
+-   <span class="kw">AND</span> pv.deleted_at <span class="kw">IS NULL</span>
+- <span class="cm">-- identidade = COALESCE(pv.id::text, 'sem_mapa:'||empresa||':'||codigo)</span>
+- <span class="cm">-- vendedor   = COALESCE(pv.nome, b.vendedor)</span></span><span class="diff-add">+ <span class="kw">LEFT JOIN</span> core_vendas_faturamento.vendedores vd
++   <span class="kw">ON</span> vd.codigo_empresa = b.codigo_empresa <span class="kw">AND</span> vd.codigo_vendedor_omie = b.cod_vendedor
++ <span class="kw">LEFT JOIN</span> core.funcionarios f <span class="kw">ON</span> f.id = vd.id_funcionario
++ <span class="cm">-- identidade = COALESCE(vd.id_funcionario::text, 'sem_mapa:'||empresa||':'||codigo)</span>
++ <span class="cm">-- vendedor   = COALESCE(f.nome_completo, b.vendedor)</span>
++ <span class="cm">-- de graça: f.id_cargo, f.id_setor, f.codigo_empresa (unidade "de casa")</span></span></pre>
+    </div>
+
+    <div class="callout">
+      <b>pessoa_vendedor</b> não precisa ser dropada no mesmo dia — dá pra rodar as duas
+      versões da função em paralelo (uma view de comparação, <code>id_pessoa</code> antigo vs.
+      <code>id_funcionario</code> novo) por um mês fechado, conferir que os números batem, e só
+      então trocar de vez e arquivar a tabela.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">4</span><h2>API (Next.js → api-acos-vital)</h2></div>
+    <p class="section-sub">Mesmo padrão de proxy já usado em todo o Hub — nada de acesso direto ao banco pelo Next.js.</p>
+    <table class="api-table">
+      <thead>
+        <tr><th>Rota</th><th>O que faz</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method get">GET</span> <span class="route">/api/vendedores?status=pendente</span></td>
+          <td class="desc">Lista vendedores das duas contas Omie. <code>status</code>: <code>pendente</code> (id_funcionario null), <code>vinculado</code>, ou omitido (todos). Cada item já vem com nome/cargo/setor quando vinculado.</td>
+        </tr>
+        <tr>
+          <td><span class="method get">GET</span> <span class="route">/api/vendedores/sugestoes?codigo_empresa=..&codigo_vendedor_omie=..</span></td>
+          <td class="desc">Sugestão de match: mesmo nome já vinculado em outra unidade, ou funcionário com nome parecido (<code>unaccent + similarity()</code>, mesmo estilo do <code>ILIKE</code> já usado em <code>blacklist_vendedores</code>).</td>
+        </tr>
+        <tr>
+          <td><span class="method put">PUT</span> <span class="route">/api/vendedores/:codigoEmpresa/:codigoVendedorOmie</span></td>
+          <td class="desc">Body <code>{ id_funcionario }</code>. Grava o vínculo (ou desfaz, com <code>null</code>).</td>
+        </tr>
+        <tr>
+          <td><span class="method post">POST</span> <span class="route">/api/funcionarios</span></td>
+          <td class="desc">Já existe — reaproveitado como atalho de "criar funcionário" direto da fila, pré-preenchido com o nome vindo do Omie.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">5</span><h2>Protótipo — tela de vínculo</h2></div>
+    <p class="section-sub">
+      Dados fictícios (nomes parecidos com os que já aparecem no ranking real), mas
+      totalmente clicável — abra um card pendente, veja a sugestão, vincule.
+    </p>
+
+    <div class="proto-frame">
+      <div class="proto-titlebar">
+        <span class="proto-dot"></span><span class="proto-dot"></span><span class="proto-dot"></span>
+        <span>hub.acosvital.com.br/cadastros/auxiliares/vendedores</span>
+      </div>
+      <div class="proto-body">
+        <div class="proto-header">
+          <div>
+            <h3>Vínculo de Vendedores</h3>
+            <p>Vendedores sincronizados do Omie (Mogi + Uberaba) × funcionários do RH</p>
+          </div>
+          <div class="proto-stats" id="stats"></div>
+        </div>
+
+        <div class="proto-tabs" id="tabs"></div>
+        <div class="vendor-list" id="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="notes">
+    <h2 style="margin-bottom:.2rem">Pontos em aberto pra debater</h2>
+    <ul>
+      <li><b>Vendedor sem funcionário correspondente</b> (representante externo, ex-funcionário
+        de antes do módulo de RH): a fila vai cobrar vínculo pra sempre? Proposta em aberto —
+        um botão "sem vínculo, ignorar" que marca a linha como decidida sem exigir
+        <code>id_funcionario</code>.</li>
+      <li><b>id_usuario também poderia auto-sugerir</b>: se o funcionário escolhido já tem
+        login (<code>auth.usuarios.id_funcionario</code>), a tela poderia oferecer linkar
+        <code>vendedores.id_usuario</code> junto, no mesmo clique.</li>
+      <li><b>Confiança da sugestão automática</b>: nome idêntico entre as duas contas é
+        forte; nome parecido (via <code>similarity()</code>) precisa de um corte — vale a
+        pena eu trazer números reais do pg_trgm antes de fixar um threshold.</li>
+      <li><b>Quando aposentar <code>pessoa_vendedor</code></b> de vez: sugiro só depois de um
+        mês fechado batendo 100% entre as duas versões da função de ranking.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // ---------- dados fictícios do protótipo ----------
+  var FUNCIONARIOS = [
+    { id: 'f1', nome: 'Renan Miranda', cargo: 'Vendedor', setor: 'Vendas', unidade: 'Aços Vital' },
+    { id: 'f2', nome: 'Raul Martins Venancio', cargo: 'Vendedor', setor: 'Vendas', unidade: 'Aços Vital' },
+    { id: 'f3', nome: 'Leonardo Moraes', cargo: 'Vendedor', setor: 'Vendas', unidade: 'Aços Vital' },
+    { id: 'f4', nome: 'Hugo dos Santos Gonçalves', cargo: 'Vendedor', setor: 'Vendas', unidade: 'Aços Uberaba' },
+    { id: 'f5', nome: 'Sofia Kazue Tanaka', cargo: 'Assistente Comercial', setor: 'Vendas', unidade: 'Aços Uberaba' },
+  ];
+
+  var VENDEDORES = [
+    { key: 'v1', nome: 'Joares Alves', unidade: 'mogi', codigo: 'V-014', idFuncionario: null,
+      sugestao: { tipo: 'par_unidade', par: 'v2', texto: 'Mesmo nome aparece em <b>Uberaba</b> (V-101), também sem vínculo. Parece a mesma pessoa vendendo nas duas contas.' } },
+    { key: 'v2', nome: 'Joares Alves', unidade: 'uberaba', codigo: 'V-101', idFuncionario: null,
+      sugestao: { tipo: 'par_unidade', par: 'v1', texto: 'Mesmo nome aparece em <b>Mogi</b> (V-014), também sem vínculo.' } },
+    { key: 'v3', nome: 'Renan Miranda', unidade: 'mogi', codigo: 'V-022', idFuncionario: null,
+      sugestao: { tipo: 'funcionario', funcionarioId: 'f1', texto: 'Já existe <b>Renan Miranda</b> — Vendedor, Vendas, Aços Vital.' } },
+    { key: 'v4', nome: 'Raul Martins Venancio', unidade: 'mogi', codigo: 'V-031', idFuncionario: 'f2' },
+    { key: 'v5', nome: 'Sofia Kazue', unidade: 'uberaba', codigo: 'V-205', idFuncionario: null, sugestao: null },
+    { key: 'v6', nome: 'Leonardo Moraes', unidade: 'mogi', codigo: 'V-045', idFuncionario: 'f3' },
+    { key: 'v7', nome: 'Isaque Carvalho do Espírito Santo', unidade: 'mogi', codigo: 'V-052', idFuncionario: null, sugestao: null },
+    { key: 'v8', nome: 'Hugo dos Santos Gonçalves', unidade: 'uberaba', codigo: 'V-210', idFuncionario: 'f4' },
+    { key: 'v9', nome: 'Bruno Barbosa', unidade: 'mogi', codigo: 'V-060', idFuncionario: null, sugestao: null },
+    { key: 'v10', nome: 'Eduardo Vital', unidade: 'uberaba', codigo: 'V-215', idFuncionario: null, sugestao: null },
+  ];
+
+  var openKey = null;
+  var currentTab = 'todos';
+  var byKey = {};
+  VENDEDORES.forEach(function (v) { byKey[v.key] = v; });
+  var funcById = {};
+  FUNCIONARIOS.forEach(function (f) { funcById[f.id] = f; });
+
+  function initials(nome) {
+    var parts = nome.split(' ').filter(Boolean);
+    return ((parts[0] || '')[0] + (parts[parts.length - 1] || '')[0]).toUpperCase();
+  }
+
+  function renderStats() {
+    var total = VENDEDORES.length;
+    var vinculados = VENDEDORES.filter(function (v) { return v.idFuncionario; }).length;
+    var pendentes = total - vinculados;
+    document.getElementById('stats').innerHTML =
+      '<div class="proto-stat"><span class="n">' + total + '</span><span class="l">Total</span></div>' +
+      '<div class="proto-stat link"><span class="n">' + vinculados + '</span><span class="l">Vinculados</span></div>' +
+      '<div class="proto-stat pend"><span class="n">' + pendentes + '</span><span class="l">Pendentes</span></div>';
+  }
+
+  function renderTabs() {
+    var tabs = [
+      { id: 'todos', label: 'Todos' },
+      { id: 'pendente', label: 'Pendentes' },
+      { id: 'vinculado', label: 'Vinculados' },
+    ];
+    document.getElementById('tabs').innerHTML = tabs.map(function (t) {
+      return '<button type="button" class="proto-tab' + (currentTab === t.id ? ' active' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
+    }).join('');
+    document.querySelectorAll('.proto-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        currentTab = btn.getAttribute('data-tab');
+        openKey = null;
+        renderAll();
+      });
+    });
+  }
+
+  function candidateList(vendorKey, filterText, excludeId) {
+    var q = (filterText || '').toLowerCase();
+    return FUNCIONARIOS.filter(function (f) {
+      return f.nome.toLowerCase().indexOf(q) !== -1 && f.id !== excludeId;
+    }).map(function (f) {
+        return '<div class="candidate"><div class="info"><div class="nm">' + f.nome + '</div>' +
+          '<div class="sub">' + f.cargo + ' · ' + f.setor + ' · ' + f.unidade + '</div></div>' +
+          '<button type="button" class="btn btn-ghost" data-link="' + vendorKey + '" data-func="' + f.id + '">Selecionar</button></div>';
+      }).join('') || '<div class="candidate"><div class="info sub">Nenhum funcionário encontrado.</div></div>';
+  }
+
+  function renderPanel(v) {
+    var suggestionHtml = '';
+    if (v.sugestao && v.sugestao.tipo === 'par_unidade' && byKey[v.sugestao.par] && !byKey[v.sugestao.par].idFuncionario) {
+      suggestionHtml =
+        '<div class="suggestion-box"><span class="txt">' + v.sugestao.texto + '</span>' +
+        '<button type="button" class="btn btn-primary" data-create-pair="' + v.key + '">Criar funcionário e vincular as duas</button></div>';
+    } else if (v.sugestao && v.sugestao.tipo === 'funcionario') {
+      var f = funcById[v.sugestao.funcionarioId];
+      suggestionHtml =
+        '<div class="suggestion-box"><span class="txt">' + v.sugestao.texto + '</span>' +
+        '<button type="button" class="btn btn-primary" data-link="' + v.key + '" data-func="' + f.id + '">Usar sugestão</button></div>';
+    }
+    return (
+      suggestionHtml +
+      '<input type="text" class="search-input" placeholder="Buscar funcionário por nome..." data-search="' + v.key + '" />' +
+      '<div class="candidate-list" data-candidates="' + v.key + '">' + candidateList(v.key, '') + '</div>' +
+      '<div class="create-row"><span>Não achou? </span>' +
+      '<button type="button" class="btn btn-ghost" data-create-new="' + v.key + '">+ Criar funcionário "' + v.nome + '"</button></div>'
+    );
+  }
+
+  function renderPanelLinked(v) {
+    var f = funcById[v.idFuncionario];
+    return (
+      '<div class="current-link-box"><span class="txt">Vinculado a <b>' + f.nome + '</b> — ' +
+        f.cargo + ', ' + f.setor + ', ' + f.unidade + '</span>' +
+        '<button type="button" class="btn btn-ghost" data-unlink="' + v.key + '">Desvincular</button></div>' +
+      '<input type="text" class="search-input" placeholder="Trocar por outro funcionário..." data-search="' + v.key + '" />' +
+      '<div class="candidate-list" data-candidates="' + v.key + '">' + candidateList(v.key, '', v.idFuncionario) + '</div>' +
+      '<div class="create-row"><span>Não achou? </span>' +
+      '<button type="button" class="btn btn-ghost" data-create-new="' + v.key + '">+ Criar funcionário "' + v.nome + '"</button></div>'
+    );
+  }
+
+  function renderList() {
+    var items = VENDEDORES.filter(function (v) {
+      if (currentTab === 'pendente') return !v.idFuncionario;
+      if (currentTab === 'vinculado') return !!v.idFuncionario;
+      return true;
+    });
+    document.getElementById('list').innerHTML = items.map(function (v) {
+      var linked = !!v.idFuncionario;
+      var f = linked ? funcById[v.idFuncionario] : null;
+      var isOpen = openKey === v.key;
+      return (
+        '<div class="vendor-card' + (linked ? ' is-linked' : '') + (isOpen ? ' is-open' : '') + '" data-card="' + v.key + '">' +
+          '<div class="vendor-row" data-toggle="' + v.key + '">' +
+            '<div class="vendor-avatar">' + initials(v.nome) + '</div>' +
+            '<div class="vendor-main">' +
+              '<div class="vendor-name">' + v.nome +
+                '<span class="unit-chip ' + v.unidade + '">' + (v.unidade === 'mogi' ? 'Mogi' : 'Uberaba') + '</span>' +
+              '</div>' +
+              '<div class="vendor-meta">' + v.codigo + (linked ? ' · ' + f.cargo + ', ' + f.setor : '') + '</div>' +
+            '</div>' +
+            '<span class="status-pill ' + (linked ? 'vinculado' : 'pendente') + '">' + (linked ? '✓ Vinculado' : 'Pendente') + '</span>' +
+            '<span class="chevron">▸</span>' +
+          '</div>' +
+          '<div class="link-panel">' + (linked ? renderPanelLinked(v) : renderPanel(v)) + '</div>' +
+        '</div>'
+      );
+    }).join('') || '<div class="vendor-card"><div class="vendor-meta">Nada por aqui.</div></div>';
+
+    // wire events
+    document.querySelectorAll('[data-toggle]').forEach(function (row) {
+      row.addEventListener('click', function () {
+        var key = row.getAttribute('data-toggle');
+        openKey = openKey === key ? null : key;
+        renderList();
+      });
+    });
+    document.querySelectorAll('[data-search]').forEach(function (input) {
+      input.addEventListener('click', function (e) { e.stopPropagation(); });
+      input.addEventListener('input', function () {
+        var key = input.getAttribute('data-search');
+        var box = document.querySelector('[data-candidates="' + key + '"]');
+        box.innerHTML = candidateList(key, input.value, byKey[key].idFuncionario);
+        wireLinkButtons();
+      });
+    });
+    document.querySelectorAll('[data-unlink]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var key = btn.getAttribute('data-unlink');
+        byKey[key].idFuncionario = null;
+        openKey = key;
+        renderAll();
+      });
+    });
+    wireLinkButtons();
+    document.querySelectorAll('[data-create-new]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var key = btn.getAttribute('data-create-new');
+        var v = byKey[key];
+        var newF = { id: 'novo-' + key, nome: v.nome, cargo: 'Vendedor', setor: 'Vendas', unidade: v.unidade === 'mogi' ? 'Aços Vital' : 'Aços Uberaba' };
+        FUNCIONARIOS.push(newF);
+        funcById[newF.id] = newF;
+        v.idFuncionario = newF.id;
+        openKey = null;
+        renderAll();
+      });
+    });
+    document.querySelectorAll('[data-create-pair]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var key = btn.getAttribute('data-create-pair');
+        var v = byKey[key];
+        var pair = v.sugestao.par ? byKey[v.sugestao.par] : null;
+        var newF = { id: 'novo-' + key, nome: v.nome, cargo: 'Vendedor', setor: 'Vendas', unidade: 'Aços Vital' };
+        FUNCIONARIOS.push(newF);
+        funcById[newF.id] = newF;
+        v.idFuncionario = newF.id;
+        if (pair && !pair.idFuncionario) pair.idFuncionario = newF.id;
+        openKey = null;
+        renderAll();
+      });
+    });
+  }
+
+  function wireLinkButtons() {
+    document.querySelectorAll('[data-link]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var key = btn.getAttribute('data-link');
+        var funcId = btn.getAttribute('data-func');
+        byKey[key].idFuncionario = funcId;
+        openKey = null;
+        renderAll();
+      });
+    });
+  }
+
+  function renderAll() {
+    renderStats();
+    renderTabs();
+    renderList();
+  }
+
+  renderAll();
+})();
+</script>

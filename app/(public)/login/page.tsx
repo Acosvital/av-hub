@@ -33,13 +33,22 @@ export default function Login() {
     window.location.href = '/';
   };
 
+  // Tela fixa no visual escuro (ver styles.module.css) independente do tema do
+  // usuário — sem cartão por trás pra "segurar" um fundo claro, e a logo é um
+  // wordmark branco, então não dá pra deixar essa tela seguir o tema claro.
   const inputSx = {
-    '& .MuiOutlinedInput-root': { bgcolor: 'var(--navy-900)', color: 'var(--white)' },
-    '& .MuiInputLabel-root': { color: 'var(--white)' },
-    '& .MuiInputLabel-shrink': { backgroundColor: 'var(--navy-900)', padding: '0 4px' },
+    '& .MuiInputLabel-root': { color: 'var(--navy-100)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: 'var(--orange-light)' },
+    '& .MuiInput-underline:before': { borderBottomColor: 'var(--navy-400)' },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottomColor: 'var(--neutral-50) !important',
+    },
+    '& .MuiInput-underline:after': { borderBottomColor: 'var(--av-accent)' },
+    '& .MuiInputBase-input': { color: 'var(--neutral-50)' },
     '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-      WebkitBoxShadow: '0 0 0 1000px var(--navy-900) inset',
-      WebkitTextFillColor: 'white',
+      WebkitBoxShadow: '0 0 0 1000px transparent inset',
+      WebkitTextFillColor: 'var(--neutral-50)',
+      caretColor: 'var(--neutral-50)',
       transition: 'background-color 5000s ease-in-out 0s',
     },
   };
@@ -47,19 +56,16 @@ export default function Login() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div>
+        <div className={styles.header}>
           <img src="./logo.png" alt="logo Aços Vital" className={styles.logo} />
           <h1 className={styles.title}>Bem vindo ao Aços Hub</h1>
           <h2 className={styles.subTitle}>Acesse sua conta corporativa para continuar</h2>
         </div>
 
-        <form
-          onSubmit={handleCredentialsLogin}
-          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%' }}
-        >
+        <form onSubmit={handleCredentialsLogin} className={styles.form}>
           <TextField
             label="Email"
-            variant="outlined"
+            variant="standard"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -68,7 +74,7 @@ export default function Login() {
           />
           <TextField
             label="Senha"
-            variant="outlined"
+            variant="standard"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -76,11 +82,11 @@ export default function Login() {
             sx={inputSx}
           />
           {error && (
-            <p style={{ color: 'var(--error, #f87171)', fontSize: 'var(--fs-sm)', margin: 0 }}>
+            <p style={{ color: 'var(--red-light)', fontSize: 'var(--fs-sm)', margin: 0 }}>
               {error}
             </p>
           )}
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} variant="accent">
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
