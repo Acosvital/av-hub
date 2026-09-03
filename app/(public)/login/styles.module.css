@@ -1,66 +1,115 @@
+/* Tela fixa no visual escuro, independente do tema do usuário — ver o
+   comentário em page.tsx (inputSx) pro motivo: sem cartão pra "segurar" um
+   fundo claro, e a logo é um wordmark branco. */
+
 .container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  overflow: hidden;
+  background: var(--navy-950);
+  padding: var(--space-6) var(--space-4);
+}
+
+/* Mesmo par de radial-gradient do .pageGlow::before usado no resto do Hub
+   (dashboards, cadastros, RH) — na força do modo escuro (30%/24%), fixa,
+   já que essa tela não acompanha o tema. Substitui o cartão como o que
+   separa visualmente o formulário do resto da tela. */
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    var(--waves-bg) no-repeat center / cover,
-    var(--background);
+    radial-gradient(1400px 900px at 8% -10%, color-mix(in srgb, var(--av-accent) 30%, transparent), transparent 60%),
+    radial-gradient(1200px 950px at 100% 15%, color-mix(in srgb, var(--blue) 24%, transparent), transparent 65%);
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(-180deg, rgba(8, 20, 55, 1) 0%, rgba(59, 69, 106, 1) 100%);
-  padding: var(--space-6) var(--space-7);
-  gap: var(--space-6);
+  gap: var(--space-7);
   max-width: 400px;
   width: 100%;
-  box-shadow: var(--shadow-login);
 }
-:global(.dark) :local(.card) {
-  box-shadow: rgba(225, 225, 225, 0.15) 0px 5px 15px;
+
+/* ---- cabeçalho: logo + título + subtítulo, ritmo próprio e mais apertado
+   que o espaço entre blocos (.card gap) ---- */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
 }
 
 .logo {
-  width: 240px;
-  margin-bottom: var(--space-6);
+  display: block;
+  width: 260px;
+  margin: 0 0 var(--space-5);
+  /* transform em vez de margin-top negativa: desloca só a logo pra cima,
+     sem mexer no espaço/posição do título e subtítulo abaixo dela (uma
+     margin-top negativa aqui puxaria o bloco inteiro pela recentralização
+     vertical do .container, que é o que não queríamos). */
+  transform: translateY(-20px);
 }
 
 .title {
-  font-size: var(--fs-xl);
-  color: var(--on-primary);
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.01em;
+  color: var(--neutral-50);
   font-family: var(--font-sans);
+  text-align: center;
 }
 
 .subTitle {
-  color: var(--on-primary);
+  margin: 0;
   font-size: var(--fs-sm);
+  font-weight: var(--w-regular);
+  color: var(--navy-100);
   font-family: var(--font-sans);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  /* extra em cima do gap do .card — só esse espaço (subtítulo → inputs)
+     precisava respirar mais, não os outros blocos abaixo */
+  margin-top: var(--space-4);
 }
 
 .loginButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-4);
   gap: var(--space-2);
-  border: 0;
-  border-radius: var(--radius-xs);
-  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border: 1px solid var(--navy-400);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  color: var(--black);
-  font-weight: var(--w-bold);
+  color: var(--neutral-50);
+  font-family: var(--font-sans);
+  font-weight: var(--w-semibold);
   font-size: var(--fs-sm);
   width: 100%;
-  background-color: var(--white);
+  background-color: transparent;
+  transition: background-color var(--t-fast), border-color var(--t-fast);
 }
 
 .loginButton:hover {
-  background: var(--neutral-300);
+  background: var(--navy-800);
+  border-color: var(--navy-200);
 }
 
 .microsoftIcon {
@@ -73,7 +122,8 @@
   align-items: center;
   width: 100%;
   gap: var(--space-3);
-  color: var(--text-light);
+  color: var(--navy-100);
+  font-family: var(--font-sans);
   font-size: var(--fs-xs);
 }
 
@@ -82,17 +132,20 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--navy-600);
 }
 
 .loginInfo {
+  margin: 0;
   font-size: var(--fs-xs);
-  color: var(--text-light);
-  font-weight: var(--w-bold);
+  font-weight: var(--w-regular);
+  color: var(--navy-100);
+  font-family: var(--font-sans);
   text-align: center;
+  line-height: 1.5;
 }
 
 .loginInfo > span {
-  font-weight: var(--w-black);
+  font-weight: var(--w-bold);
   color: var(--neutral-50);
 }

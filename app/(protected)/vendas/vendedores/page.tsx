@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {
+  Alert,
   Autocomplete,
   Chip,
   CircularProgress,
@@ -31,9 +32,13 @@ import {
   criarVendedor,
   editarVendedor,
   deletarVendedor,
+  getSugestaoVinculo,
+  SugestaoVinculo,
 } from '@/services/vendas/vendedores';
 import { getUsuarios } from '@/services/cadastros/acessos/usuarios';
 import { UsuarioProps } from '@/app/(protected)/cadastros/acessos/usuarios/types';
+import { getFuncionarios } from '@/services/rh/funcionarios';
+import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
 import { FormVendedorCadastro, VendedorCadastroProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
@@ -49,6 +54,7 @@ const FORM_INICIAL: FormVendedorCadastro = {
   filial: '',
   ativo: true,
   id_usuario: '',
+  id_funcionario: '',
 };
 
 export default function Vendedores() {
@@ -68,12 +74,14 @@ export default function Vendedores() {
 
   const [usuarios, setUsuarios] = useState<UsuarioProps[]>([]);
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
+  const [funcionarios, setFuncionarios] = useState<FuncionarioProps[]>([]);
 
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 500);
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
 
   const [form, setForm] = useState<FormVendedorCadastro>(FORM_INICIAL);
+  const [sugestao, setSugestao] = useState<SugestaoVinculo | null>(null);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -96,7 +104,19 @@ export default function Vendedores() {
         notify.error('Erro ao carregar unidades');
       }
     }
-    Promise.allSettled([loadUsuarios(), loadUnidades()]);
+    async function loadFuncionarios() {
+      try {
+        // getFuncionarios({ nome_completo }) não filtra no backend hoje (ver
+        // docs/pendencia-filtro-nome-funcionarios.md) — carrega um lote e o
+        // Autocomplete filtra no cliente, mesma solução já usada em
+        // cadastros/acessos/usuarios e rh/funcionarios.
+        const data = await getFuncionarios({ limit: 500 });
+        setFuncionarios(data.funcionarios);
+      } catch {
+        notify.error('Erro ao carregar funcionários');
+      }
+    }
+    Promise.allSettled([loadUsuarios(), loadUnidades(), loadFuncionarios()]);
   }, []);
 
   useEffect(() => {
@@ -138,6 +158,12 @@ export default function Vendedores() {
     return found ? found.nome_fantasia : id;
   };
 
+  const funcionarioLabel = (id: string | null) => {
+    if (!id) return '—';
+    const found = funcionarios.find((f) => f.id === id);
+    return found ? found.nome_completo : id;
+  };
+
   const FILTROS_VENDEDOR = [
     {
       key: 'status',
@@ -152,6 +178,7 @@ export default function Vendedores() {
   const abrirCriacaoModal = () => {
     setEditingId(null);
     setForm(FORM_INICIAL);
+    setSugestao(null);
     setIsModalOpen(true);
   };
 
@@ -166,7 +193,17 @@ export default function Vendedores() {
       filial: vendedor.filial ?? '',
       ativo: vendedor.ativo,
       id_usuario: vendedor.id_usuario ?? '',
+      id_funcionario: vendedor.id_funcionario ?? '',
     });
+    setSugestao(null);
+    if (!vendedor.id_funcionario) {
+      // Endpoint novo (docs/contrato-vinculo-vendedor-funcionario.md, item 3.1) —
+      // enquanto o backend não implementa, isso só nunca traz sugestão (falha em
+      // silêncio, sem toast: é um extra, não uma ação que o usuário pediu).
+      getSugestaoVinculo(vendedor.id)
+        .then((res) => setSugestao(res.sugestao))
+        .catch((err) => console.error('Sugestão de vínculo indisponível:', err));
+    }
     setIsModalOpen(true);
   };
 
@@ -201,6 +238,7 @@ export default function Vendedores() {
         filial: form.filial.trim() || null,
         ativo: form.ativo,
         id_usuario: form.id_usuario || null,
+        id_funcionario: form.id_funcionario || null,
       };
 
       if (editingId) {
@@ -303,6 +341,7 @@ export default function Vendedores() {
                             'Email',
                             'Filial',
                             'Usuário',
+                            'Funcionário',
                             'Comissão',
                             'Status',
                             'Sistema',
@@ -339,6 +378,13 @@ export default function Vendedores() {
                             <TableCell>{row.email ?? '—'}</TableCell>
                             <TableCell>{row.filial ?? '—'}</TableCell>
                             <TableCell>{usuarioLabel(row.id_usuario)}</TableCell>
+                            <TableCell>
+                              {row.id_funcionario ? (
+                                funcionarioLabel(row.id_funcionario)
+                              ) : (
+                                <Chip label="Pendente" color="warning" size="small" variant="outlined" />
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Chip
                                 label={row.comissao ? 'Sim' : 'Não'}
@@ -377,6 +423,7 @@ export default function Vendedores() {
                   fields={(row) => [
                     { label: 'Filial', value: row.filial ?? '—' },
                     { label: 'Usuário', value: usuarioLabel(row.id_usuario) },
+                    { label: 'Funcionário', value: row.id_funcionario ? funcionarioLabel(row.id_funcionario) : 'Pendente' },
                     { label: 'Comissão', value: row.comissao ? 'Sim' : 'Não' },
                     { label: 'Sistema', value: unidadeLabel(row.codigo_empresa) },
                   ]}
@@ -466,6 +513,45 @@ export default function Vendedores() {
               onChange={(_, v) => setField('id_usuario', v?.id ?? '')}
               isOptionEqualToValue={(o, v) => o.id === v.id}
               renderInput={(params) => <TextField {...params} label="Usuário Vinculado" />}
+            />
+          </div>
+
+          <p className={styles.sectionTitle}>Vínculo com RH</p>
+          <hr className={styles.divider} />
+          <div className={styles.formRow}>
+            {sugestao && !form.id_funcionario && (
+              <Alert
+                sx={{ flex: '1 1 100%' }}
+                severity="info"
+                action={
+                  <Button
+                    variant="secondary"
+                    onClick={() => setField('id_funcionario', sugestao.id_funcionario)}
+                  >
+                    Usar
+                  </Button>
+                }
+              >
+                <b>{sugestao.nome_funcionario}</b> já está vinculado a este vendedor em{' '}
+                {unidadeLabel(sugestao.codigo_empresa_origem)} — parece a mesma pessoa vendendo
+                nas duas unidades.
+              </Alert>
+            )}
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 220 }}
+              options={funcionarios}
+              getOptionKey={(f) => f.id}
+              getOptionLabel={(f) => f.nome_completo}
+              value={funcionarios.find((f) => f.id === form.id_funcionario) ?? null}
+              onChange={(_, v) => setField('id_funcionario', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Funcionário Vinculado"
+                  helperText="Opcional — liga esse vendedor a um funcionário do RH"
+                />
+              )}
             />
           </div>
 

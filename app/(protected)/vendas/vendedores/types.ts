@@ -24,4 +24,5 @@ export interface FormVendedorCadastro {
   filial: string;
   ativo: boolean;
   id_usuario: string;
+  id_funcionario: string;
 }
