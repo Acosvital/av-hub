@@ -2,7 +2,7 @@
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
-import ClientCard, { ClientOrderType } from '@/components/Dashboards/ClientCard/ClientCard';
+import ClientCard from '@/components/Dashboards/ClientCard/ClientCard';
 import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -24,6 +24,7 @@ import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/D
 import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
 import { Skeleton, useMediaQuery } from '@mui/material';
+import BILLING_TYPE_COLORS, { ClientOrderType } from '@/utils/tipoContratoColors';
 
 const SITUACAO_DEFINITIONS = [
   { id: 'G1', label: 'Cancelados', color: 'var(--red)' },
@@ -31,12 +32,6 @@ const SITUACAO_DEFINITIONS = [
   { id: 'G3', label: 'Recusados', color: 'var(--yellow)' },
   { id: 'G6', label: 'Refaturamento', color: 'var(--orange)' },
 ];
-
-const BILLING_TYPE_COLORS: Record<string, string> = {
-  SPOT: 'var(--fuchsia)',
-  CONTRATO: 'var(--teal)',
-  'SEM CLASSIFICAÇÃO': 'var(--white)',
-};
 
 const CLIENT_TYPE_FILTERS: ClientOrderType[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
 
@@ -289,16 +284,16 @@ export default function FaturamentoPorTipo() {
           <svg width="0" height="0" style={{ position: 'absolute' }}>
             <defs>
               <linearGradient id="lineAreaGradient-spot" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--fuchsia)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--fuchsia)" stopOpacity={0} />
+                <stop offset="0%" stopColor={BILLING_TYPE_COLORS.SPOT} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={BILLING_TYPE_COLORS.SPOT} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="lineAreaGradient-contrato" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--teal)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--teal)" stopOpacity={0} />
+                <stop offset="0%" stopColor={BILLING_TYPE_COLORS.CONTRATO} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={BILLING_TYPE_COLORS.CONTRATO} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="lineAreaGradient-semclass" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--white)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--white)" stopOpacity={0} />
+                <stop offset="0%" stopColor={BILLING_TYPE_COLORS['SEM CLASSIFICAÇÃO']} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={BILLING_TYPE_COLORS['SEM CLASSIFICAÇÃO']} stopOpacity={0} />
               </linearGradient>
             </defs>
           </svg>
@@ -322,7 +317,7 @@ export default function FaturamentoPorTipo() {
                 data: isMobile
                   ? faturamentoMensalPorTipo.SPOT.slice(-6)
                   : faturamentoMensalPorTipo.SPOT,
-                color: 'var(--fuchsia)',
+                color: BILLING_TYPE_COLORS.SPOT,
                 curve: 'natural',
                 area: true,
                 valueFormatter: (value: number | null) => toBRL(value),
@@ -333,7 +328,7 @@ export default function FaturamentoPorTipo() {
                 data: isMobile
                   ? faturamentoMensalPorTipo.CONTRATO.slice(-6)
                   : faturamentoMensalPorTipo.CONTRATO,
-                color: 'var(--teal)',
+                color: BILLING_TYPE_COLORS.CONTRATO,
                 curve: 'natural',
                 area: true,
                 valueFormatter: (value: number | null) => toBRL(value),
@@ -344,7 +339,7 @@ export default function FaturamentoPorTipo() {
                 data: isMobile
                   ? faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'].slice(-6)
                   : faturamentoMensalPorTipo['SEM CLASSIFICAÇÃO'],
-                color: 'var(--white)',
+                color: BILLING_TYPE_COLORS['SEM CLASSIFICAÇÃO'],
                 curve: 'natural',
                 area: true,
                 valueFormatter: (value: number | null) => toBRL(value),
