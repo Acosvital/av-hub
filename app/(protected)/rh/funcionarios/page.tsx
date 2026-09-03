@@ -313,11 +313,7 @@ export default function Funcionarios() {
       notify.error('Cargo é obrigatório');
       return;
     }
-    if (!form.email.trim()) {
-      notify.error('E-mail é obrigatório');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       notify.error('E-mail inválido');
       return;
     }
@@ -329,7 +325,7 @@ export default function Funcionarios() {
         id_cargo: form.id_cargo,
         id_setor: form.id_setor,
         codigo_empresa: form.codigo_empresa,
-        email: form.email.trim(),
+        email: form.email.trim() || null,
         photo_url: form.photo_url.trim() || null,
         cpf: form.cpf.trim() || null,
         rg: form.rg.trim() || null,
@@ -681,7 +677,6 @@ export default function Funcionarios() {
             <TextField
               sx={{ flex: 1, minWidth: 220 }}
               label="E-mail"
-              required
               type="email"
               value={form.email}
               onChange={(e) => setField('email', e.target.value)}
