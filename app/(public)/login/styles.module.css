@@ -37,6 +37,12 @@
   gap: var(--space-7);
   max-width: 400px;
   width: 100%;
+  /* mesmo respiro lateral do .pageGlow das telas de cadastro/tabela
+     (padding: 0 var(--space-4)) — antes o cartão não tinha padding próprio,
+     só o do .container externo, então em telas estreitas os inputs
+     chegavam quase na borda. */
+  padding: 0 var(--space-4);
+  box-sizing: border-box;
 }
 
 /* ---- cabeçalho: logo + título + subtítulo, ritmo próprio e mais apertado
