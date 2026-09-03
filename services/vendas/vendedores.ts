@@ -54,6 +54,19 @@ export async function editarVendedor(id: string, data: object) {
   });
 }
 
+export interface SugestaoVinculo {
+  id_funcionario: string;
+  nome_funcionario: string;
+  codigo_empresa_origem: string;
+}
+
+export async function getSugestaoVinculo(id: string) {
+  return apiFetch<{ sugestao: SugestaoVinculo | null }>(
+    `/api/vendedores/${id}/sugestoes`,
+    'Erro ao buscar sugestão de vínculo'
+  );
+}
+
 export async function deletarVendedor(id: string) {
   const res = await fetch(`/api/vendedores/${id}`, { method: 'DELETE' });
   if (!res.ok) {
