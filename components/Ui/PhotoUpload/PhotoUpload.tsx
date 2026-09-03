@@ -152,11 +152,11 @@ export default function PhotoUpload({
       notify.error('Formato não suportado — use JPG, PNG ou WebP');
       return;
     }
-    if (file.size > TAMANHO_MAXIMO_BYTES) {
-      notify.error('A imagem deve ter no máximo 5MB');
-      return;
-    }
 
+    // Sem limite de tamanho aqui de propósito: o arquivo original pode ter
+    // mais de 5MB à vontade, o editor abre normalmente. O limite só se
+    // aplica na hora de salvar (comprimirSeNecessario abaixo) — a foto de
+    // origem grande não é o problema, é o que sobe pro storage.
     setEditorSrc(URL.createObjectURL(file));
   };
 

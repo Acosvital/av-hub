@@ -216,6 +216,12 @@ export default function BulkPermissaoModal({
 }: BulkPermissaoModalProps) {
   const [perfilSelecionado, setPerfilSelecionado] = useState<PerfilRef | null>(null);
   const [permissions, setPermissions] = useState<Record<string, TelaPermissions>>({});
+  // Telas que já tinham uma linha de permissão salva pra esse perfil antes de
+  // abrir o modal — precisa desse registro separado do estado dos switches
+  // pra saber, no save, quais telas exigem enviar {false,false,false,false}
+  // explícito (revogar) em vez de simplesmente não aparecer no payload (ver
+  // handleSave abaixo).
+  const [telasComPermissaoOriginal, setTelasComPermissaoOriginal] = useState<Set<string>>(new Set());
   const [loadingPerms, setLoadingPerms] = useState(false);
 
   useEffect(() => {
@@ -229,6 +235,7 @@ export default function BulkPermissaoModal({
       setLoadingPerms(true);
       getPermissoes({ id_perfil: initialPerfil.id, limit: 1000 })
         .then((res) => {
+          setTelasComPermissaoOriginal(new Set((res.permissoes ?? []).map((p) => p.id_tela)));
           setPermissions((prev) => {
             const next = { ...prev };
             (res.permissoes ?? []).forEach((p) => {
@@ -248,6 +255,7 @@ export default function BulkPermissaoModal({
         .finally(() => setLoadingPerms(false));
     } else {
       setPerfilSelecionado(null);
+      setTelasComPermissaoOriginal(new Set());
     }
   }, [isOpen, allTelas, initialPerfil]);
 
@@ -257,12 +265,14 @@ export default function BulkPermissaoModal({
     setPerfilSelecionado(perfil);
     if (!perfil) {
       setPermissions(initPermissions(allTelas));
+      setTelasComPermissaoOriginal(new Set());
       return;
     }
 
     setLoadingPerms(true);
     try {
       const res = await getPermissoes({ id_perfil: perfil.id, limit: 1000 });
+      setTelasComPermissaoOriginal(new Set((res.permissoes ?? []).map((p) => p.id_tela)));
       setPermissions((prev) => {
         const next = { ...prev };
         (res.permissoes ?? []).forEach((p) => {
@@ -302,10 +312,28 @@ export default function BulkPermissaoModal({
     [permissions]
   );
 
+  // Também tem que dar pra salvar quando o resultado é "zero telas
+  // configuradas" — é exatamente o caso de remover a última permissão que
+  // sobrou de um perfil. Só bloqueia quando não há nada mesmo pra enviar
+  // (nunca teve permissão nenhuma e nenhum switch está ligado agora).
+  const nadaParaSalvar = configuredCount === 0 && telasComPermissaoOriginal.size === 0;
+
   const handleSave = async () => {
-    if (!perfilSelecionado || configuredCount === 0) return;
+    if (!perfilSelecionado || nadaParaSalvar) return;
+    // Inclui toda tela com algum switch ligado, MAIS toda tela que já tinha
+    // permissão salva antes (mesmo que agora esteja com os 4 desligados) —
+    // sem isso, zerar os switches de uma tela pra removê-la simplesmente a
+    // tirava do payload, e a permissão antiga nunca era de fato revogada no
+    // backend (ela só é atualizada pras telas presentes no lote).
     const permissoes = Object.entries(permissions)
-      .filter(([, p]) => p.pode_visualizar || p.pode_criar || p.pode_editar || p.pode_deletar)
+      .filter(
+        ([id_tela, p]) =>
+          p.pode_visualizar ||
+          p.pode_criar ||
+          p.pode_editar ||
+          p.pode_deletar ||
+          telasComPermissaoOriginal.has(id_tela)
+      )
       .map(([id_tela, p]) => ({ id_tela, ...p }));
     await onSave({ id_perfil: perfilSelecionado.id, permissoes });
   };
@@ -382,7 +410,7 @@ export default function BulkPermissaoModal({
             acao="pode_criar"
             variant="primary"
             onClick={handleSave}
-            disabled={saving || !perfilSelecionado || configuredCount === 0}
+            disabled={saving || !perfilSelecionado || nadaParaSalvar}
           >
             {saving
               ? 'Salvando...'
