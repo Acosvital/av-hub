@@ -17,6 +17,7 @@ export const NIVEIS_HIERARQUICOS: Record<number, string> = {
 export interface CargoProps {
   id: string;
   codigo_empresa: string;
+  id_setor: string;
   nome: string;
   nvl_permissao: number;
   descricao: string;
@@ -28,6 +29,7 @@ export interface CargoProps {
 
 export interface FormCargo {
   codigo_empresa: string;
+  id_setor: string;
   nome: string;
   nvl_permissao: number | '';
   descricao: string;

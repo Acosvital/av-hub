@@ -145,25 +145,38 @@ export default function Funcionarios() {
   }, [refreshTrigger]);
 
   useEffect(() => {
-    async function loadReferenciasDoForm() {
+    async function loadSetoresDoForm() {
       if (!form.codigo_empresa) {
         setSetoresDoForm([]);
+        return;
+      }
+      try {
+        const data = await getSetores({ codigo_empresa: form.codigo_empresa, limit: 500 });
+        setSetoresDoForm(data.setores ?? []);
+      } catch {
+        notify.error('Erro ao carregar setores da unidade');
+      }
+    }
+    loadSetoresDoForm();
+  }, [form.codigo_empresa]);
+
+  // Cargo agora pertence a um setor específico, não só à unidade — a lista
+  // de cargos do form segue o setor escolhido.
+  useEffect(() => {
+    async function loadCargosDoForm() {
+      if (!form.id_setor) {
         setCargosDoForm([]);
         return;
       }
       try {
-        const [setoresRes, cargosRes] = await Promise.all([
-          getSetores({ codigo_empresa: form.codigo_empresa, limit: 500 }),
-          getCargos({ codigo_empresa: form.codigo_empresa, limit: 500 }),
-        ]);
-        setSetoresDoForm(setoresRes.setores ?? []);
-        setCargosDoForm(cargosRes.cargos ?? []);
+        const data = await getCargos({ id_setor: form.id_setor, limit: 500 });
+        setCargosDoForm(data.cargos ?? []);
       } catch {
-        notify.error('Erro ao carregar setores e cargos da unidade');
+        notify.error('Erro ao carregar cargos do setor');
       }
     }
-    loadReferenciasDoForm();
-  }, [form.codigo_empresa]);
+    loadCargosDoForm();
+  }, [form.id_setor]);
 
   // Candidatos a "reporta a" são colegas do mesmo setor (exceto a própria
   // pessoa, ao editar) — a hierarquia manual só faz sentido dentro do setor.
@@ -656,6 +669,7 @@ export default function Funcionarios() {
               value={setoresDoForm.find((s) => s.id === form.id_setor) ?? null}
               onChange={(_, v) => {
                 setField('id_setor', v?.id ?? '');
+                setField('id_cargo', '');
                 // As opções de "reporta a" são só do setor — muda o setor, some a escolha.
                 setField('reporta_a_id', '');
               }}
@@ -671,7 +685,7 @@ export default function Funcionarios() {
               value={cargosDoForm.find((c) => c.id === form.id_cargo) ?? null}
               onChange={(_, v) => setField('id_cargo', v?.id ?? '')}
               isOptionEqualToValue={(o, v) => o.id === v.id}
-              disabled={!form.codigo_empresa}
+              disabled={!form.id_setor}
               renderInput={(params) => <TextField {...params} label="Cargo" required />}
             />
             <TextField

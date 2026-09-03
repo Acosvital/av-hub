@@ -7,6 +7,7 @@ interface GetCargosParams {
   limit?: number;
   nome?: string;
   codigo_empresa?: string;
+  id_setor?: string;
   ativo?: boolean;
 }
 
@@ -20,6 +21,7 @@ export async function getCargos(params: GetCargosParams = {}) {
   if (params.limit) query.set('limit', String(params.limit));
   if (params.nome) query.set('nome', params.nome);
   if (params.codigo_empresa) query.set('codigo_empresa', params.codigo_empresa);
+  if (params.id_setor) query.set('id_setor', params.id_setor);
   if (params.ativo !== undefined) query.set('ativo', String(params.ativo));
   return apiFetch<CargosResponse>(`/api/cargos?${query}`, 'Erro ao buscar cargos');
 }
