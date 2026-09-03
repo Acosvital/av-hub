@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET() {
+  const denied = await requirePermission('historico-produtos', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const data = await apiFetch(
       `${process.env.API_URL}/familias_produtos`,

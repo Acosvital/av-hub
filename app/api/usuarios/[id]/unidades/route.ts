@@ -3,6 +3,8 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requirePermission('usuarios', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { id } = await params;
     const data = await apiFetch(

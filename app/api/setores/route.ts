@@ -4,6 +4,8 @@ import { requirePermission } from '@/lib/api/requirePermission';
 import { comEscopoUnidade } from '@/lib/api/escopoUnidade';
 
 export async function GET(request: NextRequest) {
+  const denied = await requirePermission('setores', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
