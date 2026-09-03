@@ -1,7 +1,6 @@
 'use client';
 import { signIn } from 'next-auth/react';
 import styles from './styles.module.css';
-import { TextField } from '@mui/material';
 import Button from '@/components/Ui/Button/Button';
 import { useState } from 'react';
 
@@ -33,26 +32,6 @@ export default function Login() {
     window.location.href = '/';
   };
 
-  // Tela fixa no visual escuro (ver styles.module.css) independente do tema do
-  // usuário — sem cartão por trás pra "segurar" um fundo claro, e a logo é um
-  // wordmark branco, então não dá pra deixar essa tela seguir o tema claro.
-  const inputSx = {
-    '& .MuiInputLabel-root': { color: 'var(--navy-100)' },
-    '& .MuiInputLabel-root.Mui-focused': { color: 'var(--orange-light)' },
-    '& .MuiInput-underline:before': { borderBottomColor: 'var(--navy-400)' },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-      borderBottomColor: 'var(--neutral-50) !important',
-    },
-    '& .MuiInput-underline:after': { borderBottomColor: 'var(--av-accent)' },
-    '& .MuiInputBase-input': { color: 'var(--neutral-50)' },
-    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-      WebkitBoxShadow: '0 0 0 1000px transparent inset',
-      WebkitTextFillColor: 'var(--neutral-50)',
-      caretColor: 'var(--neutral-50)',
-      transition: 'background-color 5000s ease-in-out 0s',
-    },
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -63,24 +42,30 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleCredentialsLogin} className={styles.form}>
-          <TextField
-            label="Email"
-            variant="standard"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={inputSx}
-          />
-          <TextField
-            label="Senha"
-            variant="standard"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={inputSx}
-          />
+          <label className={styles.label}>
+            Email
+            <input
+              className={styles.input}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com.br"
+              autoComplete="email"
+              required
+            />
+          </label>
+          <label className={styles.label}>
+            Senha
+            <input
+              className={styles.input}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+            />
+          </label>
           {error && (
             <p style={{ color: 'var(--red-light)', fontSize: 'var(--fs-sm)', margin: 0 }}>
               {error}
