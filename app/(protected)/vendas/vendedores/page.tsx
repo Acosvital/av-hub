@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -39,6 +39,7 @@ import { getUsuarios } from '@/services/cadastros/acessos/usuarios';
 import { UsuarioProps } from '@/app/(protected)/cadastros/acessos/usuarios/types';
 import { getFuncionarios } from '@/services/rh/funcionarios';
 import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
+import { getSetores } from '@/services/cadastros/auxiliares/setores';
 import { FormVendedorCadastro, VendedorCadastroProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
@@ -75,6 +76,10 @@ export default function Vendedores() {
   const [usuarios, setUsuarios] = useState<UsuarioProps[]>([]);
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
   const [funcionarios, setFuncionarios] = useState<FuncionarioProps[]>([]);
+  // "Vendas" existe como um setor próprio em cada unidade (ids diferentes) —
+  // carrega todos de uma vez pra filtrar o Autocomplete de vínculo sem
+  // depender de qual unidade o vendedor é.
+  const [idsSetorVendas, setIdsSetorVendas] = useState<Set<string>>(new Set());
 
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 500);
@@ -116,8 +121,26 @@ export default function Vendedores() {
         notify.error('Erro ao carregar funcionários');
       }
     }
-    Promise.allSettled([loadUsuarios(), loadUnidades(), loadFuncionarios()]);
+    async function loadSetorVendas() {
+      try {
+        const data = await getSetores({ nome: 'Vendas', limit: 500 });
+        setIdsSetorVendas(new Set((data.setores ?? []).map((s) => s.id)));
+      } catch {
+        notify.error('Erro ao carregar setor de vendas');
+      }
+    }
+    Promise.allSettled([loadUsuarios(), loadUnidades(), loadFuncionarios(), loadSetorVendas()]);
   }, []);
+
+  // Só oferece no Autocomplete quem já está no setor Vendas (de qualquer
+  // unidade) — vincular vendedor a alguém de outro setor não faz sentido
+  // pro caso de uso daqui. Um funcionário já vinculado antes de outro setor
+  // (dado legado) continua aparecendo no valor selecionado normalmente, só
+  // não entra como opção nova.
+  const funcionariosVendas = useMemo(
+    () => funcionarios.filter((f) => idsSetorVendas.has(f.id_setor)),
+    [funcionarios, idsSetorVendas]
+  );
 
   useEffect(() => {
     async function fetchVendedores() {
@@ -539,7 +562,7 @@ export default function Vendedores() {
             )}
             <Autocomplete
               sx={{ flex: 1, minWidth: 220 }}
-              options={funcionarios}
+              options={funcionariosVendas}
               getOptionKey={(f) => f.id}
               getOptionLabel={(f) => f.nome_completo}
               value={funcionarios.find((f) => f.id === form.id_funcionario) ?? null}
@@ -549,7 +572,7 @@ export default function Vendedores() {
                 <TextField
                   {...params}
                   label="Funcionário Vinculado"
-                  helperText="Opcional — liga esse vendedor a um funcionário do RH"
+                  helperText="Opcional — liga esse vendedor a um funcionário do RH (setor Vendas)"
                 />
               )}
             />
