@@ -4,10 +4,12 @@ import { requirePermission } from '@/lib/api/requirePermission';
 import { comEscopoUnidade } from '@/lib/api/escopoUnidade';
 
 export async function GET(request: NextRequest) {
+  const denied = await requirePermission('cargos', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    ['page', 'limit', 'nome', 'codigo_empresa', 'ativo'].forEach((key) => {
+    ['page', 'limit', 'nome', 'codigo_empresa', 'id_setor', 'ativo'].forEach((key) => {
       const value = searchParams.get(key);
       if (value !== null) params.set(key, value);
     });

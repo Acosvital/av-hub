@@ -6,6 +6,8 @@ import { assinarUrlFoto } from '@/lib/s3/fotos';
 import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/types';
 
 export async function GET(request: NextRequest) {
+  const denied = await requirePermission('unidades', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();

@@ -32,7 +32,9 @@ import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getCargos, criarCargo, editarCargo, deletarCargo } from '@/services/cadastros/auxiliares/cargos';
 import { getUnidades } from '@/services/cadastros/auxiliares/unidades';
+import { getSetores } from '@/services/cadastros/auxiliares/setores';
 import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/types';
+import { SetorProps } from '@/app/(protected)/cadastros/auxiliares/setores/types';
 import { CargoProps, FormCargo, NIVEIS_HIERARQUICOS } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
@@ -40,6 +42,7 @@ import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton'
 
 const FORM_INICIAL: FormCargo = {
   codigo_empresa: '',
+  id_setor: '',
   nome: '',
   nvl_permissao: '',
   descricao: '',
@@ -62,10 +65,16 @@ export default function Cargos() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
+  const [setores, setSetores] = useState<SetorProps[]>([]);
+
+  // Setores disponíveis pra unidade escolhida no formulário — um cargo só
+  // pode pertencer a um setor da mesma empresa a que está vinculado.
+  const [setoresDoForm, setSetoresDoForm] = useState<SetorProps[]>([]);
 
   const [nomeInput, setNomeInput] = useState('');
   const nome = useDebounce(nomeInput, 500);
   const [unidadeFiltro, setUnidadeFiltro] = useState('');
+  const [setorFiltro, setSetorFiltro] = useState('');
   const [statusFiltro, setStatusFiltro] = useState<'todos' | 'ativo' | 'inativo'>('todos');
 
   const [form, setForm] = useState<FormCargo>(FORM_INICIAL);
@@ -75,16 +84,36 @@ export default function Cargos() {
   }, [error]);
 
   useEffect(() => {
-    async function loadUnidades() {
+    async function loadReferencias() {
       try {
-        const data = await getUnidades({ limit: 500 });
-        setUnidades(data.unidades ?? []);
+        const [unidadesRes, setoresRes] = await Promise.all([
+          getUnidades({ limit: 500 }),
+          getSetores({ limit: 500 }),
+        ]);
+        setUnidades(unidadesRes.unidades ?? []);
+        setSetores(setoresRes.setores ?? []);
       } catch {
-        notify.error('Erro ao carregar unidades');
+        notify.error('Erro ao carregar unidades e setores');
       }
     }
-    loadUnidades();
+    loadReferencias();
   }, []);
+
+  useEffect(() => {
+    async function loadSetoresDoForm() {
+      if (!form.codigo_empresa) {
+        setSetoresDoForm([]);
+        return;
+      }
+      try {
+        const data = await getSetores({ codigo_empresa: form.codigo_empresa, limit: 500 });
+        setSetoresDoForm(data.setores ?? []);
+      } catch {
+        notify.error('Erro ao carregar setores da unidade');
+      }
+    }
+    loadSetoresDoForm();
+  }, [form.codigo_empresa]);
 
   useEffect(() => {
     async function fetchCargos() {
@@ -96,6 +125,7 @@ export default function Cargos() {
           limit: rowsPerPage,
           nome: nome || undefined,
           codigo_empresa: unidadeFiltro || undefined,
+          id_setor: setorFiltro || undefined,
           ativo,
         });
         setRows(response.cargos ?? []);
@@ -108,15 +138,21 @@ export default function Cargos() {
       }
     }
     fetchCargos();
-  }, [page, rowsPerPage, nome, unidadeFiltro, statusFiltro, refreshTrigger]);
+  }, [page, rowsPerPage, nome, unidadeFiltro, setorFiltro, statusFiltro, refreshTrigger]);
 
   const unidadeLabel = (id: string) => unidades.find((u) => u.id === id)?.nome_fantasia ?? '—';
+  const setorLabel = (id: string) => setores.find((s) => s.id === id)?.nome ?? '—';
 
   const FILTROS_CARGO = [
     {
       key: 'unidade',
       label: 'Unidade',
       options: unidades.map((u) => ({ value: u.id, label: u.nome_fantasia })),
+    },
+    {
+      key: 'setor',
+      label: 'Setor',
+      options: setores.map((s) => ({ value: s.id, label: s.nome })),
     },
     {
       key: 'status',
@@ -138,6 +174,7 @@ export default function Cargos() {
     setEditingId(cargo.id);
     setForm({
       codigo_empresa: cargo.codigo_empresa,
+      id_setor: cargo.id_setor,
       nome: cargo.nome,
       nvl_permissao: cargo.nvl_permissao,
       descricao: cargo.descricao,
@@ -149,6 +186,10 @@ export default function Cargos() {
   const salvarCargo = async () => {
     if (!form.codigo_empresa) {
       notify.error('Unidade é obrigatória');
+      return;
+    }
+    if (!form.id_setor) {
+      notify.error('Setor é obrigatório');
       return;
     }
     if (!form.nome.trim()) {
@@ -168,6 +209,7 @@ export default function Cargos() {
       setSaving(true);
       const payload = {
         codigo_empresa: form.codigo_empresa,
+        id_setor: form.id_setor,
         nome: form.nome.trim(),
         nvl_permissao: Number(form.nvl_permissao),
         descricao: form.descricao.trim(),
@@ -239,11 +281,15 @@ export default function Cargos() {
             filters={FILTROS_CARGO}
             activeValues={{
               unidade: unidadeFiltro || undefined,
+              setor: setorFiltro || undefined,
               status: statusFiltro !== 'todos' ? statusFiltro : undefined,
             }}
             onFilterChange={(key, value) => {
               if (key === 'unidade') {
                 setUnidadeFiltro(value ?? '');
+                setPage(0);
+              } else if (key === 'setor') {
+                setSetorFiltro(value ?? '');
                 setPage(0);
               } else if (key === 'status') {
                 setStatusFiltro((value as 'ativo' | 'inativo' | null) ?? 'todos');
@@ -270,7 +316,7 @@ export default function Cargos() {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    {['Nome', 'Unidade', 'Nível Hierárquico', 'Status'].map((label) => (
+                    {['Nome', 'Unidade', 'Setor', 'Nível Hierárquico', 'Status'].map((label) => (
                       <TableCell
                         key={label}
                         sx={{
@@ -299,6 +345,7 @@ export default function Cargos() {
                     >
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
+                      <TableCell>{setorLabel(row.id_setor)}</TableCell>
                       <TableCell>{NIVEIS_HIERARQUICOS[row.nvl_permissao] ?? row.nvl_permissao}</TableCell>
                       <TableCell>
                         <Chip
@@ -328,6 +375,7 @@ export default function Cargos() {
                 />
               )}
               fields={(row) => [
+                { label: 'Setor', value: setorLabel(row.id_setor) },
                 {
                   label: 'Nível Hierárquico',
                   value: NIVEIS_HIERARQUICOS[row.nvl_permissao] ?? row.nvl_permissao,
@@ -367,9 +415,23 @@ export default function Cargos() {
               getOptionKey={(u) => u.id}
               getOptionLabel={(u) => u.nome_fantasia}
               value={unidades.find((u) => u.id === form.codigo_empresa) ?? null}
-              onChange={(_, v) => setField('codigo_empresa', v?.id ?? '')}
+              onChange={(_, v) => {
+                setField('codigo_empresa', v?.id ?? '');
+                setField('id_setor', '');
+              }}
               isOptionEqualToValue={(o, v) => o.id === v.id}
               renderInput={(params) => <TextField {...params} label="Unidade" required />}
+            />
+            <Autocomplete
+              sx={{ flex: 1, minWidth: 220 }}
+              options={setoresDoForm}
+              getOptionKey={(s) => s.id}
+              getOptionLabel={(s) => s.nome}
+              value={setoresDoForm.find((s) => s.id === form.id_setor) ?? null}
+              onChange={(_, v) => setField('id_setor', v?.id ?? '')}
+              isOptionEqualToValue={(o, v) => o.id === v.id}
+              disabled={!form.codigo_empresa}
+              renderInput={(params) => <TextField {...params} label="Setor" required />}
             />
             <FormControl sx={{ minWidth: 220 }} required>
               <InputLabel>Nível Hierárquico</InputLabel>
