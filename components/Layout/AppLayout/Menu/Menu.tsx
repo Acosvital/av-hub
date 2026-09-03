@@ -65,6 +65,21 @@ function flattenMenu(
   return out;
 }
 
+// A API devolve o item mesmo quando pode_visualizar é false (o flag existe
+// pra registrar o estado, não pra filtrar) — sem isso, uma tela recém
+// revogada continuava aparecendo no menu porque nada aqui checava a flag.
+// Mantém um item com pode_visualizar:false se ainda sobrar algum filho
+// visível (grupo é só um agrupador, não uma página em si).
+function filterVisibleMenu(items: MenuItem[]): MenuItem[] {
+  return items.reduce<MenuItem[]>((acc, item) => {
+    const submenu = item.submenu ? filterVisibleMenu(item.submenu) : undefined;
+    const visivel = item.pode_visualizar !== false;
+    if (!visivel && !submenu?.length) return acc;
+    acc.push(submenu ? { ...item, submenu } : item);
+    return acc;
+  }, []);
+}
+
 // Remove acentos pra busca funcionar digitando "orcamento" ou "usuarios"
 // sem cedilha/til. Evita depender de regex com marcas de combinação
 // literais no código-fonte (frágeis de editar/versionar corretamente).
@@ -298,7 +313,7 @@ const Menu = () => {
         if (!r.ok) throw new Error();
         return r.json();
       })
-      .then(setMenuData)
+      .then((data: MenuItem[]) => setMenuData(filterVisibleMenu(data)))
       .catch(() => setMenuData([]));
   };
 

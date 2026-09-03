@@ -65,6 +65,11 @@ export default function Permissoes() {
         const res = await getPermissoes({ limit: 1000 });
         const summary: Record<string, number> = {};
         (res.permissoes ?? []).forEach((p) => {
+          // Uma linha de permissão pode existir com os 4 switches desligados
+          // (tela removida do perfil, mas o registro em si não é apagado) —
+          // não conta como "configurada" nesse caso, senão o contador nunca
+          // baixa depois de remover a última permissão de uma tela.
+          if (!p.pode_visualizar && !p.pode_criar && !p.pode_editar && !p.pode_deletar) return;
           summary[p.id_perfil] = (summary[p.id_perfil] ?? 0) + 1;
         });
         setPermissoesPorPerfil(summary);
