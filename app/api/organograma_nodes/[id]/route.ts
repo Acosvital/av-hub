@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requirePermission('funcionarios', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { id } = await params;
     const response = await fetch(`${process.env.API_URL}/organograma_nodes/${id}`, {
