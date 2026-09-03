@@ -34,10 +34,15 @@
 
 .searchIcon {
   position: absolute;
-  left: var(--space-3);
+  left: var(--space-4);
   display: flex;
   color: var(--foreground-secondary);
   pointer-events: none;
+  transition: color var(--t-fast);
+}
+
+.searchField:focus-within .searchIcon {
+  color: var(--av-accent);
 }
 
 .searchInput {
@@ -47,21 +52,50 @@
   color: var(--foreground);
   background-color: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) * 2 + 14px);
+  border-radius: var(--radius-pill);
+  /* espaço fixo pro ícone à esquerda e pro botão de limpar à direita —
+     não muda de largura quando o botão aparece/some, só o input encolhe */
+  padding: var(--space-2) calc(var(--space-4) + 22px) var(--space-2) calc(var(--space-4) + 20px);
   outline: none;
   transition:
     border-color var(--t-fast),
-    box-shadow var(--t-fast);
+    box-shadow var(--t-fast),
+    background-color var(--t-fast);
 }
 
 .searchInput::placeholder {
   color: var(--foreground-secondary);
 }
 
-.searchInput:focus {
+.searchInput:hover:not(:focus) {
   border-color: var(--border-strong);
-  border-width: 2px;
+}
+
+.searchInput:focus {
+  border-color: var(--av-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--av-accent) 16%, transparent);
+}
+
+.clearButton {
+  position: absolute;
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--surface-secondary);
+  color: var(--foreground-secondary);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.clearButton:hover {
+  background-color: var(--border-strong);
+  color: var(--foreground);
 }
 
 .filterButton {

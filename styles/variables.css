@@ -160,6 +160,22 @@
   --fuchsia-light: #f0abfc;
   --fuchsia: #c026d3;
 
+  /* Champagne (dourado fosco) — SPOT em utils/tipoContratoColors.ts */
+  --champagne-light: #e0c46a;
+  --champagne: #c9a227;
+
+  /* Aço (azul metálico) — CONTRATO em utils/tipoContratoColors.ts. Mais azul
+     e mais saturado que o grafite abaixo de propósito — as duas ficaram
+     parecidas demais numa primeira tentativa mais desbotada. */
+  --steel-light: #7fa8cc;
+  --steel: #4d7ea8;
+
+  /* Grafite (cinza neutro, sem tingir de azul) — SEM CLASSIFICAÇÃO em
+     utils/tipoContratoColors.ts. Precisa ficar claramente distinto do aço
+     acima, não só "um cinza mais escuro" dele. */
+  --graphite-light: #9aa1ab;
+  --graphite: #6b7280;
+
   /* ---------- ELEVATION / SHADOWS ---------- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.12);

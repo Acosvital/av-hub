@@ -53,7 +53,7 @@ export default function SearchFilterBar({
     <div className={clsx(styles.bar, glass && styles.glass)}>
       <div className={styles.searchField}>
         <span className={styles.searchIcon}>
-          <FaSearch size={14} />
+          <FaSearch size={13} />
         </span>
         <input
           className={styles.searchInput}
@@ -62,6 +62,16 @@ export default function SearchFilterBar({
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
         />
+        {searchValue && (
+          <button
+            type="button"
+            className={styles.clearButton}
+            onClick={() => onSearchChange('')}
+            aria-label="Limpar busca"
+          >
+            <FaTimes size={10} />
+          </button>
+        )}
       </div>
 
       {filters.map((filter) => {
