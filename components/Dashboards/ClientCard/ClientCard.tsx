@@ -2,14 +2,9 @@ import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import styles from './ClientCard.module.css';
 import RankingBadge from '../VendorCard/RankingBadge/RankingBadge';
 import toBRL from '@/utils/toBRL';
+import TIPO_CONTRATO_COLORS, { ClientOrderType } from '@/utils/tipoContratoColors';
 
-export type ClientOrderType = 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO';
-
-const CLIENT_TYPE_COLORS: Record<ClientOrderType, string> = {
-  SPOT: 'var(--fuchsia)',
-  CONTRATO: 'var(--teal)',
-  'SEM CLASSIFICAÇÃO': 'var(--gray-light)',
-};
+export type { ClientOrderType };
 
 export interface ClientTypeBreakdown {
   tipo: ClientOrderType;
@@ -48,7 +43,7 @@ const ClientCard = ({
     : [];
   const isComposite = tipos.length > 1;
   const typeColor =
-    tipos.length > 0 ? (CLIENT_TYPE_COLORS[tipos[0]] ?? 'var(--foreground)') : color;
+    tipos.length > 0 ? (TIPO_CONTRATO_COLORS[tipos[0]] ?? 'var(--foreground)') : color;
 
   // Divide a linha inteira do card entre os tipos de contrato do cliente,
   // proporcional ao faturamento de cada um — cores sólidas, sem degradê.
@@ -74,7 +69,7 @@ const ClientCard = ({
           style={{
             left: `${s.inicio}%`,
             width: `${s.largura}%`,
-            background: CLIENT_TYPE_COLORS[s.tipo],
+            background: TIPO_CONTRATO_COLORS[s.tipo],
           }}
         />
       ))}
