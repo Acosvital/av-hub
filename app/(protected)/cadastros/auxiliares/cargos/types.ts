@@ -1,18 +1,7 @@
-// Hierarquia fixa da empresa — quem edita esses nomes/níveis é via deploy,
-// não existe tela de administração para isso (ver decisão no chat).
-export const NIVEIS_HIERARQUICOS: Record<number, string> = {
-  0: 'Diretoria',
-  1: 'Gerência Geral',
-  4: 'Diretor de Setor',
-  5: 'Gerente',
-  6: 'Coordenador',
-  7: 'Supervisor',
-  8: 'Líder de Equipe',
-  9: 'Analista',
-  10: 'Assistente / Auxiliar',
-  11: 'Auxiliar / Estagiário',
-  12: 'Aprendiz',
-};
+// Dicionário de nome/cor/categoria por nível hierárquico agora vem de
+// GET /niveis_hierarquicos (services/cadastros/auxiliares/nivelHierarquico.ts)
+// — fonte única compartilhada com o Organograma, no lugar do dicionário
+// que existia hardcoded aqui (ver docs/organograma-integridade-schema.md).
 
 export interface CargoProps {
   id: string;
@@ -20,6 +9,11 @@ export interface CargoProps {
   id_setor: string;
   nome: string;
   nvl_permissao: number;
+  // Desempate de senioridade dentro do mesmo nvl_permissao, usado quando um
+  // setor subdivide um nível em mentoria (ex.: Analista Júnior 1/2/3, Pleno,
+  // Sênior). Opcional porque o backend ainda não tem essa coluna — ausente
+  // equivale a 0 (sem subdivisão).
+  sub_nivel?: number;
   descricao: string;
   ativo: boolean;
   id_origem?: string | null;
@@ -32,6 +26,7 @@ export interface FormCargo {
   id_setor: string;
   nome: string;
   nvl_permissao: number | '';
+  sub_nivel: number;
   descricao: string;
   ativo: boolean;
 }
