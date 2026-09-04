@@ -9,6 +9,9 @@ import {
   LuSettings,
   LuFactory,
   LuUsers,
+  LuGauge,
+  LuClipboardList,
+  LuFileText,
 } from 'react-icons/lu';
 
 const style = {
@@ -27,6 +30,9 @@ const iconMap = {
   admin: <LuSettings style={style} />,
   pcp: <LuFactory style={style} />,
   rh: <LuUsers style={style} />,
+  'meu-dashboard': <LuGauge style={style} />,
+  'meus-pedidos': <LuClipboardList style={style} />,
+  'minhas-notas': <LuFileText style={style} />,
 };
 
 export default iconMap;

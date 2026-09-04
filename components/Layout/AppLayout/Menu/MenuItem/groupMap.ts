@@ -14,6 +14,9 @@ const groupMap: Record<string, string> = {
   rh: 'Gestão de Pessoas',
   cadastros: 'Gestão de Pessoas',
   admin: 'Configurações',
+  'meu-dashboard': 'Portal do Vendedor',
+  'meus-pedidos': 'Portal do Vendedor',
+  'minhas-notas': 'Portal do Vendedor',
 };
 
 export default groupMap;
