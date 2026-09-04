@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 // Sugestão de vínculo com funcionário (mesmo nome já vinculado em outra
 // unidade — ver docs/contrato-vinculo-vendedor-funcionario.md, item 3.1).
-// Sem requirePermission aqui, mesmo padrão do GET /api/vendedores (irmão
-// desta rota): é leitura auxiliar da mesma tela, não uma ação de escrita.
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requirePermission('vendedores', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const { id } = await params;
     const { searchParams } = request.nextUrl;

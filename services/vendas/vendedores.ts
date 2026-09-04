@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
-import { VendedorCadastroProps } from '@/app/(protected)/vendas/vendedores/types';
+import { VendedorCadastroProps } from '@/app/(protected)/cadastros/acessos/vendedores/types';
 import { PaginatedResponse } from '../types';
 
 export type { VendedorCadastroProps as VendedorProps };

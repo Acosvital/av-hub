@@ -1,0 +1,335 @@
+.pageGlow {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+}
+
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  bottom: 0;
+  left: -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+.pageHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.loading,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  flex: 1;
+}
+
+.loading span,
+.emptyState p {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.emptyState p {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-md);
+  max-width: 420px;
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  padding-bottom: var(--space-4);
+  overflow: hidden;
+}
+
+.listWrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+}
+
+.emptyList {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+  padding: var(--space-6);
+}
+
+/* ============ ORDER CARD (item largo, ideia do artifact) ============ */
+.orderCard {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--card-bg-secondary) 60%, transparent);
+  padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--space-4) + 5px);
+  overflow: hidden;
+}
+
+.orderCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--stripe, var(--border-strong));
+}
+
+.orderTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.orderIdRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.favoritoBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+  margin-top: 2px;
+  color: var(--foreground-secondary);
+  font-size: var(--fs-base);
+  flex-shrink: 0;
+}
+
+.favoritoBtn:hover {
+  color: var(--gold);
+}
+
+.historicoBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin-top: var(--space-2);
+  color: var(--av-accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  font-family: var(--font-sans);
+}
+
+.historicoBtn:hover {
+  text-decoration: underline;
+}
+
+.historicoPainel {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed color-mix(in srgb, var(--foreground) 15%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.historicoItem {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
+}
+
+.historicoData {
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.historicoVazio {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.orderId {
+  font-size: var(--fs-base);
+  font-weight: var(--w-bold);
+}
+
+.orderClient {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  margin-top: 2px;
+}
+
+.orderValueCol {
+  text-align: right;
+}
+
+.orderValue {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.orderMeta {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.orderMeta b {
+  color: var(--foreground);
+  font-weight: var(--w-semibold);
+}
+
+.badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- SLA ---- */
+.sla {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  margin-top: var(--space-2);
+}
+
+.slaDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.slaNormal {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground-secondary);
+}
+
+.sla3d {
+  background: color-mix(in srgb, var(--red) 18%, transparent);
+  color: var(--red);
+}
+
+.sla2d {
+  background: color-mix(in srgb, var(--red) 22%, transparent);
+  color: var(--red);
+  animation: pulseSlow 1.4s ease-in-out infinite;
+}
+
+.sla1d {
+  background: var(--red);
+  color: #fff;
+  animation: pulseFast 0.7s ease-in-out infinite;
+}
+
+.slaAtrasado {
+  background: #7f1d1d;
+  color: #fecaca;
+  border: 1px solid var(--red);
+}
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes pulseFast {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sla2d,
+  .sla1d {
+    animation: none;
+  }
+}

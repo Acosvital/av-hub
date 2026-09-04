@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(req: NextRequest) {
+  const denied = await requirePermission('fornecedores', 'pode_visualizar');
+  if (denied) return denied;
   const search = req.nextUrl.searchParams.get('search');
   try {
     const data = await apiFetch(

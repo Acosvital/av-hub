@@ -1,0 +1,239 @@
+.pageGlow {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+}
+
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  bottom: 0;
+  left: -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+.pageHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.loading,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  flex: 1;
+}
+
+.loading span,
+.emptyState p {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.emptyState p {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-md);
+  max-width: 420px;
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+/* ============ HERO (gauge + métricas) ============ */
+.hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  padding: var(--space-6);
+}
+
+@media screen and (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+}
+
+.heroBody h2 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-xl);
+}
+
+.heroBody .sub {
+  margin: 0 0 var(--space-4);
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+}
+
+.heroMetrics {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 720px) {
+  .heroMetrics {
+    justify-content: center;
+  }
+}
+
+.heroMetric .n {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.heroMetric .l {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============ TILES (faturamento) ============ */
+.sectionLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--foreground-secondary);
+  margin: 0 0 var(--space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.tile {
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  padding: var(--space-5);
+}
+
+.tileLabel {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+  margin: 0 0 var(--space-2);
+}
+
+.tileValue {
+  font-size: var(--fs-2xl);
+  font-weight: var(--w-bold);
+  margin: 0;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileSub {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  margin: var(--space-2) 0 0;
+}
+
+.tileAlerta {
+  font-size: var(--fs-xs);
+  color: var(--graphite);
+  margin: var(--space-2) 0 0;
+  font-weight: var(--w-semibold);
+}
+
+/* ============ LISTAS DE CLIENTES (top clientes / inativos) ============ */
+.listaClientes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  padding: var(--space-3) var(--space-4);
+}
+
+.linhaCliente {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+  font-size: var(--fs-sm);
+}
+
+.linhaCliente:last-child {
+  border-bottom: none;
+}
+
+.posicaoCliente {
+  font-weight: var(--w-bold);
+  color: var(--foreground-secondary);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.nomeCliente {
+  flex: 1;
+  min-width: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pedidosCliente {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  flex-shrink: 0;
+}
+
+.valorCliente {
+  font-weight: var(--w-semibold);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.diasCliente {
+  font-weight: var(--w-semibold);
+  color: var(--orange);
+  flex-shrink: 0;
+  white-space: nowrap;
+}

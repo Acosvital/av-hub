@@ -86,28 +86,41 @@ export async function definirReportaA(idFuncionario: string, idSuperior: string)
   await upsertNode(idFuncionario, idSuperior);
 }
 
-// Redistribui quem reporta a quem dentro de um setor, com base no nível
-// hierárquico do cargo de cada funcionário atualmente no setor:
-// - quem tem o nível mais alto do setor reporta direto ao setor;
-// - os demais reportam ao nível imediatamente acima, em round-robin
-//   quando há mais de uma pessoa nesse nível.
+// Chave de ordenação/agrupamento: nível primeiro, sub_nivel como desempate
+// — mesma convenção do banco (fn_default_parent_pessoa, ver
+// docs/organograma-integridade-schema.md item 6): número menor = mais
+// sênior. sub_nivel é sempre 0-9 (CHECK no banco), então nivel*10+sub_nivel
+// nunca colide entre níveis diferentes.
+function chaveHierarquia(nivel: number, subNivel: number): number {
+  return nivel * 10 + subNivel;
+}
+
+// Redistribui quem reporta a quem dentro de um setor, com base no par
+// (nível, sub_nivel) do cargo de cada funcionário atualmente no setor:
+// - quem tem o par mais alto do setor reporta direto ao setor;
+// - os demais reportam ao par imediatamente acima, em round-robin quando
+//   há mais de uma pessoa nesse par — o que também encadeia sub-níveis de
+//   mentoria (ex.: Júnior 1→2→3→Pleno→Sênior) entre si em vez de tratá-los
+//   como irmãos do mesmo nvl_permissao.
 export async function recomputeSectorHierarchy(setorId: string): Promise<void> {
   const [{ funcionarios }, { cargos }] = await Promise.all([
     getFuncionarios({ id_setor: setorId, limit: 500 }),
     getCargos({ limit: 1000 }),
   ]);
 
-  const nivelPorCargo = new Map(cargos.map((c) => [c.id, c.nvl_permissao]));
+  const cargoPorId = new Map(cargos.map((c) => [c.id, chaveHierarquia(c.nvl_permissao, c.sub_nivel ?? 0)]));
   const elegiveis = funcionarios
-    .filter((f) => (nivelPorCargo.get(f.id_cargo) ?? -1) >= NIVEL_MINIMO_HIERARQUIA)
+    .filter((f) => Math.floor((cargoPorId.get(f.id_cargo) ?? -10) / 10) >= NIVEL_MINIMO_HIERARQUIA)
     .sort((a, b) => a.nome_completo.localeCompare(b.nome_completo));
 
   if (elegiveis.length === 0) return;
 
-  const niveis = [...new Set(elegiveis.map((f) => nivelPorCargo.get(f.id_cargo)!))].sort(
+  const chavesOrdenadas = [...new Set(elegiveis.map((f) => cargoPorId.get(f.id_cargo)!))].sort(
     (a, b) => a - b
   );
-  const grupos = niveis.map((nivel) => elegiveis.filter((f) => nivelPorCargo.get(f.id_cargo) === nivel));
+  const grupos = chavesOrdenadas.map((chave) =>
+    elegiveis.filter((f) => cargoPorId.get(f.id_cargo) === chave)
+  );
 
   await ensureSetorNode(setorId);
 
