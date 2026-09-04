@@ -90,7 +90,7 @@ export default function Faturamento() {
       else console.error(ranking.reason);
 
       if (faturamento.status === 'fulfilled')
-        setFaturamentoMensal(faturamento.value.data?.[0] ?? null);
+        setFaturamentoMensal(faturamento.value.consolidado ?? faturamento.value.data?.[0] ?? null);
       else console.error(faturamento.reason);
 
       if (faturamentoTipos.status === 'fulfilled') {

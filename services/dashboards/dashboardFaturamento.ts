@@ -57,6 +57,11 @@ interface GetFaturamentoMensalParams {
 
 interface FaturamentoMensalResponse extends PaginatedResponse {
   data: FaturamentoMensalProps[];
+  // Só vem preenchido quando a consulta não filtra por codigo_empresa —
+  // nesse caso `data` é a quebra por unidade (meta sempre null em cada
+  // linha, já que a meta é global) e o total agregado (com a meta certa)
+  // vem só aqui.
+  consolidado?: FaturamentoMensalProps;
 }
 
 export async function getFaturamentoMensal(params: GetFaturamentoMensalParams = {}) {
