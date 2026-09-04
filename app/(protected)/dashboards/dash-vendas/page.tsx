@@ -98,7 +98,8 @@ const Vendas = () => {
       if (ranking.status === 'fulfilled') setRankingVendedores(ranking.value.data ?? []);
       else console.error(ranking.reason);
 
-      if (vendas.status === 'fulfilled') setVendaMensal(vendas.value.data?.[0] ?? null);
+      if (vendas.status === 'fulfilled')
+        setVendaMensal(vendas.value.consolidado ?? vendas.value.data?.[0] ?? null);
       else console.error(vendas.reason);
 
       if (ritmoVendas.status === 'fulfilled') setRitmoDeMeta(ritmoVendas.value.data?.[0] ?? null);
