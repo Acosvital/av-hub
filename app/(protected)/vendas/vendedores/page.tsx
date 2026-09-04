@@ -14,6 +14,7 @@ import {
   Chip,
   CircularProgress,
   FormControlLabel,
+  Slider,
   Switch,
   TextField,
 } from '@mui/material';
@@ -87,6 +88,11 @@ export default function Vendedores() {
 
   const [form, setForm] = useState<FormVendedorCadastro>(FORM_INICIAL);
   const [sugestao, setSugestao] = useState<SugestaoVinculo | null>(null);
+  // Similaridade mínima pro backend considerar um funcionário como
+  // candidato de vínculo — ajustável pelo slider, 0.3 é o mesmo default
+  // que o backend usa quando o parâmetro não é enviado.
+  const [minScoreSugestao, setMinScoreSugestao] = useState(0.3);
+  const minScoreSugestaoDebounced = useDebounce(minScoreSugestao, 400);
 
   useEffect(() => {
     if (error) notify.error(error);
@@ -219,16 +225,24 @@ export default function Vendedores() {
       id_funcionario: vendedor.id_funcionario ?? '',
     });
     setSugestao(null);
-    if (!vendedor.id_funcionario) {
-      // Endpoint novo (docs/contrato-vinculo-vendedor-funcionario.md, item 3.1) —
-      // enquanto o backend não implementa, isso só nunca traz sugestão (falha em
-      // silêncio, sem toast: é um extra, não uma ação que o usuário pediu).
-      getSugestaoVinculo(vendedor.id)
-        .then((res) => setSugestao(res.sugestao))
-        .catch((err) => console.error('Sugestão de vínculo indisponível:', err));
-    }
+    setMinScoreSugestao(0.3);
     setIsModalOpen(true);
   };
+
+  // Busca a sugestão de vínculo sempre que o modal está editando um
+  // vendedor sem funcionário ainda vinculado, refazendo a consulta quando o
+  // slider de similaridade muda (docs/contrato-vinculo-vendedor-funcionario.md,
+  // item 3.1 — falha em silêncio, sem toast: é um extra, não uma ação que o
+  // usuário pediu).
+  useEffect(() => {
+    if (!editingId || form.id_funcionario) {
+      setSugestao(null);
+      return;
+    }
+    getSugestaoVinculo(editingId, { minScore: minScoreSugestaoDebounced })
+      .then((res) => setSugestao(res.sugestao))
+      .catch((err) => console.error('Sugestão de vínculo indisponível:', err));
+  }, [editingId, form.id_funcionario, minScoreSugestaoDebounced]);
 
   const salvarVendedor = async () => {
     if (!form.codigo_vendedor_omie.trim()) {
@@ -542,6 +556,23 @@ export default function Vendedores() {
           <p className={styles.sectionTitle}>Vínculo com RH</p>
           <hr className={styles.divider} />
           <div className={styles.formRow}>
+            {editingId && !form.id_funcionario && (
+              <div style={{ flex: '1 1 100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+                <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--foreground-secondary)' }}>
+                  Sensibilidade da sugestão de vínculo — similaridade mínima:{' '}
+                  {Math.round(minScoreSugestao * 100)}%
+                </span>
+                <Slider
+                  value={minScoreSugestao}
+                  onChange={(_, v) => setMinScoreSugestao(v as number)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  size="small"
+                  sx={{ maxWidth: 360, color: 'var(--av-accent)' }}
+                />
+              </div>
+            )}
             {sugestao && !form.id_funcionario && (
               <Alert
                 sx={{ flex: '1 1 100%' }}
