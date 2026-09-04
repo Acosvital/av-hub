@@ -3,7 +3,7 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function POST(request: NextRequest) {
-  const denied = await requirePermission('funcionarios', 'pode_editar');
+  const denied = await requirePermission('funcionarios', 'pode_criar');
   if (denied) return denied;
   try {
     const body = await request.json();

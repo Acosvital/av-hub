@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
+import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET() {
+  const denied = await requirePermission('cargos', 'pode_visualizar');
+  if (denied) return denied;
   try {
     const data = await apiFetch(`${process.env.API_URL}/cargos`, 'Erro ao buscar cargos', {
       headers: { 'x-api-key': process.env.API_KEY! },

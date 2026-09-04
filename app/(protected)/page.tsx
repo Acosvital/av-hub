@@ -9,6 +9,8 @@ import styles from './styles.module.css';
 // TODO: lógica provisória — remover quando houver uma regra definitiva de tela inicial por perfil.
 const PERFIS_REDIRECIONAM_RH = ['RH - Joanes', 'RH - Analistas'];
 const ROTA_SOLICITACOES_DE_VAGAS = '/rh/solicitacoes-de-vagas';
+const PERFIS_REDIRECIONAM_VENDEDOR = ['Vendedor'];
+const ROTA_MEU_DASHBOARD = '/meu-dashboard';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -32,6 +34,10 @@ export default function Home() {
         );
         if (nomesDoUsuario.some((nome) => nome && PERFIS_REDIRECIONAM_RH.includes(nome))) {
           router.replace(ROTA_SOLICITACOES_DE_VAGAS);
+          return;
+        }
+        if (nomesDoUsuario.some((nome) => nome && PERFIS_REDIRECIONAM_VENDEDOR.includes(nome))) {
+          router.replace(ROTA_MEU_DASHBOARD);
           return;
         }
         setCheckingRedirect(false);

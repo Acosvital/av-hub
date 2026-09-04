@@ -565,6 +565,7 @@ const Menu = () => {
               alt="Aços Vital"
               height={34}
               width={156}
+              priority
               className={effectiveMinimized ? styles.hidden : styles.logoImg}
             />
           </Link>

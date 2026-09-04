@@ -33,9 +33,13 @@ import { useDebounce } from '@/hooks/useDebouncer';
 import { getCargos, criarCargo, editarCargo, deletarCargo } from '@/services/cadastros/auxiliares/cargos';
 import { getUnidades } from '@/services/cadastros/auxiliares/unidades';
 import { getSetores } from '@/services/cadastros/auxiliares/setores';
+import {
+  getNiveisHierarquicos,
+  NivelHierarquicoProps,
+} from '@/services/cadastros/auxiliares/nivelHierarquico';
 import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/types';
 import { SetorProps } from '@/app/(protected)/cadastros/auxiliares/setores/types';
-import { CargoProps, FormCargo, NIVEIS_HIERARQUICOS } from './types';
+import { CargoProps, FormCargo } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
@@ -45,6 +49,7 @@ const FORM_INICIAL: FormCargo = {
   id_setor: '',
   nome: '',
   nvl_permissao: '',
+  sub_nivel: 0,
   descricao: '',
   ativo: true,
 };
@@ -66,6 +71,7 @@ export default function Cargos() {
 
   const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
   const [setores, setSetores] = useState<SetorProps[]>([]);
+  const [niveis, setNiveis] = useState<NivelHierarquicoProps[]>([]);
 
   // Setores disponíveis pra unidade escolhida no formulário — um cargo só
   // pode pertencer a um setor da mesma empresa a que está vinculado.
@@ -86,12 +92,14 @@ export default function Cargos() {
   useEffect(() => {
     async function loadReferencias() {
       try {
-        const [unidadesRes, setoresRes] = await Promise.all([
+        const [unidadesRes, setoresRes, niveisRes] = await Promise.all([
           getUnidades({ limit: 500 }),
           getSetores({ limit: 500 }),
+          getNiveisHierarquicos(),
         ]);
         setUnidades(unidadesRes.unidades ?? []);
         setSetores(setoresRes.setores ?? []);
+        setNiveis(niveisRes);
       } catch {
         notify.error('Erro ao carregar unidades e setores');
       }
@@ -142,6 +150,11 @@ export default function Cargos() {
 
   const unidadeLabel = (id: string) => unidades.find((u) => u.id === id)?.nome_fantasia ?? '—';
   const setorLabel = (id: string) => setores.find((s) => s.id === id)?.nome ?? '—';
+  const nivelLabel = (nvl: number) => niveis.find((n) => n.nivel === nvl)?.nome ?? nvl;
+  // Só cargos de gente ocupam o Select do formulário — níveis "estrutural"
+  // (Setor/Sub-setor) não têm cargo associado (ver
+  // docs/organograma-integridade-schema.md, item 5).
+  const niveisDeCargo = niveis.filter((n) => n.categoria === 'pessoa');
 
   const FILTROS_CARGO = [
     {
@@ -177,6 +190,7 @@ export default function Cargos() {
       id_setor: cargo.id_setor,
       nome: cargo.nome,
       nvl_permissao: cargo.nvl_permissao,
+      sub_nivel: cargo.sub_nivel ?? 0,
       descricao: cargo.descricao,
       ativo: cargo.ativo,
     });
@@ -212,6 +226,7 @@ export default function Cargos() {
         id_setor: form.id_setor,
         nome: form.nome.trim(),
         nvl_permissao: Number(form.nvl_permissao),
+        sub_nivel: form.sub_nivel || 0,
         descricao: form.descricao.trim(),
         ativo: form.ativo,
       };
@@ -346,7 +361,7 @@ export default function Cargos() {
                       <TableCell>{row.nome}</TableCell>
                       <TableCell>{unidadeLabel(row.codigo_empresa)}</TableCell>
                       <TableCell>{setorLabel(row.id_setor)}</TableCell>
-                      <TableCell>{NIVEIS_HIERARQUICOS[row.nvl_permissao] ?? row.nvl_permissao}</TableCell>
+                      <TableCell>{nivelLabel(row.nvl_permissao)}</TableCell>
                       <TableCell>
                         <Chip
                           label={row.ativo ? 'Ativo' : 'Inativo'}
@@ -378,7 +393,7 @@ export default function Cargos() {
                 { label: 'Setor', value: setorLabel(row.id_setor) },
                 {
                   label: 'Nível Hierárquico',
-                  value: NIVEIS_HIERARQUICOS[row.nvl_permissao] ?? row.nvl_permissao,
+                  value: nivelLabel(row.nvl_permissao),
                 },
               ]}
             />
@@ -440,13 +455,22 @@ export default function Cargos() {
                 label="Nível Hierárquico"
                 onChange={(e) => setField('nvl_permissao', Number(e.target.value))}
               >
-                {Object.entries(NIVEIS_HIERARQUICOS).map(([nivel, label]) => (
-                  <MenuItem key={nivel} value={Number(nivel)}>
-                    {label}
+                {niveisDeCargo.map((n) => (
+                  <MenuItem key={n.nivel} value={n.nivel}>
+                    {n.nome}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+            <TextField
+              sx={{ minWidth: 160 }}
+              label="Sub-nível"
+              type="number"
+              value={form.sub_nivel}
+              onChange={(e) => setField('sub_nivel', Number(e.target.value) || 0)}
+              slotProps={{ htmlInput: { min: 0, max: 9 } }}
+              helperText="Opcional — só para mentoria (Jr 1/2/3, Pleno, Sênior)"
+            />
           </div>
           <div className={styles.formRow}>
             <TextField

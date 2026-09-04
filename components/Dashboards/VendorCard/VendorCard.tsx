@@ -1,6 +1,7 @@
 import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import styles from './VendorCard.module.css';
 import toBRL from '@/utils/toBRL';
+import { nomeExibicaoResumido } from '@/utils/nomeExibicao';
 import RankingBadge from './RankingBadge/RankingBadge';
 
 // Posição da marca: 0 -> 0%, 100 -> 100%. Acima de 100% a marca fica
@@ -50,6 +51,9 @@ const VendorCard = ({
 }: VendorCardProps) => {
   const metaColor = tieredMetaColor ? getMetaColor(Number(perc_meta) || 0) : color;
   const metaProgress = getMetaProgress(Number(perc_meta) || 0);
+  // Primeiro nome + próximo sobrenome relevante — cabe melhor no card e
+  // evita cortar em "dos"/"da"/etc (ver utils/nomeExibicao.ts).
+  const nomeExibicao = nomeExibicaoResumido(vendedor);
   return (
     <div className={styles.vendorCard} onClick={onClick}>
       <div
@@ -62,10 +66,10 @@ const VendorCard = ({
       />
       <div className={styles.vendorRank}>
         <RankingBadge rank={Number(posicao)} />
-        <Avatar name={vendedor} border={`${color}`} size={38} />
+        <Avatar name={nomeExibicao} border={`${color}`} size={38} />
       </div>
       <div className={styles.vendor}>
-        <h4 className={styles.vendorName}>{vendedor}</h4>
+        <h4 className={styles.vendorName}>{nomeExibicao}</h4>
         <div className={styles.vendorDetails}>
           <span
             className={styles.vendorInfo}

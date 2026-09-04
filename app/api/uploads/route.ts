@@ -12,7 +12,10 @@ const TELA_POR_BUCKET: Record<S3Bucket, string> = {
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  const menu = session?.user?.menu ?? [];
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  }
+  const menu = session.user.menu ?? [];
 
   const formData = await request.formData();
   const bucket = formData.get('bucket');
