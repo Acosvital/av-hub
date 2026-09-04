@@ -5,11 +5,17 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 // unidade — ver docs/contrato-vinculo-vendedor-funcionario.md, item 3.1).
 // Sem requirePermission aqui, mesmo padrão do GET /api/vendedores (irmão
 // desta rota): é leitura auxiliar da mesma tela, não uma ação de escrita.
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    const { searchParams } = request.nextUrl;
+    const query = new URLSearchParams();
+    ['min_score', 'limit'].forEach((key) => {
+      const value = searchParams.get(key);
+      if (value !== null) query.set(key, value);
+    });
     const data = await apiFetch(
-      `${process.env.API_URL}/vendedores/${id}/sugestoes`,
+      `${process.env.API_URL}/vendedores/${id}/sugestoes?${query}`,
       'Erro ao buscar sugestão de vínculo',
       {
         headers: { 'x-api-key': process.env.API_KEY! },
