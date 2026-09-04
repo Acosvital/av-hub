@@ -39,6 +39,7 @@ const FORM_INICIAL: FormUnidade = {
   nome_fantasia: '',
   tipo_unidade: 'matriz',
   matriz_id: '',
+  cor_unidade: '#64748b',
   foto_url: '',
   nome_contato: '',
   email: '',
@@ -234,6 +235,7 @@ export default function Unidades() {
       nome_fantasia: unidade.nome_fantasia,
       tipo_unidade: unidade.tipo_unidade,
       matriz_id: unidade.matriz_id ?? '',
+      cor_unidade: unidade.cor_unidade ?? '#64748b',
       foto_url: unidade.foto_url ?? '',
       nome_contato: unidade.nome_contato ?? '',
       email: unidade.email ?? '',
@@ -297,6 +299,7 @@ export default function Unidades() {
         razao_social: form.razao_social.trim(),
         tipo_unidade: form.tipo_unidade,
         matriz_id: form.tipo_unidade === 'filial' ? form.matriz_id || null : null,
+        cor_unidade: form.cor_unidade || null,
         foto_url: form.foto_url || null,
         nome_contato: form.nome_contato.trim(),
         email: form.email.trim(),
@@ -440,6 +443,16 @@ export default function Unidades() {
                           ) : (
                             <div className={styles.avatarThumbPlaceholder} />
                           )}
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              width: 10,
+                              height: 10,
+                              borderRadius: '50%',
+                              backgroundColor: row.cor_unidade ?? 'var(--border-strong)',
+                              marginRight: 8,
+                            }}
+                          />
                           {row.nome_fantasia}
                         </div>
                       </TableCell>
@@ -473,6 +486,16 @@ export default function Unidades() {
                   ) : (
                     <div className={styles.avatarThumbPlaceholder} />
                   )}
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      backgroundColor: row.cor_unidade ?? 'var(--border-strong)',
+                      marginRight: 8,
+                    }}
+                  />
                   {row.nome_fantasia}
                 </div>
               )}
@@ -618,6 +641,14 @@ export default function Unidades() {
                 type="number"
                 value={form.ordem_exibicao}
                 onChange={(e) => setField('ordem_exibicao', e.target.value)}
+              />
+            </Campo>
+            <Campo label="Cor" minWidth={100}>
+              <TextField
+                sx={{ width: '100%' }}
+                type="color"
+                value={form.cor_unidade}
+                onChange={(e) => setField('cor_unidade', e.target.value)}
               />
             </Campo>
           </div>
