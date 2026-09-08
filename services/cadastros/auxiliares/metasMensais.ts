@@ -33,10 +33,7 @@ export async function salvarMeta(data: { mes: number; ano: number; meta: number;
 }
 
 export async function deletarMeta(ano: number, mes: number, tipo: string) {
-  const res = await fetch(`/api/metas-mensais/${ano}/${mes}/${tipo}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar meta — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar meta (status ${res.status})`);
-  }
+  return apiFetch(`/api/metas-mensais/${ano}/${mes}/${tipo}`, 'Erro ao deletar meta', {
+    method: 'DELETE',
+  });
 }

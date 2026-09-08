@@ -9,6 +9,11 @@ declare module 'next-auth' {
       image?: string | null;
       authProvider: 'azure' | 'credentials';
       menu: MenuItem[];
+      perfis: string[];
+      // Id da tela configurada como inicial no cadastro de Perfis (campo
+      // tela_inicial_id, ainda não implementado no backend) — null enquanto
+      // não existir ou não estiver configurada pro(s) perfil(is) do usuário.
+      telaInicialId: string | null;
     };
   }
 }
@@ -18,5 +23,7 @@ declare module 'next-auth/jwt' {
     id_usuario?: string;
     authProvider?: 'azure' | 'credentials';
     menu?: MenuItem[];
+    perfis?: string[];
+    telaInicialId?: string | null;
   }
 }

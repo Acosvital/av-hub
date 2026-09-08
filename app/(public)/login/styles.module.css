@@ -5,12 +5,16 @@
 .container {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  overflow: hidden;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--navy-950);
-  padding: var(--space-6) var(--space-4);
+  /* Padding vertical generoso pra garantir margem em cima/embaixo do cartão
+     mesmo quando ele cabe de sobra na tela; em telas baixas (notebook, zoom),
+     o overflow-y: auto acima permite rolar em vez de cortar o conteúdo. */
+  padding: var(--space-8) var(--space-4);
 }
 
 /* Mesmo par de radial-gradient do .pageGlow::before usado no resto do Hub
@@ -31,10 +35,18 @@
 .card {
   position: relative;
   z-index: 1;
+  /* Centraliza verticalmente via margin auto (não align-items/justify-content
+     do .container) de propósito: com flexbox, centralizar por align-items
+     e cortar por overflow ao mesmo tempo é um bug conhecido do Chrome/Blink
+     — quando o conteúdo é mais alto que a tela, ele esconde o topo em vez de
+     deixar rolar até ele. Com margin auto, se não houver espaço a técnica
+     degrada graciosamente pro fluxo normal (respeitando o padding do
+     .container nas duas pontas ao rolar), sem cortar nada. */
+  margin: auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-7);
+  gap: var(--space-5);
   max-width: 400px;
   width: 100%;
   /* mesmo respiro lateral do .pageGlow das telas de cadastro/tabela
@@ -57,13 +69,16 @@
 
 .logo {
   display: block;
-  width: 260px;
-  margin: 0 0 var(--space-5);
+  /* clamp em vez de largura fixa: encolhe em telas baixas/estreitas sem
+     precisar de media query só pra isso — é o maior elemento único do
+     cartão, então é o que mais "estica" a altura total à toa. */
+  width: clamp(180px, 24vw, 260px);
+  margin: 0 0 var(--space-3);
   /* transform em vez de margin-top negativa: desloca só a logo pra cima,
      sem mexer no espaço/posição do título e subtítulo abaixo dela (uma
      margin-top negativa aqui puxaria o bloco inteiro pela recentralização
      vertical do .container, que é o que não queríamos). */
-  transform: translateY(-20px);
+  transform: translateY(-14px);
 }
 
 .title {
@@ -88,11 +103,8 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   width: 100%;
-  /* extra em cima do gap do .card — só esse espaço (subtítulo → inputs)
-     precisava respirar mais, não os outros blocos abaixo */
-  margin-top: var(--space-4);
 }
 
 /* Inputs no mesmo estilo "caixa" do login do Organograma (label pequena
@@ -203,4 +215,27 @@
 .loginInfo > span {
   font-weight: var(--w-bold);
   color: var(--neutral-50);
+}
+
+/* Telas baixas (notebook comum, janela redimensionada, zoom do navegador) —
+   compacta o respiro vertical pra caber sem precisar rolar nem encostar nas
+   bordas. Breakpoint por altura, não largura: o problema aqui é vertical. */
+@media (max-height: 700px) {
+  .container {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .card {
+    gap: var(--space-4);
+  }
+
+  .logo {
+    width: clamp(150px, 20vw, 200px);
+    margin-bottom: var(--space-2);
+    transform: translateY(-8px);
+  }
+
+  .form {
+    gap: var(--space-3);
+  }
 }

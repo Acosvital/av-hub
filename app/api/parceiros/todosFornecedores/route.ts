@@ -5,10 +5,15 @@ import { requirePermission } from '@/lib/api/requirePermission';
 export async function GET(req: NextRequest) {
   const denied = await requirePermission('fornecedores', 'pode_visualizar');
   if (denied) return denied;
-  const search = req.nextUrl.searchParams.get('search');
+  const { searchParams } = req.nextUrl;
+  const params = new URLSearchParams();
+  const search = searchParams.get('search');
+  const estado = searchParams.get('estado');
+  if (search) params.set('nome', search);
+  if (estado) params.set('estado', estado);
   try {
     const data = await apiFetch(
-      `${process.env.API_URL}/todos_os_fornecedores?estado=SP&nome=${search}`,
+      `${process.env.API_URL}/todos_os_fornecedores?${params}`,
       'Erro ao buscar todos os fornecedores',
       { headers: { 'x-api-key': process.env.API_KEY! }, cache: 'no-store' }
     );

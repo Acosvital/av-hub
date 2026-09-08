@@ -47,10 +47,7 @@ export async function editarParceiro(id: string, data: object) {
 }
 
 export async function deletarParceiro(id: string) {
-  const res = await fetch(`/api/parceiros/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar parceiro — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar parceiro (status ${res.status})`);
-  }
+  return apiFetch(`/api/parceiros/${id}`, 'Erro ao deletar parceiro', {
+    method: 'DELETE',
+  });
 }

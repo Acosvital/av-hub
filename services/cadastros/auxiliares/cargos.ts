@@ -43,10 +43,7 @@ export async function editarCargo(id: string, data: object) {
 }
 
 export async function deletarCargo(id: string) {
-  const res = await fetch(`/api/cargos/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar cargo — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar cargo (status ${res.status})`);
-  }
+  return apiFetch(`/api/cargos/${id}`, 'Erro ao deletar cargo', {
+    method: 'DELETE',
+  });
 }

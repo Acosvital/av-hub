@@ -1,15 +1,6 @@
 import styles from './OrderType.module.css';
 import toBRL from '@/utils/toBRL';
-
-const orderTypes = {
-  SPOT: 'var(--green)',
-  CONTRATO: 'var(--purple)',
-  'SEM CLASSIFICAÇÃO': 'var(--foreground)',
-  CANCELADOS: 'var(--red)',
-  DEVOLVIDOS: 'var(--blue)',
-  RECUSADOS: 'var(--yellow)',
-  REFATURAMENTO: 'var(--orange)',
-};
+import orderTypes from '@/utils/orderTypeColors';
 
 interface OrderTypeProps {
   orderType: keyof typeof orderTypes;
@@ -34,7 +25,7 @@ const OrderType = ({
       onClick={onClick}
     >
       <div className={styles.typeCount}>
-        <h4 style={{ color: orderTypes[orderType] }}>{orderType}</h4>
+        <h4 style={{ color: orderTypes[orderType].default }}>{orderType}</h4>
         <h4>{count}</h4>
       </div>
       <div className={styles.typeValue}>

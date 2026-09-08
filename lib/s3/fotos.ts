@@ -11,9 +11,6 @@ const EXTENSAO_POR_MIME: Record<string, string> = {
   'image/webp': 'webp',
 };
 
-export const MIME_TYPES_PERMITIDOS = Object.keys(EXTENSAO_POR_MIME);
-export const TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024;
-
 // O bucket 'pessoas' também é lido pelo Organograma (sistema legado), que
 // guarda em photo_url o caminho do seu proxy de leitura autenticado, no
 // formato "/api/fotos/uploads/<uuid>.<ext>" — e não uma key de S3 pura.
@@ -48,6 +45,27 @@ function normalizarKey(key: string): string {
 export async function assinarUrlFoto(bucket: S3Bucket, key: string): Promise<string> {
   const command = new GetObjectCommand({ Bucket: getBucketName(bucket), Key: normalizarKey(key) });
   return getSignedUrl(s3Client, command, { expiresIn: URL_ASSINADA_TTL_SEGUNDOS });
+}
+
+// Resolve a URL assinada de foto pra cada item de uma lista (ex.: registros
+// de unidades/funcionários vindos do backend, cada um com sua própria key de
+// foto no S3). `campoUrl` guarda a key crua; o resultado ganha `campoSignedUrl`
+// com a URL assinada (ou null, se o registro não tiver foto).
+export async function comFotosAssinadas<T extends object, K extends keyof T>(
+  bucket: S3Bucket,
+  items: T[],
+  campoUrl: K,
+  campoSignedUrl: string
+): Promise<Array<T & Record<string, string | null>>> {
+  return Promise.all(
+    items.map(async (item) => {
+      const url = item[campoUrl];
+      return {
+        ...item,
+        [campoSignedUrl]: typeof url === 'string' && url ? await assinarUrlFoto(bucket, url) : null,
+      };
+    })
+  );
 }
 
 export async function deletarFoto(bucket: S3Bucket, key: string): Promise<void> {

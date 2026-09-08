@@ -1,5 +1,7 @@
 # Contrato — Vínculo Usuário↔Funcionário e escopo por Setor (RH)
 
+**Criado em:** 31/08/2026, 11:25 (horário de Brasília)
+
 **Objetivo:** vincular um `usuario` (login) a um `funcionario` (RH) e usar o **setor** desse
 funcionário para restringir o que ele vê na tela de Funcionários — ex: o gerente de
 Logística só enxerga funcionários do setor Logística. Usuário sem funcionário vinculado

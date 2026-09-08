@@ -31,12 +31,22 @@
     );
 }
 
+@media screen and (max-width: 768px) {
+  /* No mobile o topo ganha um respiro pro botao de menu fixo (ver
+     Layout.module.css .mainAreaMobileOffset) - estica o glow pra cima
+     tambem, senao sobra uma faixa lisa sem o efeito ali. */
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
+}
+
 .pageHeaderRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
   padding-top: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .loading,

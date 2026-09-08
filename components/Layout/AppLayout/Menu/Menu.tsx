@@ -20,6 +20,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import { Collapse, Divider, ListItemIcon, Menu as MuiMenu, MenuItem as MuiMenuItem, Tooltip } from '@mui/material';
 import type { MenuItem } from './MenuItem/MenuItem';
+import { getMenu } from '@/services/menu';
 import iconMap from './MenuItem/iconMap';
 import groupMap from './MenuItem/groupMap';
 import Image from 'next/image';
@@ -308,12 +309,8 @@ const Menu = () => {
   const effectiveMinimized = isMinimized && !mobileMenuOpen;
 
   const loadMenu = () => {
-    fetch('/api/menu')
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((data: MenuItem[]) => setMenuData(filterVisibleMenu(data)))
+    getMenu()
+      .then((data) => setMenuData(filterVisibleMenu(data)))
       .catch(() => setMenuData([]));
   };
 

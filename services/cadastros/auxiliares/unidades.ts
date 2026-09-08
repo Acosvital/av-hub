@@ -47,10 +47,7 @@ export async function editarUnidade(id: string, data: object) {
 }
 
 export async function deletarUnidade(id: string) {
-  const res = await fetch(`/api/unidades/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar unidade — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar unidade (status ${res.status})`);
-  }
+  return apiFetch(`/api/unidades/${id}`, 'Erro ao deletar unidade', {
+    method: 'DELETE',
+  });
 }

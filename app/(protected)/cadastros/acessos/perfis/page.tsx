@@ -8,7 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { CircularProgress, TextField } from '@mui/material';
+import { CircularProgress, MenuItem, TextField } from '@mui/material';
 import { FaPlus } from 'react-icons/fa';
 import styles from './styles.module.css';
 import Modal from '@/components/Ui/Modal/Modal';
@@ -22,12 +22,15 @@ import { notify } from '@/lib/toast/toast';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { usePermission } from '@/hooks/usePermission';
 import { getPerfis, criarPerfil, editarPerfil, deletarPerfil } from '@/services/cadastros/acessos/perfis';
+import { getTelas } from '@/services/cadastros/acessos/telas';
+import { TelaProps } from '../telas/types';
 import { FormPerfil, PerfilProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 const FORM_INICIAL: FormPerfil = {
   nome: '',
   descricao: '',
+  tela_inicial_id: null,
 };
 
 export default function Perfis() {
@@ -52,11 +55,25 @@ export default function Perfis() {
   const [nomeInput, setNomeInput] = useState('');
   const nome = useDebounce(nomeInput, 500);
   const [form, setForm] = useState<FormPerfil>(FORM_INICIAL);
+  const [telasIniciais, setTelasIniciais] = useState<TelaProps[]>([]);
 
   //Função auxiliar para alertar erros;
   useEffect(() => {
     if (error) notify.error(error);
   }, [error]);
+
+  // Opções pro campo "Tela inicial": só telas-folha (sem filhos) fazem
+  // sentido como destino de redirecionamento — um grupo (ex: "Cadastros")
+  // não é uma página navegável por si só.
+  useEffect(() => {
+    getTelas({ limit: 1000 })
+      .then((res) => {
+        const todas = res.menus ?? [];
+        const idsComFilho = new Set(todas.map((t) => t.id_parent).filter(Boolean));
+        setTelasIniciais(todas.filter((t) => !idsComFilho.has(t.id)));
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   //Carrega os dados iniciais e ao filtrar;
   useEffect(() => {
@@ -91,6 +108,7 @@ export default function Perfis() {
     setForm({
       nome: perfil.nome,
       descricao: perfil.descricao ?? '',
+      tela_inicial_id: perfil.tela_inicial_id ?? null,
     });
     setIsModalOpen(true);
   };
@@ -111,6 +129,7 @@ export default function Perfis() {
       const payload = {
         nome: form.nome,
         descricao: form.descricao?.trim() || null,
+        tela_inicial_id: form.tela_inicial_id || null,
       };
 
       if (editingId) {
@@ -299,6 +318,25 @@ export default function Perfis() {
               onChange={(e) => setField('descricao', e.target.value)}
               helperText="Opcional — descreva as permissões ou finalidade deste perfil"
             />
+          </div>
+          <div className={styles.formRow}>
+            <TextField
+              select
+              sx={{ flex: 1, minWidth: 260 }}
+              label="Tela inicial"
+              value={form.tela_inicial_id ?? ''}
+              onChange={(e) => setField('tela_inicial_id', e.target.value || null)}
+              helperText="Pra onde o usuário com esse perfil vai ao logar — opcional"
+            >
+              <MenuItem value="">
+                <em>Nenhuma</em>
+              </MenuItem>
+              {telasIniciais.map((tela) => (
+                <MenuItem key={tela.id} value={tela.id}>
+                  {tela.nome}
+                </MenuItem>
+              ))}
+            </TextField>
           </div>
           <div
             className={

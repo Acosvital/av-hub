@@ -1,5 +1,7 @@
 # Contrato — Vínculo Vendedor (Omie) ↔ Funcionário (RH)
 
+**Criado em:** 03/09/2026, 07:43 (horário de Brasília)
+
 **Objetivo:** ligar cada linha de `core_vendas_faturamento.vendedores` (uma por conta Omie —
 Mogi e Uberaba) ao `core.funcionarios` correspondente, de forma que os ~5 vendedores que
 vendem nas duas contas apontem para o **mesmo** funcionário, e o ranking/detalhe de

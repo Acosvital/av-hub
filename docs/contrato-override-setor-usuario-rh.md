@@ -1,5 +1,7 @@
 # Contrato — Override "todos os setores" por usuário (RH)
 
+**Criado em:** 31/08/2026, 15:59 (horário de Brasília)
+
 **Objetivo:** permitir que um usuário restrito por setor (ver
 [`contrato-escopo-setor-rh.md`](./contrato-escopo-setor-rh.md)) tenha essa restrição
 removida individualmente, passando a ver **todos os setores** na tela de Funcionários —

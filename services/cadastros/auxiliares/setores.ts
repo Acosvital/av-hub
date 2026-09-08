@@ -41,10 +41,7 @@ export async function editarSetor(id: string, data: object) {
 }
 
 export async function deletarSetor(id: string) {
-  const res = await fetch(`/api/setores/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar setor — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar setor (status ${res.status})`);
-  }
+  return apiFetch(`/api/setores/${id}`, 'Erro ao deletar setor', {
+    method: 'DELETE',
+  });
 }

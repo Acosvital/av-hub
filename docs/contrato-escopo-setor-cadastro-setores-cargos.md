@@ -1,5 +1,7 @@
 # Contrato — Escopo por Setor nas telas de Setores e Cargos (Cadastros)
 
+**Criado em:** 03/09/2026, 15:06 (horário de Brasília)
+
 **Objetivo:** hoje o escopo por setor (ver [`contrato-escopo-setor-rh.md`](./contrato-escopo-setor-rh.md))
 só vale para `GET/POST/PUT/DELETE /funcionarios` — nas telas de **Setores** e **Cargos**
 (`Cadastros > Auxiliares`), qualquer usuário com permissão na tela vê e edita tudo da

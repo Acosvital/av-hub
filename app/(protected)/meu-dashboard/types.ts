@@ -17,6 +17,7 @@ export interface ClassificacaoTipoProps {
 
 export interface TopClienteProps {
   cliente: string;
+  codigo_cliente?: string;
   valor: number;
   qtd_pedidos: number;
 }

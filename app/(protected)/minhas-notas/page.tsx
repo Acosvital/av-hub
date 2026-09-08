@@ -14,28 +14,8 @@ import { NotaFiscalVendedorProps } from './types';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
+import { GRUPO_LABEL_PEDIDO, GRUPO_COLOR_PEDIDO } from '@/utils/grupoPedidoClassificacao';
 import styles from './styles.module.css';
-
-// Mesmo desenho de cascata de vw_nf_classified — ver
-// docs/portal-vendedor/plano-portal-vendedor.md, seção 4.2.1. LIQUIDO não
-// ganha badge (nota normal), igual ao pedido "em aberto" em Meus Pedidos.
-const GRUPO_LABEL: Record<string, string> = {
-  G1: 'Cancelado',
-  G2: 'Devolvido',
-  G3: 'Recusado',
-  G4: 'Bloqueado',
-  G5: 'Bloqueado',
-  G6: 'Refaturamento',
-};
-
-const GRUPO_COLOR: Record<string, string> = {
-  G1: 'var(--graphite)',
-  G2: 'var(--orange)',
-  G3: 'var(--red)',
-  G4: 'var(--graphite)',
-  G5: 'var(--graphite)',
-  G6: 'var(--pink)',
-};
 
 const FILTROS_GRUPO = [
   {
@@ -170,9 +150,9 @@ export default function MinhasNotas() {
                           {grupo && (
                             <span
                               className={styles.badge}
-                              style={{ backgroundColor: GRUPO_COLOR[grupo], color: 'var(--white)' }}
+                              style={{ backgroundColor: GRUPO_COLOR_PEDIDO[grupo], color: 'var(--white)' }}
                             >
-                              {GRUPO_LABEL[grupo]}
+                              {GRUPO_LABEL_PEDIDO[grupo]}
                             </span>
                           )}
                         </div>

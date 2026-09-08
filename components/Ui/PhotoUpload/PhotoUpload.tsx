@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { LuCamera, LuLoaderCircle, LuUser } from 'react-icons/lu';
 import { notify } from '@/lib/toast/toast';
+import { MIME_TYPES_PERMITIDOS, TAMANHO_MAXIMO_BYTES } from '@/lib/uploadConstraints';
 import styles from './PhotoUpload.module.css';
 
 // Importante: NÃO importar nada além de tipos de 'react-filerobot-image-editor'
@@ -79,9 +80,6 @@ const EDITOR_THEME = {
       'linear-gradient(270deg, var(--surface-secondary) 1.56%, var(--surface-secondary) 52.4%, color-mix(in srgb, var(--surface-secondary) 53%, transparent) 76.04%, transparent 100%)',
   },
 };
-
-const MIME_TYPES_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
-const TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024;
 
 // A lib exporta na qualidade fixa configurada (1 = máxima) sem checar o
 // tamanho final — uma foto de câmera/celular recortada pode facilmente

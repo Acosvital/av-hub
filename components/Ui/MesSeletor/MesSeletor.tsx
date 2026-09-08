@@ -64,6 +64,8 @@ export default function MesSeletor() {
                 }}
                 yearsOrder="desc"
                 sx={{
+                  width: '100%',
+                  maxWidth: 340,
                   backgroundColor: 'var(--card-bg)',
                   color: 'var(--foreground)',
                   '& .MuiPickersCalendarHeader-label': {
