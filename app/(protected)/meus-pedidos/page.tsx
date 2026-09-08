@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
-import { FaStar, FaRegStar, FaHistory } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaHistory, FaFileExport } from 'react-icons/fa';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import TablePagination from '@/components/Ui/TablePagination/TablePagination';
@@ -28,15 +28,20 @@ import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
 import { GRUPO_LABEL_PEDIDO, GRUPO_COLOR_PEDIDO } from '@/utils/grupoPedidoClassificacao';
 import { calcularSlaPedido, SlaTier } from '@/utils/slaPedido';
+import { iniciaisCliente } from '@/utils/iniciaisCliente';
 import styles from './styles.module.css';
 
-const SLA_TIER_CLASS: Record<SlaTier, string> = {
-  atrasado: styles.slaAtrasado,
-  'vence-hoje': styles.sla1d,
-  'falta-1-dia': styles.sla1d,
-  'falta-2-dias': styles.sla2d,
-  'falta-3-dias': styles.sla3d,
-  normal: styles.slaNormal,
+// Cor do rótulo de urgência (texto simples, não selo cheio — o card inteiro
+// já vira vermelho nos 3 níveis mais urgentes, ver CARD_SLA_CLASS; um selo
+// cheio por cima brigaria com o fundo). "normal" (4+ dias) não tem urgência
+// nenhuma, cor neutra.
+const SLA_LABEL_COLOR: Record<SlaTier, string> = {
+  atrasado: 'var(--red-light)',
+  'vence-hoje': 'var(--red-light)',
+  'falta-1-dia': 'var(--red-light)',
+  'falta-2-dias': 'var(--red-light)',
+  'falta-3-dias': 'var(--red-light)',
+  normal: 'var(--foreground-secondary)',
 };
 
 // Destaque do CARD inteiro (não só do selinho de SLA) — pedido explícito:
@@ -66,16 +71,16 @@ function badgeStatus(pedido: PedidoVendedorProps) {
   return null;
 }
 
-function corStripe(pedido: PedidoVendedorProps) {
-  if (pedido.grupo && pedido.grupo !== 'LIQUIDO') return GRUPO_COLOR_PEDIDO[pedido.grupo];
-  if (pedido.faturado) return 'var(--green)';
-  return 'var(--border-strong)';
-}
-
-function renderSla(pedido: PedidoVendedorProps) {
+// Rótulo único de status sob o valor — antes eram dois selos possivelmente
+// simultâneos (badge de grupo/faturado + selo de SLA). Um pedido cancelado/
+// devolvido/faturado tem um status definitivo que manda mais que a contagem
+// de dias até vencer, por isso a prioridade é badge primeiro, SLA depois.
+function statusLabel(pedido: PedidoVendedorProps): { texto: string; cor: string } | null {
+  const badge = badgeStatus(pedido);
+  if (badge) return { texto: badge.label, cor: badge.color };
   const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
   if (!sla) return null;
-  return { className: SLA_TIER_CLASS[sla.tier], texto: sla.texto };
+  return { texto: sla.texto, cor: SLA_LABEL_COLOR[sla.tier] };
 }
 
 function corCardSla(pedido: PedidoVendedorProps): string {
@@ -96,6 +101,21 @@ const FILTROS_GRUPO = [
       { value: 'LIQUIDO', label: 'Normal' },
     ],
   },
+  // Diferente do filtro "Status" acima (grupo_deducao, um parâmetro real
+  // aceito por /vendas_base): "situação" (faturado/em aberto) não tem
+  // suporte nenhum no backend hoje — testei ao vivo (07/09) mandando
+  // `situacao=Faturado`/`situacao=Pendente` pro mesmo endpoint que Meus
+  // Pedidos já usa e a resposta veio idêntica nos dois casos, prova de que o
+  // parâmetro é ignorado. Por isso esse filtro é 100% cliente: usa o campo
+  // `faturado` que cada pedido já traz e pagina em memória (ver `carregar`).
+  {
+    key: 'situacao_local',
+    label: 'Situação',
+    options: [
+      { value: 'faturado', label: 'Faturado' },
+      { value: 'pendente', label: 'Em aberto' },
+    ],
+  },
 ];
 
 export default function MeusPedidos() {
@@ -108,6 +128,8 @@ export default function MeusPedidos() {
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 500);
   const [grupoFiltro, setGrupoFiltro] = useState('');
+  const [situacaoFiltro, setSituacaoFiltro] = useState<'' | 'faturado' | 'pendente'>('');
+  const [exportando, setExportando] = useState(false);
   const [favoritos, setFavoritos] = useState<FavoritoProps[]>([]);
   const [historicoAberto, setHistoricoAberto] = useState<number | null>(null);
   const [historicoPorPedido, setHistoricoPorPedido] = useState<
@@ -164,18 +186,107 @@ export default function MeusPedidos() {
     }
   }
 
+  // Escapa um campo pro formato CSV (RFC 4180): só entra entre aspas quando
+  // precisa (contém o delimitador, aspas ou quebra de linha), dobrando aspas
+  // internas — do contrário fica sem aspas mesmo, mais legível ao abrir.
+  function escaparCsv(campo: string): string {
+    if (/[";\n]/.test(campo)) return `"${campo.replace(/"/g, '""')}"`;
+    return campo;
+  }
+
+  // Exporta o mês inteiro respeitando os filtros ativos (busca/status/
+  // situação), não só a página visível — busca de novo com limit alto (mesmo
+  // padrão do resumo do mês/situação), igual pediu Nathan.
+  async function exportarCsv() {
+    setExportando(true);
+    try {
+      const resposta = await getMeusPedidos({
+        page: 1,
+        limit: 1000,
+        numero_pedido: search || undefined,
+        data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
+        data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
+        grupo: grupoFiltro || undefined,
+      });
+      const pedidos = (resposta.data ?? []).filter(
+        (p) => !situacaoFiltro || (situacaoFiltro === 'faturado' ? p.faturado : !p.faturado)
+      );
+
+      const cabecalho = [
+        'Cliente',
+        'Pedido',
+        'Nota Fiscal',
+        'Tipo Contrato',
+        'Status',
+        'Valor',
+        'Data Inclusão',
+        'Previsão de Faturamento',
+      ];
+      const linhas = pedidos.map((p) => {
+        const nomeCliente = p.nome_cliente ?? p.razao_social_cliente ?? p.codigo_cliente ?? '';
+        const status = badgeStatus(p)?.label ?? (p.faturado ? 'Faturado' : 'Em aberto');
+        return [
+          nomeCliente,
+          p.numero_pedido ?? '',
+          p.numero_nf ?? '',
+          p.tipo_contrato ?? '',
+          status,
+          p.total_pedido ?? '0',
+          p.data_inclusao ? dateFormatter(p.data_inclusao) : '',
+          p.data_previsao ? dateFormatter(p.data_previsao) : '',
+        ];
+      });
+
+      // Delimitador `;` (não `,`) porque o valor já usa vírgula decimal
+      // (formato BRL) — Excel em pt-BR também espera `;` como separador de
+      // coluna. BOM UTF-8 na frente pra acentos abrirem certo no Excel.
+      const csv = [cabecalho, ...linhas]
+        .map((linha) => linha.map((campo) => escaparCsv(String(campo))).join(';'))
+        .join('\r\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `meus-pedidos-${completeDate.format('YYYY-MM')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      notify.error('Erro ao exportar pedidos');
+    } finally {
+      setExportando(false);
+    }
+  }
+
   useEffect(() => {
     async function carregar() {
       try {
         setLoading(true);
-        const resposta = await getMeusPedidos({
-          page: page + 1,
-          limit: rowsPerPage,
+        const paramsComuns = {
           numero_pedido: search || undefined,
           data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
           data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
           grupo: grupoFiltro || undefined,
-        });
+        };
+
+        // "Situação" (faturado/em aberto) não existe como filtro no backend
+        // (ver comentário em FILTROS_GRUPO) — busca o mês inteiro (já
+        // filtrado por busca/grupo, que esses sim o backend aceita) e pagina
+        // em memória sobre o resultado filtrado por `faturado`.
+        if (situacaoFiltro) {
+          const resposta = await getMeusPedidos({ ...paramsComuns, page: 1, limit: 1000 });
+          setVinculado(resposta.vinculado);
+          const filtrados = (resposta.data ?? []).filter((p) =>
+            situacaoFiltro === 'faturado' ? p.faturado : !p.faturado
+          );
+          setRowCount(filtrados.length);
+          setRows(filtrados.slice(page * rowsPerPage, (page + 1) * rowsPerPage));
+          return;
+        }
+
+        const resposta = await getMeusPedidos({ ...paramsComuns, page: page + 1, limit: rowsPerPage });
         setVinculado(resposta.vinculado);
         setRows(resposta.data ?? []);
         setRowCount(resposta.total ?? 0);
@@ -186,7 +297,7 @@ export default function MeusPedidos() {
       }
     }
     carregar();
-  }, [page, rowsPerPage, search, grupoFiltro, completeDate]);
+  }, [page, rowsPerPage, search, grupoFiltro, situacaoFiltro, completeDate]);
 
   // Resumo do mês (card acima do buscador) — sempre reflete o mês inteiro,
   // independente de busca/filtro de status ativos na lista abaixo. Por isso
@@ -255,23 +366,41 @@ export default function MeusPedidos() {
             </div>
           </div>
           <div className={styles.tableCard}>
-            <SearchFilterBar
-              searchValue={searchInput}
-              onSearchChange={(value) => {
-                setSearchInput(value);
-                setPage(0);
-              }}
-              searchPlaceholder="Buscar por número do pedido..."
-              filters={FILTROS_GRUPO}
-              activeValues={{ grupo: grupoFiltro || undefined }}
-              onFilterChange={(key, value) => {
-                if (key === 'grupo') {
-                  setGrupoFiltro(value ?? '');
+            <div className={styles.toolbarRow}>
+              <SearchFilterBar
+                searchValue={searchInput}
+                onSearchChange={(value) => {
+                  setSearchInput(value);
                   setPage(0);
-                }
-              }}
-              glass
-            />
+                }}
+                searchPlaceholder="Buscar por número do pedido..."
+                filters={FILTROS_GRUPO}
+                activeValues={{
+                  grupo: grupoFiltro || undefined,
+                  situacao_local: situacaoFiltro || undefined,
+                }}
+                onFilterChange={(key, value) => {
+                  if (key === 'grupo') {
+                    setGrupoFiltro(value ?? '');
+                    setPage(0);
+                  }
+                  if (key === 'situacao_local') {
+                    setSituacaoFiltro((value as 'faturado' | 'pendente' | null) ?? '');
+                    setPage(0);
+                  }
+                }}
+                glass
+              />
+              <button
+                type="button"
+                className={styles.exportBtn}
+                disabled={exportando}
+                onClick={exportarCsv}
+              >
+                <FaFileExport />
+                {exportando ? 'Exportando...' : 'Exportar CSV'}
+              </button>
+            </div>
             {loading ? (
               <div className={styles.loading}>
                 <CircularProgress size={50} />
@@ -283,94 +412,78 @@ export default function MeusPedidos() {
               <div className={styles.listWrapper}>
                 {rows.map((pedido) => {
                   const badge = badgeStatus(pedido);
-                  const sla = renderSla(pedido);
+                  const status = statusLabel(pedido);
+                  const nomeCliente =
+                    pedido.nome_cliente ?? pedido.razao_social_cliente ?? pedido.codigo_cliente ?? '—';
                   return (
                     <div
                       key={pedido.codigo_pedido_omie}
                       className={`${styles.orderCard} ${corCardSla(pedido)}`}
-                      style={{ '--stripe': corStripe(pedido) } as React.CSSProperties}
                     >
-                      <div className={styles.orderTop}>
-                        <div className={styles.orderIdRow}>
-                          <button
-                            type="button"
-                            className={styles.favoritoBtn}
-                            onClick={() => alternarFavorito(pedido)}
-                            aria-label={
-                              favoritoDoPedido(pedido.codigo_pedido_omie)
-                                ? 'Remover dos favoritos'
-                                : 'Favoritar pedido'
-                            }
-                          >
-                            {favoritoDoPedido(pedido.codigo_pedido_omie) ? (
-                              <FaStar color="var(--gold)" />
-                            ) : (
-                              <FaRegStar />
-                            )}
-                          </button>
-                          <div>
-                            <div className={styles.orderId}>Pedido nº {pedido.numero_pedido ?? '—'}</div>
-                            <div className={styles.orderClient}>
-                              {pedido.nome_cliente ?? pedido.razao_social_cliente ?? pedido.codigo_cliente ?? '—'}
-                            </div>
+                      <div className={styles.orderHead}>
+                        <div className={styles.orderAvatar}>{iniciaisCliente(nomeCliente)}</div>
+                        <div className={styles.orderTitles}>
+                          <div className={styles.orderClient}>{nomeCliente}</div>
+                          <div className={styles.orderRef}>
+                            Pedido {pedido.numero_pedido ?? '—'} ·{' '}
+                            <span style={{ color: TIPO_CONTRATO_COLORS[pedido.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'] }}>
+                              {pedido.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'}
+                            </span>
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          className={styles.favoritoBtn}
+                          onClick={() => alternarFavorito(pedido)}
+                          aria-label={
+                            favoritoDoPedido(pedido.codigo_pedido_omie)
+                              ? 'Remover dos favoritos'
+                              : 'Favoritar pedido'
+                          }
+                        >
+                          {favoritoDoPedido(pedido.codigo_pedido_omie) ? (
+                            <FaStar color="var(--gold)" />
+                          ) : (
+                            <FaRegStar />
+                          )}
+                        </button>
                         <div className={styles.orderValueCol}>
-                          <div className={styles.orderValue}>{toBRL(pedido.total_pedido)}</div>
-                          {sla && (
-                            <span className={`${styles.sla} ${sla.className}`}>
-                              <span className={styles.slaDot} />
-                              {sla.texto}
+                          <div className={styles.orderValue}>
+                            <span className={styles.orderValueCur}>R$</span>
+                            <span className={styles.orderValueNum}>
+                              {toBRL(pedido.total_pedido).replace(/^R\$\s?/, '')}
+                            </span>
+                          </div>
+                          {status && (
+                            <span className={styles.orderStatusLabel} style={{ color: status.cor }}>
+                              {status.texto}
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className={styles.badges}>
-                        <span
-                          className={styles.badge}
-                          style={{
-                            backgroundColor: TIPO_CONTRATO_COLORS[pedido.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'],
-                            color: 'var(--white)',
-                          }}
-                        >
-                          {pedido.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'}
+                      <div className={styles.orderFacts}>
+                        <span className={styles.fact}>
+                          Incluído <b>{pedido.data_inclusao ? dateFormatter(pedido.data_inclusao) : '—'}</b>
                         </span>
-                        {badge && (
-                          <span
-                            className={styles.badge}
-                            style={{ backgroundColor: badge.color, color: 'var(--white)' }}
-                          >
-                            {badge.label}
-                          </span>
-                        )}
-                      </div>
-                      {(!badge || pedido.data_previsao) && (
-                      <div className={styles.orderMeta}>
-                        {!badge && (
-                          <span>
-                            Incluído em <b>{pedido.data_inclusao ? dateFormatter(pedido.data_inclusao) : '—'}</b>
-                          </span>
-                        )}
                         {pedido.data_previsao && (
-                          <span>
+                          <span className={styles.fact}>
                             Previsão de faturamento <b>{dateFormatter(pedido.data_previsao)}</b>
                           </span>
                         )}
                         {!badge && pedido.categoria && (
-                          <span>
+                          <span className={styles.fact}>
                             Categoria <b>{pedido.categoria}</b>
                           </span>
                         )}
+                        <button
+                          type="button"
+                          className={styles.historicoBtn}
+                          onClick={() => alternarHistorico(pedido.codigo_pedido_omie)}
+                        >
+                          <FaHistory />
+                          {historicoAberto === pedido.codigo_pedido_omie ? 'Ocultar histórico' : 'Ver histórico'}
+                        </button>
                       </div>
-                      )}
-                      <button
-                        type="button"
-                        className={styles.historicoBtn}
-                        onClick={() => alternarHistorico(pedido.codigo_pedido_omie)}
-                      >
-                        <FaHistory />
-                        {historicoAberto === pedido.codigo_pedido_omie ? 'Ocultar histórico' : 'Ver histórico'}
-                      </button>
                       {historicoAberto === pedido.codigo_pedido_omie && (
                         <div className={styles.historicoPainel}>
                           {carregandoHistorico === pedido.codigo_pedido_omie ? (

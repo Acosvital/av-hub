@@ -128,6 +128,47 @@
   }
 }
 
+/* `.bar` (SearchFilterBar.module.css) já traz seu próprio padding
+   horizontal — esse wrapper só organiza a linha, sem padding próprio, senão
+   dobraria o respiro nas bordas do card. */
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbarRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--foreground-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-3) var(--space-4) var(--space-3) 0;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exportBtn:hover:not(:disabled) {
+  color: var(--av-accent);
+  border-color: var(--av-accent);
+}
+
+.exportBtn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .tableCard {
   display: flex;
   flex-direction: column;
@@ -171,10 +212,9 @@
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   border-radius: var(--radius-lg);
   background-color: color-mix(in srgb, var(--card-bg-secondary) 60%, transparent);
-  padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--space-4) + 5px);
+  padding: var(--space-4);
   overflow: hidden;
-  /* `overflow: hidden` (só pra recortar a faixa colorida arredondada,
-     .orderCard::before) remove a proteção de altura mínima automática de um
+  /* `overflow: hidden` remove a proteção de altura mínima automática de um
      item flex (a spec só garante `min-height:auto` = min-content quando
      overflow é visible) — sem flex-shrink:0, .listWrapper espremia CADA
      card abaixo da altura real do conteúdo pra "caber" todos os 13 pedidos,
@@ -194,12 +234,14 @@
 }
 
 .cardAtrasado {
-  border-color: #7f1d1d;
+  border-width: 2px;
+  border-color: var(--red);
   background-color: color-mix(in srgb, #7f1d1d 30%, transparent);
 }
 
 .cardVenceHoje {
-  border-color: #7f1d1d;
+  border-width: 2px;
+  border-color: var(--red);
   animation: cardPulseVenceHoje 1s ease-in-out infinite;
 }
 
@@ -220,28 +262,39 @@
   }
 }
 
-.orderCard::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background: var(--stripe, var(--border-strong));
+/* ---- Cabeçalho: monograma do cliente + nome/referência + favorito + valor ----
+   Cliente é o título (o que o vendedor reconhece de cara); "Pedido nº X" e o
+   tipo de contrato viram uma legenda de uma linha só embaixo do nome. */
+.orderHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
-.orderTop {
+.orderAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--w-bold);
+  font-size: var(--fs-xs);
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  color: var(--foreground-secondary);
 }
 
-.orderIdRow {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+.orderTitles {
+  min-width: 0;
+  flex: 1;
+}
+
+.orderRef {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
 }
 
 .favoritoBtn {
@@ -250,7 +303,6 @@
   background: transparent;
   cursor: pointer;
   padding: 2px;
-  margin-top: 2px;
   color: var(--foreground-secondary);
   font-size: var(--fs-base);
   flex-shrink: 0;
@@ -269,10 +321,10 @@
   align-items: center;
   gap: 6px;
   padding: 0;
-  margin-top: var(--space-2);
+  margin-left: auto;
   color: var(--av-accent);
   font-size: var(--fs-xs);
-  font-weight: var(--w-semibold);
+  font-weight: var(--w-bold);
   font-family: var(--font-sans);
 }
 
@@ -306,29 +358,52 @@
   color: var(--foreground-secondary);
 }
 
-.orderId {
+.orderClient {
   font-size: var(--fs-base);
   font-weight: var(--w-bold);
-}
-
-.orderClient {
-  font-size: var(--fs-sm);
-  color: var(--foreground-secondary);
-  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .orderValueCol {
   text-align: right;
+  flex-shrink: 0;
+  margin-left: var(--space-3);
 }
 
 .orderValue {
-  font-size: var(--fs-lg);
-  font-weight: var(--w-bold);
   font-variant-numeric: tabular-nums;
 }
 
-.orderMeta {
+.orderValueCur {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  margin-right: 3px;
+}
+
+.orderValueNum {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-black);
+}
+
+/* Rótulo único de status/urgência sob o valor — texto simples, sem selo
+   cheio (o card inteiro já vira vermelho nos níveis mais urgentes; ver
+   .cardVaiVencer/.cardAtrasado/.cardVenceHoje acima). */
+.orderStatusLabel {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* ---- Faixa de fatos: datas, categoria e "ver histórico" numa linha só,
+   com divisórias finas em vez de blocos empilhados com borda própria. ---- */
+.orderFacts {
   display: flex;
+  align-items: center;
   gap: var(--space-4);
   flex-wrap: wrap;
   margin-top: var(--space-3);
@@ -338,103 +413,39 @@
   color: var(--foreground-secondary);
 }
 
-.orderMeta b {
+.fact b {
   color: var(--foreground);
   font-weight: var(--w-semibold);
 }
 
-.badges {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  margin-top: var(--space-2);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
-  letter-spacing: 0.02em;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* ---- SLA ---- */
-.sla {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  margin-top: var(--space-2);
-}
-
-.slaDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
-}
-
-.slaNormal {
-  background: color-mix(in srgb, var(--foreground) 8%, transparent);
-  color: var(--foreground-secondary);
-}
-
-.sla3d {
-  background: color-mix(in srgb, var(--red) 18%, transparent);
-  color: var(--red);
-}
-
-.sla2d {
-  background: color-mix(in srgb, var(--red) 22%, transparent);
-  color: var(--red);
-  animation: pulseSlow 1.4s ease-in-out infinite;
-}
-
-.sla1d {
-  background: var(--red);
-  color: #fff;
-  animation: pulseFast 0.7s ease-in-out infinite;
-}
-
-.slaAtrasado {
-  background: #7f1d1d;
-  color: #fecaca;
-  border: 1px solid var(--red);
-}
-
-@keyframes pulseSlow {
-  0%,
-  100% {
-    opacity: 1;
+/* ---- Mobile: nome+valor não cabem numa linha só (avatar + título +
+   favorito + valor espremia o título até truncar em 1 letra e o texto
+   de referência quebrava em 3 linhas por baixo do favorito). Quebra o
+   valor pra linha de baixo, alinhado com o título (recuo do avatar). ---- */
+@media screen and (max-width: 480px) {
+  .orderHead {
+    flex-wrap: wrap;
   }
-  50% {
-    opacity: 0.45;
-  }
-}
 
-@keyframes pulseFast {
-  0%,
-  100% {
-    opacity: 1;
+  .orderTitles {
+    flex-basis: 0;
   }
-  50% {
-    opacity: 0.35;
-  }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .sla2d,
-  .sla1d {
-    animation: none;
+  .orderValueCol {
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-top: var(--space-2);
+    padding-left: calc(34px + var(--space-3));
+    text-align: left;
+  }
+
+  .orderValue {
+    display: inline-block;
+  }
+
+  .orderStatusLabel {
+    display: inline-block;
+    margin-top: 0;
+    margin-left: var(--space-2);
   }
 }
