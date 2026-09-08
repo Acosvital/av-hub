@@ -17,22 +17,32 @@ import { ClienteInativoProps, MeuDashboardResponse, TipoContrato } from './types
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
-import { corPorMetaBatida } from '@/utils/metaColor';
+import { MARCOS_META } from '@/utils/metaColor';
+import { calcularSlaPedido } from '@/utils/slaPedido';
 import styles from './styles.module.css';
 
 const TIPOS: TipoContrato[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
+
+// Variação percentual vs. mês anterior (seção 8.3 do plano) — null quando
+// não há base de comparação (mês anterior zerado), pra não mostrar "+∞%".
+function variacaoPerc(atual: number, anterior: number): number | null {
+  if (anterior <= 0) return null;
+  return ((atual - anterior) / anterior) * 100;
+}
 
 // Quantidade exibida antes do "ver mais" em cada ranking — nomes de cliente
 // longos truncavam em uma linha só; a lista deixou de mostrar tudo de uma
 // vez pra caber sem cortar, com o "ver mais" liberando o resto.
 const LIMITE_INICIAL_TOP_CLIENTES = 5;
 const LIMITE_INICIAL_INATIVOS = 8;
+const LIMITE_INICIAL_TOP_PRODUTOS = 5;
 
 export default function MeuDashboard() {
   const [loading, setLoading] = useState(true);
   const [resposta, setResposta] = useState<MeuDashboardResponse | null>(null);
   const [clientesInativos, setClientesInativos] = useState<ClienteInativoProps[]>([]);
   const [verTodosTopClientes, setVerTodosTopClientes] = useState(false);
+  const [verTodosTopProdutos, setVerTodosTopProdutos] = useState(false);
   const [verTodosInativos, setVerTodosInativos] = useState(false);
   const [clienteSelecionado, setClienteSelecionado] = useState<ClienteDetalhesProps | null>(null);
   const { completeDate } = useDashboardDate();
@@ -67,7 +77,11 @@ export default function MeuDashboard() {
   const vendas = resposta?.vendas;
   const faturamento = resposta?.faturamento;
   const classificacaoPedidos = resposta?.classificacaoPedidos;
-  const corGauge = vendas ? corPorMetaBatida(vendas.perc_meta) : 'var(--blue)';
+  // Mesma cor do gauge do dashboard de vendas (admin) — dash-vendas usa
+  // sempre verde/azul fixo pro hero, independente da meta batida (só as
+  // VendorCard do ranking usam a régua de cor por faixa). Aqui a régua de
+  // faixa vira as medalhas abaixo do gauge, não a cor do gauge em si.
+  const corGauge = 'var(--green)';
   const mediaPorPedido = vendas && vendas.quantidade > 0 ? vendas.valor / vendas.quantidade : 0;
 
   return (
@@ -92,7 +106,32 @@ export default function MeuDashboard() {
         ) : (
           <>
             <div className={styles.hero}>
-              <Gauge size={168} value={vendas.perc_meta} color={corGauge} />
+              <div className={styles.heroGaugeCol}>
+                <Gauge size={168} value={vendas.perc_meta} color={corGauge} gradientFrom="var(--blue)" />
+                <div className={styles.medalhas}>
+                  {MARCOS_META.map((marco) => {
+                    const conquistada = vendas.perc_meta >= marco.limite;
+                    return (
+                      <div
+                        key={marco.limite}
+                        className={styles.medalha}
+                        style={
+                          conquistada
+                            ? { borderColor: marco.cor, color: marco.cor, background: `color-mix(in srgb, ${marco.cor} 16%, transparent)` }
+                            : undefined
+                        }
+                        title={
+                          conquistada
+                            ? `Meta de ${marco.label} batida`
+                            : `Falta bater ${marco.label} da meta`
+                        }
+                      >
+                        {marco.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               <div className={styles.heroBody}>
                 <h2>
                   {toBRL(vendas.valor)}{' '}
@@ -104,6 +143,24 @@ export default function MeuDashboard() {
                   {vendas.quantidade} pedido{vendas.quantidade === 1 ? '' : 's'}
                   {vendas.quantidade > 0 && ` · média de ${toBRL(mediaPorPedido)} por pedido`}
                 </p>
+                {resposta.comparacaoMesAnterior &&
+                  (() => {
+                    const variacao = variacaoPerc(
+                      vendas.valor,
+                      resposta.comparacaoMesAnterior.vendas.valor
+                    );
+                    if (variacao === null) return null;
+                    const subiu = variacao >= 0;
+                    return (
+                      <p
+                        className={styles.comparacaoMesAnterior}
+                        style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                      >
+                        {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs.{' '}
+                        {toBRL(resposta.comparacaoMesAnterior.vendas.valor)} no mês passado
+                      </p>
+                    );
+                  })()}
                 <div className={styles.heroMetrics}>
                   <div className={styles.heroMetric}>
                     <div className="n">{toBRL(vendas.meta_individual)}</div>
@@ -131,6 +188,23 @@ export default function MeuDashboard() {
                   {faturamento.quantidade === 1 ? '' : 'is'} emitida
                   {faturamento.quantidade === 1 ? '' : 's'}
                 </p>
+                {resposta.comparacaoMesAnterior &&
+                  (() => {
+                    const variacao = variacaoPerc(
+                      faturamento.valor,
+                      resposta.comparacaoMesAnterior.faturamento.valor
+                    );
+                    if (variacao === null) return null;
+                    const subiu = variacao >= 0;
+                    return (
+                      <p
+                        className={styles.tileSub}
+                        style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                      >
+                        {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs. mês passado
+                      </p>
+                    );
+                  })()}
               </div>
               <div className={styles.tile}>
                 <p className={styles.tileLabel}>% da meta individual batida</p>
@@ -143,6 +217,42 @@ export default function MeuDashboard() {
                 <p className={styles.tileSub}>meta de faturamento: {toBRL(faturamento.meta_total)}</p>
               </div>
             </div>
+
+            {resposta.proximosVencimentos && resposta.proximosVencimentos.length > 0 && (
+              <>
+                <p className={styles.sectionLabel}>Próximos vencimentos</p>
+                <div className={styles.listaClientes}>
+                  {resposta.proximosVencimentos.map((p) => {
+                    const sla = calcularSlaPedido(p.data_previsao, false);
+                    const urgente = sla?.tier !== 'normal';
+                    return (
+                      <div key={p.codigo_pedido_omie} className={styles.linhaCliente}>
+                        <div className={styles.linhaClienteTopo}>
+                          <span className={styles.nomeCliente}>
+                            {p.cliente}
+                            {p.numero_pedido && (
+                              <span style={{ color: 'var(--foreground-secondary)' }}>
+                                {' '}
+                                · Pedido {p.numero_pedido}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <div className={styles.linhaClienteMeta}>
+                          <span
+                            className={styles.pedidosCliente}
+                            style={urgente ? { color: 'var(--red-light)', fontWeight: 'var(--w-semibold)' } : undefined}
+                          >
+                            {sla?.texto ?? dateFormatter(p.data_previsao)}
+                          </span>
+                          <span className={styles.valorCliente}>{toBRL(p.total_pedido)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
 
             {classificacaoPedidos && (
               <>
@@ -220,6 +330,38 @@ export default function MeuDashboard() {
                   <div className={styles.verMaisWrapper}>
                     <Button variant="ghost" onClick={() => setVerTodosTopClientes((v) => !v)}>
                       {verTodosTopClientes ? 'Ver menos' : 'Ver mais'}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {resposta.topProdutos && resposta.topProdutos.length > 0 && (
+              <>
+                <p className={styles.sectionLabel}>Meus produtos mais vendidos no mês</p>
+                <div className={styles.listaClientes}>
+                  {(verTodosTopProdutos
+                    ? resposta.topProdutos
+                    : resposta.topProdutos.slice(0, LIMITE_INICIAL_TOP_PRODUTOS)
+                  ).map((produto, i) => (
+                    <div key={produto.codigo_produto} className={styles.linhaCliente}>
+                      <div className={styles.linhaClienteTopo}>
+                        <span className={styles.posicaoCliente}>{i + 1}º</span>
+                        <span className={styles.nomeCliente}>{produto.descricao}</span>
+                      </div>
+                      <div className={styles.linhaClienteMeta}>
+                        <span className={styles.pedidosCliente}>
+                          {produto.quantidade} un.
+                        </span>
+                        <span className={styles.valorCliente}>{toBRL(produto.valor)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {resposta.topProdutos.length > LIMITE_INICIAL_TOP_PRODUTOS && (
+                  <div className={styles.verMaisWrapper}>
+                    <Button variant="ghost" onClick={() => setVerTodosTopProdutos((v) => !v)}>
+                      {verTodosTopProdutos ? 'Ver menos' : 'Ver mais'}
                     </Button>
                   </div>
                 )}

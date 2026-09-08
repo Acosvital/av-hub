@@ -216,6 +216,146 @@ export async function pedidosDoCliente(
     .sort((a, b) => String(b.data_inclusao).localeCompare(String(a.data_inclusao)));
 }
 
+interface PedidoVencimentoBrutoProps {
+  codigo_pedido_omie: number;
+  numero_pedido: string | null;
+  nome_cliente: string | null;
+  razao_social_cliente: string | null;
+  codigo_cliente: string | null;
+  data_previsao: string | null;
+  faturado: boolean;
+  total_pedido: string | null;
+}
+
+export interface ProximoVencimentoProps {
+  codigo_pedido_omie: number;
+  numero_pedido: string | null;
+  cliente: string;
+  codigo_cliente: string | null;
+  data_previsao: string;
+  total_pedido: number;
+}
+
+// "Próximos vencimentos" (seção 8.4 do plano) — mesmos dados que "Meus
+// Pedidos" já busca (vendas_base), só que ordenados por data_previsao
+// ascendente e cortados no topo. Pedido já vencido (data no passado) tem
+// data_previsao menor, então naturalmente aparece primeiro — é o mais
+// urgente, mesma leitura usada no selo de SLA de Meus Pedidos.
+export async function proximosVencimentos(
+  vendedores: VendedorVinculoProps[],
+  mes: string,
+  ano: string,
+  headers: Record<string, string>,
+  limite = 5
+): Promise<ProximoVencimentoProps[]> {
+  const { dataInicio, dataFim } = intervaloDoMes(mes, ano);
+
+  const listas = await Promise.all(
+    vendedores.map((v) => {
+      const params = new URLSearchParams({
+        cod_vendedor: v.codigo_vendedor_omie,
+        codigo_empresa: v.codigo_empresa,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        limit: '1000',
+      });
+      return apiFetch<{ data: PedidoVencimentoBrutoProps[] }>(
+        `${process.env.API_URL}/vendas_base?${params}`,
+        'Erro ao buscar próximos vencimentos',
+        { headers, cache: 'no-store' }
+      )
+        .then((r) => r.data ?? [])
+        .catch(() => []);
+    })
+  );
+
+  return listas
+    .flat()
+    .filter((p) => !p.faturado && p.data_previsao)
+    .map((p) => ({
+      codigo_pedido_omie: p.codigo_pedido_omie,
+      numero_pedido: p.numero_pedido,
+      cliente: p.nome_cliente ?? p.razao_social_cliente ?? p.codigo_cliente ?? '—',
+      codigo_cliente: p.codigo_cliente,
+      data_previsao: p.data_previsao as string,
+      total_pedido: Number(p.total_pedido) || 0,
+    }))
+    .sort((a, b) => a.data_previsao.localeCompare(b.data_previsao))
+    .slice(0, limite);
+}
+
+interface ItemPedidoBrutoProps {
+  codigo_produto: string;
+  descricao: string | null;
+  quantidade: number | string | null;
+  valor_total: string | null;
+}
+
+export interface TopProdutoProps {
+  codigo_produto: string;
+  descricao: string;
+  quantidade: number;
+  valor: number;
+}
+
+// Top produtos vendidos (seção 8.12 do plano) — agrega no frontend a partir
+// de `GET /pedido_venda_itens` (view já existente, confirmada em
+// docs/portal-vendedor/002, item "Nota sobre top produtos vendidos"). Não
+// existe endpoint de ranking pronto — o volume mensal de 1 vendedor é
+// pequeno o bastante pra agregação client-side ser barata (mesmo raciocínio
+// já usado em classificarPedidos).
+export async function topProdutos(
+  vendedores: VendedorVinculoProps[],
+  mes: string,
+  ano: string,
+  headers: Record<string, string>,
+  limite = 20
+): Promise<TopProdutoProps[]> {
+  const { dataInicio, dataFim } = intervaloDoMes(mes, ano);
+
+  const listas = await Promise.all(
+    vendedores.map((v) => {
+      const params = new URLSearchParams({
+        codigo_vendedor_omie: v.codigo_vendedor_omie,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        limit: '1000',
+      });
+      return apiFetch<{ itens: ItemPedidoBrutoProps[] }>(
+        `${process.env.API_URL}/pedido_venda_itens?${params}`,
+        'Erro ao buscar top produtos',
+        { headers, cache: 'no-store' }
+      )
+        .then((r) => r.itens ?? [])
+        .catch(() => []);
+    })
+  );
+
+  const porProduto = new Map<string, TopProdutoProps>();
+  for (const item of listas.flat()) {
+    const atual = porProduto.get(item.codigo_produto) ?? {
+      codigo_produto: item.codigo_produto,
+      descricao: item.descricao ?? item.codigo_produto,
+      quantidade: 0,
+      valor: 0,
+    };
+    atual.quantidade += Number(item.quantidade) || 0;
+    atual.valor += Number(item.valor_total) || 0;
+    porProduto.set(item.codigo_produto, atual);
+  }
+
+  return [...porProduto.values()].sort((a, b) => b.valor - a.valor).slice(0, limite);
+}
+
+// mes/ano do mês anterior ao informado — só usado pra "comparação com o mês
+// anterior" (seção 8.3), lida com virada de ano (janeiro → dezembro do ano
+// passado).
+export function mesAnterior(mes: string, ano: string): { mes: string; ano: string } {
+  const m = Number(mes);
+  const a = Number(ano);
+  return m === 1 ? { mes: '12', ano: String(a - 1) } : { mes: String(m - 1), ano: String(a) };
+}
+
 export async function somarLado(
   lado: Lado,
   vendedores: VendedorVinculoProps[],

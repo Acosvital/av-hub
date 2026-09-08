@@ -115,97 +115,141 @@
   padding: var(--space-6);
 }
 
-/* ============ NF CARD (item largo, ideia do artifact) ============ */
+/* ============ NF CARD (item largo, mesmo padrão do orderCard de
+   Meus Pedidos — cliente como título com monograma, referência numa
+   linha só, valor com tipografia dividida R$/número) ============ */
 .nfCard {
+  position: relative;
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   border-radius: var(--radius-lg);
   background-color: color-mix(in srgb, var(--card-bg-secondary) 60%, transparent);
   padding: var(--space-4);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-3);
+  overflow: hidden;
+  /* overflow:hidden remove a proteção de altura mínima automática do item
+     flex — ver comentário equivalente em meus-pedidos/styles.module.css
+     .orderCard. Sem flex-shrink:0 o .listWrapper espremeria os cards abaixo
+     da altura real do conteúdo. */
+  flex-shrink: 0;
 }
 
-.nfTop {
+.nfHead {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.nfIcon {
-  width: 36px;
-  height: 36px;
+.nfAvatar {
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: var(--w-bold);
+  font-size: var(--fs-xs);
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
   color: var(--foreground-secondary);
-  flex-shrink: 0;
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
 }
 
-.nfNumber {
-  font-weight: var(--w-bold);
+.nfTitles {
+  min-width: 0;
+  flex: 1;
+}
+
+.nfClient {
   font-size: var(--fs-base);
+  font-weight: var(--w-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nfOrderLink {
+.nfRef {
   font-size: var(--fs-xs);
-  color: var(--av-accent);
+  color: var(--foreground-secondary);
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nfValueCol {
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: var(--space-3);
+}
+
+.nfValue {
+  font-variant-numeric: tabular-nums;
+}
+
+.nfValueCur {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  margin-right: 3px;
+}
+
+.nfValueNum {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-black);
+}
+
+.nfStatusLabel {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* ---- Faixa de fatos: emissão e dedução numa linha só, sem bloco de
+   rodapé separado. ---- */
+.nfFacts {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.fact b {
+  color: var(--foreground);
   font-weight: var(--w-semibold);
 }
 
-.nfValues {
-  text-align: right;
-}
+/* ---- Mobile: mesma correção aplicada em meus-pedidos — avatar + título +
+   valor não cabem numa linha só em telas estreitas. ---- */
+@media screen and (max-width: 480px) {
+  .nfHead {
+    flex-wrap: wrap;
+  }
 
-.nfTotal {
-  font-size: var(--fs-lg);
-  font-weight: var(--w-bold);
-  font-variant-numeric: tabular-nums;
-}
+  .nfTitles {
+    flex-basis: 0;
+  }
 
-.nfBreakdown {
-  font-size: var(--fs-xs);
-  color: var(--foreground-secondary);
-  margin-top: 2px;
-  font-variant-numeric: tabular-nums;
-}
+  .nfValueCol {
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-top: var(--space-2);
+    padding-left: calc(34px + var(--space-3));
+    text-align: left;
+  }
 
-.nfBottom {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
-  margin-top: 2px;
-  flex-wrap: wrap;
-}
+  .nfValue {
+    display: inline-block;
+  }
 
-.nfDate {
-  font-size: var(--fs-xs);
-  color: var(--foreground-secondary);
-}
-
-.badges {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
-  letter-spacing: 0.02em;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
-  white-space: nowrap;
+  .nfStatusLabel {
+    display: inline-block;
+    margin-top: 0;
+    margin-left: var(--space-2);
+  }
 }

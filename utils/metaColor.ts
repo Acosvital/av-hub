@@ -9,3 +9,20 @@ export function corPorMetaBatida(percMeta: number): string {
   if (percMeta <= 400) return 'var(--pink)';
   return 'var(--gold)';
 }
+
+// Mesma régua acima, mas como marcos (1 por faixa de 100%) — base das
+// "medalhas" de meta batida em Meu Dashboard: cada marco fica "conquistado"
+// quando `perc_meta` já passou daquele patamar.
+export interface MarcoMetaProps {
+  limite: number;
+  cor: string;
+  label: string;
+}
+
+export const MARCOS_META: MarcoMetaProps[] = [
+  { limite: 100, cor: 'var(--blue)', label: '100%' },
+  { limite: 200, cor: 'var(--green)', label: '200%' },
+  { limite: 300, cor: 'var(--orange)', label: '300%' },
+  { limite: 400, cor: 'var(--pink)', label: '400%' },
+  { limite: 500, cor: 'var(--gold)', label: '500%' },
+];

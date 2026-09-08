@@ -15,7 +15,18 @@ import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
 import { GRUPO_LABEL_PEDIDO, GRUPO_COLOR_PEDIDO } from '@/utils/grupoPedidoClassificacao';
+import { iniciaisCliente } from '@/utils/iniciaisCliente';
 import styles from './styles.module.css';
+
+function badgeStatus(nota: NotaFiscalVendedorProps) {
+  if (nota.grupo_deducao && nota.grupo_deducao !== 'LIQUIDO') {
+    return {
+      label: GRUPO_LABEL_PEDIDO[nota.grupo_deducao] ?? nota.grupo_deducao,
+      color: GRUPO_COLOR_PEDIDO[nota.grupo_deducao],
+    };
+  }
+  return null;
+}
 
 const FILTROS_GRUPO = [
   {
@@ -113,50 +124,47 @@ export default function MinhasNotas() {
             ) : (
               <div className={styles.listWrapper}>
                 {rows.map((nota) => {
-                  const grupo =
-                    nota.grupo_deducao && nota.grupo_deducao !== 'LIQUIDO' ? nota.grupo_deducao : null;
+                  const badge = badgeStatus(nota);
+                  const nomeCliente = nota.destinatario ?? '—';
                   return (
                     <div key={nota.numero_nf} className={styles.nfCard}>
-                      <div className={styles.nfTop}>
-                        <div className={styles.nfIcon}>NF</div>
-                        <div>
-                          <div className={styles.nfNumber}>Nota {nota.numero_nf}</div>
-                          {nota.numero_pedido && (
-                            <span className={styles.nfOrderLink}>↳ Pedido nº {nota.numero_pedido}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className={styles.nfValues}>
-                        <div className={styles.nfTotal}>{toBRL(nota.valor_nf)}</div>
-                        <div className={styles.nfBreakdown}>
-                          mercadorias {toBRL(nota.valor_mercadorias)}
-                        </div>
-                      </div>
-                      <div className={styles.nfBottom}>
-                        <span className={styles.nfDate}>
-                          {nota.destinatario ?? '—'}
-                          {nota.data_emissao ? ` · emitida em ${dateFormatter(nota.data_emissao)}` : ''}
-                        </span>
-                        <div className={styles.badges}>
-                          <span
-                            className={styles.badge}
-                            style={{
-                              backgroundColor: TIPO_CONTRATO_COLORS[nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'],
-                              color: 'var(--white)',
-                            }}
-                          >
-                            {nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'}
-                          </span>
-                          {grupo && (
+                      <div className={styles.nfHead}>
+                        <div className={styles.nfAvatar}>{iniciaisCliente(nomeCliente)}</div>
+                        <div className={styles.nfTitles}>
+                          <div className={styles.nfClient}>{nomeCliente}</div>
+                          <div className={styles.nfRef}>
+                            Nota {nota.numero_nf}
+                            {nota.numero_pedido && <> · Pedido {nota.numero_pedido}</>} ·{' '}
                             <span
-                              className={styles.badge}
-                              style={{ backgroundColor: GRUPO_COLOR_PEDIDO[grupo], color: 'var(--white)' }}
+                              style={{
+                                color: TIPO_CONTRATO_COLORS[nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'],
+                              }}
                             >
-                              {GRUPO_LABEL_PEDIDO[grupo]}
+                              {nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.nfValueCol}>
+                          <div className={styles.nfValue}>
+                            <span className={styles.nfValueCur}>R$</span>
+                            <span className={styles.nfValueNum}>
+                              {toBRL(nota.valor_nf).replace(/^R\$\s?/, '')}
+                            </span>
+                          </div>
+                          {badge && (
+                            <span className={styles.nfStatusLabel} style={{ color: badge.color }}>
+                              {badge.label}
                             </span>
                           )}
                         </div>
                       </div>
+                      {nota.data_emissao && (
+                        <div className={styles.nfFacts}>
+                          <span className={styles.fact}>
+                            Emitida <b>{dateFormatter(nota.data_emissao)}</b>
+                          </span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

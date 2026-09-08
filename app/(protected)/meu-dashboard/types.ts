@@ -32,6 +32,32 @@ export interface ClienteInativoProps {
   valor_total_historico: string;
 }
 
+export interface ProximoVencimentoProps {
+  codigo_pedido_omie: number;
+  numero_pedido: string | null;
+  cliente: string;
+  codigo_cliente: string | null;
+  data_previsao: string;
+  total_pedido: number;
+}
+
+export interface TopProdutoProps {
+  codigo_produto: string;
+  descricao: string;
+  quantidade: number;
+  valor: number;
+}
+
+export interface ComparacaoMesAnteriorLadoProps {
+  valor: number;
+  quantidade: number;
+}
+
+export interface ComparacaoMesAnteriorProps {
+  vendas: ComparacaoMesAnteriorLadoProps;
+  faturamento: ComparacaoMesAnteriorLadoProps;
+}
+
 export interface MeuDashboardResponse {
   vinculado: boolean;
   mes?: number;
@@ -42,4 +68,7 @@ export interface MeuDashboardResponse {
   // vendedor é zerar "SEM CLASSIFICAÇÃO" (ver docs/portal-vendedor).
   classificacaoPedidos?: Record<TipoContrato, ClassificacaoTipoProps>;
   topClientes?: TopClienteProps[];
+  proximosVencimentos?: ProximoVencimentoProps[];
+  topProdutos?: TopProdutoProps[];
+  comparacaoMesAnterior?: ComparacaoMesAnteriorProps;
 }

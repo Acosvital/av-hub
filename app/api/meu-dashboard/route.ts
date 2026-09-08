@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { resolverVendedoresSessao } from '@/lib/api/portalVendedor';
-import { classificarPedidos, somarLado, topClientes } from '@/lib/api/meuDashboardDomain';
+import {
+  classificarPedidos,
+  somarLado,
+  topClientes,
+  proximosVencimentos,
+  topProdutos,
+  mesAnterior,
+} from '@/lib/api/meuDashboardDomain';
 
 export async function GET(request: NextRequest) {
   const denied = await requirePermission('meu-dashboard', 'pode_visualizar');
@@ -19,11 +26,26 @@ export async function GET(request: NextRequest) {
     const ano = searchParams.get('ano') ?? String(hoje.getFullYear());
     const headers = { 'x-api-key': process.env.API_KEY! };
 
-    const [vendas, faturamento, classificacaoPedidos, meusTopClientes] = await Promise.all([
+    const anterior = mesAnterior(mes, ano);
+
+    const [
+      vendas,
+      faturamento,
+      classificacaoPedidos,
+      meusTopClientes,
+      vencimentos,
+      produtos,
+      vendasMesAnterior,
+      faturamentoMesAnterior,
+    ] = await Promise.all([
       somarLado('vendas', vendedores, mes, ano, headers),
       somarLado('faturamento', vendedores, mes, ano, headers),
       classificarPedidos(vendedores, mes, ano, headers),
       topClientes(vendedores, mes, ano, headers),
+      proximosVencimentos(vendedores, mes, ano, headers),
+      topProdutos(vendedores, mes, ano, headers),
+      somarLado('vendas', vendedores, anterior.mes, anterior.ano, headers),
+      somarLado('faturamento', vendedores, anterior.mes, anterior.ano, headers),
     ]);
 
     return NextResponse.json({
@@ -34,6 +56,15 @@ export async function GET(request: NextRequest) {
       faturamento,
       classificacaoPedidos,
       topClientes: meusTopClientes,
+      proximosVencimentos: vencimentos,
+      topProdutos: produtos,
+      comparacaoMesAnterior: {
+        vendas: { valor: vendasMesAnterior.valor, quantidade: vendasMesAnterior.quantidade },
+        faturamento: {
+          valor: faturamentoMesAnterior.valor,
+          quantidade: faturamentoMesAnterior.quantidade,
+        },
+      },
     });
   } catch (error) {
     console.error(error);
