@@ -1,5 +1,7 @@
 # Pendências de backend — retorno da auditoria (03/09)
 
+**Criado em:** 03/09/2026, 11:08 (horário de Brasília)
+
 **Objetivo:** este documento não é um contrato novo — é o retorno de uma auditoria que rodei
 em 03/09 comparando os contratos já enviados com o comportamento real do banco/API hoje. Cada
 item abaixo aponta pro contrato original (detalhe técnico completo, SQL de referência etc. já

@@ -91,10 +91,7 @@ export async function getSugestaoVinculo(id: string, params: SugestaoVinculoPara
 }
 
 export async function deletarVendedor(id: string) {
-  const res = await fetch(`/api/vendedores/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar vendedor — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar vendedor (status ${res.status})`);
-  }
+  return apiFetch(`/api/vendedores/${id}`, 'Erro ao deletar vendedor', {
+    method: 'DELETE',
+  });
 }

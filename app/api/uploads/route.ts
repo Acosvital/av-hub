@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hasPermission } from '@/lib/permissions';
-import { uploadFoto, assinarUrlFoto, MIME_TYPES_PERMITIDOS, TAMANHO_MAXIMO_BYTES } from '@/lib/s3/fotos';
+import { uploadFoto, assinarUrlFoto } from '@/lib/s3/fotos';
+import { MIME_TYPES_PERMITIDOS, TAMANHO_MAXIMO_BYTES } from '@/lib/uploadConstraints';
 import type { S3Bucket } from '@/lib/s3/client';
 
 const TELA_POR_BUCKET: Record<S3Bucket, string> = {

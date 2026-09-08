@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { resolverVendedoresSessao } from '@/lib/api/portalVendedor';
+import { paginarOrdenadoPorData } from '@/lib/api/paginacaoMultiVinculo';
 import { PedidoVendedorProps } from '@/app/(protected)/meus-pedidos/types';
 
 interface VendasBaseResponse {
@@ -69,21 +70,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    const todos = listas
-      .flat()
-      .sort((a, b) => String(b.data_inclusao).localeCompare(String(a.data_inclusao)));
-    const total = todos.length;
-    const inicio = (page - 1) * limit;
-    const pagina = todos.slice(inicio, inicio + limit);
+    const pagina = paginarOrdenadoPorData(listas, 'data_inclusao', page, limit);
 
-    return NextResponse.json({
-      vinculado: true,
-      data: pagina,
-      total,
-      page,
-      limit,
-      total_pages: Math.ceil(total / limit),
-    });
+    return NextResponse.json({ vinculado: true, ...pagina });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

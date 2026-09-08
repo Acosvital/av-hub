@@ -1,5 +1,7 @@
 # Contrato — Escopo de acesso por Unidade (RH)
 
+**Criado em:** 31/08/2026, 11:03 (horário de Brasília)
+
 **Objetivo:** permitir que um usuário de RH veja e gerencie apenas os Setores, Cargos e
 Funcionários da(s) Unidade(s) pela(s) qual(is) ele é responsável, em vez de todas as
 unidades da empresa.

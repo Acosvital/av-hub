@@ -7,6 +7,12 @@ import { componentOverrides } from './componentOverrides';
 export const getMuiTheme = (mode: 'light' | 'dark') =>
   createTheme({
     palette: { mode },
-    typography: {},
+    // `typography.fontFamily` alimenta o reset global do <CssBaseline/> em
+    // `body` — vazio aqui significava herdar o default do MUI (Roboto),
+    // que "ganhava" do `body { font-family: var(--font-sans) }` de
+    // styles/globals.css (mesma especificidade, injetado depois). Os
+    // componentes MUI individuais já tinham `fontFamily: 'var(--font-sans)'`
+    // (ver componentOverrides.ts) — só a base do tema ficou de fora.
+    typography: { fontFamily: 'var(--font-sans)' },
     components: componentOverrides,
   });

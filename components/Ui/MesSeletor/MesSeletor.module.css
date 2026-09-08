@@ -36,3 +36,26 @@
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
+
+/* Em telas estreitas, `right: 0` faz o menu crescer pra esquerda a partir do
+   botão — se o botão não estiver colado na borda direita (ele não fica,
+   quando o cabeçalho quebra linha no mobile), o calendário estoura pra fora
+   da tela. Em vez de ancorar no botão, o wrapper vira largura cheia e o menu
+   passa a centralizar na TELA (não no botão): sempre abaixo do texto,
+   sempre dentro da viewport, nunca cortado. */
+@media (max-width: 640px) {
+  .wrapper {
+    width: 100%;
+  }
+
+  .menu {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(100%, 340px);
+  }
+
+  .card {
+    width: 100%;
+  }
+}

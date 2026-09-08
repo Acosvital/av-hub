@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { comEscopoUnidade } from '@/lib/api/escopoUnidade';
-import { assinarUrlFoto } from '@/lib/s3/fotos';
+import { comFotosAssinadas } from '@/lib/s3/fotos';
 import { FuncionarioProps } from '@/app/(protected)/rh/funcionarios/types';
 
 export async function GET(request: NextRequest) {
@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
 
     // photo_url guarda a key do objeto no S3 (bucket privado) — resolve pra
     // URL assinada aqui, sem alterar o valor que será regravado no PUT/POST.
-    const funcionarios = await Promise.all(
-      (data.funcionarios ?? []).map(async (funcionario) => ({
-        ...funcionario,
-        photo_signed_url: funcionario.photo_url ? await assinarUrlFoto('pessoas', funcionario.photo_url) : null,
-      }))
+    const funcionarios = await comFotosAssinadas(
+      'pessoas',
+      data.funcionarios ?? [],
+      'photo_url',
+      'photo_signed_url'
     );
 
     return NextResponse.json({ ...data, funcionarios });

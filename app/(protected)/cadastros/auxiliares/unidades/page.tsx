@@ -29,6 +29,7 @@ import {
 import { FormUnidade, TIPOS_UNIDADE, UnidadeProps } from './types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 import { usePermission } from '@/hooks/usePermission';
+import { pareceConterDigito } from '@/utils/buscaHeuristics';
 import PermissionButton from '@/components/Ui/PermissionButton/PermissionButton';
 import PhotoUpload from '@/components/Ui/PhotoUpload/PhotoUpload';
 import { UFS } from '@/utils/consts';
@@ -184,7 +185,7 @@ export default function Unidades() {
     async function fetchUnidades() {
       try {
         setLoading(true);
-        const isCnpjQuery = /\d/.test(search);
+        const isCnpjQuery = pareceConterDigito(search);
         const response = await getUnidades({
           page: page + 1,
           limit: rowsPerPage,

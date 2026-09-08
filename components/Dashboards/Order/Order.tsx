@@ -1,37 +1,7 @@
 import { GoPersonFill } from 'react-icons/go';
 import styles from './Order.module.css';
 import toBRL from '@/utils/toBRL';
-
-const orderTypes = {
-  SPOT: {
-    default: 'var(--green)',
-    light: 'var(--green-light)',
-  },
-  CONTRATO: {
-    default: 'var(--purple)',
-    light: 'var(--purple-light)',
-  },
-  'SEM CLASSIFICAÇÃO': {
-    default: 'var(--foreground)',
-    light: 'var(--foreground)',
-  },
-  CANCELADOS: {
-    default: 'var(--red)',
-    light: 'var(--red-light)',
-  },
-  DEVOLVIDOS: {
-    default: 'var(--blue)',
-    light: 'var(--blue-light)',
-  },
-  RECUSADOS: {
-    default: 'var(--yellow)',
-    light: 'var(--yellow-light)',
-  },
-  REFATURAMENTO: {
-    default: 'var(--orange)',
-    light: 'var(--orange-light)',
-  },
-};
+import orderTypes from '@/utils/orderTypeColors';
 
 interface Order {
   id: number;

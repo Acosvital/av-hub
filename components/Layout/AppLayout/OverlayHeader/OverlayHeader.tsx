@@ -28,6 +28,7 @@ import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/ty
 import { getPedidosVenda } from '@/services/vendas/pedidosVenda';
 import { getNotasFiscaisSaida } from '@/services/vendas/notasFiscaisSaida';
 import { getVendedores, VendedorProps } from '@/services/vendas/vendedores';
+import { dashboardDoResultado, labelDoResultado } from '@/utils/resultadoBuscaDashboard';
 import { notify } from '@/lib/toast/toast';
 import toBRL from '@/utils/toBRL';
 
@@ -245,7 +246,7 @@ const OverlayHeader = () => {
     if (result.data) setCompleteDate(dayjs(result.data));
     if (result.empresaId) setCodigoEmpresa(result.empresaId);
 
-    const dashboard = result.type === 'pedido' ? 'vendas' : 'faturamento';
+    const dashboard = dashboardDoResultado(result.type);
     const targetPath = `/dashboards/dash-${dashboard}`;
 
     requestVendorModal({
@@ -326,7 +327,7 @@ const OverlayHeader = () => {
                             >
                               <div className={styles.searchResultHead}>
                                 <span className={styles.searchResultBadge}>
-                                  {result.type === 'pedido' ? 'Pedido' : 'NF'}
+                                  {labelDoResultado(result.type)}
                                 </span>
                                 <span>#{result.numero}</span>
                                 <span className={styles.searchResultDate}>

@@ -45,10 +45,7 @@ export async function editarFuncionario(id: string, data: object) {
 }
 
 export async function deletarFuncionario(id: string) {
-  const res = await fetch(`/api/funcionarios/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar funcionário — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar funcionário (status ${res.status})`);
-  }
+  return apiFetch(`/api/funcionarios/${id}`, 'Erro ao deletar funcionário', {
+    method: 'DELETE',
+  });
 }

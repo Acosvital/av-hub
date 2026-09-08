@@ -23,6 +23,7 @@ import { getUnidades, UnidadeProps } from '@/services/rh/referenciais';
 import { VendedorProps } from '@/services/vendas/vendedores';
 import { PedidoVendaProps } from './types';
 import { usePermission } from '@/hooks/usePermission';
+import { pareceNumeroPuro } from '@/utils/buscaHeuristics';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 
@@ -81,7 +82,7 @@ export default function PedidosVenda() {
         setLoading(true);
         // Número do pedido é só dígitos — o mesmo campo de busca decide entre
         // número e cliente pelo formato do termo digitado.
-        const isNumeroQuery = /^\d+$/.test(search);
+        const isNumeroQuery = pareceNumeroPuro(search);
         const response = await getPedidosVenda({
           page: page + 1,
           limit: rowsPerPage,

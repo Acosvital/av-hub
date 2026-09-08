@@ -26,33 +26,17 @@ import { notify } from '@/lib/toast/toast';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
+import { GRUPO_LABEL_PEDIDO, GRUPO_COLOR_PEDIDO } from '@/utils/grupoPedidoClassificacao';
+import { calcularSlaPedido, SlaTier } from '@/utils/slaPedido';
 import styles from './styles.module.css';
 
-const GRUPO_LABEL: Record<string, string> = {
-  G1: 'Cancelado',
-  G2: 'Devolvido',
-  G3: 'Recusado',
-  G4: 'Bloqueado',
-  G5: 'Bloqueado',
-  G6: 'Refaturamento',
-};
-
-const GRUPO_COLOR: Record<string, string> = {
-  G1: 'var(--graphite)',
-  G2: 'var(--orange)',
-  G3: 'var(--red)',
-  G4: 'var(--graphite)',
-  G5: 'var(--graphite)',
-  G6: 'var(--pink)',
-};
-
-const STRIPE_COLOR: Record<string, string> = {
-  G1: 'var(--graphite)',
-  G2: 'var(--orange)',
-  G3: 'var(--red)',
-  G4: 'var(--graphite)',
-  G5: 'var(--graphite)',
-  G6: 'var(--pink)',
+const SLA_TIER_CLASS: Record<SlaTier, string> = {
+  atrasado: styles.slaAtrasado,
+  'vence-hoje': styles.sla1d,
+  'falta-1-dia': styles.sla1d,
+  'falta-2-dias': styles.sla2d,
+  'falta-3-dias': styles.sla3d,
+  normal: styles.slaNormal,
 };
 
 // Badge de status — só aparece pra situações excepcionais (cancelado,
@@ -61,39 +45,25 @@ const STRIPE_COLOR: Record<string, string> = {
 // docs/portal-vendedor/plano-portal-vendedor.md, seção 4.2/4.2.1.
 function badgeStatus(pedido: PedidoVendedorProps) {
   if (pedido.grupo && pedido.grupo !== 'LIQUIDO') {
-    return { label: GRUPO_LABEL[pedido.grupo] ?? pedido.grupo, color: GRUPO_COLOR[pedido.grupo] };
+    return {
+      label: GRUPO_LABEL_PEDIDO[pedido.grupo] ?? pedido.grupo,
+      color: GRUPO_COLOR_PEDIDO[pedido.grupo],
+    };
   }
   if (pedido.faturado) return { label: 'Faturado', color: 'var(--green)' };
   return null;
 }
 
 function corStripe(pedido: PedidoVendedorProps) {
-  if (pedido.grupo && pedido.grupo !== 'LIQUIDO') return STRIPE_COLOR[pedido.grupo];
+  if (pedido.grupo && pedido.grupo !== 'LIQUIDO') return GRUPO_COLOR_PEDIDO[pedido.grupo];
   if (pedido.faturado) return 'var(--green)';
   return 'var(--border-strong)';
 }
 
-// SLA — seção 5 do plano. Só calcula se `data_previsao` vier preenchido
-// e o pedido não estiver faturado.
 function renderSla(pedido: PedidoVendedorProps) {
-  if (pedido.faturado || !pedido.data_previsao) return null;
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  const previsao = new Date(pedido.data_previsao);
-  previsao.setHours(0, 0, 0, 0);
-  const dias = Math.round((previsao.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (dias < 0) {
-    return {
-      className: styles.slaAtrasado,
-      texto: `⛔ Atrasado — ${-dias} dia${-dias === 1 ? '' : 's'}`,
-    };
-  }
-  if (dias === 0) return { className: styles.sla1d, texto: '⚠ Vence hoje' };
-  if (dias === 1) return { className: styles.sla1d, texto: '⚠ Falta 1 dia' };
-  if (dias === 2) return { className: styles.sla2d, texto: `Faltam ${dias} dias` };
-  if (dias === 3) return { className: styles.sla3d, texto: `Faltam ${dias} dias` };
-  return { className: styles.slaNormal, texto: `Previsão em ${dias} dias` };
+  const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
+  if (!sla) return null;
+  return { className: SLA_TIER_CLASS[sla.tier], texto: sla.texto };
 }
 
 const FILTROS_GRUPO = [

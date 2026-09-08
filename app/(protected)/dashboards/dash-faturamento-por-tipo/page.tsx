@@ -25,13 +25,7 @@ import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
 import { Skeleton, useMediaQuery } from '@mui/material';
 import BILLING_TYPE_COLORS, { ClientOrderType } from '@/utils/tipoContratoColors';
-
-const SITUACAO_DEFINITIONS = [
-  { id: 'G1', label: 'Cancelados', color: 'var(--red)' },
-  { id: 'G2', label: 'Devolvidos', color: 'var(--blue)' },
-  { id: 'G3', label: 'Recusados', color: 'var(--yellow)' },
-  { id: 'G6', label: 'Refaturamento', color: 'var(--orange)' },
-];
+import { SITUACAO_DEFINICOES_DASHBOARD } from '@/utils/grupoPedidoClassificacao';
 
 const CLIENT_TYPE_FILTERS: ClientOrderType[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
 
@@ -137,7 +131,7 @@ export default function FaturamentoPorTipo() {
   );
 
   const situacaoPorGrupo = new Map(situacaoPedidos.map((s) => [s.grupo_deducao, s]));
-  const situations = SITUACAO_DEFINITIONS.map(({ id, label, color }) => {
+  const situations = SITUACAO_DEFINICOES_DASHBOARD.map(({ id, label, color }) => {
     const situacao = situacaoPorGrupo.get(id);
     return {
       id,

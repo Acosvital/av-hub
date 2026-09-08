@@ -1,5 +1,7 @@
 # Contrato — Cor por Unidade + participação no gauge (Dashboards)
 
+**Criado em:** 03/09/2026, 07:43 (horário de Brasília)
+
 **Objetivo:** permitir cadastrar uma cor de identificação por unidade e usá-la num anel
 de participação por unidade nos dashboards de Vendas e Faturamento (abaixo do gauge
 principal), mostrando quanto cada unidade equivale do total. Segue o mesmo padrão já

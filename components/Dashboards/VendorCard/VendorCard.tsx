@@ -2,6 +2,7 @@ import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import styles from './VendorCard.module.css';
 import toBRL from '@/utils/toBRL';
 import { nomeExibicaoResumido } from '@/utils/nomeExibicao';
+import { corPorMetaBatida } from '@/utils/metaColor';
 import RankingBadge from './RankingBadge/RankingBadge';
 
 // Posição da marca: 0 -> 0%, 100 -> 100%. Acima de 100% a marca fica
@@ -9,15 +10,6 @@ import RankingBadge from './RankingBadge/RankingBadge';
 function getMetaProgress(percMeta: number) {
   if (percMeta <= 0) return 0;
   return Math.min(percMeta, 100);
-}
-
-// Cor por nível de meta batida, reiniciando junto com o progresso a cada 100%.
-function getMetaColor(percMeta: number) {
-  if (percMeta <= 100) return 'var(--blue)';
-  if (percMeta <= 200) return 'var(--green)';
-  if (percMeta <= 300) return 'var(--orange)';
-  if (percMeta <= 400) return 'var(--pink)';
-  return 'var(--gold)';
 }
 
 interface VendorCardProps {
@@ -49,7 +41,7 @@ const VendorCard = ({
   color = 'var(--gold)',
   tieredMetaColor = false,
 }: VendorCardProps) => {
-  const metaColor = tieredMetaColor ? getMetaColor(Number(perc_meta) || 0) : color;
+  const metaColor = tieredMetaColor ? corPorMetaBatida(Number(perc_meta) || 0) : color;
   const metaProgress = getMetaProgress(Number(perc_meta) || 0);
   // Primeiro nome + próximo sobrenome relevante — cabe melhor no card e
   // evita cortar em "dos"/"da"/etc (ver utils/nomeExibicao.ts).

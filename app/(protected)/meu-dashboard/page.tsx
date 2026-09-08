@@ -5,7 +5,11 @@ import { CircularProgress } from '@mui/material';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import Gauge from '@/components/Charts/Gauge/Gauge';
+import Button from '@/components/Ui/Button/Button';
 import MesSeletor from '@/components/Ui/MesSeletor/MesSeletor';
+import ClienteDetalhesModal, {
+  ClienteDetalhesProps,
+} from '@/components/Dashboards/ClienteDetalhesModal/ClienteDetalhesModal';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import { getMeuDashboard } from '@/services/portalVendedor/meuDashboard';
 import { getClientesInativos } from '@/services/portalVendedor/clientesInativos';
@@ -13,24 +17,24 @@ import { ClienteInativoProps, MeuDashboardResponse, TipoContrato } from './types
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
+import { corPorMetaBatida } from '@/utils/metaColor';
 import styles from './styles.module.css';
 
 const TIPOS: TipoContrato[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
 
-// Mesma régua de cor por faixa de meta batida do VendorCard/dash-vendas —
-// exclusiva do lado de Vendas (docs/portal-vendedor/plano-portal-vendedor.md, seção 4.1).
-function corMeta(percMeta: number) {
-  if (percMeta <= 100) return 'var(--blue)';
-  if (percMeta <= 200) return 'var(--green)';
-  if (percMeta <= 300) return 'var(--orange)';
-  if (percMeta <= 400) return 'var(--pink)';
-  return 'var(--gold)';
-}
+// Quantidade exibida antes do "ver mais" em cada ranking — nomes de cliente
+// longos truncavam em uma linha só; a lista deixou de mostrar tudo de uma
+// vez pra caber sem cortar, com o "ver mais" liberando o resto.
+const LIMITE_INICIAL_TOP_CLIENTES = 5;
+const LIMITE_INICIAL_INATIVOS = 8;
 
 export default function MeuDashboard() {
   const [loading, setLoading] = useState(true);
   const [resposta, setResposta] = useState<MeuDashboardResponse | null>(null);
   const [clientesInativos, setClientesInativos] = useState<ClienteInativoProps[]>([]);
+  const [verTodosTopClientes, setVerTodosTopClientes] = useState(false);
+  const [verTodosInativos, setVerTodosInativos] = useState(false);
+  const [clienteSelecionado, setClienteSelecionado] = useState<ClienteDetalhesProps | null>(null);
   const { completeDate } = useDashboardDate();
 
   useEffect(() => {
@@ -63,7 +67,7 @@ export default function MeuDashboard() {
   const vendas = resposta?.vendas;
   const faturamento = resposta?.faturamento;
   const classificacaoPedidos = resposta?.classificacaoPedidos;
-  const corGauge = vendas ? corMeta(vendas.perc_meta) : 'var(--blue)';
+  const corGauge = vendas ? corPorMetaBatida(vendas.perc_meta) : 'var(--blue)';
   const mediaPorPedido = vendas && vendas.quantidade > 0 ? vendas.valor / vendas.quantidade : 0;
 
   return (
@@ -181,17 +185,44 @@ export default function MeuDashboard() {
               <>
                 <p className={styles.sectionLabel}>Meus melhores clientes no mês</p>
                 <div className={styles.listaClientes}>
-                  {resposta.topClientes.map((c, i) => (
-                    <div key={c.cliente} className={styles.linhaCliente}>
-                      <span className={styles.posicaoCliente}>{i + 1}º</span>
-                      <span className={styles.nomeCliente}>{c.cliente}</span>
-                      <span className={styles.pedidosCliente}>
-                        {c.qtd_pedidos} pedido{c.qtd_pedidos === 1 ? '' : 's'}
-                      </span>
-                      <span className={styles.valorCliente}>{toBRL(c.valor)}</span>
+                  {(verTodosTopClientes
+                    ? resposta.topClientes
+                    : resposta.topClientes.slice(0, LIMITE_INICIAL_TOP_CLIENTES)
+                  ).map((c, i) => (
+                    <div
+                      key={c.cliente}
+                      className={styles.linhaCliente}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() =>
+                        setClienteSelecionado({
+                          nome: c.cliente,
+                          codigoCliente: c.codigo_cliente,
+                          valorMes: c.valor,
+                          qtdPedidosMes: c.qtd_pedidos,
+                        })
+                      }
+                    >
+                      <div className={styles.linhaClienteTopo}>
+                        <span className={styles.posicaoCliente}>{i + 1}º</span>
+                        <span className={styles.nomeCliente}>{c.cliente}</span>
+                      </div>
+                      <div className={styles.linhaClienteMeta}>
+                        <span className={styles.pedidosCliente}>
+                          {c.qtd_pedidos} pedido{c.qtd_pedidos === 1 ? '' : 's'}
+                        </span>
+                        <span className={styles.valorCliente}>{toBRL(c.valor)}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
+                {resposta.topClientes.length > LIMITE_INICIAL_TOP_CLIENTES && (
+                  <div className={styles.verMaisWrapper}>
+                    <Button variant="ghost" onClick={() => setVerTodosTopClientes((v) => !v)}>
+                      {verTodosTopClientes ? 'Ver menos' : 'Ver mais'}
+                    </Button>
+                  </div>
+                )}
               </>
             )}
 
@@ -199,21 +230,66 @@ export default function MeuDashboard() {
               <>
                 <p className={styles.sectionLabel}>Clientes sem comprar há 90+ dias</p>
                 <div className={styles.listaClientes}>
-                  {clientesInativos.slice(0, 8).map((c) => (
-                    <div key={c.codigo_cliente} className={styles.linhaCliente}>
-                      <span className={styles.nomeCliente}>{c.cliente}</span>
-                      <span className={styles.pedidosCliente}>
-                        última compra em {dateFormatter(c.ultima_compra)}
-                      </span>
-                      <span className={styles.diasCliente}>{c.dias_sem_comprar} dias</span>
+                  {(verTodosInativos
+                    ? clientesInativos
+                    : clientesInativos.slice(0, LIMITE_INICIAL_INATIVOS)
+                  ).map((c) => (
+                    <div
+                      key={c.codigo_cliente}
+                      className={styles.linhaCliente}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() =>
+                        setClienteSelecionado({
+                          nome: c.cliente,
+                          codigoCliente: c.codigo_cliente,
+                          qtdPedidosMes: Number(c.qtd_pedidos) || 0,
+                          valorUltimaCompra: Number(c.valor_ultima_compra) || 0,
+                          valorTotalHistorico: Number(c.valor_total_historico) || 0,
+                          ultimaCompra: c.ultima_compra,
+                          diasSemComprar: c.dias_sem_comprar,
+                        })
+                      }
+                    >
+                      <div className={styles.linhaClienteTopo}>
+                        <span className={styles.nomeCliente}>{c.cliente}</span>
+                      </div>
+                      <div className={styles.linhaClienteMeta}>
+                        <span className={styles.pedidosCliente}>
+                          última compra em {dateFormatter(c.ultima_compra)}
+                        </span>
+                        <span className={styles.diasCliente}>{c.dias_sem_comprar} dias</span>
+                      </div>
                     </div>
                   ))}
                 </div>
+                {clientesInativos.length > LIMITE_INICIAL_INATIVOS && (
+                  <div className={styles.verMaisWrapper}>
+                    <Button variant="ghost" onClick={() => setVerTodosInativos((v) => !v)}>
+                      {verTodosInativos ? 'Ver menos' : 'Ver mais'}
+                    </Button>
+                  </div>
+                )}
               </>
             )}
+            {/* Spacer real (altura de verdade, não margin/padding) pro
+                respiro final da página — quem rola aqui é o .mainArea por
+                fora (Layout.module.css), e margin/padding no fim de um
+                container flex com overflow não é contado de forma
+                confiável no scrollHeight (bug do Chromium); um elemento com
+                altura própria não sofre desse problema. */}
+            <div className={styles.bottomSpacer} aria-hidden="true" />
           </>
         )}
       </PageContent>
+      <ClienteDetalhesModal
+        key={clienteSelecionado?.codigoCliente ?? clienteSelecionado?.nome}
+        isOpen={clienteSelecionado !== null}
+        onClose={() => setClienteSelecionado(null)}
+        cliente={clienteSelecionado}
+        mes={completeDate.month() + 1}
+        ano={completeDate.year()}
+      />
     </div>
   );
 }

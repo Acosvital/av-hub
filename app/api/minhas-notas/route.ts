@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { resolverVendedoresSessao } from '@/lib/api/portalVendedor';
+import { paginarOrdenadoPorData } from '@/lib/api/paginacaoMultiVinculo';
 import { NotaFiscalVendedorProps } from '@/app/(protected)/minhas-notas/types';
 
 interface NfClassifiedResponse {
@@ -66,21 +67,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    const todas = listas
-      .flat()
-      .sort((a, b) => String(b.data_emissao).localeCompare(String(a.data_emissao)));
-    const total = todas.length;
-    const inicio = (page - 1) * limit;
-    const pagina = todas.slice(inicio, inicio + limit);
+    const pagina = paginarOrdenadoPorData(listas, 'data_emissao', page, limit);
 
-    return NextResponse.json({
-      vinculado: true,
-      data: pagina,
-      total,
-      page,
-      limit,
-      total_pages: Math.ceil(total / limit),
-    });
+    return NextResponse.json({ vinculado: true, ...pagina });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

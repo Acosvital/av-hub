@@ -46,10 +46,7 @@ export async function editarSolicitacaoVaga(id: string, data: object) {
 }
 
 export async function deletarSolicitacaoVaga(id: string) {
-  const res = await fetch(`/api/vagas/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar solicitação de vaga — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar solicitação de vaga (status ${res.status})`);
-  }
+  return apiFetch(`/api/vagas/${id}`, 'Erro ao deletar solicitação de vaga', {
+    method: 'DELETE',
+  });
 }

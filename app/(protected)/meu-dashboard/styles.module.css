@@ -9,6 +9,18 @@
   padding: 0 var(--space-4);
 }
 
+/* Diferente das outras 2 telas do Portal do Vendedor (meus-pedidos,
+   minhas-notas), aqui o conteúdo é uma sequência solta de blocos, sem um
+   cartão único `flex:1` com scroll próprio — quem rola é o .mainArea
+   (Layout.module.css) por fora. Nem padding-bottom no .pageGlow nem
+   margin-bottom no último filho são contados de forma confiável no
+   scrollHeight de quem rola por fora (bug do Chromium em flex+overflow) —
+   o respiro final é um spacer de verdade (ver .bottomSpacer + page.tsx).*/
+.bottomSpacer {
+  height: var(--space-5);
+  flex-shrink: 0;
+}
+
 .pageGlow::before {
   content: '';
   position: absolute;
@@ -29,6 +41,15 @@
       color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
       transparent 65%
     );
+}
+
+@media screen and (max-width: 768px) {
+  /* No mobile o topo ganha um respiro pro botao de menu fixo (ver
+     Layout.module.css .mainAreaMobileOffset) - estica o glow pra cima
+     tambem, senao sobra uma faixa lisa sem o efeito ali. */
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
 }
 
 .pageHeaderRow {
@@ -149,6 +170,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   padding: var(--space-5);
 }
 
@@ -186,7 +209,10 @@
   gap: var(--space-2);
   border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   padding: var(--space-3) var(--space-4);
 }
 
@@ -197,6 +223,12 @@
   padding: var(--space-2) 0;
   border-bottom: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
   font-size: var(--fs-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.linhaCliente:hover {
+  background-color: color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 
 .linhaCliente:last-child {
@@ -236,4 +268,49 @@
   color: var(--orange);
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.verMaisWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: calc(-1 * var(--space-2));
+}
+
+/* `.linhaClienteTopo` (posição+nome) e `.linhaClienteMeta` (pedidos+valor/dias)
+   são só agrupadores lógicos — no desktop viram `display: contents` e
+   desaparecem da árvore de caixas, deixando os spans como filhos diretos de
+   `.linhaCliente` (mesmo layout de sempre, uma linha só). */
+.linhaClienteTopo,
+.linhaClienteMeta {
+  display: contents;
+}
+
+/* Nome de cliente comprido + posição/pedidos/valor todos numa linha só não
+   cabe em telas estreitas — o nome ficava cortado (ex: "TERCOFLAN ...").
+   Só no mobile os agrupadores viram de fato duas linhas: nome em cima (sem
+   truncar, quebrando por conta própria) e meta embaixo, alinhada à direita. */
+@media screen and (max-width: 480px) {
+  .linhaCliente {
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: var(--space-1);
+  }
+
+  .linhaClienteTopo {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .linhaClienteMeta {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+  }
+
+  .nomeCliente {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 }

@@ -43,10 +43,7 @@ export async function editarProduto(id: string, data: object) {
 }
 
 export async function deletarProduto(id: string) {
-  const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '(sem corpo)');
-    console.error(`Erro ao deletar produto — status ${res.status}: ${body}`);
-    throw new Error(`Erro ao deletar produto (status ${res.status})`);
-  }
+  return apiFetch(`/api/produtos/${id}`, 'Erro ao deletar produto', {
+    method: 'DELETE',
+  });
 }
