@@ -7,6 +7,7 @@ import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import TablePagination from '@/components/Ui/TablePagination/TablePagination';
 import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import Button from '@/components/Ui/Button/Button';
 import MesSeletor from '@/components/Ui/MesSeletor/MesSeletor';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import { useDebounce } from '@/hooks/useDebouncer';
@@ -366,41 +367,40 @@ export default function MeusPedidos() {
             </div>
           </div>
           <div className={styles.tableCard}>
-            <div className={styles.toolbarRow}>
-              <SearchFilterBar
-                searchValue={searchInput}
-                onSearchChange={(value) => {
-                  setSearchInput(value);
+            <SearchFilterBar
+              searchValue={searchInput}
+              onSearchChange={(value) => {
+                setSearchInput(value);
+                setPage(0);
+              }}
+              searchPlaceholder="Buscar por número do pedido..."
+              filters={FILTROS_GRUPO}
+              activeValues={{
+                grupo: grupoFiltro || undefined,
+                situacao_local: situacaoFiltro || undefined,
+              }}
+              onFilterChange={(key, value) => {
+                if (key === 'grupo') {
+                  setGrupoFiltro(value ?? '');
                   setPage(0);
-                }}
-                searchPlaceholder="Buscar por número do pedido..."
-                filters={FILTROS_GRUPO}
-                activeValues={{
-                  grupo: grupoFiltro || undefined,
-                  situacao_local: situacaoFiltro || undefined,
-                }}
-                onFilterChange={(key, value) => {
-                  if (key === 'grupo') {
-                    setGrupoFiltro(value ?? '');
-                    setPage(0);
-                  }
-                  if (key === 'situacao_local') {
-                    setSituacaoFiltro((value as 'faturado' | 'pendente' | null) ?? '');
-                    setPage(0);
-                  }
-                }}
-                glass
-              />
-              <button
-                type="button"
-                className={styles.exportBtn}
-                disabled={exportando}
-                onClick={exportarCsv}
-              >
-                <FaFileExport />
-                {exportando ? 'Exportando...' : 'Exportar CSV'}
-              </button>
-            </div>
+                }
+                if (key === 'situacao_local') {
+                  setSituacaoFiltro((value as 'faturado' | 'pendente' | null) ?? '');
+                  setPage(0);
+                }
+              }}
+              actions={
+                <Button
+                  variant="secondary"
+                  icon={<FaFileExport />}
+                  disabled={exportando}
+                  onClick={exportarCsv}
+                >
+                  {exportando ? 'Exportando...' : 'Exportar CSV'}
+                </Button>
+              }
+              glass
+            />
             {loading ? (
               <div className={styles.loading}>
                 <CircularProgress size={50} />

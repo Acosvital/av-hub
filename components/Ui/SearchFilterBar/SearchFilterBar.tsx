@@ -25,6 +25,9 @@ interface SearchFilterBarProps {
   activeValues: Record<string, string | undefined>;
   onFilterChange: (key: string, value: string | null) => void;
   glass?: boolean;
+  // Ações extras (ex.: "Exportar CSV") que devem aparecer na mesma linha da
+  // busca/filtros, não soltas abaixo/ao lado como um elemento à parte.
+  actions?: React.ReactNode;
 }
 
 export default function SearchFilterBar({
@@ -35,6 +38,7 @@ export default function SearchFilterBar({
   activeValues,
   onFilterChange,
   glass = false,
+  actions,
 }: SearchFilterBarProps) {
   const [openFilterKey, setOpenFilterKey] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -107,6 +111,8 @@ export default function SearchFilterBar({
           </button>
         );
       })}
+
+      {actions && <div className={styles.actions}>{actions}</div>}
 
       <Menu anchorEl={anchorEl} open={!!openFilterKey} onClose={closeMenu}>
         {filters

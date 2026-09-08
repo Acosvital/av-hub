@@ -98,6 +98,14 @@
   color: var(--foreground);
 }
 
+/* Ações extras (ex.: exportar) — mesma linha da busca/filtros, empurrada
+   pra ponta direita da barra. */
+.actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
 .filterButton {
   display: inline-flex;
   align-items: center;
