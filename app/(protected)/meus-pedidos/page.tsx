@@ -39,6 +39,18 @@ const SLA_TIER_CLASS: Record<SlaTier, string> = {
   normal: styles.slaNormal,
 };
 
+// Destaque do CARD inteiro (não só do selinho de SLA) — pedido explícito:
+// atrasado só escurece (sem piscar), vence hoje fica vermelho E pisca (mais
+// urgente — ainda dá tempo hoje), "vai vencer" (1-3 dias) fica vermelho sem
+// piscar. "normal" (4+ dias) não ganha destaque nenhum no card.
+const CARD_SLA_CLASS: Partial<Record<SlaTier, string>> = {
+  atrasado: styles.cardAtrasado,
+  'vence-hoje': styles.cardVenceHoje,
+  'falta-1-dia': styles.cardVaiVencer,
+  'falta-2-dias': styles.cardVaiVencer,
+  'falta-3-dias': styles.cardVaiVencer,
+};
+
 // Badge de status — só aparece pra situações excepcionais (cancelado,
 // devolvido, refaturamento, faturado). Pedido "em aberto" não ganha badge,
 // só o selo de SLA (ver renderSla). Regra e prioridade batem com
@@ -64,6 +76,12 @@ function renderSla(pedido: PedidoVendedorProps) {
   const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
   if (!sla) return null;
   return { className: SLA_TIER_CLASS[sla.tier], texto: sla.texto };
+}
+
+function corCardSla(pedido: PedidoVendedorProps): string {
+  const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
+  if (!sla) return '';
+  return CARD_SLA_CLASS[sla.tier] ?? '';
 }
 
 const FILTROS_GRUPO = [
@@ -217,7 +235,7 @@ export default function MeusPedidos() {
                   return (
                     <div
                       key={pedido.codigo_pedido_omie}
-                      className={styles.orderCard}
+                      className={`${styles.orderCard} ${corCardSla(pedido)}`}
                       style={{ '--stripe': corStripe(pedido) } as React.CSSProperties}
                     >
                       <div className={styles.orderTop}>
