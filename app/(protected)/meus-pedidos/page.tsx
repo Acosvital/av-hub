@@ -114,6 +114,7 @@ export default function MeusPedidos() {
     Record<number, StatusHistoricoResponse>
   >({});
   const [carregandoHistorico, setCarregandoHistorico] = useState<number | null>(null);
+  const [resumoMes, setResumoMes] = useState({ total: 0, atrasados: 0, faturados: 0 });
   const { completeDate } = useDashboardDate();
 
   useEffect(() => {
@@ -187,6 +188,32 @@ export default function MeusPedidos() {
     carregar();
   }, [page, rowsPerPage, search, grupoFiltro, completeDate]);
 
+  // Resumo do mês (card acima do buscador) — sempre reflete o mês inteiro,
+  // independente de busca/filtro de status ativos na lista abaixo. Por isso
+  // é uma chamada à parte (sem numero_pedido/grupo), não reaproveita `rows`
+  // (que é só a página atual, até 25 itens).
+  useEffect(() => {
+    async function carregarResumo() {
+      try {
+        const resposta = await getMeusPedidos({
+          page: 1,
+          limit: 1000,
+          data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
+          data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
+        });
+        const pedidos = resposta.data ?? [];
+        const atrasados = pedidos.filter(
+          (p) => calcularSlaPedido(p.data_previsao, p.faturado)?.tier === 'atrasado'
+        ).length;
+        const faturados = pedidos.filter((p) => p.faturado).length;
+        setResumoMes({ total: resposta.total ?? pedidos.length, atrasados, faturados });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    carregarResumo();
+  }, [completeDate]);
+
   return (
     <div className={styles.pageGlow}>
       <div className={styles.pageHeaderRow}>
@@ -202,6 +229,31 @@ export default function MeusPedidos() {
             </p>
           </div>
         ) : (
+          <>
+          <div className={styles.resumoMes}>
+            <div className={styles.resumoItem}>
+              <span className={styles.resumoValor}>{resumoMes.total}</span>
+              <span className={styles.resumoLabel}>
+                pedido{resumoMes.total === 1 ? '' : 's'} no mês
+              </span>
+            </div>
+            <div className={styles.resumoItem}>
+              <span className={`${styles.resumoValor} ${styles.resumoValorOk}`}>
+                {resumoMes.faturados}
+              </span>
+              <span className={styles.resumoLabel}>
+                faturado{resumoMes.faturados === 1 ? '' : 's'}
+              </span>
+            </div>
+            <div className={styles.resumoItem}>
+              <span className={`${styles.resumoValor} ${styles.resumoValorAlerta}`}>
+                {resumoMes.atrasados}
+              </span>
+              <span className={styles.resumoLabel}>
+                atrasado{resumoMes.atrasados === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
           <div className={styles.tableCard}>
             <SearchFilterBar
               searchValue={searchInput}
@@ -373,6 +425,7 @@ export default function MeusPedidos() {
               }}
             />
           </div>
+          </>
         )}
       </PageContent>
     </div>

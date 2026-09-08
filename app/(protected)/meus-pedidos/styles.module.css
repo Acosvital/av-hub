@@ -78,6 +78,56 @@
   color: var(--av-accent);
 }
 
+/* ============ RESUMO DO MÊS (acima do buscador) ============ */
+.resumoMes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.resumoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  padding: var(--space-4);
+}
+
+.resumoValor {
+  font-size: var(--fs-2xl);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.resumoValorAlerta {
+  color: var(--red);
+}
+
+.resumoValorOk {
+  color: var(--green);
+}
+
+.resumoLabel {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+@media screen and (max-width: 480px) {
+  .resumoMes {
+    grid-template-columns: 1fr;
+  }
+}
+
 .tableCard {
   display: flex;
   flex-direction: column;
