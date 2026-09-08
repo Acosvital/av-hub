@@ -274,17 +274,24 @@ export default function MeusPedidos() {
                           </span>
                         )}
                       </div>
-                      {!badge && (
-                        <div className={styles.orderMeta}>
+                      {(!badge || pedido.data_previsao) && (
+                      <div className={styles.orderMeta}>
+                        {!badge && (
                           <span>
                             Incluído em <b>{pedido.data_inclusao ? dateFormatter(pedido.data_inclusao) : '—'}</b>
                           </span>
-                          {pedido.categoria && (
-                            <span>
-                              Categoria <b>{pedido.categoria}</b>
-                            </span>
-                          )}
-                        </div>
+                        )}
+                        {pedido.data_previsao && (
+                          <span>
+                            Previsão de faturamento <b>{dateFormatter(pedido.data_previsao)}</b>
+                          </span>
+                        )}
+                        {!badge && pedido.categoria && (
+                          <span>
+                            Categoria <b>{pedido.categoria}</b>
+                          </span>
+                        )}
+                      </div>
                       )}
                       <button
                         type="button"

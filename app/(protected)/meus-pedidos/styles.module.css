@@ -123,6 +123,14 @@
   background-color: color-mix(in srgb, var(--card-bg-secondary) 60%, transparent);
   padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--space-4) + 5px);
   overflow: hidden;
+  /* `overflow: hidden` (só pra recortar a faixa colorida arredondada,
+     .orderCard::before) remove a proteção de altura mínima automática de um
+     item flex (a spec só garante `min-height:auto` = min-content quando
+     overflow é visible) — sem flex-shrink:0, .listWrapper espremia CADA
+     card abaixo da altura real do conteúdo pra "caber" todos os 13 pedidos,
+     cortando nome do cliente/badges/rodapé pelo mesmo overflow:hidden em
+     vez de deixar o scroll do .listWrapper cuidar disso. */
+  flex-shrink: 0;
 }
 
 .orderCard::before {
