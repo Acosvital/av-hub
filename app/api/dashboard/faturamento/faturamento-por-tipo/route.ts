@@ -3,7 +3,13 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(request: NextRequest) {
-  const denied = await requirePermission('dash-faturamento-por-tipo', 'pode_visualizar');
+  // Também usado pelo card-resumo "Faturamento por tipo" dentro da tela
+  // "Faturamento" — quem só tem acesso a essa tela (ex.: perfil Tvs) não
+  // pode ficar sem ver esse card por faltar a permissão da OUTRA tela.
+  const denied = await requirePermission(
+    ['dash-faturamento-por-tipo', 'dash-faturamento'],
+    'pode_visualizar'
+  );
   if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;
