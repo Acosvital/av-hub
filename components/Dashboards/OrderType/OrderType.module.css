@@ -1,37 +1,77 @@
+/* Vidro fosco — translúcido com blur em vez de caixa sólida, mais um filete
+   claro no topo (mesma leitura de reflexo/vidro do .quickView). Componente
+   usado só dentro de VendorDetailsModal, sem risco de afetar outra tela.
+   Empilhado (não grid 2 colunas) — cada categoria ocupa a largura toda,
+   nome+contagem numa linha e o valor embaixo, com respiro de verdade em vez
+   de espremer dois tiles lado a lado (era isso que forçava valores longos
+   a quebrar no meio do número). */
 .orderTypeCard {
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  grid-column: span 1;
-  grid-row: span 1;
-  border: 1px solid var(--border-strong);
-  background-color: var(--card-bg);
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  /* Ordem importa: "backdrop-filter" antes de "-webkit-backdrop-filter" faz
+     o build descartar a propriedade inteira — ver nota em
+     VendorDetailsModal.module.css. */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  transition:
+    border-color var(--t-base),
+    background-color var(--t-base);
+}
+
+.orderTypeCard::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--foreground) 30%, transparent),
+    transparent
+  );
+}
+
+.typeTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.typeName {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .typeCount {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: var(--space-2);
-  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--w-regular);
+  color: var(--foreground-secondary);
+  white-space: nowrap;
 }
 
 .typeValue {
-  padding: var(--space-2);
-}
-
-.doubleCard {
-  grid-column: span 2;
-  grid-row: span 1;
+  font-size: var(--fs-md);
+  font-weight: var(--w-black);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
 }
 
 .activeCard {
   cursor: pointer;
-  border-color: var(--foreground);
-  background-color: var(--hover);
+  border-color: var(--av-accent);
+  background: color-mix(in srgb, var(--av-accent) 10%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--av-accent) 30%, transparent) inset;
 }
 
 .orderTypeCard:not(.activeCard) {
@@ -39,6 +79,6 @@
 }
 
 .orderTypeCard:not(.activeCard):hover {
-  border-color: var(--border-strong);
-  background-color: var(--hover);
+  border-color: color-mix(in srgb, var(--foreground) 22%, transparent);
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
 }

@@ -3,12 +3,19 @@ import styles from './Modal.module.css';
 import { IoMdClose } from 'react-icons/io';
 
 interface ModalProps {
-  type?: 'primary' | 'secondary';
+  // 'glass' = vidro fosco (fundo transparente, sem padding próprio, header
+  // também vira vidro) — variante opt-in, só quem passar type="glass" muda;
+  // todo o resto do app continua com o .modalCard sólido de sempre.
+  type?: 'primary' | 'secondary' | 'glass';
   title?: string;
   subtitle?: string;
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  // Classe extra pro .modalCard — usada pelo VendorDetailsModal pra aplicar
+  // a largura e o brilho radial (dourado/verde) específicos dele, sem
+  // acoplar essas cores ao Modal compartilhado.
+  cardClassName?: string;
 }
 
 const Modal = ({
@@ -18,6 +25,7 @@ const Modal = ({
   isOpen,
   onClose,
   children,
+  cardClassName,
   ...props
 }: ModalProps) => {
   const mouseDownTarget = useRef<EventTarget | null>(null);
@@ -35,7 +43,7 @@ const Modal = ({
   if (!isOpen) return null;
   return (
     <div
-      className={`${styles.modalContainer}`}
+      className={`${styles.modalContainer} ${type === 'glass' ? styles.glassContainer : ''}`}
       role="dialog"
       aria-modal="true"
       {...props}
@@ -47,7 +55,7 @@ const Modal = ({
       }}
     >
       <div
-        className={`${styles.modalCard} ${type === 'secondary' && styles.backgroundSecondary}`}
+        className={`${styles.modalCard} ${type === 'secondary' ? styles.backgroundSecondary : ''} ${type === 'glass' ? styles.glass : ''} ${cardClassName ?? ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.modalHeader}>

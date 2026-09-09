@@ -1,0 +1,244 @@
+/* Vidro fosco + listagem (em vez de card em grid) — troca a hierarquia de
+   "caixa com borda" por profundidade/desfoque, e o pedido vira uma linha
+   escaneável em vez de um cartão solto. `--accent` (cor da categoria/status,
+   igual ao Order.tsx) tinge a faixa lateral e o hover. */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1.6fr) minmax(0, 1.3fr) 132px;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  /* .allOrders é flex-column com muitas linhas (pode passar de 20 pedidos) —
+     sem isso, o item flex encolhe pra caber no espaço disponível em vez de
+     empurrar o container a rolar, porque overflow:hidden abaixo zera o
+     min-height automático do item (regra do spec de flexbox), e a linha
+     colapsa até sobrar só o padding, cortando quase todo o conteúdo. */
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  /* Ordem importa: "backdrop-filter" antes de "-webkit-backdrop-filter" faz
+     o build (Turbopack/lightningcss) descartar a propriedade inteira
+     silenciosamente — confirmado ao vivo. Webkit primeiro sobrevive. */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  font-family: var(--font-sans);
+  transition: background-color var(--t-base), border-color var(--t-base);
+}
+
+.row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.row::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--foreground) 30%, transparent),
+    transparent
+  );
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+}
+
+/* grid-column explícito em cada célula (não posicionamento implícito) —
+   .slaCol só é renderizada quando há SLA calculado; sem isso, os itens
+   seguintes deslizariam pra esquerda e ocupariam a coluna errada. */
+.rowTop {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.num {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+}
+
+.date {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.client {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* Sem SLA calculado (backend ainda não expõe previsao_faturamento — ver
+   docs/ENVIAR - contrato-sla-detalhe-vendedor.md), o cliente ocupa também
+   o espaço que seria da coluna de previsão, em vez de deixar vão vazio. */
+.noSla .client {
+  grid-column: 2 / span 2;
+}
+
+.clientLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+  margin-bottom: 2px;
+}
+
+.client h4 {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slaCol {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.previsaoLabel {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+}
+
+.slaData {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Data e texto de urgência em linhas próprias (em vez de "data · texto" numa
+   linha só): combinados passavam de 30 caracteres, e a coluna aperta demais
+   quando os chips de categoria/situação em .tags são longos (ex.: "SEM
+   CLASSIFICAÇÃO") — com nowrap+ellipsis isso cortava o texto no meio. */
+.slaTexto {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+.chip {
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Categoria/situação agora moram dentro de .valueCol, embaixo do valor, em
+   vez de coluna própria — a largura "auto" da coluna antiga crescia demais
+   com chips longos (ex.: "SEM CLASSIFICAÇÃO") e espremia a coluna de SLA. */
+.valueCol {
+  grid-column: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.valueLabel {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+}
+
+.value {
+  font-size: var(--fs-md);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ============ Destaque de SLA na linha inteira — mesma regra de
+   Meus Pedidos (utils/slaPedido.ts + CARD_SLA_CLASS) ============ */
+.rowVaiVencer {
+  border-color: var(--red);
+  background-color: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.rowAtrasado {
+  border-width: 2px;
+  border-color: var(--red);
+  background-color: color-mix(in srgb, #7f1d1d 30%, transparent);
+}
+
+.rowVenceHoje {
+  border-width: 2px;
+  border-color: var(--red);
+  animation: rowPulseVenceHoje 1s ease-in-out infinite;
+}
+
+@keyframes rowPulseVenceHoje {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--red) 45%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--red) 20%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowVenceHoje {
+    animation: none;
+    background-color: color-mix(in srgb, var(--red) 35%, transparent);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .tags {
+    justify-content: flex-start;
+  }
+
+  .valueCol {
+    align-items: flex-start;
+  }
+}

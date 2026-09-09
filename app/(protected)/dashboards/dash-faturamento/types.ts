@@ -118,6 +118,11 @@ export interface DetalheVendedorFaturamentoPedidoProps {
   tipo_contrato: string;
   classificacao: string;
   situacao: string;
+  // Ainda não existem em /detalhe-vendedor (ver docs/ENVIAR - contrato-sla-
+  // detalhe-vendedor.md) — opcionais até o backend expor. Enquanto vierem
+  // undefined, o selo de SLA simplesmente não aparece (ver OrderRow).
+  previsao_faturamento?: string | null;
+  faturado?: boolean;
 }
 
 export interface ResumoMensalFaturamentoProps {

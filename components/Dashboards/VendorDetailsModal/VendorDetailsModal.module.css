@@ -1,16 +1,51 @@
-/* Largura própria em vez de deixar o .modalCard (width: fit-content) tentar
-   adivinhar — é isso que dá uma base estável pro grid de pedidos calcular
-   quantas colunas cabem, em vez de crescer até caber e estourar a tela.
-   Margem de 80vw (em vez de 86vw) sobra pro padding do .modalCard e pra
-   scrollbar vertical dele, senão o .modalCard fica 2-3px mais estreito do
-   que esse width exige e aparece uma scrollbar horizontal fantasma. */
-.modalContent {
-  display: flex;
-  flex-direction: row;
+/* O brilho e a largura moram no .modalCard do Modal compartilhado (via
+   cardClassName + type="glass", ver Modal.module.css) — ele é a superfície
+   de vidro única, com bordas arredondadas e overflow:hidden. Antes esse
+   brilho vivia aqui dentro do .modalContent, um nível abaixo do card sólido
+   do Modal, e por isso o cabeçalho ("Detalhes do vendedor" + X) ficava de
+   fora do vidro — exatamente a "caixa dentro da caixa" reportada. */
+/* Mesma fórmula de brilho de fundo usada em praticamente toda página do
+   app (meus-pedidos, meu-dashboard, rh/funcionarios, cadastros/* etc.):
+   --av-accent (laranja da marca) + --blue, via --glow-accent-op/--glow-blue-op
+   — antes esse modal tinha um dourado/verde inventado só pra ele, fora do
+   padrão do resto do sistema. */
+.vendorModalCard {
   width: min(1040px, 80vw);
   max-height: 70dvh;
-  height: 100%;
-  padding: 0 var(--space-4);
+  /* Teste: mesmo .pageGlow::before usado nas telas de cadastro (ex.:
+     cadastros/auxiliares/unidades/styles.module.css) — valores idênticos
+     (tamanho, posição, --glow-accent-op/--glow-blue-op), sem recalibrar pra
+     esse modal, pra comparar lado a lado com o "padrão do sistema" de
+     verdade. */
+  /* background-image (não o shorthand "background") — same motivo do
+     .modalCard.glass em Modal.module.css: shorthand reseta o que o outro
+     lado não escreve, e os dois miram o MESMO elemento (via cardClassName). */
+  background-image:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+/* Puramente estrutural agora — largura própria pra dar base estável pro
+   grid de pedidos calcular colunas, sem duplicar a superfície de vidro
+   (isso já é o .vendorModalCard/.modalCard.glass). */
+.modalContent {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  /* flex:1 (não height:100%) porque o pai (.modalCard) tem height:fit-content
+     — percentual não resolve contra isso. min-height:0 é o que deixa
+     .allOrders realmente rolar em vez de esticar o card inteiro. */
+  flex: 1;
+  min-height: 0;
 }
 
 .loading {
@@ -52,21 +87,19 @@
   max-width: 320px;
 }
 
+/* Painel lateral FLUSH — não é mais uma caixa própria (sem borda/blur/
+   raio inteiros): a superfície de vidro é só a do .modalCard.glass agora,
+   isso aqui é só uma região dentro dela, separada por um fio de borda à
+   direita (mesma leitura do .side do artifact). */
 .vendorDetails {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  background-color: var(--card-bg-tertiary);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  gap: var(--space-2);
-}
-
-.quickView {
-  background-color: var(--card-bg-secondary);
-  padding: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  width: 280px;
+  border-right: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  padding: var(--space-4) var(--space-4) var(--space-5);
+  gap: var(--space-5);
+  overflow-y: auto;
 }
 
 .quickViewTitle {
@@ -77,29 +110,91 @@
   font-family: var(--font-sans);
 }
 
+/* Anel decorativo em volta do avatar — só identidade visual ("vidro
+   fosco"), não representa nenhuma métrica (não há % de meta confiável
+   disponível pra esse endpoint, ver ResumoVendedor). --av-accent (laranja
+   da marca, não --gold) pra ficar no mesmo padrão de cor do resto do
+   sistema (logo, aba ativa do menu, scrollbar etc.). */
+.avatarRing {
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--av-accent),
+    color-mix(in srgb, var(--av-accent) 40%, transparent),
+    var(--av-accent)
+  );
+  box-shadow: 0 0 16px -3px color-mix(in srgb, var(--av-accent) 70%, transparent);
+}
+
+/* "Valor Total" (número com 7+ dígitos em alguns vendedores) e "Total
+   Pedidos" ficavam lado a lado sem min-width:0/flex — o valor comprido não
+   encolhia nem quebrava linha, só invadia visualmente o bloco vizinho.
+   flex-wrap + metricBlock com min-width:0 deixa cada um quebrar por conta
+   própria em vez de colidir. */
 .quickViewValues {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   margin-top: var(--space-4);
   justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
 }
 
+.metricBlock {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Rótulo pequeno em caixa alta — mesmo padrão do resto do modal
+   (.previsaoLabel/.valueLabel em OrderRow, .clientLabel etc.), em vez do
+   <h4> "cru" de antes que competia em peso visual com o valor abaixo. */
+.metricLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+  margin-bottom: 2px;
+}
+
+/* Valor Total é a métrica principal do painel — maior e mais pesado. Total
+   Pedidos é secundário — menor, pra não competir com o valor em destaque. */
+.metricValuePrimary {
+  font-size: var(--fs-xl);
+  font-weight: var(--w-black);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
+}
+
+.metricValueSecondary {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.totalValueHighlight {
+  color: var(--av-accent);
+}
+
+/* Empilhado (não grid 2 colunas) — ver nota em OrderType.module.css: cada
+   tile ocupa a largura toda, com respiro de verdade em vez de espremer
+   dois lado a lado (o que forçava valores longos a quebrar no meio). */
 .ordersTypesCount {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-/* auto-fill/minmax em vez de 3 colunas fixas — o grid se ajusta à largura
-   real do .modalContent (ver acima) em vez de forçar o modal a crescer até
-   caber 3 cards de 280px, o que estourava a tela em rolagem horizontal. */
+/* Listagem (linhas) em vez de grade de cartões — cada pedido escaneia
+   como uma linha (número, cliente, previsão/SLA, categoria, valor), em vez
+   de competir por espaço num grid de cartões. */
 .allOrders {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: min-content;
-  gap: var(--space-3);
-  padding: 0 var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
   flex: 1;
   min-width: 0;
   overflow-y: auto;
@@ -108,16 +203,16 @@
 @media screen and (max-width: 768px) {
   .modalContent {
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     width: 100%;
-    gap: var(--space-4);
-    max-height: 100%;
+  }
+
+  .vendorDetails {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   }
 
   .allOrders {
-    display: flex;
-    flex-direction: column;
     align-items: center;
   }
 }

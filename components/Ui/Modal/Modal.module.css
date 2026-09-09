@@ -11,6 +11,14 @@
   animation: fadeIn var(--t-fast);
 }
 
+/* Só pro type="glass" — o resto do app continua com o scrim de sempre.
+   0.8 de opacidade deixava a página por trás quase preta, e é justamente
+   essa página que dá cor pro blur/glow do card de vidro — com o fundo tão
+   escuro, o "soft glass" ficava sem nada colorido pra desfocar. */
+.glassContainer {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
 .hidden {
   display: none;
 }
@@ -37,6 +45,34 @@
 }
 .backgroundSecondary {
   background-color: var(--card-bg-secondary);
+}
+
+/* Vidro fosco — opt-in (type="glass"), só quem pedir muda. Zera o padding
+   sólido do card (header e conteúdo passam a controlar o próprio respiro,
+   como no artifact aprovado) pra não sobrar uma "caixa dentro da caixa":
+   antes o conteúdo em vidro ficava colado dentro deste card opaco de
+   sempre, em vez de o card inteiro SER a superfície de vidro. */
+.modalCard.glass {
+  /* background-color (não o shorthand "background") — o shorthand reseta
+     background-image pra "none" mesmo sem mencionar imagem nenhuma, e isso
+     apagava silenciosamente o gradiente de brilho que cardClassName
+     (.vendorModalCard) tenta aplicar no mesmo elemento. Confirmado ao vivo:
+     getComputedStyle(modalCard).backgroundImage voltava "none". */
+  background-color: color-mix(in srgb, var(--foreground) 2%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+.glass .modalHeader {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  background: transparent;
 }
 
 .modalHeader {

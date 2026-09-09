@@ -6,31 +6,25 @@ interface OrderTypeProps {
   orderType: keyof typeof orderTypes;
   count: number;
   value: number;
-  cardType?: 'single' | 'double';
   isActive?: boolean;
   onClick?: () => void;
 }
 
-const OrderType = ({
-  count,
-  orderType,
-  value,
-  cardType = 'single',
-  isActive,
-  onClick,
-}: OrderTypeProps) => {
+const OrderType = ({ count, orderType, value, isActive, onClick }: OrderTypeProps) => {
   return (
     <div
-      className={`${styles.orderTypeCard} ${cardType === 'double' ? styles.doubleCard : ''} ${isActive ? styles.activeCard : ''}`}
+      className={`${styles.orderTypeCard} ${isActive ? styles.activeCard : ''}`}
       onClick={onClick}
     >
-      <div className={styles.typeCount}>
-        <h4 style={{ color: orderTypes[orderType].default }}>{orderType}</h4>
-        <h4>{count}</h4>
+      <div className={styles.typeTop}>
+        <h4 className={styles.typeName} style={{ color: orderTypes[orderType].default }}>
+          {orderType}
+        </h4>
+        <span className={styles.typeCount}>
+          {count} {count === 1 ? 'pedido' : 'pedidos'}
+        </span>
       </div>
-      <div className={styles.typeValue}>
-        <h3>{toBRL(value)}</h3>
-      </div>
+      <h3 className={styles.typeValue}>{toBRL(value)}</h3>
     </div>
   );
 };

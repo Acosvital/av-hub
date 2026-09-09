@@ -5,7 +5,7 @@ import Modal from '@/components/Ui/Modal/Modal';
 import { ApiFetchError } from '@/lib/api/fetchHelper';
 import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import OrderType from '@/components/Dashboards/OrderType/OrderType';
-import Order from '@/components/Dashboards/Order/Order';
+import OrderRow from '@/components/Dashboards/VendorDetailsModal/OrderRow';
 import toBRL from '@/utils/toBRL';
 import { getDetalheVendedorVendas } from '@/services/dashboards/dashboardVendas';
 import { getDetalheVendedorFaturamento } from '@/services/dashboards/dashboardFaturamento';
@@ -91,7 +91,13 @@ const VendorDetailsModal = ({
   }, [isOpen, vendorId, filialId, dashboard, mes, ano]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do vendedor">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Detalhes do vendedor"
+      type="glass"
+      cardClassName={styles.vendorModalCard}
+    >
       {loading ? (
         <div className={styles.loading}>
           <CircularProgress size={50} />
@@ -107,22 +113,26 @@ const VendorDetailsModal = ({
             <div className={styles.vendorDetails}>
               <div className={styles.quickView}>
                 <div className={styles.quickViewTitle}>
-                  <Avatar name={details.name} size={50} />
+                  <div className={styles.avatarRing}>
+                    <Avatar name={details.name} size={50} />
+                  </div>
                   <h3>{details.name}</h3>
                 </div>
                 <div className={styles.quickViewValues}>
-                  <div>
-                    <h4>Valor Total</h4>
-                    <h3>{toBRL(details.totalValue)}</h3>
+                  <div className={styles.metricBlock}>
+                    <h4 className={styles.metricLabel}>Valor Total</h4>
+                    <h3 className={`${styles.metricValuePrimary} ${styles.totalValueHighlight}`}>
+                      {toBRL(details.totalValue)}
+                    </h3>
                   </div>
-                  <div>
-                    <h4>Total Pedidos</h4>
-                    <h3>{details.totalOrders}</h3>
+                  <div className={styles.metricBlock}>
+                    <h4 className={styles.metricLabel}>Total Pedidos</h4>
+                    <h3 className={styles.metricValueSecondary}>{details.totalOrders}</h3>
                   </div>
                 </div>
               </div>
               <div className={styles.ordersTypesCount}>
-                {details.orderTypes.map(({ orderType, count, value, cardType }) => {
+                {details.orderTypes.map(({ orderType, count, value }) => {
                   if (
                     dashboard === 'vendas' &&
                     ['CANCELADOS', 'DEVOLVIDOS', 'RECUSADOS', 'REFATURAMENTO'].some(
@@ -136,7 +146,6 @@ const VendorDetailsModal = ({
                       orderType={orderType}
                       count={count}
                       value={value}
-                      cardType={cardType}
                       isActive={selectedType === orderType}
                       onClick={() => handleTypeClick(orderType)}
                     />
@@ -146,7 +155,7 @@ const VendorDetailsModal = ({
             </div>
             <div className={styles.allOrders}>
               {filteredOrders.map((order, i) => (
-                <Order key={i} {...order} />
+                <OrderRow key={i} {...order} />
               ))}
             </div>
           </div>

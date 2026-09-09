@@ -11,13 +11,17 @@ export interface VendorOrder {
   value: number;
   category: OrderCategory;
   status?: OrderStatus;
+  // Ainda não existe em /detalhe-vendedor (ver docs/ENVIAR - contrato-sla-
+  // detalhe-vendedor.md) — undefined até o backend expor, e o selo de SLA
+  // (OrderRow) simplesmente não aparece nesse caso.
+  previsaoFaturamento?: string | null;
+  faturado?: boolean;
 }
 
 export interface OrderTypeSummary {
   orderType: OrderTypeKey;
   count: number;
   value: number;
-  cardType?: 'double';
 }
 
 export interface VendorDetails {
@@ -59,6 +63,8 @@ export interface PedidoVendedor {
   valor_nf: string | null;
   tipo_contrato: string;
   classificacao: string;
+  previsao_faturamento?: string | null;
+  faturado?: boolean;
 }
 
 export const ORDER_CATEGORIES: OrderCategory[] = ['SPOT', 'CONTRATO', 'SEM CLASSIFICAÇÃO'];
@@ -105,7 +111,6 @@ export function mapVendorDetails(
         orderType: 'SEM CLASSIFICAÇÃO',
         count: Number(vendedor.qtd_sem_classificacao) || 0,
         value: Number(vendedor.valor_sem_classificacao) || 0,
-        cardType: 'double',
       },
       {
         orderType: 'CANCELADOS',
@@ -140,6 +145,11 @@ export function mapVendorDetails(
           dashboard === 'vendas' ? Number(pedido.valor_pedido) || 0 : Number(pedido.valor_nf) || 0,
         category: resolveCategory(pedido.tipo_contrato),
         status: dashboard === 'faturamento' ? resolveStatus(pedido.classificacao) : undefined,
+        // Selo de previsão/SLA é só de Vendas (decisão de produto, não
+        // limitação de backend) — mesmo que Faturamento passe a expor esses
+        // campos um dia, não deve mostrar o selo.
+        previsaoFaturamento: dashboard === 'vendas' ? pedido.previsao_faturamento : undefined,
+        faturado: dashboard === 'vendas' ? pedido.faturado : undefined,
       };
     }),
   };
