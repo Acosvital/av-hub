@@ -6,10 +6,9 @@ import { encontrarPathDoItem } from '@/utils/menuTree';
 import styles from './styles.module.css';
 
 // FALLBACK TEMPORÁRIO — remover quando todo perfil relevante tiver
-// tela_inicial_id configurado no cadastro de Perfis (depende do backend
-// expor esse campo; ver InfoPerfisDoUsuario em
-// app/api/auth/[...nextauth]/route.ts). Enquanto isso, perfis sem essa
-// configuração caem aqui, comparando por nome.
+// tela_inicial_id configurado no cadastro de Perfis (o backend já expõe o
+// campo; ver InfoPerfisDoUsuario em app/api/auth/[...nextauth]/route.ts).
+// Enquanto isso, perfis sem essa configuração caem aqui, comparando por nome.
 const PERFIS_REDIRECIONAM_RH_FALLBACK = ['RH - Joanes', 'RH - Analistas'];
 const ROTA_SOLICITACOES_DE_VAGAS_FALLBACK = '/rh/solicitacoes-de-vagas';
 const PERFIS_REDIRECIONAM_VENDEDOR_FALLBACK = ['Vendedor'];

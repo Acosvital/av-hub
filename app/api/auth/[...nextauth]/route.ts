@@ -43,12 +43,33 @@ interface VinculoPerfilBackend {
 interface PerfilBackend {
   id: string;
   nome: string;
-  // Tela inicial configurada pelo admin no cadastro de Perfis (id de uma
-  // tela, ex: 'meu-dashboard') — ainda não existe no backend. Enquanto não
-  // existir, vem undefined e o app cai no fallback por nome de perfil (ver
-  // app/(protected)/page.tsx). Contrato pra quando for implementado:
-  // `perfis.tela_inicial_id: string | null`, FK pra `telas.id`.
+  // Tela inicial configurada pelo admin no cadastro de Perfis — é o UUID de
+  // `telas.id` (FK), NÃO o slug ('meu-dashboard') que a árvore do menu usa
+  // como `item.id` (ver MenuItem). Por isso não dá pra comparar direto em
+  // encontrarPathDoItem: precisa resolver esse UUID pro slug da tela primeiro
+  // (ver fetchSlugDaTela abaixo).
   tela_inicial_id?: string | null;
+}
+
+interface TelaBackend {
+  id: string;
+  slug: string;
+}
+
+// Resolve o UUID de tela_inicial_id pro slug correspondente (o que a árvore
+// do menu de fato usa como id de cada item). Sem isso, telaInicialId nunca
+// bate com nenhum item do menu e o redirecionamento falha silenciosamente.
+async function fetchSlugDaTela(telaId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${process.env.API_URL}/telas/${telaId}`, {
+      headers: { 'x-api-key': process.env.API_KEY || '' },
+    });
+    if (!res.ok) return null;
+    const tela: TelaBackend = await res.json();
+    return tela.slug ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export interface InfoPerfisDoUsuario {
@@ -94,10 +115,15 @@ async function fetchInfoPerfisDoUsuario(id_usuario: string): Promise<InfoPerfisD
     // se isso virar um problema real (usuário com 2 perfis conflitantes),
     // a resposta certa é o backend expor uma ordem/prioridade, não inventar
     // uma regra aqui.
-    const telaInicialId =
+    const telaInicialUuid =
       lista
         .map((v) => perfisById.get(v.id_perfil)?.tela_inicial_id)
         .find((id): id is string => Boolean(id)) ?? null;
+
+    // encontrarPathDoItem compara por slug (item.id da árvore do menu), não
+    // pelo UUID cru que o cadastro de Perfis salva — resolve aqui pra não
+    // quebrar silenciosamente o redirecionamento (ver PerfilBackend acima).
+    const telaInicialId = telaInicialUuid ? await fetchSlugDaTela(telaInicialUuid) : null;
 
     return { nomes, telaInicialId };
   } catch {
