@@ -104,93 +104,13 @@
   background-color: color-mix(in srgb, var(--av-accent) 16%, transparent);
 }
 
-/* ============ PARCIAIS (sequenciais) dentro do card do pedido ============ */
-.parciaisList {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.parcialRow {
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
-  border-left-width: 3px;
-  background-color: color-mix(in srgb, var(--foreground) 4%, transparent);
-  padding: var(--space-2) var(--space-3);
-}
-
-.parcialHead {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.parcialLabel {
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
-  color: var(--foreground-secondary);
-  flex-shrink: 0;
-}
-
-.parcialBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.parcialBadge {
-  font-size: var(--fs-xs);
-  font-weight: var(--w-bold);
-}
-
-.parcialValor {
-  margin-left: auto;
-  font-size: var(--fs-sm);
-  font-weight: var(--w-bold);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.parcialFacts {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-1);
-  font-size: var(--fs-xs);
-  color: var(--foreground-secondary);
-}
-
-.parcialFacts b {
-  color: var(--foreground);
-  font-weight: var(--w-semibold);
-}
-
-.parcialNota {
-  color: var(--green);
-  font-weight: var(--w-bold);
-}
-
-/* ============ Correção de layout: lista de pedidos cortada no desktop ============
-   .tableCard/.listWrapper (meus-pedidos/styles.module.css) foram feitos pra
-   uma "tela cheia com scroll interno": tableCard é `flex:1; min-height:0`
-   dividindo uma coluna de altura travada na viewport (`main` tem
-   overflow-y:auto), e listWrapper por baixo tem seu PRÓPRIO scroll interno
-   — funciona bem em Meus Pedidos porque o resumo do mês ali é só 1 fileira
-   de 3 cards.
-   Esta página ganhou 2 blocos novos ANTES da lista (resumo do mês + o
-   waterfall de composição das vendas), bem mais altos — e como só
-   .tableCard tem min-height:0, ele é o único item que pode encolher: em
-   telas de notebook (~800-900px de altura), o espaço que sobra pra ele já é
-   pequeno, e um scroll interno de ~250px só mostrava 1-2 pedidos por vez.
-   A correção troca o modelo aqui: em vez de dividir uma altura fixa com
-   scroll interno, a lista cresce com o conteúdo (auto) e quem rola é a
-   página inteira (o `main` já tem overflow-y:auto) — mesmo padrão de
-   Meu Dashboard, que também empilha vários blocos altos. */
+/* ============ Correção de layout: lista de notas cortada no desktop ============
+   Mesmo ajuste feito em Pedidos da Equipe: .tableCard/.listWrapper (CSS
+   compartilhado de Minhas Notas) foram feitos pra uma "tela cheia com
+   scroll interno", o que não sobra espaço suficiente quando esta página
+   ganha um bloco alto (o resumo/waterfall) ANTES da lista. Aqui a lista
+   cresce com o conteúdo (auto) e quem rola é a página inteira.
+*/
 .tableCardComResumo {
   flex: none;
   min-height: 0;
@@ -200,4 +120,53 @@
   flex: none;
   overflow: visible;
   max-height: none;
+}
+
+/* ============ Ver histórico (do pedido vinculado à NF) ============
+   Minhas Notas (Portal do Vendedor) não tem essa ação — copiado de
+   Pedidos da Equipe (meus-pedidos/styles.module.css), mesmo visual. */
+.historicoBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin-left: auto;
+  color: var(--av-accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  font-family: var(--font-sans);
+}
+
+.historicoBtn:hover {
+  text-decoration: underline;
+}
+
+.historicoPainel {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed color-mix(in srgb, var(--foreground) 15%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.historicoItem {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
+}
+
+.historicoData {
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.historicoVazio {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
 }

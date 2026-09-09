@@ -7,6 +7,7 @@
   gap: var(--space-4);
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--border-strong);
   background: var(--card-bg-secondary);
   font-family: var(--font-sans);
   transition: background var(--t-slow);
@@ -14,6 +15,18 @@
 
 .vendorCard:hover {
   cursor: pointer;
+}
+
+.borderGold {
+  border-color: var(--gold);
+}
+
+.borderSilver {
+  border-color: var(--silver);
+}
+
+.borderBronze {
+  border-color: var(--bronze);
 }
 
 .progressFill {

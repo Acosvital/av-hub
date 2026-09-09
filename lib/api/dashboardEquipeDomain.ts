@@ -376,6 +376,70 @@ export async function resumoPlanilhaEmpresa(
   return consolidado;
 }
 
+interface LinhaResumoFaturamentoBrutoProps {
+  codigo_empresa: string;
+  ordem: number;
+  secao: string;
+  tipo: string;
+  rotulo: string;
+  grupo: string | null;
+  valor: string;
+  qtd_nfs: string | null;
+  pct_total: string;
+}
+
+export interface LinhaResumoFaturamentoProps {
+  ordem: number;
+  secao: string;
+  tipo: string;
+  rotulo: string;
+  grupo: string | null;
+  valor: number;
+  qtdNfs: number | null;
+  pctTotal: number;
+}
+
+// Contrapartida de resumoPlanilhaEmpresa, mesmo raciocínio de consolidação
+// (a API devolve 10 linhas POR EMPRESA sem codigo_empresa, não um total já
+// somado) — só troca /vendas_planilha_resumo por /faturamento_planilha_resumo
+// e qtd_pedidos por qtd_nfs.
+export async function resumoFaturamentoPlanilhaEmpresa(
+  mes: string,
+  ano: string,
+  headers: Record<string, string>
+): Promise<LinhaResumoFaturamentoProps[]> {
+  const resposta = await apiFetch<{ data: LinhaResumoFaturamentoBrutoProps[] }>(
+    `${process.env.API_URL}/faturamento_planilha_resumo?mes=${mes}&ano=${ano}`,
+    'Erro ao buscar resumo de faturamento da empresa',
+    { headers, cache: 'no-store' }
+  ).catch(() => null);
+
+  const linhas = resposta?.data ?? [];
+  const porOrdem = new Map<number, LinhaResumoFaturamentoProps>();
+  for (const linha of linhas) {
+    const atual = porOrdem.get(linha.ordem) ?? {
+      ordem: linha.ordem,
+      secao: linha.secao,
+      tipo: linha.tipo,
+      rotulo: linha.rotulo,
+      grupo: linha.grupo,
+      valor: 0,
+      qtdNfs: linha.qtd_nfs === null ? null : 0,
+      pctTotal: 0,
+    };
+    atual.valor += Number(linha.valor) || 0;
+    if (atual.qtdNfs !== null) atual.qtdNfs += Number(linha.qtd_nfs) || 0;
+    porOrdem.set(linha.ordem, atual);
+  }
+
+  const consolidado = [...porOrdem.values()].sort((a, b) => a.ordem - b.ordem);
+  const bruto = consolidado.find((l) => l.tipo === 'bruto')?.valor || 0;
+  for (const linha of consolidado) {
+    linha.pctTotal = bruto > 0 ? Math.round((linha.valor / bruto) * 1000) / 10 : 0;
+  }
+  return consolidado;
+}
+
 export interface PedidoClienteEmpresaProps {
   codigo_pedido_omie: string;
   numero_pedido: string | null;

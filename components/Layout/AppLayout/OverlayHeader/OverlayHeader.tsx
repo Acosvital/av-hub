@@ -30,6 +30,7 @@ import { getNotasFiscaisSaida } from '@/services/vendas/notasFiscaisSaida';
 import { getVendedores, VendedorProps } from '@/services/vendas/vendedores';
 import { dashboardDoResultado, labelDoResultado } from '@/utils/resultadoBuscaDashboard';
 import { notify } from '@/lib/toast/toast';
+import { dateCalendarSx, dateCalendarSlotProps } from '@/lib/ui/dateCalendarSx';
 import toBRL from '@/utils/toBRL';
 
 const SEARCHABLE_DASHBOARDS = [
@@ -416,7 +417,7 @@ const OverlayHeader = () => {
                     <DateCalendar
                       openTo="month"
                       views={['year', 'month']}
-                      minDate={dayjs('2026-01-01')}
+                      minDate={dayjs('2026-08-01')}
                       maxDate={dayjs()}
                       value={completeDate}
                       onChange={(value) => {
@@ -425,38 +426,8 @@ const OverlayHeader = () => {
                         setIsOpenDatePicker(false);
                       }}
                       yearsOrder="desc"
-                      sx={{
-                        backgroundColor: 'var(--card-bg)',
-                        border: '1px solid var(--border)',
-                        maxHeight: '280px',
-                        color: 'var(--foreground)',
-                        '& .MuiPickersCalendarHeader-label': {
-                          color: 'var(--foreground)',
-                          fontFamily: 'var(--font-sans)',
-                        },
-                        '& .MuiPickersArrowSwitcher-button': {
-                          color: 'var(--foreground)',
-                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                        },
-                        '& .MuiPickersYear-yearButton': {
-                          color: 'var(--foreground)',
-                          fontFamily: 'var(--font-sans)',
-                          '&.Mui-selected': {
-                            backgroundColor: 'var(--primary-button-bg)',
-                            color: 'var(--primary-button-fg)',
-                          },
-                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                        },
-                        '& .MuiPickersMonth-monthButton': {
-                          color: 'var(--foreground)',
-                          fontFamily: 'var(--font-sans)',
-                          '&.Mui-selected': {
-                            backgroundColor: 'var(--primary-button-bg)',
-                            color: 'var(--primary-button-fg)',
-                          },
-                          '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                        },
-                      }}
+                      slotProps={dateCalendarSlotProps}
+                      sx={dateCalendarSx}
                     />
                   </LocalizationProvider>
                 </div>

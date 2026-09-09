@@ -30,11 +30,19 @@
 }
 
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  /* Opacidade alta de propósito — este popover flutua sobre o conteúdo da
+     página (que pode ter cards/gráficos coloridos atrás) e o "vidro" baixo
+     (55-60%, usado nos cards de página normais) fica ilegível num popover
+     flutuante. Ainda mantém o blur como acabamento, mas a base já é opaca
+     o bastante sozinha. */
+  background: color-mix(in srgb, var(--card-bg) 96%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  padding: 4px 4px 0;
 }
 
 /* Em telas estreitas, `right: 0` faz o menu crescer pra esquerda a partir do

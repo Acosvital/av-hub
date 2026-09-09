@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { FaHistory, FaFileExport } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
@@ -102,6 +102,19 @@ type FlagSituacao =
 
 type FiltroSla = 'atrasado' | 'vence-hoje' | 'vai-vencer' | 'em-dia';
 
+// Clique numa linha de dedução do resumo (Cancelado/Devolvido/Devolvido
+// parcialmente/Recusado) filtra a lista abaixo pelos mesmos pedidos — só dá
+// pra mapear os grupos que batem 1:1 com uma flag booleana aceita por
+// /vendas_planilha. G4 (Aços Vital Chile), G5 (Aços Vital Vendedor) e G6
+// (Refaturamento) não têm flag equivalente na API hoje, por isso ficam de
+// fora e continuam não-clicáveis.
+const GRUPO_PARA_FILTRO: Partial<Record<string, FlagSituacao>> = {
+  G1: 'cancelado',
+  G2: 'devolvido',
+  G2P: 'devolucao_parcial',
+  G3: 'denegado',
+};
+
 // Prazo (SLA) não é uma coluna da view — é calculado no frontend a partir de
 // data_previsao/faturado (ver utils/slaPedido.ts), então esse filtro não dá
 // pra mandar como query param pro backend como os outros: precisa buscar o
@@ -173,6 +186,15 @@ export default function PedidosEquipe() {
   const [resumoMes, setResumoMes] = useState({ total: 0, atrasados: 0, faturados: 0 });
   const [resumoPlanilha, setResumoPlanilha] = useState<LinhaResumoPlanilhaProps[]>([]);
   const { completeDate } = useDashboardDate();
+  const listaRef = useRef<HTMLDivElement>(null);
+
+  function selecionarFiltroPorGrupo(grupo: string | null) {
+    const flag = grupo ? GRUPO_PARA_FILTRO[grupo] : undefined;
+    if (!flag) return;
+    setSituacaoFiltro((atual) => (atual === flag ? '' : flag));
+    setPage(0);
+    listaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   async function alternarHistorico(codigoPedidoOmie: number) {
     if (historicoAberto === codigoPedidoOmie) {
@@ -388,35 +410,44 @@ export default function PedidosEquipe() {
             <div className={resumoStyles.resumoPlanilhaTitulo}>
               Composição das vendas do mês (Bruto → Deduções → Líquido)
             </div>
-            {resumoPlanilha.map((linha) => (
-              <div
-                key={linha.ordem}
-                className={`${resumoStyles.resumoPlanilhaLinha} ${
-                  linha.tipo === 'bruto'
-                    ? resumoStyles.resumoPlanilhaBruto
-                    : linha.tipo === 'deducao'
-                      ? resumoStyles.resumoPlanilhaDeducao
-                      : linha.tipo === 'total_deducoes'
-                        ? resumoStyles.resumoPlanilhaTotalDeducoes
-                        : linha.tipo === 'liquido'
-                          ? resumoStyles.resumoPlanilhaLiquido
-                          : ''
-                }`}
-              >
-                <span className={resumoStyles.resumoPlanilhaRotulo}>{linha.rotulo}</span>
-                <span className={resumoStyles.resumoPlanilhaValores}>
-                  {linha.qtdPedidos !== null && (
-                    <span className={resumoStyles.resumoPlanilhaQtd}>
-                      {linha.qtdPedidos} pedido{linha.qtdPedidos === 1 ? '' : 's'}
-                    </span>
-                  )}
-                  <span className={resumoStyles.resumoPlanilhaValor}>{toBRL(linha.valor)}</span>
-                </span>
-              </div>
-            ))}
+            {resumoPlanilha.map((linha) => {
+              const flag = linha.grupo ? GRUPO_PARA_FILTRO[linha.grupo] : undefined;
+              const clicavel = Boolean(flag);
+              const ativa = clicavel && situacaoFiltro === flag;
+              return (
+                <div
+                  key={linha.ordem}
+                  className={`${resumoStyles.resumoPlanilhaLinha} ${
+                    linha.tipo === 'bruto'
+                      ? resumoStyles.resumoPlanilhaBruto
+                      : linha.tipo === 'deducao'
+                        ? resumoStyles.resumoPlanilhaDeducao
+                        : linha.tipo === 'total_deducoes'
+                          ? resumoStyles.resumoPlanilhaTotalDeducoes
+                          : linha.tipo === 'liquido'
+                            ? resumoStyles.resumoPlanilhaLiquido
+                            : ''
+                  } ${clicavel ? resumoStyles.resumoPlanilhaClicavel : ''} ${
+                    ativa ? resumoStyles.resumoPlanilhaAtiva : ''
+                  }`}
+                  onClick={clicavel ? () => selecionarFiltroPorGrupo(linha.grupo) : undefined}
+                  title={clicavel ? 'Ver esses pedidos na lista abaixo' : undefined}
+                >
+                  <span className={resumoStyles.resumoPlanilhaRotulo}>{linha.rotulo}</span>
+                  <span className={resumoStyles.resumoPlanilhaValores}>
+                    {linha.qtdPedidos !== null && (
+                      <span className={resumoStyles.resumoPlanilhaQtd}>
+                        {linha.qtdPedidos} pedido{linha.qtdPedidos === 1 ? '' : 's'}
+                      </span>
+                    )}
+                    <span className={resumoStyles.resumoPlanilhaValor}>{toBRL(linha.valor)}</span>
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
-        <div className={`${styles.tableCard} ${resumoStyles.tableCardComResumo}`}>
+        <div ref={listaRef} className={`${styles.tableCard} ${resumoStyles.tableCardComResumo}`}>
           <SearchFilterBar
             searchValue={searchInput}
             onSearchChange={(value) => {

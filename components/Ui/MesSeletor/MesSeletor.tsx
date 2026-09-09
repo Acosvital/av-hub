@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { ptBR } from '@mui/x-date-pickers/locales';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import { dateCalendarSx, dateCalendarSlotProps } from '@/lib/ui/dateCalendarSx';
 import styles from './MesSeletor.module.css';
 
 // Seletor de mês/ano só pra este grupo de telas (Portal do Vendedor) — o
@@ -54,7 +55,7 @@ export default function MesSeletor() {
               <DateCalendar
                 openTo="month"
                 views={['year', 'month']}
-                minDate={dayjs('2026-01-01')}
+                minDate={dayjs('2026-08-01')}
                 maxDate={dayjs()}
                 value={completeDate}
                 onChange={(value) => {
@@ -63,38 +64,8 @@ export default function MesSeletor() {
                   setAberto(false);
                 }}
                 yearsOrder="desc"
-                sx={{
-                  width: '100%',
-                  maxWidth: 340,
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--foreground)',
-                  '& .MuiPickersCalendarHeader-label': {
-                    color: 'var(--foreground)',
-                    fontFamily: 'var(--font-sans)',
-                  },
-                  '& .MuiPickersArrowSwitcher-button': {
-                    color: 'var(--foreground)',
-                    '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                  },
-                  '& .MuiPickersYear-yearButton': {
-                    color: 'var(--foreground)',
-                    fontFamily: 'var(--font-sans)',
-                    '&.Mui-selected': {
-                      backgroundColor: 'var(--primary-button-bg)',
-                      color: 'var(--primary-button-fg)',
-                    },
-                    '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                  },
-                  '& .MuiPickersMonth-monthButton': {
-                    color: 'var(--foreground)',
-                    fontFamily: 'var(--font-sans)',
-                    '&.Mui-selected': {
-                      backgroundColor: 'var(--primary-button-bg)',
-                      color: 'var(--primary-button-fg)',
-                    },
-                    '&:hover': { backgroundColor: 'var(--surface-secondary)' },
-                  },
-                }}
+                slotProps={dateCalendarSlotProps}
+                sx={dateCalendarSx}
               />
             </LocalizationProvider>
           </div>

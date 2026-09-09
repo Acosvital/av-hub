@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch, ApiFetchError } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
-import { NotaFiscalVendedorProps } from '@/app/(protected)/minhas-notas/types';
+import { NotaPlanilhaProps } from '@/app/(protected)/notas-equipe/types';
 
-interface NfClassifiedResponse {
+interface FaturamentoPlanilhaResponse {
   total: number;
   page: number;
   limit: number;
   total_pages: number;
-  data: NotaFiscalVendedorProps[];
+  data: NotaPlanilhaProps[];
 }
 
-const FILTROS_REPASSADOS = ['numero_nf', 'numero_pedido', 'data_inicio', 'data_fim', 'grupo_deducao'];
+// /faturamento_planilha só filtra estas flags (não tem "autorizado",
+// "encerrado" nem "etapa" como query param, mesmo essas colunas existindo na
+// resposta pra exibição) — diferente de /vendas_planilha.
+const FLAGS_BOOLEANAS = ['denegado', 'faturado', 'cancelado', 'devolvido', 'devolucao_parcial', 'manual_nf'];
 
-// Notas da Equipe = todos os vendedores juntos — passthrough direto pro
-// nf_classified sem cod_vendedor (empresa inteira).
+// Notas da Equipe = todos os vendedores, TODAS as NFs, sem filtro de
+// "líquido"/grupo (diferente de nf_classified) — passthrough direto pra
+// /faturamento_planilha, a view crua no layout do Excel de faturamento
+// (mesma linha de raciocínio de pedidos-equipe: sem cod_vendedor, empresa
+// inteira).
 export async function GET(request: NextRequest) {
   const denied = await requirePermission('notas-equipe', 'pode_visualizar');
   if (denied) return denied;
@@ -22,16 +28,31 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const params = new URLSearchParams();
-    FILTROS_REPASSADOS.forEach((key) => {
+
+    // "numero_nf" na UI mapeia pro campo real da view, nota_fiscal.
+    const numeroNf = searchParams.get('numero_nf');
+    if (numeroNf) params.set('nota_fiscal', numeroNf);
+
+    // "numero_pedido" na UI mapeia pro campo real da view, pedido.
+    const numeroPedido = searchParams.get('numero_pedido');
+    if (numeroPedido) params.set('pedido', numeroPedido);
+
+    ['data_inicio', 'data_fim'].forEach((key) => {
       const value = searchParams.get(key);
       if (value) params.set(key, value);
     });
+
+    FLAGS_BOOLEANAS.forEach((key) => {
+      const value = searchParams.get(key);
+      if (value) params.set(key, value);
+    });
+
     params.set('page', String(Number(searchParams.get('page')) || 1));
     params.set('limit', String(Number(searchParams.get('limit')) || 25));
 
     const headers = { 'x-api-key': process.env.API_KEY! };
-    const resposta = await apiFetch<NfClassifiedResponse>(
-      `${process.env.API_URL}/nf_classified?${params}`,
+    const resposta = await apiFetch<FaturamentoPlanilhaResponse>(
+      `${process.env.API_URL}/faturamento_planilha?${params}`,
       'Erro ao buscar notas fiscais da equipe',
       { headers, cache: 'no-store' }
     );

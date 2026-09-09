@@ -12,6 +12,14 @@ function getMetaProgress(percMeta: number) {
   return Math.min(percMeta, 100);
 }
 
+// Borda colorida por posição (ouro/prata/bronze) só no top 3 — mesmo padrão
+// do Ranking de Comissão (CommissionRankingTable). Do 4º em diante, cinza padrão.
+const RANK_BORDER_CLASS: Record<number, string> = {
+  1: 'borderGold',
+  2: 'borderSilver',
+  3: 'borderBronze',
+};
+
 interface VendorCardProps {
   vendedor: string;
   qtd_pedidos?: string;
@@ -46,8 +54,9 @@ const VendorCard = ({
   // Primeiro nome + próximo sobrenome relevante — cabe melhor no card e
   // evita cortar em "dos"/"da"/etc (ver utils/nomeExibicao.ts).
   const nomeExibicao = nomeExibicaoResumido(vendedor);
+  const borderClass = styles[RANK_BORDER_CLASS[Number(posicao)]] ?? '';
   return (
-    <div className={styles.vendorCard} onClick={onClick}>
+    <div className={`${styles.vendorCard} ${borderClass}`} onClick={onClick}>
       <div
         className={styles.progressFill}
         style={{ width: `${metaProgress}%`, background: metaColor }}

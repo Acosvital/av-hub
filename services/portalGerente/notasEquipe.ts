@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api/fetchHelper';
-import { NotaFiscalVendedorProps } from '@/app/(protected)/minhas-notas/types';
+import { NotaPlanilhaProps } from '@/app/(protected)/notas-equipe/types';
 import { PaginatedResponse } from '../types';
 
 interface GetNotasEquipeParams {
@@ -9,11 +9,16 @@ interface GetNotasEquipeParams {
   numero_pedido?: string;
   data_inicio?: string;
   data_fim?: string;
-  grupo_deducao?: string;
+  denegado?: boolean;
+  faturado?: boolean;
+  cancelado?: boolean;
+  devolvido?: boolean;
+  devolucao_parcial?: boolean;
+  manual_nf?: boolean;
 }
 
 export interface NotasEquipeResponse extends PaginatedResponse {
-  data: NotaFiscalVendedorProps[];
+  data: NotaPlanilhaProps[];
 }
 
 export async function getNotasEquipe(params: GetNotasEquipeParams = {}) {
@@ -24,7 +29,11 @@ export async function getNotasEquipe(params: GetNotasEquipeParams = {}) {
   if (params.numero_pedido) query.set('numero_pedido', params.numero_pedido);
   if (params.data_inicio) query.set('data_inicio', params.data_inicio);
   if (params.data_fim) query.set('data_fim', params.data_fim);
-  if (params.grupo_deducao) query.set('grupo_deducao', params.grupo_deducao);
+  (['denegado', 'faturado', 'cancelado', 'devolvido', 'devolucao_parcial', 'manual_nf'] as const).forEach(
+    (flag) => {
+      if (params[flag] !== undefined) query.set(flag, String(params[flag]));
+    }
+  );
   return apiFetch<NotasEquipeResponse>(
     `/api/notas-equipe?${query}`,
     'Erro ao buscar notas fiscais da equipe'
