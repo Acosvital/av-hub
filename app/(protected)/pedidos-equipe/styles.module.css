@@ -1,0 +1,183 @@
+/* ============ RESUMO FINANCEIRO (Bruto → Deduções → Líquido) ============ */
+.resumoPlanilha {
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.resumoPlanilhaTitulo {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-3);
+}
+
+.resumoPlanilhaLinha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.resumoPlanilhaLinha:last-child {
+  border-bottom: none;
+}
+
+.resumoPlanilhaRotulo {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary);
+}
+
+.resumoPlanilhaValores {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.resumoPlanilhaQtd {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.resumoPlanilhaValor {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+}
+
+.resumoPlanilhaBruto .resumoPlanilhaRotulo,
+.resumoPlanilhaBruto .resumoPlanilhaValor {
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+}
+
+.resumoPlanilhaDeducao .resumoPlanilhaValor {
+  color: var(--red-light);
+}
+
+.resumoPlanilhaTotalDeducoes .resumoPlanilhaRotulo,
+.resumoPlanilhaTotalDeducoes .resumoPlanilhaValor {
+  font-weight: var(--w-bold);
+  color: var(--red);
+}
+
+.resumoPlanilhaLiquido {
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
+  border-top: 2px solid color-mix(in srgb, var(--foreground) 15%, transparent);
+}
+
+.resumoPlanilhaLiquido .resumoPlanilhaRotulo,
+.resumoPlanilhaLiquido .resumoPlanilhaValor {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  color: var(--green);
+}
+
+/* ============ PARCIAIS (sequenciais) dentro do card do pedido ============ */
+.parciaisList {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.parcialRow {
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+  border-left-width: 3px;
+  background-color: color-mix(in srgb, var(--foreground) 4%, transparent);
+  padding: var(--space-2) var(--space-3);
+}
+
+.parcialHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.parcialLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  color: var(--foreground-secondary);
+  flex-shrink: 0;
+}
+
+.parcialBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.parcialBadge {
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+}
+
+.parcialValor {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.parcialFacts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.parcialFacts b {
+  color: var(--foreground);
+  font-weight: var(--w-semibold);
+}
+
+.parcialNota {
+  color: var(--green);
+  font-weight: var(--w-bold);
+}
+
+/* ============ Correção de layout: lista de pedidos cortada no desktop ============
+   .tableCard/.listWrapper (meus-pedidos/styles.module.css) foram feitos pra
+   uma "tela cheia com scroll interno": tableCard é `flex:1; min-height:0`
+   dividindo uma coluna de altura travada na viewport (`main` tem
+   overflow-y:auto), e listWrapper por baixo tem seu PRÓPRIO scroll interno
+   — funciona bem em Meus Pedidos porque o resumo do mês ali é só 1 fileira
+   de 3 cards.
+   Esta página ganhou 2 blocos novos ANTES da lista (resumo do mês + o
+   waterfall de composição das vendas), bem mais altos — e como só
+   .tableCard tem min-height:0, ele é o único item que pode encolher: em
+   telas de notebook (~800-900px de altura), o espaço que sobra pra ele já é
+   pequeno, e um scroll interno de ~250px só mostrava 1-2 pedidos por vez.
+   A correção troca o modelo aqui: em vez de dividir uma altura fixa com
+   scroll interno, a lista cresce com o conteúdo (auto) e quem rola é a
+   página inteira (o `main` já tem overflow-y:auto) — mesmo padrão de
+   Meu Dashboard, que também empilha vários blocos altos. */
+.tableCardComResumo {
+  flex: none;
+  min-height: 0;
+}
+
+.listWrapperComResumo {
+  flex: none;
+  overflow: visible;
+  max-height: none;
+}

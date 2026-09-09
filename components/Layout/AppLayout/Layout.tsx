@@ -14,7 +14,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const isDashboard = pathname.startsWith('/dashboard');
+    // '/dashboards/...' (plural) é a raiz real dos dashboards admin — checar
+    // só '/dashboard' (singular, sem barra) também batia com rotas que só
+    // por acaso começam com esse prefixo (ex.: /dashboard-equipe, do Portal
+    // do Gerente), ligando o header/tema de dashboard onde não devia.
+    const isDashboard = pathname.startsWith('/dashboards/');
     setMode(isDashboard ? 'dashboard' : 'default');
 
     if (!isDashboard) {

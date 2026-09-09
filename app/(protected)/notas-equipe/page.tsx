@@ -1,0 +1,180 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { CircularProgress } from '@mui/material';
+import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
+import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
+import TablePagination from '@/components/Ui/TablePagination/TablePagination';
+import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import MesSeletor from '@/components/Ui/MesSeletor/MesSeletor';
+import useDashboardDate from '@/hooks/useDashboardDate';
+import { useDebounce } from '@/hooks/useDebouncer';
+import { getNotasEquipe } from '@/services/portalGerente/notasEquipe';
+import { NotaFiscalVendedorProps } from '@/app/(protected)/minhas-notas/types';
+import toBRL from '@/utils/toBRL';
+import dateFormatter from '@/utils/dateFormatter';
+import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
+import { GRUPO_LABEL_PEDIDO, GRUPO_COLOR_PEDIDO } from '@/utils/grupoPedidoClassificacao';
+import { iniciaisCliente } from '@/utils/iniciaisCliente';
+// Mesmo visual de Minhas Notas Fiscais (Portal do Vendedor) — CSS module reaproveitado.
+import styles from '@/app/(protected)/minhas-notas/styles.module.css';
+
+function badgeStatus(nota: NotaFiscalVendedorProps) {
+  if (nota.grupo_deducao && nota.grupo_deducao !== 'LIQUIDO') {
+    return {
+      label: GRUPO_LABEL_PEDIDO[nota.grupo_deducao] ?? nota.grupo_deducao,
+      color: GRUPO_COLOR_PEDIDO[nota.grupo_deducao],
+    };
+  }
+  return null;
+}
+
+const FILTROS_GRUPO = [
+  {
+    key: 'grupo_deducao',
+    label: 'Status',
+    options: [
+      { value: 'G1', label: 'Cancelado' },
+      { value: 'G2', label: 'Devolvido' },
+      { value: 'G3', label: 'Recusado' },
+      { value: 'G6', label: 'Refaturamento' },
+      { value: 'LIQUIDO', label: 'Normal' },
+    ],
+  },
+];
+
+export default function NotasEquipe() {
+  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = useState<NotaFiscalVendedorProps[]>([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 500);
+  const [grupoFiltro, setGrupoFiltro] = useState('');
+  const { completeDate } = useDashboardDate();
+
+  useEffect(() => {
+    async function carregar() {
+      try {
+        setLoading(true);
+        const resposta = await getNotasEquipe({
+          page: page + 1,
+          limit: rowsPerPage,
+          numero_nf: search || undefined,
+          data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
+          data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
+          grupo_deducao: grupoFiltro || undefined,
+        });
+        setRows(resposta.data ?? []);
+        setRowCount(resposta.total ?? 0);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    carregar();
+  }, [page, rowsPerPage, search, grupoFiltro, completeDate]);
+
+  return (
+    <div className={styles.pageGlow}>
+      <div className={styles.pageHeaderRow}>
+        <PageHeader
+          title="Notas Fiscais da Equipe"
+          subtitle="Notas fiscais de saída de todos os vendedores"
+        />
+        <MesSeletor />
+      </div>
+      <PageContent>
+        <div className={styles.tableCard}>
+          <SearchFilterBar
+            searchValue={searchInput}
+            onSearchChange={(value) => {
+              setSearchInput(value);
+              setPage(0);
+            }}
+            searchPlaceholder="Buscar por número da nota..."
+            filters={FILTROS_GRUPO}
+            activeValues={{ grupo_deducao: grupoFiltro || undefined }}
+            onFilterChange={(key, value) => {
+              if (key === 'grupo_deducao') {
+                setGrupoFiltro(value ?? '');
+                setPage(0);
+              }
+            }}
+            glass
+          />
+          {loading ? (
+            <div className={styles.loading}>
+              <CircularProgress size={50} />
+              <span>Carregando...</span>
+            </div>
+          ) : rows.length === 0 ? (
+            <p className={styles.emptyList}>Nenhuma nota fiscal encontrada neste mês.</p>
+          ) : (
+            <div className={styles.listWrapper}>
+              {rows.map((nota) => {
+                const badge = badgeStatus(nota);
+                const nomeCliente = nota.destinatario ?? '—';
+                return (
+                  <div key={nota.numero_nf} className={styles.nfCard}>
+                    <div className={styles.nfHead}>
+                      <div className={styles.nfAvatar}>{iniciaisCliente(nomeCliente)}</div>
+                      <div className={styles.nfTitles}>
+                        <div className={styles.nfClient}>{nomeCliente}</div>
+                        <div className={styles.nfRef}>
+                          Nota {nota.numero_nf}
+                          {nota.numero_pedido && <> · Pedido {nota.numero_pedido}</>}
+                          {nota.vendedor && <> · {nota.vendedor}</>} ·{' '}
+                          <span
+                            style={{
+                              color: TIPO_CONTRATO_COLORS[nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'],
+                            }}
+                          >
+                            {nota.tipo_contrato ?? 'SEM CLASSIFICAÇÃO'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.nfValueCol}>
+                        <div className={styles.nfValue}>
+                          <span className={styles.nfValueCur}>R$</span>
+                          <span className={styles.nfValueNum}>
+                            {toBRL(nota.valor_nf).replace(/^R\$\s?/, '')}
+                          </span>
+                        </div>
+                        {badge && (
+                          <span className={styles.nfStatusLabel} style={{ color: badge.color }}>
+                            {badge.label}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {nota.data_emissao && (
+                      <div className={styles.nfFacts}>
+                        <span className={styles.fact}>
+                          Emitida <b>{dateFormatter(nota.data_emissao)}</b>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            count={rowCount}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={setPage}
+            onRowsPerPageChange={(rpp) => {
+              setRowsPerPage(rpp);
+              setPage(0);
+            }}
+          />
+        </div>
+      </PageContent>
+    </div>
+  );
+}

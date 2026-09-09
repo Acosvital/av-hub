@@ -12,6 +12,7 @@ import {
   LuGauge,
   LuClipboardList,
   LuFileText,
+  LuUsersRound,
 } from 'react-icons/lu';
 
 const style = {
@@ -33,6 +34,9 @@ const iconMap = {
   'meu-dashboard': <LuGauge style={style} />,
   'meus-pedidos': <LuClipboardList style={style} />,
   'minhas-notas': <LuFileText style={style} />,
+  'dashboard-equipe': <LuUsersRound style={style} />,
+  'pedidos-equipe': <LuClipboardList style={style} />,
+  'notas-equipe': <LuFileText style={style} />,
 };
 
 export default iconMap;
