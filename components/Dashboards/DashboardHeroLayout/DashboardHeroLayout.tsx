@@ -43,22 +43,23 @@ const DashboardHeroLayout = ({
   const secondaryRows = tertiary ? 2 : 3;
   return (
     <DashboardGrid>
-      {/* Mobile: gauge/indicador principal primeiro, depois as demais
-          informações, ranking por último (ver mobileOrder de cada zona). */}
-      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1}>
+      {/* Mesma ordem em mobile e tablet: gauge/indicador principal primeiro,
+          depois as demais informações, ranking por último (mobileOrder ==
+          tabletOrder de propósito — ver DashboardWidget.module.css). */}
+      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1} tabletOrder={1}>
         {hero}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5} tabletOrder={5}>
         {ranking}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={secondaryRows} tabletCols={6} mobileOrder={2}>
+      <DashboardWidget cols={3} rows={secondaryRows} tabletCols={6} mobileOrder={2} tabletOrder={2}>
         {secondaryStats}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={secondaryRows} tabletCols={6} mobileOrder={3}>
+      <DashboardWidget cols={3} rows={secondaryRows} tabletCols={6} mobileOrder={3} tabletOrder={3}>
         {secondaryPace}
       </DashboardWidget>
       {tertiary && (
-        <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4}>
+        <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4} tabletOrder={4}>
           {tertiary}
         </DashboardWidget>
       )}

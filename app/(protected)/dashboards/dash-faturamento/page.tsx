@@ -110,7 +110,7 @@ export default function Faturamento() {
   const faturamento = (
     <DashboardGrid>
       {/* Ranking */}
-      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5} tabletOrder={5}>
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.rankingTitle}>🏆 Ranking</h2>
@@ -170,7 +170,7 @@ export default function Faturamento() {
         </div>
       </DashboardWidget>
       {/* Gauge */}
-      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1} tabletOrder={1}>
         <RevenueGauge
           totalOrders={faturamentoMensal?.qtd_nfs}
           value={gauge || 0}
@@ -182,7 +182,7 @@ export default function Faturamento() {
         />
       </DashboardWidget>
       {/* Faturamento Diário / Volume NFs */}
-      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={2}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={2} tabletOrder={2}>
         <div className={styles.stackedSections}>
           <SectionCard
             header={{
@@ -211,7 +211,7 @@ export default function Faturamento() {
         </div>
       </DashboardWidget>
       {/* Ritmo de meta */}
-      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={3}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={3} tabletOrder={3}>
         <GoalPaceCard
           status={ritmoDeMeta?.status_ritmo === 'ABAIXO' ? 'below' : 'above'}
           idealDailyTarget={Number(ritmoDeMeta?.meta_diaria_ideal) || 0}
@@ -222,7 +222,7 @@ export default function Faturamento() {
         />
       </DashboardWidget>
       {/* Faturamento por tipo */}
-      <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4}>
+      <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4} tabletOrder={4}>
         <div className={styles.defaultCard}>
           <h3>Faturamento por tipo</h3>
           <div className={styles.tipoFaturamentoRow}>
@@ -249,19 +249,19 @@ export default function Faturamento() {
 
   const skeleton = (
     <DashboardGrid>
-      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5}>
+      <DashboardWidget cols={6} rows={6} tabletCols={12} mobileOrder={5} tabletOrder={5}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1}>
+      <DashboardWidget cols={6} rows={3} tabletCols={12} mobileOrder={1} tabletOrder={1}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={2}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={2} tabletOrder={2}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={3}>
+      <DashboardWidget cols={3} rows={2} tabletCols={6} mobileOrder={3} tabletOrder={3}>
         {skeletonWidget}
       </DashboardWidget>
-      <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4}>
+      <DashboardWidget cols={6} rows={1} tabletCols={12} mobileOrder={4} tabletOrder={4}>
         {skeletonWidget}
       </DashboardWidget>
     </DashboardGrid>

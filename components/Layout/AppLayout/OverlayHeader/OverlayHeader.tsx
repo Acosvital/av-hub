@@ -23,8 +23,7 @@ import useDashboardDate from '@/hooks/useDashboardDate';
 import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
 import useDashboardVendorModal from '@/hooks/useDashboardVendorModal';
 import useDashboardHistorico from '@/hooks/useDashboardHistorico';
-import { getUnidades } from '@/services/cadastros/auxiliares/unidades';
-import { UnidadeProps } from '@/app/(protected)/cadastros/auxiliares/unidades/types';
+import { getUnidadesFiltro, UnidadeFiltroProps } from '@/services/dashboards/unidadesFiltro';
 import { getPedidosVenda } from '@/services/vendas/pedidosVenda';
 import { getNotasFiscaisSaida } from '@/services/vendas/notasFiscaisSaida';
 import { getVendedores, VendedorProps } from '@/services/vendas/vendedores';
@@ -59,7 +58,7 @@ const OverlayHeader = () => {
   const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
   const [isOpenEmpresaPicker, setIsOpenEmpresaPicker] = useState(false);
   const [isOpenSearch, setIsOpenSearch] = useState(false);
-  const [unidades, setUnidades] = useState<UnidadeProps[]>([]);
+  const [unidades, setUnidades] = useState<UnidadeFiltroProps[]>([]);
   const [vendedores, setVendedores] = useState<VendedorProps[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
@@ -79,7 +78,7 @@ const OverlayHeader = () => {
 
   useEffect(() => {
     if (status !== 'authenticated') return;
-    getUnidades({ limit: 100 })
+    getUnidadesFiltro()
       .then((res) => setUnidades(res.unidades ?? []))
       .catch((error) => console.error(error));
   }, [status]);

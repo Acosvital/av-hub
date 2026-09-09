@@ -16,6 +16,8 @@ import { getPedidosEquipe } from '@/services/portalGerente/pedidosEquipe';
 import {
   StatusHistoricoEquipeResponse,
   getStatusHistoricoEquipe,
+  CAMPO_HISTORICO_LABEL,
+  formatarValorHistorico,
 } from '@/services/portalGerente/statusHistoricoEquipe';
 import { getResumoPlanilhaEquipe } from '@/services/portalGerente/resumoPlanilhaEquipe';
 import { PedidoPlanilhaProps } from '@/app/(protected)/pedidos-equipe/types';
@@ -598,16 +600,19 @@ export default function PedidosEquipe() {
                               return historico.map((item, i) => (
                                 <div key={i} className={styles.historicoItem}>
                                   <span className={styles.historicoData}>
-                                    {dateFormatter(item.detectado_em)}
+                                    {new Date(item.detectado_em).toLocaleDateString('pt-BR')}
                                   </span>
                                   <span>
-                                    {item.situacao_anterior ? (
+                                    <b>{CAMPO_HISTORICO_LABEL[item.campo]}</b>:{' '}
+                                    {item.valor_anterior ? (
                                       <>
-                                        <b>{item.situacao_anterior}</b> → <b>{item.situacao_nova}</b>
+                                        <b>{formatarValorHistorico(item, item.valor_anterior)}</b> →{' '}
+                                        <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                       </>
                                     ) : (
                                       <>
-                                        Criado como <b>{item.situacao_nova}</b>
+                                        Criado como{' '}
+                                        <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                       </>
                                     )}
                                   </span>
@@ -736,16 +741,19 @@ export default function PedidosEquipe() {
                                   return historico.map((item, i) => (
                                     <div key={i} className={styles.historicoItem}>
                                       <span className={styles.historicoData}>
-                                        {dateFormatter(item.detectado_em)}
+                                        {new Date(item.detectado_em).toLocaleDateString('pt-BR')}
                                       </span>
                                       <span>
-                                        {item.situacao_anterior ? (
+                                        <b>{CAMPO_HISTORICO_LABEL[item.campo]}</b>:{' '}
+                                        {item.valor_anterior ? (
                                           <>
-                                            <b>{item.situacao_anterior}</b> → <b>{item.situacao_nova}</b>
+                                            <b>{formatarValorHistorico(item, item.valor_anterior)}</b> →{' '}
+                                            <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                           </>
                                         ) : (
                                           <>
-                                            Criado como <b>{item.situacao_nova}</b>
+                                            Criado como{' '}
+                                            <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                           </>
                                         )}
                                       </span>

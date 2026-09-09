@@ -17,6 +17,8 @@ import { getResumoFaturamentoPlanilhaEquipe } from '@/services/portalGerente/res
 import {
   StatusHistoricoEquipeResponse,
   getStatusHistoricoEquipe,
+  CAMPO_HISTORICO_LABEL,
+  formatarValorHistorico,
 } from '@/services/portalGerente/statusHistoricoEquipe';
 import { NotaPlanilhaProps } from '@/app/(protected)/notas-equipe/types';
 import { situacaoBadgesNota } from '@/utils/situacaoNotaPlanilha';
@@ -430,16 +432,19 @@ export default function NotasEquipe() {
                             return historico.map((item, i) => (
                               <div key={i} className={resumoStyles.historicoItem}>
                                 <span className={resumoStyles.historicoData}>
-                                  {dateFormatter(item.detectado_em)}
+                                  {new Date(item.detectado_em).toLocaleDateString('pt-BR')}
                                 </span>
                                 <span>
-                                  {item.situacao_anterior ? (
+                                  <b>{CAMPO_HISTORICO_LABEL[item.campo]}</b>:{' '}
+                                  {item.valor_anterior ? (
                                     <>
-                                      <b>{item.situacao_anterior}</b> → <b>{item.situacao_nova}</b>
+                                      <b>{formatarValorHistorico(item, item.valor_anterior)}</b> →{' '}
+                                      <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                     </>
                                   ) : (
                                     <>
-                                      Criado como <b>{item.situacao_nova}</b>
+                                      Criado como{' '}
+                                      <b>{formatarValorHistorico(item, item.valor_novo)}</b>
                                     </>
                                   )}
                                 </span>
