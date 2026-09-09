@@ -18,6 +18,11 @@ interface GetPedidosEquipeParams {
   devolucao_parcial?: boolean;
   encerrado?: boolean;
   manual?: boolean;
+  // Linha da cascata de deduções (G1-G6/LIQUIDO) — ver GRUPO_FILTRO_LABEL em
+  // app/(protected)/pedidos-equipe/page.tsx. Não é sinônimo dos flags
+  // booleanos acima: a API avisa que grupo=G1 e cancelado=true podem
+  // devolver conjuntos diferentes (a cascata tem precedência).
+  grupo?: string;
 }
 
 export interface PedidosEquipeResponse extends PaginatedResponse {
@@ -47,6 +52,7 @@ export async function getPedidosEquipe(params: GetPedidosEquipeParams = {}) {
   ).forEach((flag) => {
     if (params[flag] !== undefined) query.set(flag, String(params[flag]));
   });
+  if (params.grupo) query.set('grupo', params.grupo);
   return apiFetch<PedidosEquipeResponse>(
     `/api/pedidos-equipe?${query}`,
     'Erro ao buscar pedidos da equipe'

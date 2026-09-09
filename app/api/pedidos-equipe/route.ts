@@ -48,6 +48,10 @@ export async function GET(request: NextRequest) {
       if (value) params.set(key, value);
     });
 
+    // Cascata de deduções (G1-G6/LIQUIDO) — ver docs/ENVIAR - contrato-filtro-grupo-deducao-planilha-crua.md.
+    const grupo = searchParams.get('grupo');
+    if (grupo) params.set('grupo', grupo);
+
     params.set('page', String(Number(searchParams.get('page')) || 1));
     params.set('limit', String(Number(searchParams.get('limit')) || 25));
 

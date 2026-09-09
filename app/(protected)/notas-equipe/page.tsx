@@ -39,20 +39,24 @@ type FlagSituacaoNota =
   | 'devolucao_parcial'
   | 'manual_nf';
 
-// Clique numa linha de dedução do resumo (Cancelado/Devolvido/Devolvido
-// parcialmente/Recusado) filtra a lista abaixo pelas mesmas notas — só dá pra
-// mapear os grupos que batem 1:1 com uma flag booleana aceita por
-// /faturamento_planilha (ver FLAGS_BOOLEANAS em app/api/notas-equipe/route.ts).
-// G4 (Aços Vital Chile), G5 (Aços Vital Vendedor) e G6 (Refaturamento) não têm
-// flag equivalente na API hoje, por isso ficam de fora e continuam não-clicáveis.
-const GRUPO_PARA_FILTRO: Partial<Record<string, FlagSituacaoNota>> = {
-  G1: 'cancelado',
-  G2: 'devolvido',
-  G2P: 'devolucao_parcial',
-  G3: 'denegado',
+// Clique numa linha do resumo (Bruto→Deduções→Líquido, exceto os totais
+// "Total Bruto"/"TOTAL DE DEDUÇÕES", que somam mais de um grupo) filtra a
+// lista abaixo por essa mesma linha da cascata — agora que /faturamento_planilha
+// aceita ?grupo= direto (ver docs/ENVIAR - contrato-filtro-grupo-deducao-planilha-crua.md).
+// NÃO é equivalente a filtrar pelos flags booleanos abaixo: a API avisa que
+// grupo=G1 e cancelado=true podem devolver conjuntos diferentes (a cascata
+// tem precedência — ex.: nota manual sai como líquido mesmo cancelada).
+const GRUPO_FILTRO_LABEL: Record<string, string> = {
+  G1: 'Cancelado',
+  G2: 'Devolvido',
+  G2P: 'Devolvido parcialmente',
+  G3: 'Recusado',
+  G4: 'Aços Vital Chile (operações no exterior)',
+  G5: 'Aços Vital Vendedor (operações internas)',
+  G6: 'Refaturamento',
+  LIQUIDO: 'Líquido (sem dedução)',
 };
 
-// /faturamento_planilha só filtra estas flags (ver app/api/notas-equipe/route.ts).
 const FILTROS_SITUACAO = [
   {
     key: 'situacao_flag',
@@ -66,6 +70,11 @@ const FILTROS_SITUACAO = [
       { value: 'manual_nf', label: 'Manual' },
     ],
   },
+  {
+    key: 'grupo',
+    label: 'Grupo',
+    options: Object.entries(GRUPO_FILTRO_LABEL).map(([value, label]) => ({ value, label })),
+  },
 ];
 
 export default function NotasEquipe() {
@@ -77,6 +86,7 @@ export default function NotasEquipe() {
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 500);
   const [situacaoFiltro, setSituacaoFiltro] = useState<FlagSituacaoNota | ''>('');
+  const [grupoFiltro, setGrupoFiltro] = useState('');
   const [exportando, setExportando] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState<number | null>(null);
   const [historicoPorPedido, setHistoricoPorPedido] = useState<
@@ -88,9 +98,9 @@ export default function NotasEquipe() {
   const listaRef = useRef<HTMLDivElement>(null);
 
   function selecionarFiltroPorGrupo(grupo: string | null) {
-    const flag = grupo ? GRUPO_PARA_FILTRO[grupo] : undefined;
-    if (!flag) return;
-    setSituacaoFiltro((atual) => (atual === flag ? '' : flag));
+    if (!grupo) return;
+    setGrupoFiltro((atual) => (atual === grupo ? '' : grupo));
+    setSituacaoFiltro('');
     setPage(0);
     listaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -206,6 +216,7 @@ export default function NotasEquipe() {
         data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
         data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
         ...(situacaoFiltro ? { [situacaoFiltro]: true } : {}),
+        ...(grupoFiltro ? { grupo: grupoFiltro } : {}),
       });
       const notas = resposta.data ?? [];
 
@@ -234,6 +245,7 @@ export default function NotasEquipe() {
           data_inicio: completeDate.startOf('month').format('YYYY-MM-DD'),
           data_fim: completeDate.endOf('month').format('YYYY-MM-DD'),
           ...(situacaoFiltro ? { [situacaoFiltro]: true } : {}),
+          ...(grupoFiltro ? { grupo: grupoFiltro } : {}),
         });
         setRows(resposta.data ?? []);
         setRowCount(resposta.total ?? 0);
@@ -244,7 +256,7 @@ export default function NotasEquipe() {
       }
     }
     carregar();
-  }, [page, rowsPerPage, search, situacaoFiltro, completeDate]);
+  }, [page, rowsPerPage, search, situacaoFiltro, grupoFiltro, completeDate]);
 
   useEffect(() => {
     async function carregarResumoPlanilha() {
@@ -277,9 +289,13 @@ export default function NotasEquipe() {
               Composição do faturamento do mês (Bruto → Deduções → Líquido)
             </div>
             {resumoPlanilha.map((linha) => {
-              const flag = linha.grupo ? GRUPO_PARA_FILTRO[linha.grupo] : undefined;
-              const clicavel = Boolean(flag);
-              const ativa = clicavel && situacaoFiltro === flag;
+              // "Total Bruto"/"TOTAL DE DEDUÇÕES" somam mais de um grupo —
+              // não filtram nada sozinhas. O líquido não vem com `grupo`
+              // preenchido no resumo (só as linhas de dedução vêm), mas a
+              // API aceita ?grupo=LIQUIDO como apelido pra "sem dedução".
+              const grupoValor = linha.tipo === 'liquido' ? 'LIQUIDO' : linha.grupo;
+              const clicavel = Boolean(grupoValor);
+              const ativa = clicavel && grupoFiltro === grupoValor;
               return (
                 <div
                   key={linha.ordem}
@@ -296,7 +312,7 @@ export default function NotasEquipe() {
                   } ${clicavel ? resumoStyles.resumoPlanilhaClicavel : ''} ${
                     ativa ? resumoStyles.resumoPlanilhaAtiva : ''
                   }`}
-                  onClick={clicavel ? () => selecionarFiltroPorGrupo(linha.grupo) : undefined}
+                  onClick={clicavel ? () => selecionarFiltroPorGrupo(grupoValor) : undefined}
                   title={clicavel ? 'Ver essas notas na lista abaixo' : undefined}
                 >
                   <span className={resumoStyles.resumoPlanilhaRotulo}>{linha.rotulo}</span>
@@ -322,10 +338,16 @@ export default function NotasEquipe() {
             }}
             searchPlaceholder="Buscar por número da nota..."
             filters={FILTROS_SITUACAO}
-            activeValues={{ situacao_flag: situacaoFiltro || undefined }}
+            activeValues={{ situacao_flag: situacaoFiltro || undefined, grupo: grupoFiltro || undefined }}
             onFilterChange={(key, value) => {
               if (key === 'situacao_flag') {
                 setSituacaoFiltro((value as FlagSituacaoNota | null) ?? '');
+                setGrupoFiltro('');
+                setPage(0);
+              }
+              if (key === 'grupo') {
+                setGrupoFiltro(value ?? '');
+                setSituacaoFiltro('');
                 setPage(0);
               }
             }}

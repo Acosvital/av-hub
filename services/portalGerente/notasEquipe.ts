@@ -15,6 +15,11 @@ interface GetNotasEquipeParams {
   devolvido?: boolean;
   devolucao_parcial?: boolean;
   manual_nf?: boolean;
+  // Linha da cascata de deduções (G1-G6/LIQUIDO) — ver GRUPO_FILTRO_LABEL em
+  // app/(protected)/notas-equipe/page.tsx. Não é sinônimo dos flags booleanos
+  // acima: a API avisa que grupo=G1 e cancelado=true podem devolver
+  // conjuntos diferentes (a cascata tem precedência, ex. manual vence tudo).
+  grupo?: string;
 }
 
 export interface NotasEquipeResponse extends PaginatedResponse {
@@ -34,6 +39,7 @@ export async function getNotasEquipe(params: GetNotasEquipeParams = {}) {
       if (params[flag] !== undefined) query.set(flag, String(params[flag]));
     }
   );
+  if (params.grupo) query.set('grupo', params.grupo);
   return apiFetch<NotasEquipeResponse>(
     `/api/notas-equipe?${query}`,
     'Erro ao buscar notas fiscais da equipe'
