@@ -6,7 +6,10 @@ export interface PedidoVendedorProps {
   numero_pedido: string | null;
   data_inclusao: string | null;
   hora_inclusao: string | null;
-  data_previsao: string | null;
+  // Renomeado no backend pra previsao_faturamento (era data_previsao) —
+  // a coluna de origem continua pedidos_vendas.data_previsao, só o apelido
+  // na projeção da view mudou.
+  previsao_faturamento: string | null;
   numero_nf: string | null;
   codigo_cliente: string | null;
   nome_cliente: string | null;

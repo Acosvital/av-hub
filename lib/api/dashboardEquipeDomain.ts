@@ -220,7 +220,10 @@ interface PedidoVencimentoEmpresaBrutoProps {
   nome_cliente: string | null;
   razao_social_cliente: string | null;
   codigo_cliente: string | null;
-  data_previsao: string | null;
+  // Renomeado no backend pra previsao_faturamento (era data_previsao) — só
+  // o nome cru vindo de /vendas_base; ProximoVencimentoEmpresaProps abaixo
+  // continua se chamando data_previsao (contrato de saída deste módulo).
+  previsao_faturamento: string | null;
   faturado: boolean;
   total_pedido: string | null;
   etapa_descricao: string | null;
@@ -263,13 +266,13 @@ export async function proximosVencimentosEmpresa(
   ).catch(() => null);
 
   return (resposta?.data ?? [])
-    .filter((p) => !p.faturado && p.data_previsao)
+    .filter((p) => !p.faturado && p.previsao_faturamento)
     .map((p) => ({
       codigo_pedido_omie: p.codigo_pedido_omie,
       numero_pedido: p.numero_pedido,
       cliente: p.nome_cliente ?? p.razao_social_cliente ?? p.codigo_cliente ?? '—',
       codigo_cliente: p.codigo_cliente,
-      data_previsao: p.data_previsao as string,
+      data_previsao: p.previsao_faturamento as string,
       total_pedido: Number(p.total_pedido) || 0,
       etapa_descricao: p.etapa_descricao,
       vendedor: p.vendedor,

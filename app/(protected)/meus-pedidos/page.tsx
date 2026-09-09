@@ -79,13 +79,13 @@ function badgeStatus(pedido: PedidoVendedorProps) {
 function statusLabel(pedido: PedidoVendedorProps): { texto: string; cor: string } | null {
   const badge = badgeStatus(pedido);
   if (badge) return { texto: badge.label, cor: badge.color };
-  const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
+  const sla = calcularSlaPedido(pedido.previsao_faturamento, pedido.faturado);
   if (!sla) return null;
   return { texto: sla.texto, cor: SLA_LABEL_COLOR[sla.tier] };
 }
 
 function corCardSla(pedido: PedidoVendedorProps): string {
-  const sla = calcularSlaPedido(pedido.data_previsao, pedido.faturado);
+  const sla = calcularSlaPedido(pedido.previsao_faturamento, pedido.faturado);
   if (!sla) return '';
   return CARD_SLA_CLASS[sla.tier] ?? '';
 }
@@ -234,7 +234,7 @@ export default function MeusPedidos() {
           status,
           p.total_pedido ?? '0',
           p.data_inclusao ? dateFormatter(p.data_inclusao) : '',
-          p.data_previsao ? dateFormatter(p.data_previsao) : '',
+          p.previsao_faturamento ? dateFormatter(p.previsao_faturamento) : '',
         ];
       });
 
@@ -315,7 +315,7 @@ export default function MeusPedidos() {
         });
         const pedidos = resposta.data ?? [];
         const atrasados = pedidos.filter(
-          (p) => calcularSlaPedido(p.data_previsao, p.faturado)?.tier === 'atrasado'
+          (p) => calcularSlaPedido(p.previsao_faturamento, p.faturado)?.tier === 'atrasado'
         ).length;
         const faturados = pedidos.filter((p) => p.faturado).length;
         setResumoMes({ total: resposta.total ?? pedidos.length, atrasados, faturados });
@@ -465,9 +465,9 @@ export default function MeusPedidos() {
                         <span className={styles.fact}>
                           Incluído <b>{pedido.data_inclusao ? dateFormatter(pedido.data_inclusao) : '—'}</b>
                         </span>
-                        {pedido.data_previsao && (
+                        {pedido.previsao_faturamento && (
                           <span className={styles.fact}>
-                            Previsão de faturamento <b>{dateFormatter(pedido.data_previsao)}</b>
+                            Previsão de faturamento <b>{dateFormatter(pedido.previsao_faturamento)}</b>
                           </span>
                         )}
                         {pedido.etapa_descricao && (
