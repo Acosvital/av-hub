@@ -6,6 +6,7 @@ export interface PedidoClienteProps {
   data_inclusao: string | null;
   total_pedido: number;
   tipo_contrato: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO' | null;
+  etapa_descricao: string | null;
 }
 
 interface PedidosClienteResponse {
@@ -15,6 +16,7 @@ interface PedidosClienteResponse {
 
 export async function getPedidosDoCliente(params: {
   codigo_cliente: string;
+  codigo_empresa?: string;
   mes: number;
   ano: number;
 }) {
@@ -23,6 +25,7 @@ export async function getPedidosDoCliente(params: {
     mes: String(params.mes),
     ano: String(params.ano),
   });
+  if (params.codigo_empresa) query.set('codigo_empresa', params.codigo_empresa);
   return apiFetch<PedidosClienteResponse>(
     `/api/meu-dashboard/cliente?${query}`,
     'Erro ao buscar pedidos do cliente'

@@ -470,6 +470,11 @@ export default function MeusPedidos() {
                             Previsão de faturamento <b>{dateFormatter(pedido.data_previsao)}</b>
                           </span>
                         )}
+                        {pedido.etapa_descricao && (
+                          <span className={styles.fact}>
+                            Etapa <b>{pedido.etapa_descricao}</b>
+                          </span>
+                        )}
                         {!badge && pedido.categoria && (
                           <span className={styles.fact}>
                             Categoria <b>{pedido.categoria}</b>

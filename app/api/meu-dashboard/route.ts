@@ -8,6 +8,7 @@ import {
   proximosVencimentos,
   topProdutos,
   mesAnterior,
+  nomesUnidades,
 } from '@/lib/api/meuDashboardDomain';
 
 export async function GET(request: NextRequest) {
@@ -28,6 +29,11 @@ export async function GET(request: NextRequest) {
 
     const anterior = mesAnterior(mes, ano);
 
+    // Resolvida uma vez só e repassada — topClientes/topProdutos não buscam
+    // mais /unidades cada uma por conta própria (eram 2 chamadas concorrentes
+    // e idênticas por carregamento de página, ver docs/portal-vendedor).
+    const unidades = await nomesUnidades(headers);
+
     const [
       vendas,
       faturamento,
@@ -41,9 +47,9 @@ export async function GET(request: NextRequest) {
       somarLado('vendas', vendedores, mes, ano, headers),
       somarLado('faturamento', vendedores, mes, ano, headers),
       classificarPedidos(vendedores, mes, ano, headers),
-      topClientes(vendedores, mes, ano, headers),
+      topClientes(vendedores, mes, ano, headers, unidades),
       proximosVencimentos(vendedores, mes, ano, headers),
-      topProdutos(vendedores, mes, ano, headers),
+      topProdutos(vendedores, mes, ano, headers, unidades),
       somarLado('vendas', vendedores, anterior.mes, anterior.ano, headers),
       somarLado('faturamento', vendedores, anterior.mes, anterior.ano, headers),
     ]);

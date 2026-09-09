@@ -14,6 +14,7 @@ import styles from './ClienteDetalhesModal.module.css';
 export interface ClienteDetalhesProps {
   nome: string;
   codigoCliente?: string;
+  codigoEmpresa?: string;
   valorMes?: number;
   qtdPedidosMes?: number;
   valorUltimaCompra?: number;
@@ -42,6 +43,7 @@ const ClienteDetalhesModal = ({ isOpen, onClose, cliente, mes, ano }: ClienteDet
         setLoading(true);
         const res = await getPedidosDoCliente({
           codigo_cliente: cliente!.codigoCliente!,
+          codigo_empresa: cliente!.codigoEmpresa,
           mes,
           ano,
         });
@@ -57,11 +59,11 @@ const ClienteDetalhesModal = ({ isOpen, onClose, cliente, mes, ano }: ClienteDet
     return () => {
       ativo = false;
     };
-    // Depende só de codigoCliente (não do objeto `cliente` inteiro): o pai
-    // recria esse objeto a cada render, o que refetcharia à toa mesmo sem
-    // trocar de cliente.
+    // Depende só de codigoCliente/codigoEmpresa (não do objeto `cliente`
+    // inteiro): o pai recria esse objeto a cada render, o que refetcharia à
+    // toa mesmo sem trocar de cliente.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, cliente?.codigoCliente, mes, ano]);
+  }, [isOpen, cliente?.codigoCliente, cliente?.codigoEmpresa, mes, ano]);
 
   if (!cliente) return null;
 
@@ -125,6 +127,9 @@ const ClienteDetalhesModal = ({ isOpen, onClose, cliente, mes, ano }: ClienteDet
                 <span className={styles.dataPedido}>
                   {p.data_inclusao ? dateFormatter(p.data_inclusao) : '—'}
                 </span>
+                {p.etapa_descricao && (
+                  <span className={styles.dataPedido}>{p.etapa_descricao}</span>
+                )}
                 {p.tipo_contrato && (
                   <span
                     className={styles.tipoContratoChip}

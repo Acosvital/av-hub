@@ -17,7 +17,7 @@ import { ClienteInativoProps, MeuDashboardResponse, TipoContrato } from './types
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
-import { MARCOS_META } from '@/utils/metaColor';
+import { trilhaMeta } from '@/utils/metaColor';
 import { calcularSlaPedido } from '@/utils/slaPedido';
 import styles from './styles.module.css';
 
@@ -80,9 +80,10 @@ export default function MeuDashboard() {
   // Mesma cor do gauge do dashboard de vendas (admin) — dash-vendas usa
   // sempre verde/azul fixo pro hero, independente da meta batida (só as
   // VendorCard do ranking usam a régua de cor por faixa). Aqui a régua de
-  // faixa vira as medalhas abaixo do gauge, não a cor do gauge em si.
+  // faixa vira a trilha de progresso abaixo do gauge, não a cor do gauge em si.
   const corGauge = 'var(--green)';
   const mediaPorPedido = vendas && vendas.quantidade > 0 ? vendas.valor / vendas.quantidade : 0;
+  const trilha = vendas ? trilhaMeta(vendas.perc_meta) : null;
 
   return (
     <div className={styles.pageGlow}>
@@ -108,29 +109,23 @@ export default function MeuDashboard() {
             <div className={styles.hero}>
               <div className={styles.heroGaugeCol}>
                 <Gauge size={168} value={vendas.perc_meta} color={corGauge} gradientFrom="var(--blue)" />
-                <div className={styles.medalhas}>
-                  {MARCOS_META.map((marco) => {
-                    const conquistada = vendas.perc_meta >= marco.limite;
-                    return (
+                {trilha && (
+                  <div className={styles.trilhaMeta}>
+                    <div className={styles.track}>
                       <div
-                        key={marco.limite}
-                        className={styles.medalha}
-                        style={
-                          conquistada
-                            ? { borderColor: marco.cor, color: marco.cor, background: `color-mix(in srgb, ${marco.cor} 16%, transparent)` }
-                            : undefined
-                        }
-                        title={
-                          conquistada
-                            ? `Meta de ${marco.label} batida`
-                            : `Falta bater ${marco.label} da meta`
-                        }
-                      >
-                        {marco.label}
-                      </div>
-                    );
-                  })}
-                </div>
+                        className={styles.trackFill}
+                        style={{ width: `${trilha.fracao * 100}%`, background: trilha.cor }}
+                      />
+                    </div>
+                    <div className={styles.trackTicks}>
+                      <span>{trilha.baseAnterior}%</span>
+                      <span>{trilha.limite}%</span>
+                    </div>
+                    <div className={styles.trackLabel} style={{ color: trilha.cor }}>
+                      {trilha.completo ? `Meta de ${trilha.limite}% batida` : `Rumo aos ${trilha.limite}%`}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className={styles.heroBody}>
                 <h2>
@@ -236,6 +231,12 @@ export default function MeuDashboard() {
                                 · Pedido {p.numero_pedido}
                               </span>
                             )}
+                            {p.etapa_descricao && (
+                              <span style={{ color: 'var(--foreground-secondary)' }}>
+                                {' '}
+                                · {p.etapa_descricao}
+                              </span>
+                            )}
                           </span>
                         </div>
                         <div className={styles.linhaClienteMeta}>
@@ -300,7 +301,7 @@ export default function MeuDashboard() {
                     : resposta.topClientes.slice(0, LIMITE_INICIAL_TOP_CLIENTES)
                   ).map((c, i) => (
                     <div
-                      key={c.cliente}
+                      key={`${c.codigo_empresa}-${c.codigo_cliente ?? c.cliente}-${i}`}
                       className={styles.linhaCliente}
                       role="button"
                       tabIndex={0}
@@ -308,6 +309,7 @@ export default function MeuDashboard() {
                         setClienteSelecionado({
                           nome: c.cliente,
                           codigoCliente: c.codigo_cliente,
+                          codigoEmpresa: c.codigo_empresa,
                           valorMes: c.valor,
                           qtdPedidosMes: c.qtd_pedidos,
                         })
@@ -319,7 +321,7 @@ export default function MeuDashboard() {
                       </div>
                       <div className={styles.linhaClienteMeta}>
                         <span className={styles.pedidosCliente}>
-                          {c.qtd_pedidos} pedido{c.qtd_pedidos === 1 ? '' : 's'}
+                          {c.unidade} · {c.qtd_pedidos} pedido{c.qtd_pedidos === 1 ? '' : 's'}
                         </span>
                         <span className={styles.valorCliente}>{toBRL(c.valor)}</span>
                       </div>
@@ -344,14 +346,14 @@ export default function MeuDashboard() {
                     ? resposta.topProdutos
                     : resposta.topProdutos.slice(0, LIMITE_INICIAL_TOP_PRODUTOS)
                   ).map((produto, i) => (
-                    <div key={produto.codigo_produto} className={styles.linhaCliente}>
+                    <div key={`${produto.codigo_empresa}-${produto.codigo_produto}`} className={styles.linhaCliente}>
                       <div className={styles.linhaClienteTopo}>
                         <span className={styles.posicaoCliente}>{i + 1}º</span>
                         <span className={styles.nomeCliente}>{produto.descricao}</span>
                       </div>
                       <div className={styles.linhaClienteMeta}>
                         <span className={styles.pedidosCliente}>
-                          {produto.quantidade} un.
+                          {produto.unidade} · {produto.quantidade} un.
                         </span>
                         <span className={styles.valorCliente}>{toBRL(produto.valor)}</span>
                       </div>
@@ -377,7 +379,7 @@ export default function MeuDashboard() {
                     : clientesInativos.slice(0, LIMITE_INICIAL_INATIVOS)
                   ).map((c) => (
                     <div
-                      key={c.codigo_cliente}
+                      key={`${c.codigo_empresa}-${c.codigo_cliente}`}
                       className={styles.linhaCliente}
                       role="button"
                       tabIndex={0}
@@ -385,6 +387,7 @@ export default function MeuDashboard() {
                         setClienteSelecionado({
                           nome: c.cliente,
                           codigoCliente: c.codigo_cliente,
+                          codigoEmpresa: c.codigo_empresa,
                           qtdPedidosMes: Number(c.qtd_pedidos) || 0,
                           valorUltimaCompra: Number(c.valor_ultima_compra) || 0,
                           valorTotalHistorico: Number(c.valor_total_historico) || 0,
@@ -398,7 +401,7 @@ export default function MeuDashboard() {
                       </div>
                       <div className={styles.linhaClienteMeta}>
                         <span className={styles.pedidosCliente}>
-                          última compra em {dateFormatter(c.ultima_compra)}
+                          {c.unidade} · última compra em {dateFormatter(c.ultima_compra)}
                         </span>
                         <span className={styles.diasCliente}>{c.dias_sem_comprar} dias</span>
                       </div>

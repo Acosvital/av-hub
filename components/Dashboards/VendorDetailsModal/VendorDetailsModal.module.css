@@ -35,6 +35,23 @@
   color: var(--av-accent);
 }
 
+.erro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  min-height: 30dvh;
+}
+
+.erro span {
+  color: var(--foreground-secondary);
+  font-size: var(--fs-base);
+  max-width: 320px;
+}
+
 .vendorDetails {
   display: flex;
   flex-direction: column;

@@ -20,6 +20,7 @@ export interface PedidoVendedorProps {
   numero_contrato: string | null;
   tipo_contrato: 'SPOT' | 'CONTRATO' | 'SEM CLASSIFICAÇÃO' | null;
   etapa: string | null;
+  etapa_descricao: string | null;
   tem_original: boolean | null;
   cancelado: boolean;
   denegado: boolean;

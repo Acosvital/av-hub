@@ -1,3 +1,11 @@
+**✅ Corrigido pelo backend, confirmado ao vivo em 08/09/2026** — `meta_individual` agora vem
+idêntica (`R$ 500.000,00`) para Ana Carolina Vital nas duas unidades (antes: 4.142.857,14 vs
+805.555,56). Ação de frontend da seção 4 já aplicada em `somarLado`
+(`lib/api/meuDashboardDomain.ts`) — deixou de somar `meta_individual` entre vínculos, agora pega
+o valor uma vez só por vendedor.
+
+---
+
 # Bug de backend — `meta_individual` divide a meta GLOBAL pelo headcount de cada unidade isoladamente
 
 **Criado em:** 06/09/2026, 12:18 (horário de Brasília) — **atualizado** 06/09/2026, 12:30 após

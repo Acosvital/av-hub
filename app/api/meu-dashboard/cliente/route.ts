@@ -23,7 +23,17 @@ export async function GET(request: NextRequest) {
     const ano = searchParams.get('ano') ?? String(hoje.getFullYear());
     const headers = { 'x-api-key': process.env.API_KEY! };
 
-    const pedidos = await pedidosDoCliente(vendedores, codigoCliente, mes, ano, headers);
+    // Se veio codigo_empresa (clique numa linha já rotulada por unidade em
+    // "Meus melhores clientes"/"Clientes sem comprar"), restringe a busca a
+    // esse vínculo só — sem isso, um cliente com o mesmo codigo_cliente
+    // comprando em 2 unidades do vendedor teria os pedidos das duas
+    // misturados no modal, mesmo a linha de origem sendo de uma só.
+    const codigoEmpresa = searchParams.get('codigo_empresa');
+    const vendedoresFiltrados = codigoEmpresa
+      ? vendedores.filter((v) => v.codigo_empresa === codigoEmpresa)
+      : vendedores;
+
+    const pedidos = await pedidosDoCliente(vendedoresFiltrados, codigoCliente, mes, ano, headers);
 
     return NextResponse.json({ vinculado: true, data: pedidos });
   } catch (error) {

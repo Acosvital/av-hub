@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 import { resolverVendedoresSessao } from '@/lib/api/portalVendedor';
+import { nomesUnidades } from '@/lib/api/meuDashboardDomain';
 
 export interface ClienteInativoProps {
   codigo_empresa: string;
+  unidade: string;
   cod_vendedor: string;
   codigo_cliente: string;
   vendedor: string;
@@ -33,24 +35,30 @@ export async function GET(request: NextRequest) {
     const diasSemComprar = request.nextUrl.searchParams.get('dias_sem_comprar') ?? '90';
     const headers = { 'x-api-key': process.env.API_KEY! };
 
-    const listas = await Promise.all(
-      vendedores.map((v) => {
-        const params = new URLSearchParams({
-          cod_vendedor: v.codigo_vendedor_omie,
-          dias_sem_comprar: diasSemComprar,
-          codigo_empresa: v.codigo_empresa,
-        });
-        return apiFetch<ClientesInativosResponse>(
-          `${process.env.API_URL}/clientes_inativos?${params}`,
-          'Erro ao buscar clientes inativos',
-          { headers, cache: 'no-store' }
-        )
-          .then((r) => r.data ?? [])
-          .catch(() => []);
-      })
-    );
+    const [listas, unidades] = await Promise.all([
+      Promise.all(
+        vendedores.map((v) => {
+          const params = new URLSearchParams({
+            cod_vendedor: v.codigo_vendedor_omie,
+            dias_sem_comprar: diasSemComprar,
+            codigo_empresa: v.codigo_empresa,
+          });
+          return apiFetch<ClientesInativosResponse>(
+            `${process.env.API_URL}/clientes_inativos?${params}`,
+            'Erro ao buscar clientes inativos',
+            { headers, cache: 'no-store' }
+          )
+            .then((r) => r.data ?? [])
+            .catch(() => []);
+        })
+      ),
+      nomesUnidades(headers),
+    ]);
 
-    const todos = listas.flat().sort((a, b) => b.dias_sem_comprar - a.dias_sem_comprar);
+    const todos = listas
+      .flat()
+      .map((c) => ({ ...c, unidade: unidades.get(c.codigo_empresa) ?? c.codigo_empresa }))
+      .sort((a, b) => b.dias_sem_comprar - a.dias_sem_comprar);
 
     return NextResponse.json({ vinculado: true, data: todos });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { apiFetch } from '@/lib/api/fetchHelper';
+import { apiFetch, ApiFetchError } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(request: NextRequest) {
@@ -36,6 +36,12 @@ export async function GET(request: NextRequest) {
     );
     return NextResponse.json(data);
   } catch (error) {
+    // 404 aqui é "sem NF pra esse filtro" (resposta normal do backend, não
+    // uma falha) — repassa como 404 de verdade, em vez de mascarar como
+    // "erro interno" (500) igual a uma falha real.
+    if (error instanceof ApiFetchError && error.status === 404) {
+      return NextResponse.json({ error: 'Nenhuma nota fiscal encontrada para esse vendedor' }, { status: 404 });
+    }
     console.error(error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }

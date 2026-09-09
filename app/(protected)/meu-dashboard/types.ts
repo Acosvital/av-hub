@@ -18,12 +18,16 @@ export interface ClassificacaoTipoProps {
 export interface TopClienteProps {
   cliente: string;
   codigo_cliente?: string;
+  codigo_empresa: string;
+  unidade: string;
   valor: number;
   qtd_pedidos: number;
 }
 
 export interface ClienteInativoProps {
   codigo_cliente: string;
+  codigo_empresa: string;
+  unidade: string;
   cliente: string;
   ultima_compra: string;
   dias_sem_comprar: number;
@@ -39,10 +43,13 @@ export interface ProximoVencimentoProps {
   codigo_cliente: string | null;
   data_previsao: string;
   total_pedido: number;
+  etapa_descricao: string | null;
 }
 
 export interface TopProdutoProps {
   codigo_produto: string;
+  codigo_empresa: string;
+  unidade: string;
   descricao: string;
   quantidade: number;
   valor: number;

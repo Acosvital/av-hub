@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
 import Modal from '@/components/Ui/Modal/Modal';
+import { ApiFetchError } from '@/lib/api/fetchHelper';
 import Avatar from '@/components/Layout/AppLayout/Header/Avatar/Avatar';
 import OrderType from '@/components/Dashboards/OrderType/OrderType';
 import Order from '@/components/Dashboards/Order/Order';
@@ -39,6 +40,7 @@ const VendorDetailsModal = ({
   const [details, setDetails] = useState<VendorDetails | null>(null);
   const [selectedType, setSelectedType] = useState<OrderTypeKey | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   const handleTypeClick = (type: OrderTypeKey) => {
     setSelectedType((prev) => (prev === type ? null : type));
@@ -58,6 +60,8 @@ const VendorDetailsModal = ({
     async function loadVendorDetails() {
       try {
         setLoading(true);
+        setErro(null);
+        setDetails(null);
         const getDetalheVendedor =
           dashboard === 'vendas' ? getDetalheVendedorVendas : getDetalheVendedorFaturamento;
         const res = await getDetalheVendedor({
@@ -69,7 +73,16 @@ const VendorDetailsModal = ({
         });
         setDetails(mapVendorDetails(dashboard, res.vendedor, res.detalhes));
       } catch (err) {
-        console.error(err);
+        // 404 aqui é resposta normal do backend ("sem pedido/NF pra esse
+        // filtro"), não uma falha — mensagem própria em vez do genérico de
+        // "não consegui carregar", e sem logar como erro (não é um).
+        const semResultado = err instanceof ApiFetchError && err.status === 404;
+        if (!semResultado) console.error(err);
+        setErro(
+          semResultado
+            ? `Nenhum${dashboard === 'vendas' ? ' pedido' : 'a nota fiscal'} encontrad${dashboard === 'vendas' ? 'o' : 'a'} pra esse vendedor no período.`
+            : 'Não foi possível carregar os detalhes desse vendedor. Tente de novo em instantes.'
+        );
       } finally {
         setLoading(false);
       }
@@ -83,6 +96,10 @@ const VendorDetailsModal = ({
         <div className={styles.loading}>
           <CircularProgress size={50} />
           <span>Carregando...</span>
+        </div>
+      ) : erro ? (
+        <div className={styles.erro}>
+          <span>{erro}</span>
         </div>
       ) : (
         details && (
