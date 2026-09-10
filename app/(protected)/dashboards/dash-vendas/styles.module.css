@@ -41,7 +41,7 @@
   display: flex;
   flex: 1;
   margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-4);
   background-color: var(--navy-925);
 }
 
@@ -59,13 +59,18 @@
 }
 
 .tipoVendaLabel {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 2px;
   color: var(--foreground-secondary);
 }
 
 .tipoVendaValue {
   font-size: var(--fs-lg);
   font-weight: var(--w-bold);
+  line-height: 1.15;
   color: var(--foreground);
 }
 

@@ -44,16 +44,26 @@
 }
 
 .defaultTitle {
-  font-size: var(--fs-base);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  color: var(--foreground-secondary);
 }
 
 .defaultSubtitle {
   font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
   color: var(--foreground-secondary);
 }
 
 .revenueValue {
   font-size: var(--fs-xl);
+  font-weight: var(--w-bold);
+  line-height: 1.15;
 }
 
 .secondarySubtitle {
@@ -61,15 +71,20 @@
   align-items: center;
   gap: var(--space-1);
   font-size: var(--fs-sm);
+  line-height: 1.2;
   color: var(--foreground-secondary);
 }
 
 .meta {
   font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  line-height: 1.15;
 }
 
 .totalOrders {
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
   margin: 0 0 var(--space-1);
 }
 
@@ -79,14 +94,6 @@
 @media (max-width: 768px) {
   .totalRevenueValues {
     gap: var(--space-6);
-  }
-
-  .totalOrders {
-    font-size: var(--fs-sm);
-  }
-
-  .defaultTitle {
-    font-size: var(--fs-xs);
   }
 
   .revenueValue {

@@ -15,7 +15,7 @@ const CardHeader = ({ title, icon, right }: CardHeaderProps) => {
     <div className={styles.cardHeader}>
       <h4 className={`${styles.title} sectionLabel`}>
         {icon}
-        {title}
+        <span className={styles.titleText}>{title}</span>
       </h4>
       {right}
     </div>

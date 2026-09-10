@@ -37,7 +37,7 @@ const RevenueGauge = ({
           {totalOrders}{' '}
         </h5>
       )}
-      <Gauge size={240} value={value} color={color} gradientFrom={gradientColor} />
+      <Gauge size={180} value={value} color={color} gradientFrom={gradientColor} />
       <div className={styles.totalRevenueValues}>
         <div>
           <h2 className={`${styles.defaultTitle} sectionLabel`}>{type} total</h2>
