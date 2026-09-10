@@ -20,6 +20,7 @@ const groupMap: Record<string, string> = {
   'dashboard-equipe': 'Portal do Gerente',
   'pedidos-equipe': 'Portal do Gerente',
   'notas-equipe': 'Portal do Gerente',
+  fechamento: 'Portal do Gerente',
 };
 
 export default groupMap;

@@ -1,0 +1,125 @@
+/* Mesmo fundo/borda do gauge principal dos dashboards (RevenueGauge) —
+   sem preenchimento próprio, só a borda var(--navy-915) por cima do fundo
+   da página. Mantém a tela de Fechamento com a mesma identidade visual,
+   em vez de um cartão "elevado" que não existe em nenhum outro gauge. */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--navy-915);
+  transition:
+    transform var(--t-base),
+    border-color var(--t-base);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--foreground) 25%, var(--navy-915));
+}
+
+.cardVazio {
+  border-style: dashed;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.mes {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ano {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+  flex: 1;
+}
+
+.editBtn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--foreground-secondary);
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  opacity: 0;
+  transition: opacity var(--t-base), color var(--t-base), background-color var(--t-base);
+}
+
+.card:hover .editBtn {
+  opacity: 1;
+}
+
+.editBtn:hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--av-accent) 25%, transparent);
+}
+
+.values {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.valorTotal {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-black);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  font-size: var(--fs-xs);
+  color: var(--foreground-secondary);
+}
+
+.vazioAction {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 168px;
+  height: 168px;
+  color: var(--foreground-secondary);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-semibold);
+  transition: color var(--t-base);
+}
+
+.vazioAction:not(:disabled):hover {
+  color: var(--foreground);
+}
+
+.vazioAction:disabled {
+  cursor: default;
+}
+
+.vazioIcone {
+  font-size: var(--fs-3xl);
+  font-weight: var(--w-regular);
+  line-height: 1;
+  color: color-mix(in srgb, var(--foreground) 30%, transparent);
+}

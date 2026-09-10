@@ -1,0 +1,99 @@
+.pageGlow {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+}
+
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  bottom: 0;
+  left: -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(700px 460px at 100% 0%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 60%);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  align-self: flex-start;
+  background-color: var(--card-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+}
+
+.tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-semibold);
+  color: var(--foreground-secondary);
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--t-base),
+    background-color var(--t-base);
+}
+
+.tab:hover {
+  color: var(--foreground);
+  background-color: var(--card-bg);
+}
+
+.activeTab {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+.grid {
+  display: grid;
+  /* Sempre 4 meses por linha — largura fixa em vez de auto-fit, pra manter
+     as linhas alinhadas (ex.: Jan-Abr, Mai-Ago, Set em diante) em vez de
+     um número de colunas que muda com a largura da tela. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media screen and (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) 0;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
