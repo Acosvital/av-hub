@@ -14,9 +14,12 @@
 /* Só pro type="glass" — o resto do app continua com o scrim de sempre.
    0.8 de opacidade deixava a página por trás quase preta, e é justamente
    essa página que dá cor pro blur/glow do card de vidro — com o fundo tão
-   escuro, o "soft glass" ficava sem nada colorido pra desfocar. */
+   escuro, o "soft glass" ficava sem nada colorido pra desfocar. 0.6 (em vez
+   dos 0.45 originais) é o meio-termo: ainda deixa cor passar pro blur, mas
+   sem os números/textos da página de fundo lidos quase à toda luz por trás
+   do card (reportado como "não tá fosco o suficiente"). */
 .glassContainer {
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .hidden {
@@ -58,14 +61,14 @@
      apagava silenciosamente o gradiente de brilho que cardClassName
      (.vendorModalCard) tenta aplicar no mesmo elemento. Confirmado ao vivo:
      getComputedStyle(modalCard).backgroundImage voltava "none". */
-  background-color: color-mix(in srgb, var(--foreground) 2%, transparent);
+  background-color: color-mix(in srgb, var(--foreground) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
   padding: 0;
   gap: 0;
   overflow: hidden;
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(28px) saturate(130%);
+  backdrop-filter: blur(28px) saturate(130%);
 }
 
 .glass .modalHeader {
