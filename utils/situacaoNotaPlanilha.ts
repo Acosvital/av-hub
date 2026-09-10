@@ -16,8 +16,11 @@ export interface SituacaoBadgeProps {
 const SITUACOES: Array<{ campo: keyof NotaPlanilhaProps; label: string; cor: string }> = [
   { campo: 'cancelado', label: 'Cancelado', cor: 'var(--red)' },
   { campo: 'devolvido', label: 'Devolvido', cor: 'var(--orange)' },
-  { campo: 'devolucao_parcial', label: 'Devolução parcial', cor: 'var(--orange-light)' },
-  { campo: 'denegado', label: 'Denegado', cor: 'var(--red-light)' },
+  // --orange/--danger (não as variantes "-light") — esses badges são texto
+  // puro sem fundo próprio; as variantes "-light" são pensadas pra contraste
+  // sobre superfície escura/colorida e ficavam quase ilegíveis no tema claro.
+  { campo: 'devolucao_parcial', label: 'Devolução parcial', cor: 'var(--orange)' },
+  { campo: 'denegado', label: 'Denegado', cor: 'var(--danger)' },
   { campo: 'encerrado', label: 'Encerrado', cor: 'var(--gray)' },
   { campo: 'faturado', label: 'Faturado', cor: 'var(--green)' },
   { campo: 'manual_nf', label: 'Manual (NF)', cor: 'var(--purple)' },

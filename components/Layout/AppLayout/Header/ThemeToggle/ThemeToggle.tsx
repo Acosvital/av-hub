@@ -6,7 +6,7 @@ import { MdDarkMode, MdLightMode } from 'react-icons/md';
 import styles from './ThemeToggle.module.css';
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Evita erro de hidratação no Next
@@ -16,7 +16,12 @@ export default function ThemeToggle() {
 
   if (!mounted) return null;
 
-  const isDark = theme === 'dark';
+  // resolvedTheme (não theme) — com defaultTheme="system", "theme" fica
+  // "system" até o usuário escolher um tema explicitamente, mesmo com o
+  // app já resolvido pra escuro/claro. Usar "theme" aqui mostrava o ícone
+  // errado e fazia o primeiro clique não surtir efeito visual nenhum (só
+  // trocava "system" por "dark" de novo).
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <button

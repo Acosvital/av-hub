@@ -36,12 +36,17 @@ import styles from './styles.module.css';
 // já vira vermelho nos 3 níveis mais urgentes, ver CARD_SLA_CLASS; um selo
 // cheio por cima brigaria com o fundo). "normal" (4+ dias) não tem urgência
 // nenhuma, cor neutra.
+// --danger (não --red-light): o selo fica sobre o card já tingido de
+// vermelho (.cardAtrasado/.cardVaiVencer/.cardVenceHoje em
+// styles.module.css) — --red-light é pálido demais pra qualquer um dos
+// dois temas ler bem em cima desse tingimento, --danger (já theme-aware)
+// resolve os dois.
 const SLA_LABEL_COLOR: Record<SlaTier, string> = {
-  atrasado: 'var(--red-light)',
-  'vence-hoje': 'var(--red-light)',
-  'falta-1-dia': 'var(--red-light)',
-  'falta-2-dias': 'var(--red-light)',
-  'falta-3-dias': 'var(--red-light)',
+  atrasado: 'var(--danger)',
+  'vence-hoje': 'var(--danger)',
+  'falta-1-dia': 'var(--danger)',
+  'falta-2-dias': 'var(--danger)',
+  'falta-3-dias': 'var(--danger)',
   normal: 'var(--foreground-secondary)',
 };
 

@@ -187,15 +187,22 @@
    atrasado: vermelho mais escuro, sem piscar.
    vence hoje: vermelho, borda mais escura, E piscando (o mais urgente —
    ainda dá tempo hoje, por isso chama mais atenção que "atrasado"). */
+/* Misturado em var(--card-bg) (não "transparent") — o card já parte do
+   fundo real, então o resultado é sempre um TOM do próprio card (rosa claro
+   no tema claro, vermelho escuro no escuro). Antes misturava com
+   "transparent" (e .cardAtrasado usava #7f1d1d, um vermelho escuro fixo
+   pensado só pra ficar sobre fundo quase preto) — no tema claro isso virava
+   uma mancha rosa-empoeirada quase do mesmo tom do texto (--red-light) que
+   fica em cima, ilegível. */
 .cardVaiVencer {
   border-color: var(--red);
-  background-color: color-mix(in srgb, var(--red) 12%, transparent);
+  background-color: color-mix(in srgb, var(--red) 12%, var(--card-bg));
 }
 
 .cardAtrasado {
   border-width: 2px;
   border-color: var(--red);
-  background-color: color-mix(in srgb, #7f1d1d 30%, transparent);
+  background-color: color-mix(in srgb, var(--red) 24%, var(--card-bg));
 }
 
 .cardVenceHoje {
@@ -207,17 +214,17 @@
 @keyframes cardPulseVenceHoje {
   0%,
   100% {
-    background-color: color-mix(in srgb, var(--red) 45%, transparent);
+    background-color: color-mix(in srgb, var(--red) 45%, var(--card-bg));
   }
   50% {
-    background-color: color-mix(in srgb, var(--red) 20%, transparent);
+    background-color: color-mix(in srgb, var(--red) 20%, var(--card-bg));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cardVenceHoje {
     animation: none;
-    background-color: color-mix(in srgb, var(--red) 35%, transparent);
+    background-color: color-mix(in srgb, var(--red) 35%, var(--card-bg));
   }
 }
 

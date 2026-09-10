@@ -61,8 +61,11 @@
   font-weight: var(--w-bold);
 }
 
+/* --danger (não --red-light) — essas linhas ficam direto no fundo do card
+   (sem tingimento atrás), e --red-light (pensado pra contraste sobre fundo
+   escuro/colorido) ficava quase ilegível no tema claro. */
 .resumoPlanilhaDeducao .resumoPlanilhaValor {
-  color: var(--red-light);
+  color: var(--danger);
 }
 
 .resumoPlanilhaTotalDeducoes .resumoPlanilhaRotulo,

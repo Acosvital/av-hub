@@ -4,6 +4,20 @@ import { Components } from '@mui/material/styles';
 export const componentOverrides: Components<Theme> = {
   MuiButton: {},
   MuiTextField: {},
+  // CssBaseline injeta seu próprio reset de "body" (background/color com os
+  // defaults do MUI: #fff e rgba(0,0,0,.87)) e ganha do "body {...}" de
+  // styles/globals.css — mesma especificidade, injetado depois (idêntico ao
+  // bug de fontFamily já documentado acima em theme/index.ts, só que nunca
+  // corrigido pro background/color). Resultado: a página sempre renderizava
+  // branco 100% puro, nunca o --background levemente azulado pretendido.
+  MuiCssBaseline: {
+    styleOverrides: {
+      body: {
+        backgroundColor: 'var(--background)',
+        color: 'var(--foreground)',
+      },
+    },
+  },
   MuiPaper: {
     styleOverrides: {
       root: {

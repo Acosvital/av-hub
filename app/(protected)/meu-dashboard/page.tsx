@@ -149,7 +149,11 @@ export default function MeuDashboard() {
                     return (
                       <p
                         className={styles.comparacaoMesAnterior}
-                        style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                        // --danger (não --red-light): esse texto fica direto no fundo da
+                        // página, não numa superfície escura — --red-light é o tom pálido
+                        // pensado pra contraste sobre fundo escuro/colorido, e no tema claro
+                        // ficava quase ilegível (rosa claro sobre branco).
+                        style={{ color: subiu ? 'var(--green)' : 'var(--danger)' }}
                       >
                         {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs.{' '}
                         {toBRL(resposta.comparacaoMesAnterior.vendas.valor)} no mês passado
@@ -199,7 +203,7 @@ export default function MeuDashboard() {
                     return (
                       <p
                         className={styles.tileSub}
-                        style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                        style={{ color: subiu ? 'var(--green)' : 'var(--danger)' }}
                       >
                         {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs. mês passado
                       </p>
@@ -255,7 +259,7 @@ export default function MeuDashboard() {
                         <div className={styles.linhaClienteMeta}>
                           <span
                             className={styles.pedidosCliente}
-                            style={urgente ? { color: 'var(--red-light)', fontWeight: 'var(--w-semibold)' } : undefined}
+                            style={urgente ? { color: 'var(--danger)', fontWeight: 'var(--w-semibold)' } : undefined}
                           >
                             {sla?.texto ?? dateFormatter(p.data_previsao)}
                           </span>

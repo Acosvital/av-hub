@@ -136,7 +136,10 @@ export default function DashboardEquipe() {
                   return (
                     <p
                       className={styles.comparacaoMesAnterior}
-                      style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                      // --danger (não --red-light): texto direto no fundo da página, não
+                      // numa superfície escura — --red-light é o tom pálido pra contraste
+                      // sobre fundo escuro/colorido, ficava quase ilegível no tema claro.
+                      style={{ color: subiu ? 'var(--green)' : 'var(--danger)' }}
                     >
                       {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs. {toBRL(vendas.valorMesAnterior)}{' '}
                       no mês passado
@@ -182,7 +185,7 @@ export default function DashboardEquipe() {
                   return (
                     <p
                       className={styles.tileSub}
-                      style={{ color: subiu ? 'var(--green)' : 'var(--red-light)' }}
+                      style={{ color: subiu ? 'var(--green)' : 'var(--danger)' }}
                     >
                       {subiu ? '▲' : '▼'} {Math.abs(variacao).toFixed(1)}% vs. mês passado
                     </p>
@@ -241,7 +244,7 @@ export default function DashboardEquipe() {
                         <div className={styles.linhaClienteMeta}>
                           <span
                             className={styles.pedidosCliente}
-                            style={urgente ? { color: 'var(--red-light)', fontWeight: 'var(--w-semibold)' } : undefined}
+                            style={urgente ? { color: 'var(--danger)', fontWeight: 'var(--w-semibold)' } : undefined}
                           >
                             {sla?.texto ?? dateFormatter(p.data_previsao)}
                           </span>

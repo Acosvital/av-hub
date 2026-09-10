@@ -80,10 +80,16 @@
   overflow-y: auto;
 }
 
+/* Grid com coluna fixa por campo (não flex-wrap) — com flex-wrap, o único
+   campo com flex:1 (numeroPedido) sobrava/faltava espaço de forma diferente
+   linha a linha (nome do vendedor e etapa variam de tamanho, chip de
+   contrato é opcional), fazendo cada pedido quebrar linha num lugar
+   diferente. Cada campo agora tem grid-column explícito — sempre no mesmo
+   lugar, chip ausente só deixa a coluna 3 vazia. */
 .linhaPedido {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) auto auto;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--space-3);
   padding: var(--space-3);
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
@@ -92,28 +98,64 @@
 }
 
 .numeroPedido {
-  flex: 1;
+  grid-column: 1;
   min-width: 0;
   font-weight: var(--w-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dataPedido {
+  grid-column: 2;
+  min-width: 0;
   color: var(--foreground-secondary);
   font-size: var(--fs-xs);
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tipoContratoChip {
+  grid-column: 3;
   color: var(--white);
   font-size: var(--fs-xs);
   font-weight: var(--w-semibold);
   padding: 2px var(--space-2);
   border-radius: var(--radius-pill);
-  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .valorPedido {
+  grid-column: 4;
+  text-align: right;
   font-weight: var(--w-semibold);
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 480px) {
+  .linhaPedido {
+    grid-template-columns: 1fr auto;
+    row-gap: var(--space-1);
+  }
+
+  .numeroPedido {
+    grid-column: 1 / span 2;
+  }
+
+  .dataPedido {
+    grid-column: 1;
+    white-space: normal;
+  }
+
+  .tipoContratoChip {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .valorPedido {
+    grid-column: 1 / span 2;
+    text-align: left;
+  }
 }

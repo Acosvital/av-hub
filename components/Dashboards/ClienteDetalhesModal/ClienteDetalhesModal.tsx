@@ -126,10 +126,8 @@ const ClienteDetalhesModal = ({ isOpen, onClose, cliente, mes, ano }: ClienteDet
                 <span className={styles.numeroPedido}>Pedido nº {p.numero_pedido ?? '—'}</span>
                 <span className={styles.dataPedido}>
                   {p.data_inclusao ? dateFormatter(p.data_inclusao) : '—'}
+                  {p.etapa_descricao && ` · ${p.etapa_descricao}`}
                 </span>
-                {p.etapa_descricao && (
-                  <span className={styles.dataPedido}>{p.etapa_descricao}</span>
-                )}
                 {p.tipo_contrato && (
                   <span
                     className={styles.tipoContratoChip}

@@ -60,7 +60,11 @@
   /* Card / data-surface semantic tokens (theme-aware) */
   --card-bg: var(--neutral-0);
   --card-bg-secondary: var(--neutral-50);
-  --card-bg-tertiary: #3f4857;
+  /* Nunca tinha um valor pra modo claro (só existia #3f4857, um slate
+     escuro) — ClienteDetalhesModal/CommissionDetailsModal/Order usam pra
+     um painel de destaque, e no claro isso virava uma caixa escura solta
+     no meio de um modal branco. Valor escuro real mora só no .dark agora. */
+  --card-bg-tertiary: var(--navy-50);
   --header-bg: var(--neutral-0);
   --card-title: var(--av-primary);
   --input-bg: var(--neutral-0);
@@ -85,9 +89,14 @@
   /* Glow background opacity (dashboards/list pages) — soft "morning light"
      wash in light mode; dark mode gets the stronger "aurora" look via the
      .dark override below. Keeps every .pageGlow::before in sync from one
-     place instead of a hardcoded % per page. */
-  --glow-accent-op: 10%;
-  --glow-blue-op: 9%;
+     place instead of a hardcoded % per page.
+     Accent (laranja) e blue eram quase iguais (10%/9%), mas contra um fundo
+     claro o laranja "pesa" muito mais que o azul no mesmo %, e fica no
+     canto superior esquerdo — onde o olho bate primeiro. Resultado: a
+     página inteira lia como avermelhada em vez de neutra/azulada. Accent
+     mais fraco, blue mais forte inverte esse equilíbrio de propósito. */
+  --glow-accent-op: 6%;
+  --glow-blue-op: 16%;
 
   /* ---------- SEMANTIC: TEXT ---------- */
   --foreground: var(--neutral-900);
@@ -283,6 +292,7 @@
   --card-bg: var(--navy-850);
   --card-bg-secondary: var(--navy-800);
   /* slate-700 — cards pop forward */
+  --card-bg-tertiary: #3f4857;
   --header-bg: #131d33;
   /* one tier darker so cards float over the header line */
   --card-title: var(--neutral-50);

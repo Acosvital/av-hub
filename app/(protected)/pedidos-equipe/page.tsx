@@ -33,12 +33,17 @@ import { LinhaResumoPlanilhaProps } from '@/lib/api/dashboardEquipeDomain';
 import styles from '@/app/(protected)/meus-pedidos/styles.module.css';
 import resumoStyles from './styles.module.css';
 
+// --danger (não --red-light): o selo fica sobre o card já tingido de
+// vermelho (.cardAtrasado/.cardVaiVencer/.cardVenceHoje em
+// meus-pedidos/styles.module.css, reaproveitado aqui) — --red-light é
+// pálido demais pra qualquer um dos dois temas ler bem em cima desse
+// tingimento, --danger (já theme-aware) resolve os dois.
 const SLA_LABEL_COLOR: Record<SlaTier, string> = {
-  atrasado: 'var(--red-light)',
-  'vence-hoje': 'var(--red-light)',
-  'falta-1-dia': 'var(--red-light)',
-  'falta-2-dias': 'var(--red-light)',
-  'falta-3-dias': 'var(--red-light)',
+  atrasado: 'var(--danger)',
+  'vence-hoje': 'var(--danger)',
+  'falta-1-dia': 'var(--danger)',
+  'falta-2-dias': 'var(--danger)',
+  'falta-3-dias': 'var(--danger)',
   normal: 'var(--foreground-secondary)',
 };
 

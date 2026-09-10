@@ -292,7 +292,7 @@ const Menu = () => {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [isSyncing, setIsSyncing] = useState(false);
   const { data: session, status, update } = useSession();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const { mobileMenuOpen, setMobileMenuOpen } = useLayout();
   const pathname = usePathname();
   const router = useRouter();
@@ -515,7 +515,14 @@ const Menu = () => {
   const userName = session?.user?.name ?? session?.user?.email ?? '';
   const idUsuario = session?.user?.id_usuario ?? '';
   const isCredentials = session?.user?.authProvider === 'credentials';
-  const isDark = theme === 'dark';
+  // resolvedTheme (não theme) — com defaultTheme="system" (ver
+  // providers/theme-provider.tsx), "theme" fica literalmente "system" até o
+  // usuário escolher um tema explicitamente, e "system" !== 'dark' mesmo
+  // com o app já visualmente escuro. Isso fazia o ícone/label mostrarem o
+  // estado errado e o primeiro clique não mudar nada visualmente (só
+  // trocava "system" por "dark" de novo, precisando de um segundo clique
+  // pra realmente ir pro claro).
+  const isDark = resolvedTheme === 'dark';
 
   const handleLogout = async () => {
     await signOut({
