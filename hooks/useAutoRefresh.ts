@@ -10,18 +10,38 @@ export const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
 // Pausa quando a aba sai de foco (visibilitychange) pra não gastar request
 // com a página escondida, e já refaz na volta em vez de esperar o próximo
 // tick (que podia demorar quase o intervalo inteiro pra mostrar dado novo).
-export default function useAutoRefresh(callback: () => void, intervalMs: number = DASHBOARD_REFRESH_INTERVAL_MS) {
+export default function useAutoRefresh(
+  callback: () => void | Promise<void>,
+  intervalMs: number = DASHBOARD_REFRESH_INTERVAL_MS
+) {
   const callbackRef = useRef(callback);
   useEffect(() => {
     callbackRef.current = callback;
   });
+
+  // Alguns dos endpoints agregados que os dashboards chamam já demoraram
+  // 100s+ "frios" (consulta pesada, sem codigo_empresa) — bem mais que o
+  // intervalo de 1min. Sem essa trava, cada tick empilharia mais uma
+  // chamada em cima da anterior ainda em andamento, piorando exatamente a
+  // lentidão que causa o problema.
+  const emVooRef = useRef(false);
+
+  async function runIfIdle() {
+    if (emVooRef.current) return;
+    emVooRef.current = true;
+    try {
+      await callbackRef.current();
+    } finally {
+      emVooRef.current = false;
+    }
+  }
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
     function start() {
       if (intervalId !== null) return;
-      intervalId = setInterval(() => callbackRef.current(), intervalMs);
+      intervalId = setInterval(() => runIfIdle(), intervalMs);
     }
 
     function stop() {
@@ -35,7 +55,7 @@ export default function useAutoRefresh(callback: () => void, intervalMs: number 
       if (document.hidden) {
         stop();
       } else {
-        callbackRef.current();
+        runIfIdle();
         start();
       }
     }

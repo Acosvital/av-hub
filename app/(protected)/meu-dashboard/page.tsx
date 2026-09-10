@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
@@ -47,6 +47,10 @@ export default function MeuDashboard() {
   const [verTodosInativos, setVerTodosInativos] = useState(false);
   const [clienteSelecionado, setClienteSelecionado] = useState<ClienteDetalhesProps | null>(null);
   const { completeDate } = useDashboardDate();
+  const respostaRef = useRef(resposta);
+  useEffect(() => {
+    respostaRef.current = resposta;
+  }, [resposta]);
 
   // silent=true (chamado pelo auto-refresh) não mexe no loading — sem isso,
   // o dashboard inteiro voltaria a mostrar o spinner a cada 1min.
@@ -58,7 +62,25 @@ export default function MeuDashboard() {
           mes: completeDate.month() + 1,
           ano: completeDate.year(),
         });
-        setResposta(dados);
+        // Mesmo raciocínio de dashboard-equipe/page.tsx: as somas de
+        // vendas/faturamento vêm de uma consulta que pode degradar pra 0
+        // em vez de erro num timeout parcial (ver meuDashboardDomain.ts) —
+        // um refresh silencioso não deve trocar dado bom por um zero
+        // enganoso vindo de uma falha mascarada.
+        const pareceFalhaMascarada =
+          silent &&
+          respostaRef.current &&
+          Number(dados.vendas?.valor) === 0 &&
+          Number(dados.vendas?.quantidade) === 0 &&
+          Number(dados.faturamento?.valor) === 0 &&
+          Number(dados.faturamento?.quantidade) === 0;
+        if (pareceFalhaMascarada) {
+          console.warn(
+            'Auto-refresh do Meu Dashboard voltou com vendas e faturamento zerados — provável timeout parcial no backend, mantendo o último dado bom.'
+          );
+        } else {
+          setResposta(dados);
+        }
       } catch (err) {
         console.error(err);
         // Num refresh silencioso, um erro passageiro não deve apagar o

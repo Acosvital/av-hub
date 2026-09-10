@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
@@ -47,6 +47,10 @@ export default function DashboardEquipe() {
     null
   );
   const { completeDate } = useDashboardDate();
+  const respostaRef = useRef(resposta);
+  useEffect(() => {
+    respostaRef.current = resposta;
+  }, [resposta]);
 
   // silent=true (chamado pelo auto-refresh) não mexe no loading — sem isso,
   // o dashboard inteiro voltaria a mostrar o spinner a cada 1min.
@@ -58,7 +62,29 @@ export default function DashboardEquipe() {
           mes: completeDate.month() + 1,
           ano: completeDate.year(),
         });
-        setResposta(dados);
+        // dashboard_mensal_vendas/faturamento SEM codigo_empresa (consolidado
+        // de todas as empresas) é uma consulta pesada no backend — já vimos
+        // ela levar 100s+ "fria". Um timeout parcial nessa chamada não vira
+        // erro pra quem chama (dashboardEquipeDomain.ts devolve 0 em vez de
+        // lançar, de propósito, pra 1 seção lenta não derrubar a tela
+        // inteira) — só que isso faz um refresh silencioso, sem querer,
+        // trocar dado bom por zero. Descarta esse caso específico (as duas
+        // métricas principais zeradas ao mesmo tempo, depois de já ter tido
+        // dado real) em vez de aceitar cegamente.
+        const pareceFalhaMascarada =
+          silent &&
+          respostaRef.current &&
+          Number(dados.vendas?.valor) === 0 &&
+          Number(dados.vendas?.quantidade) === 0 &&
+          Number(dados.faturamento?.valor) === 0 &&
+          Number(dados.faturamento?.quantidade) === 0;
+        if (pareceFalhaMascarada) {
+          console.warn(
+            'Auto-refresh do Dashboard da Equipe voltou com vendas e faturamento zerados — provável timeout parcial no backend, mantendo o último dado bom.'
+          );
+        } else {
+          setResposta(dados);
+        }
       } catch (err) {
         console.error(err);
         // Num refresh silencioso, um erro passageiro não deve apagar o
