@@ -68,7 +68,7 @@ const Vendas = () => {
   const top3 = rankingVendedores.slice(0, 3);
   const otherVendors = rankingVendedores.slice(3);
   const gauge = Number(vendaMensal?.perc_atingimento);
-  const scrollDuration = `${otherVendors.length * 1.7}s`;
+  const scrollDuration = `${otherVendors.length * 3}s`;
 
   const vendasPorTipoPorLabel = new Map(vendasPorTipo.map((t) => [t.tipo_contrato, t]));
   const tiposVenda = TIPO_VENDA_DEFINITIONS.map((label) => ({

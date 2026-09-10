@@ -207,7 +207,7 @@ const VendasPorTipo = () => {
     : clientRankingFull;
   const top3Clients = clientRanking.slice(0, 3);
   const otherClients = clientRanking.slice(3);
-  const clientScrollDuration = `${otherClients.length * 1.7}s`;
+  const clientScrollDuration = `${otherClients.length * 3}s`;
 
   /* */
   const toggleClientType = (type: ClientOrderType) => {

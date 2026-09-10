@@ -60,7 +60,7 @@ export default function Faturamento() {
 
   const top3 = sellerRanking.slice(0, 3);
   const otherVendors = sellerRanking.slice(3);
-  const scrollDuration = `${otherVendors.length * 1.7}s`;
+  const scrollDuration = `${otherVendors.length * 3}s`;
   const gauge = Number(faturamentoMensal?.perc_atingimento);
   const billingTypes = faturamentoPorTipo.map((tipo) => ({
     label: tipo.tipo_contrato,

@@ -110,7 +110,7 @@ const CommissionRankingTable = ({ vendors, managers, onRowClick }: CommissionRan
   const rows = activeTab === 'vendedores' ? vendors : managers;
   const top3 = rows.slice(0, 3);
   const otherRows = rows.slice(3);
-  const scrollDuration = `${otherRows.length * 1.7}s`;
+  const scrollDuration = `${otherRows.length * 3}s`;
   // Gerência tem poucos nomes (não passa de um punhado) — o pódio "flutuante"
   // + a lista rolando sozinha (pensados pra dúzias de vendedores) ficavam
   // sem sentido e pareciam quebrados com tão pouca gente. Pedido do Nathan:
