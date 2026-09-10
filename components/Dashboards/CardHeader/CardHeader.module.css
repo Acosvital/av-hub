@@ -24,3 +24,10 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* Monitor de mesa (não notebook) — mesmo critério de RevenueGauge.module.css. */
+@media (min-width: 1600px) {
+  .title {
+    font-size: var(--fs-md);
+  }
+}

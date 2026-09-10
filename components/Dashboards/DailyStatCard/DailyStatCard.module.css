@@ -52,3 +52,16 @@
 .yesterdayValue {
   color: var(--foreground-secondary);
 }
+
+/* Monitor de mesa (não notebook) — mesmo critério de RevenueGauge.module.css. */
+@media (min-width: 1600px) {
+  .todayLabel,
+  .yesterdayLabel {
+    font-size: var(--fs-base);
+  }
+
+  .todayValue,
+  .yesterdayValue {
+    font-size: var(--fs-xl);
+  }
+}

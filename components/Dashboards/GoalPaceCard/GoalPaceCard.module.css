@@ -86,3 +86,19 @@
   line-height: 1.2;
   color: var(--foreground-secondary);
 }
+
+/* Monitor de mesa (não notebook) — mesmo critério de RevenueGauge.module.css. */
+@media (min-width: 1600px) {
+  .textSm,
+  .textXs {
+    font-size: var(--fs-base);
+  }
+
+  .textLg {
+    font-size: var(--fs-2xl);
+  }
+
+  .pill {
+    font-size: var(--fs-sm);
+  }
+}

@@ -220,3 +220,14 @@
     padding-bottom: var(--space-3);
   }
 }
+
+/* Monitor de mesa (não notebook) — mesmo critério de RevenueGauge.module.css. */
+@media screen and (min-width: 1600px) {
+  .tipoVendaLabel {
+    font-size: var(--fs-base);
+  }
+
+  .tipoVendaValue {
+    font-size: var(--fs-2xl);
+  }
+}

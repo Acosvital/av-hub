@@ -1,5 +1,7 @@
+import { useMediaQuery } from '@mui/material';
 import { FaBoxesStacked, FaClockRotateLeft } from 'react-icons/fa6';
 import Gauge from '@/components/Charts/Gauge/Gauge';
+import useLayout from '@/hooks/useLayout';
 import toBRL from '@/utils/toBRL';
 import styles from './RevenueGauge.module.css';
 
@@ -29,6 +31,15 @@ const RevenueGauge = ({
   const compactMeta = new Intl.NumberFormat('pt-BR', {
     notation: 'compact',
   }).format(target);
+  // Telas de monitor (não notebook) sobram espaço que o gauge de 180px
+  // (tamanho pensado pro ajuste de notebook) deixava vazio — MUI Gauge
+  // recebe width/height numéricos direto, não dá pra crescer só via CSS.
+  const isDesktop = useMediaQuery('(min-width: 1600px)');
+  // Tela cheia esconde o menu lateral e sobra ainda mais espaço no mesmo
+  // monitor — mesmo estado (fullscreen) que o Layout usa pra decidir se
+  // renderiza o <Menu/>, então o gauge cresce mais um degrau junto.
+  const { fullscreen } = useLayout();
+  const gaugeSize = !isDesktop ? 180 : fullscreen ? 240 : 210;
   return (
     <div className={styles.gaugeContainer}>
       {totalOrders && (
@@ -37,7 +48,7 @@ const RevenueGauge = ({
           {totalOrders}{' '}
         </h5>
       )}
-      <Gauge size={180} value={value} color={color} gradientFrom={gradientColor} />
+      <Gauge size={gaugeSize} value={value} color={color} gradientFrom={gradientColor} />
       <div className={styles.totalRevenueValues}>
         <div>
           <h2 className={`${styles.defaultTitle} sectionLabel`}>{type} total</h2>

@@ -108,3 +108,29 @@
     font-size: var(--fs-xs);
   }
 }
+
+/* Monitor de mesa (não notebook, ver Gauge size={isDesktop?210:180} em
+   RevenueGauge.tsx) — os textos ao redor do gauge também sobem um degrau
+   na escala tipográfica, senão ficam pequenos demais perto do gauge maior. */
+@media (min-width: 1600px) {
+  .defaultTitle,
+  .defaultSubtitle {
+    font-size: var(--fs-sm);
+  }
+
+  .revenueValue {
+    font-size: var(--fs-2xl);
+  }
+
+  .meta {
+    font-size: var(--fs-xl);
+  }
+
+  .secondarySubtitle {
+    font-size: var(--fs-base);
+  }
+
+  .totalOrders {
+    font-size: var(--fs-base);
+  }
+}
