@@ -1,18 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { FaHistory, FaFileExport } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
 import TablePagination from '@/components/Ui/TablePagination/TablePagination';
-import SearchFilterBar from '@/components/Ui/SearchFilterBar/SearchFilterBar';
+import SearchFilterBar, { FilterDef } from '@/components/Ui/SearchFilterBar/SearchFilterBar';
 import Button from '@/components/Ui/Button/Button';
 import MesSeletor from '@/components/Ui/MesSeletor/MesSeletor';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import { useDebounce } from '@/hooks/useDebouncer';
 import { getPedidosEquipe } from '@/services/portalGerente/pedidosEquipe';
+import { getOpcoesFiltroEtapa } from '@/services/portalGerente/etapasFaturamento';
 import {
   StatusHistoricoEquipeResponse,
   getStatusHistoricoEquipe,
@@ -116,16 +117,8 @@ type FiltroSla = 'atrasado' | 'vence-hoje' | 'vai-vencer' | 'em-dia';
 // NÃO é equivalente a filtrar pelos flags booleanos abaixo: a API avisa que
 // grupo=G1 e cancelado=true podem devolver conjuntos diferentes (a cascata
 // tem precedência — ex.: pedido manual sai como líquido mesmo cancelado).
-const GRUPO_FILTRO_LABEL: Record<string, string> = {
-  G1: 'Cancelado',
-  G2: 'Devolvido',
-  G2P: 'Devolvido parcialmente',
-  G3: 'Recusado',
-  G4: 'Aços Vital Chile (operações no exterior)',
-  G5: 'Aços Vital Vendedor (operações internas)',
-  G6: 'Refaturamento',
-  LIQUIDO: 'Líquido (sem dedução)',
-};
+// Único jeito de acionar esse filtro é clicando na linha (selecionarFiltroPorGrupo)
+// — não existe mais um dropdown manual de Grupo na barra de busca.
 
 // Prazo (SLA) não é uma coluna da view — é calculado no frontend a partir de
 // data_previsao/faturado (ver utils/slaPedido.ts), então esse filtro não dá
@@ -142,12 +135,13 @@ function pedidoCombinaFiltroSla(pedido: PedidoPlanilhaProps, filtro: FiltroSla):
   return sla.tier === 'normal';
 }
 
-// Etapa ainda não tem descrição textual (a view devolve só o número) — o DBA
-// vai trocar isso por texto em breve; até lá o filtro mostra o número cru
-// mesmo, como pedido pelo Nathan.
-const ETAPAS = ['0', '10', '20', '60', '70', '80'];
-
-const FILTROS_SITUACAO = [
+// As opções do filtro de Etapa vêm de /etapas_faturamento (ver
+// services/portalGerente/etapasFaturamento.ts) em vez de uma lista estática
+// — o mesmo código numérico tem descrição DIFERENTE por empresa (confirmado
+// ao vivo: etapa 20 é "Separar Estoque" numa filial e "Liberado Compras" em
+// outra), então o serviço já junta os textos distintos de cada empresa num
+// rótulo só por código, em vez de arriscar um texto fixo errado.
+const FILTROS_BASE: FilterDef[] = [
   {
     key: 'situacao_flag',
     label: 'Situação',
@@ -160,16 +154,6 @@ const FILTROS_SITUACAO = [
       { value: 'devolucao_parcial', label: 'Devolução parcial' },
       { value: 'encerrado', label: 'Encerrado' },
     ],
-  },
-  {
-    key: 'etapa',
-    label: 'Etapa',
-    options: ETAPAS.map((etapa) => ({ value: etapa, label: `Etapa ${etapa}` })),
-  },
-  {
-    key: 'grupo',
-    label: 'Grupo',
-    options: Object.entries(GRUPO_FILTRO_LABEL).map(([value, label]) => ({ value, label })),
   },
   {
     key: 'sla',
@@ -203,8 +187,28 @@ export default function PedidosEquipe() {
   const [carregandoHistorico, setCarregandoHistorico] = useState<number | null>(null);
   const [resumoMes, setResumoMes] = useState({ total: 0, atrasados: 0, faturados: 0 });
   const [resumoPlanilha, setResumoPlanilha] = useState<LinhaResumoPlanilhaProps[]>([]);
+  const [etapaOpcoes, setEtapaOpcoes] = useState<FilterDef['options']>([]);
   const { completeDate } = useDashboardDate();
   const listaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getOpcoesFiltroEtapa()
+      .then(setEtapaOpcoes)
+      .catch((err) => console.error('Erro ao buscar opções de etapa', err));
+  }, []);
+
+  // Grupo (cascata Bruto→Deduções→Líquido) só filtra clicando numa linha da
+  // Composição das vendas do mês (selecionarFiltroPorGrupo) — não é mais um
+  // filtro manual na barra de busca, pra não duplicar a mesma ação de duas
+  // formas diferentes na tela.
+  const filtros: FilterDef[] = useMemo(
+    () => [
+      FILTROS_BASE[0],
+      { key: 'etapa', label: 'Etapa', options: etapaOpcoes },
+      FILTROS_BASE[1],
+    ],
+    [etapaOpcoes]
+  );
 
   function selecionarFiltroPorGrupo(grupo: string | null) {
     if (!grupo) return;
@@ -479,10 +483,9 @@ export default function PedidosEquipe() {
               setPage(0);
             }}
             searchPlaceholder="Buscar por número do pedido..."
-            filters={FILTROS_SITUACAO}
+            filters={filtros}
             activeValues={{
               situacao_flag: situacaoFiltro || undefined,
-              grupo: grupoFiltro || undefined,
               etapa: etapaFiltro || undefined,
               sla: slaFiltro || undefined,
             }}
@@ -490,11 +493,6 @@ export default function PedidosEquipe() {
               if (key === 'situacao_flag') {
                 setSituacaoFiltro((value as FlagSituacao | null) ?? '');
                 setGrupoFiltro('');
-                setPage(0);
-              }
-              if (key === 'grupo') {
-                setGrupoFiltro(value ?? '');
-                setSituacaoFiltro('');
                 setPage(0);
               }
               if (key === 'etapa') {
@@ -599,7 +597,10 @@ export default function PedidosEquipe() {
                         )}
                         {pedido.etapa !== null && (
                           <span className={styles.fact}>
-                            Etapa <b>{pedido.etapa}</b>
+                            {/* etapa_descricao vem nulo só se o catálogo daquela filial
+                                ainda não sincronizou essa etapa (raro, transitório) — cai
+                                pro código cru nesse caso em vez de esconder o fact inteiro. */}
+                            Etapa <b>{pedido.etapa_descricao ?? pedido.etapa}</b>
                           </span>
                         )}
                         <button
@@ -740,7 +741,7 @@ export default function PedidosEquipe() {
                             )}
                             {parcial.etapa !== null && (
                               <span>
-                                Etapa <b>{parcial.etapa}</b>
+                                Etapa <b>{parcial.etapa_descricao ?? parcial.etapa}</b>
                               </span>
                             )}
                             <button

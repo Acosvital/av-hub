@@ -58,6 +58,7 @@ export interface NotaPlanilhaProps {
   chave_nf: string | null;
   averbado: boolean | null;
   etapa: number | null;
+  etapa_descricao: string | null;
   autorizado: boolean;
   denegado: boolean;
   faturado: boolean;

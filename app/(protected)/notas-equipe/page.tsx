@@ -46,17 +46,13 @@ type FlagSituacaoNota =
 // NÃO é equivalente a filtrar pelos flags booleanos abaixo: a API avisa que
 // grupo=G1 e cancelado=true podem devolver conjuntos diferentes (a cascata
 // tem precedência — ex.: nota manual sai como líquido mesmo cancelada).
-const GRUPO_FILTRO_LABEL: Record<string, string> = {
-  G1: 'Cancelado',
-  G2: 'Devolvido',
-  G2P: 'Devolvido parcialmente',
-  G3: 'Recusado',
-  G4: 'Aços Vital Chile (operações no exterior)',
-  G5: 'Aços Vital Vendedor (operações internas)',
-  G6: 'Refaturamento',
-  LIQUIDO: 'Líquido (sem dedução)',
-};
+// Único jeito de acionar esse filtro é clicando na linha (selecionarFiltroPorGrupo)
+// — não existe mais um dropdown manual de Grupo na barra de busca.
 
+// Grupo (cascata Bruto→Deduções→Líquido) só filtra clicando numa linha da
+// Composição das notas do mês (selecionarFiltroPorGrupo) — não é mais um
+// filtro manual na barra de busca, pra não duplicar a mesma ação de duas
+// formas diferentes na tela.
 const FILTROS_SITUACAO = [
   {
     key: 'situacao_flag',
@@ -69,11 +65,6 @@ const FILTROS_SITUACAO = [
       { value: 'devolucao_parcial', label: 'Devolução parcial' },
       { value: 'manual_nf', label: 'Manual' },
     ],
-  },
-  {
-    key: 'grupo',
-    label: 'Grupo',
-    options: Object.entries(GRUPO_FILTRO_LABEL).map(([value, label]) => ({ value, label })),
   },
 ];
 
@@ -338,16 +329,11 @@ export default function NotasEquipe() {
             }}
             searchPlaceholder="Buscar por número da nota..."
             filters={FILTROS_SITUACAO}
-            activeValues={{ situacao_flag: situacaoFiltro || undefined, grupo: grupoFiltro || undefined }}
+            activeValues={{ situacao_flag: situacaoFiltro || undefined }}
             onFilterChange={(key, value) => {
               if (key === 'situacao_flag') {
                 setSituacaoFiltro((value as FlagSituacaoNota | null) ?? '');
                 setGrupoFiltro('');
-                setPage(0);
-              }
-              if (key === 'grupo') {
-                setGrupoFiltro(value ?? '');
-                setSituacaoFiltro('');
                 setPage(0);
               }
             }}
@@ -417,7 +403,10 @@ export default function NotasEquipe() {
                       )}
                       {nota.etapa !== null && (
                         <span className={styles.fact}>
-                          Etapa <b>{nota.etapa}</b>
+                          {/* etapa_descricao vem nulo só se o catálogo daquela filial ainda
+                              não sincronizou essa etapa (raro, transitório) — cai pro código
+                              cru nesse caso em vez de esconder o fact inteiro. */}
+                          Etapa <b>{nota.etapa_descricao ?? nota.etapa}</b>
                         </span>
                       )}
                       {nota.status_refaturamento && (

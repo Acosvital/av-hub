@@ -27,6 +27,7 @@ export interface PedidoPlanilhaProps {
   numero_contrato: string | null;
   sequencial: number | null;
   etapa: number | null;
+  etapa_descricao: string | null;
   data_previsao: string | null;
   data_faturamento: string | null;
   hora_faturamento: string | null;
