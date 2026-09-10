@@ -118,13 +118,74 @@
      cards de página) ficava ilegível aqui: o texto por trás passava quase
      sem desfoque (backdrop-filter não é confiável em cima de conteúdo com
      stacking context próprio, tipo os cards do dashboard). Ainda mantém o
-     blur como acabamento, mas a base já é opaca o bastante sozinha. */
-  background: color-mix(in srgb, var(--header-bg) 96%, transparent);
+     blur como acabamento, mas a base já é opaca o bastante sozinha.
+     background-color (não o shorthand "background") — .calendarCard soma um
+     background-image de brilho no mesmo elemento; o shorthand apagaria isso. */
+  background-color: color-mix(in srgb, var(--header-bg) 96%, transparent);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
-  border-top: none;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  /* Card flutuante independente (space-2 de vão até o botão) — cantos
+     inteiros, igual ao .card do MesSeletor e ao vidro fosco do modal de
+     detalhe do vendedor, em vez do topo reto de quando ele ficava "colado"
+     no header. */
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Acabamento "premium" só do calendário de mês/ano (mesmo nível do vidro
+   fosco + brilho do modal de Detalhe do Vendedor) — os popovers de
+   empresa/busca continuam com o vidro simples de .datePickerCard. Mesma
+   fórmula de glow accent+blue usada em quase toda página do app
+   (--glow-accent-op/--glow-blue-op), só que num raio menor pra caber num
+   popover pequeno. */
+.calendarCard {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    radial-gradient(
+      220px 150px at 8% -20%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      200px 170px at 100% 25%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+  animation: calendarPopIn 160ms ease;
+}
+
+@keyframes calendarPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.calendarHeaderIcon {
+  color: var(--av-accent);
+  font-size: var(--fs-sm);
 }
 
 .empresaOptionsList {
@@ -317,11 +378,6 @@
     left: var(--space-4);
     right: var(--space-4);
     z-index: 50;
-  }
-
-  .datePickerCard {
-    border-top: 1px solid var(--border);
-    border-radius: var(--radius-md);
   }
 
   .searchCard {

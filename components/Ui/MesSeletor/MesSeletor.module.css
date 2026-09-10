@@ -30,12 +30,30 @@
 }
 
 .card {
+  position: relative;
   /* Opacidade alta de propósito — este popover flutua sobre o conteúdo da
      página (que pode ter cards/gráficos coloridos atrás) e o "vidro" baixo
      (55-60%, usado nos cards de página normais) fica ilegível num popover
      flutuante. Ainda mantém o blur como acabamento, mas a base já é opaca
-     o bastante sozinha. */
-  background: color-mix(in srgb, var(--card-bg) 96%, transparent);
+     o bastante sozinha.
+     background-color (não o shorthand "background") — o background-image de
+     brilho logo abaixo soma no mesmo elemento; o shorthand apagaria isso. */
+  background-color: color-mix(in srgb, var(--card-bg) 96%, transparent);
+  /* Mesmo acabamento "premium" (vidro fosco + brilho accent/blue) do modal
+     de Detalhe do Vendedor — mesma fórmula de glow usada em quase toda
+     página do app (--glow-accent-op/--glow-blue-op), num raio menor pra
+     caber num popover pequeno. */
+  background-image:
+    radial-gradient(
+      220px 150px at 8% -20%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      200px 170px at 100% 25%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
@@ -43,6 +61,39 @@
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   padding: 4px 4px 0;
+  animation: calendarPopIn 160ms ease;
+}
+
+@keyframes calendarPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: -4px -4px var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--w-bold);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--foreground-secondary);
+  border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.cardHeaderIcon {
+  color: var(--av-accent);
+  font-size: var(--fs-sm);
 }
 
 /* Em telas estreitas, `right: 0` faz o menu crescer pra esquerda a partir do

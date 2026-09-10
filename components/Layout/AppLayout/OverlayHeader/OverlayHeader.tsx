@@ -407,7 +407,11 @@ const OverlayHeader = () => {
             </button>
             {isOpenDatePicker && (
               <div className={styles.datePickerMenu}>
-                <div className={styles.datePickerCard}>
+                <div className={`${styles.datePickerCard} ${styles.calendarCard}`}>
+                  <div className={styles.calendarHeader}>
+                    <FaRegCalendarAlt className={styles.calendarHeaderIcon} />
+                    <span>Selecionar mês</span>
+                  </div>
                   <LocalizationProvider
                     dateAdapter={AdapterDayjs}
                     adapterLocale="pt-br"

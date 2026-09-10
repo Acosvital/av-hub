@@ -47,6 +47,10 @@ export default function MesSeletor() {
       {aberto && (
         <div className={styles.menu}>
           <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <FaRegCalendarAlt className={styles.cardHeaderIcon} />
+              <span>Selecionar mês</span>
+            </div>
             <LocalizationProvider
               dateAdapter={AdapterDayjs}
               adapterLocale="pt-br"
