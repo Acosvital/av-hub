@@ -3,7 +3,9 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(request: NextRequest) {
-  const denied = await requirePermission('metas-mensais', 'pode_visualizar');
+  // Também usado pela tela "Fechamento" pra ler a meta de cada mês (a meta
+  // em si continua só editável em Cadastro de Metas — aqui é só leitura).
+  const denied = await requirePermission(['metas-mensais', 'fechamento'], 'pode_visualizar');
   if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;

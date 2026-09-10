@@ -3,7 +3,9 @@ import { apiFetch } from '@/lib/api/fetchHelper';
 import { requirePermission } from '@/lib/api/requirePermission';
 
 export async function GET(request: NextRequest) {
-  const denied = await requirePermission('dash-vendas', 'pode_visualizar');
+  // Também usado pela tela "Fechamento" (meses automáticos, a partir de
+  // set/2026) pra ler o total consolidado do mês.
+  const denied = await requirePermission(['dash-vendas', 'fechamento'], 'pode_visualizar');
   if (denied) return denied;
   try {
     const { searchParams } = request.nextUrl;
