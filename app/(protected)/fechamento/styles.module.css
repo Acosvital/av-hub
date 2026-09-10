@@ -12,7 +12,13 @@
 .pageGlow::before {
   content: '';
   position: absolute;
-  top: -1.5rem;
+  /* -1.5rem só cancelava o padding-top do <main> (--space-4) e mal
+     ultrapassava — o topo do gradiente ficava colado bem na borda de cima
+     da área rolável (overflow-y:auto corta o que passar do próprio limite),
+     sobrando só a cauda já bem esmaecida do degradê visível no topo real
+     da tela. Empurra mais pra cima pra sobrar região "quente" de verdade
+     visível a partir do topo. */
+  top: -4rem;
   right: -1rem;
   bottom: 0;
   left: -1rem;
@@ -75,6 +81,16 @@
 @media screen and (max-width: 768px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* O gauge de cada card tem tamanho fixo (168px, ver MonthGaugeCard.tsx) —
+   2 colunas nessa largura sobrava menos de 170px por card e estourava a
+   página pros lados (scroll horizontal). 1 coluna dá espaço de sobra pro
+   gauge sem precisar encolher o tamanho dele. */
+@media screen and (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 }
 

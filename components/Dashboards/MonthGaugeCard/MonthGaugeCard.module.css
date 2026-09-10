@@ -67,6 +67,15 @@
   opacity: 1;
 }
 
+/* Em touch não existe ":hover" persistente — o botão (opacity:0 por padrão,
+   só aparece no hover do mouse) ficaria praticamente invisível/impossível
+   de descobrir no celular. */
+@media (hover: none) {
+  .editBtn {
+    opacity: 1;
+  }
+}
+
 .editBtn:hover {
   color: var(--foreground);
   background: color-mix(in srgb, var(--av-accent) 25%, transparent);
