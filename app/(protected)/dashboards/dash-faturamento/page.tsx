@@ -9,7 +9,8 @@ import GoalPaceCard from '@/components/Dashboards/GoalPaceCard/GoalPaceCard';
 import VendorDetailsModal from '@/components/Dashboards/VendorDetailsModal/VendorDetailsModal';
 import DailyStatCard from '@/components/Dashboards/DailyStatCard/DailyStatCard';
 import toBRL from '@/utils/toBRL';
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import {
   FaturamentoMensalProps,
   FaturamentoPorTipoProps,
@@ -66,17 +67,18 @@ export default function Faturamento() {
     label: tipo.tipo_contrato,
     value: Number(tipo.faturamento),
   }));
-  //Carrega os dados do dashboard a partir do filtro de data
-  useEffect(() => {
-    const params = {
-      mes: completeDate.month() + 1,
-      ano: completeDate.year(),
-      codigo_empresa: codigoEmpresa ?? undefined,
-      is_track_record: isHistorico,
-    };
+  // silent=true (chamado pelo auto-refresh) não mexe no isLoading — sem
+  // isso, o dashboard inteiro voltaria a mostrar skeleton a cada 1min.
+  const loadAll = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true);
 
-    async function loadAll() {
-      setIsLoading(true);
+      const params = {
+        mes: completeDate.month() + 1,
+        ano: completeDate.year(),
+        codigo_empresa: codigoEmpresa ?? undefined,
+        is_track_record: isHistorico,
+      };
 
       const results = await Promise.allSettled([
         getRankingVendedores(params),
@@ -101,11 +103,20 @@ export default function Faturamento() {
       if (ritmoMeta.status === 'fulfilled') setRitmoDeMeta(ritmoMeta.value.data?.[0] ?? null);
       else console.error(ritmoMeta.reason);
 
-      setIsLoading(false);
-    }
+      if (!silent) setIsLoading(false);
+    },
+    [completeDate, codigoEmpresa, isHistorico]
+  );
 
+  //Carrega os dados do dashboard a partir do filtro de data
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- busca os dados da API (fonte externa) quando mês/empresa/histórico mudam
     loadAll();
-  }, [completeDate, codigoEmpresa, isHistorico]);
+  }, [loadAll]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => loadAll(true));
 
   const faturamento = (
     <DashboardGrid>

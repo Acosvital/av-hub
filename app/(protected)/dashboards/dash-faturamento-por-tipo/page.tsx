@@ -20,6 +20,7 @@ import {
 } from '@/services/dashboards/dashboardFaturamento';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import DashboardScrollStack from '@/components/Dashboards/DashboardScrollStack/DashboardScrollStack';
 import { LineChart, PieChart } from '@mui/x-charts';
 import { chartsGridClasses } from '@mui/x-charts/ChartsGrid';
@@ -214,29 +215,30 @@ export default function FaturamentoPorTipo() {
   const otherClients = clientRanking.slice(3);
   const clientScrollDuration = `${otherClients.length * 3}s`;
 
-  //Carrega os dados do dashboard a partir do filtro de data
-  useEffect(() => {
-    const params = {
-      mes: completeDate.month() + 1,
-      ano: completeDate.year(),
-      codigo_empresa: codigoEmpresa ?? undefined,
-    };
+  // silent=true (chamado pelo auto-refresh) não mexe no isLoading — sem
+  // isso, o dashboard inteiro voltaria a mostrar skeleton a cada 1min.
+  const loadAll = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true);
 
-    // O endpoint de faturamento-por-tipo exige mes/ano e só devolve um mês por chamada
-    // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
-    // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
-    // nunca cruzar pro ano anterior.
-    const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
-      const data = completeDate.startOf('year').add(i, 'month');
-      return {
-        mes: data.month() + 1,
-        ano: data.year(),
+      const params = {
+        mes: completeDate.month() + 1,
+        ano: completeDate.year(),
         codigo_empresa: codigoEmpresa ?? undefined,
       };
-    });
 
-    async function loadAll() {
-      setIsLoading(true);
+      // O endpoint de faturamento-por-tipo exige mes/ano e só devolve um mês por chamada
+      // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
+      // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
+      // nunca cruzar pro ano anterior.
+      const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
+        const data = completeDate.startOf('year').add(i, 'month');
+        return {
+          mes: data.month() + 1,
+          ano: data.year(),
+          codigo_empresa: codigoEmpresa ?? undefined,
+        };
+      });
 
       const faturamentoPorTipoHistorico = Promise.allSettled(
         mesesHistorico.map((mesAno) => getFaturamentoPorTipo(mesAno))
@@ -263,11 +265,20 @@ export default function FaturamentoPorTipo() {
         setClientRankingData(rankingClientes.value.data ?? []);
       else console.error(rankingClientes.reason);
 
-      setIsLoading(false);
-    }
+      if (!silent) setIsLoading(false);
+    },
+    [completeDate, codigoEmpresa]
+  );
 
+  //Carrega os dados do dashboard a partir do filtro de data
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- busca os dados da API (fonte externa) quando mês/empresa mudam
     loadAll();
-  }, [completeDate, codigoEmpresa]);
+  }, [loadAll]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => loadAll(true));
 
   const faturamentoDetalhado = (
     <DashboardGrid>

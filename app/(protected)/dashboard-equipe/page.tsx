@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import PageHeader from '@/components/Layout/PageLayout/PageHeader/PageHeader';
 import PageContent from '@/components/Layout/PageLayout/PageContent/PageContent';
@@ -11,6 +11,7 @@ import ClienteDetalhesModalEquipe, {
   ClienteDetalhesEquipeProps,
 } from '@/components/PortalGerente/ClienteDetalhesModalEquipe/ClienteDetalhesModalEquipe';
 import useDashboardDate from '@/hooks/useDashboardDate';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import { getDashboardEquipe, DashboardEquipeResponse } from '@/services/portalGerente/dashboardEquipe';
 import { getClientesInativosEquipe } from '@/services/portalGerente/clientesInativosEquipe';
 import { ClienteInativoEmpresaProps } from '@/lib/api/dashboardEquipeDomain';
@@ -47,9 +48,11 @@ export default function DashboardEquipe() {
   );
   const { completeDate } = useDashboardDate();
 
-  useEffect(() => {
-    async function carregar() {
-      setLoading(true);
+  // silent=true (chamado pelo auto-refresh) não mexe no loading — sem isso,
+  // o dashboard inteiro voltaria a mostrar o spinner a cada 1min.
+  const carregar = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
       try {
         const dados = await getDashboardEquipe({
           mes: completeDate.month() + 1,
@@ -58,13 +61,23 @@ export default function DashboardEquipe() {
         setResposta(dados);
       } catch (err) {
         console.error(err);
-        setResposta(null);
+        // Num refresh silencioso, um erro passageiro não deve apagar o
+        // dashboard inteiro — mantém o último dado bom na tela.
+        if (!silent) setResposta(null);
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
       }
-    }
+    },
+    [completeDate]
+  );
+
+  useEffect(() => {
     carregar();
-  }, [completeDate]);
+  }, [carregar]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => carregar(true));
 
   useEffect(() => {
     getClientesInativosEquipe({ diasSemComprar: 90 })

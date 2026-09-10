@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import styles from './styles.module.css';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
@@ -45,9 +46,11 @@ export default function Comissoes() {
   const { completeDate } = useDashboardDate();
 
   //Carrega o json montado inteiro do banco, e o faturamento mensal para calcular a gerência;
-  useEffect(() => {
-    const loadDashboard = async () => {
-      setIsLoading(true);
+  // silent=true (chamado pelo auto-refresh) não mexe no isLoading — sem
+  // isso, o dashboard inteiro voltaria a mostrar skeleton a cada 1min.
+  const loadDashboard = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true);
       try {
         const params = { mes: completeDate.month() + 1, ano: completeDate.year() };
         const [comissoesData, faturamentoData] = await Promise.all([
@@ -59,11 +62,19 @@ export default function Comissoes() {
       } catch (error) {
         console.error(error);
       } finally {
-        setIsLoading(false);
+        if (!silent) setIsLoading(false);
       }
-    };
+    },
+    [completeDate]
+  );
+
+  useEffect(() => {
     loadDashboard();
-  }, [completeDate]);
+  }, [loadDashboard]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => loadDashboard(true));
 
   // Coordenadores presentes em "excessoes" são vendedores, porém comissão baseada no faturamento total, não gerência:
   const managers: CommissionRow[] = useMemo(() => {

@@ -1,5 +1,6 @@
 'use client';
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import DashboardHeroLayout from '@/components/Dashboards/DashboardHeroLayout/DashboardHeroLayout';
 import DashboardGrid from '@/components/Dashboards/DashboardGrid/DashboardGrid';
 import DashboardWidget from '@/components/Dashboards/DashboardWidget/DashboardWidget';
@@ -76,16 +77,18 @@ const Vendas = () => {
     value: Number(vendasPorTipoPorLabel.get(label)?.vendas) || 0,
   }));
 
-  useEffect(() => {
-    const params = {
-      mes: completeDate.month() + 1,
-      ano: completeDate.year(),
-      codigo_empresa: codigoEmpresa ?? undefined,
-      is_track_record: isHistorico,
-    };
+  // silent=true (chamado pelo auto-refresh) não mexe no isLoading — sem
+  // isso, o dashboard inteiro voltaria a mostrar skeleton a cada 1min.
+  const loadAll = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true);
 
-    async function loadAll() {
-      setIsLoading(true);
+      const params = {
+        mes: completeDate.month() + 1,
+        ano: completeDate.year(),
+        codigo_empresa: codigoEmpresa ?? undefined,
+        is_track_record: isHistorico,
+      };
 
       const results = await Promise.allSettled([
         getRankingVendedoresVendas(params),
@@ -110,11 +113,19 @@ const Vendas = () => {
         setVendasPorTipo(buckets[0]?.entries ?? []);
       } else console.error(vendasTipo.reason);
 
-      setIsLoading(false);
-    }
+      if (!silent) setIsLoading(false);
+    },
+    [completeDate, codigoEmpresa, isHistorico]
+  );
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- busca os dados da API (fonte externa) quando mês/empresa/histórico mudam
     loadAll();
-  }, [completeDate, codigoEmpresa, isHistorico]);
+  }, [loadAll]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => loadAll(true));
 
   const hero = (
     <RevenueGauge

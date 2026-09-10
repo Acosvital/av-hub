@@ -8,6 +8,7 @@ import toBRL from '@/utils/toBRL';
 import toCompactBRL from '@/utils/toCompactBRL';
 import useDashboardDate from '@/hooks/useDashboardDate';
 import useDashboardEmpresa from '@/hooks/useDashboardEmpresa';
+import useAutoRefresh from '@/hooks/useAutoRefresh';
 import {
   getRankingClientesVendas,
   getVendasPorTipo,
@@ -216,28 +217,30 @@ const VendasPorTipo = () => {
     );
   };
 
-  useEffect(() => {
-    const params = {
-      mes: completeDate.month() + 1,
-      ano: completeDate.year(),
-      codigo_empresa: codigoEmpresa ?? undefined,
-    };
+  // silent=true (chamado pelo auto-refresh) não mexe no isLoading — sem
+  // isso, o dashboard inteiro voltaria a mostrar skeleton a cada 1min.
+  const loadAll = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true);
 
-    // O endpoint de vendas-por-tipo exige mes/ano e só devolve um mês por chamada
-    // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
-    // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
-    // nunca cruzar pro ano anterior.
-    const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
-      const data = completeDate.startOf('year').add(i, 'month');
-      return {
-        mes: data.month() + 1,
-        ano: data.year(),
+      const params = {
+        mes: completeDate.month() + 1,
+        ano: completeDate.year(),
         codigo_empresa: codigoEmpresa ?? undefined,
       };
-    });
 
-    async function loadAll() {
-      setIsLoading(true);
+      // O endpoint de vendas-por-tipo exige mes/ano e só devolve um mês por chamada
+      // (sem parâmetros ele quebra com 500 no backend) — para montar o LineChart do
+      // ano vigente, buscamos mês a mês (jan até o mês selecionado) em paralelo, sem
+      // nunca cruzar pro ano anterior.
+      const mesesHistorico = Array.from({ length: completeDate.month() + 1 }, (_, i) => {
+        const data = completeDate.startOf('year').add(i, 'month');
+        return {
+          mes: data.month() + 1,
+          ano: data.year(),
+          codigo_empresa: codigoEmpresa ?? undefined,
+        };
+      });
 
       const vendasPorTipoHistorico = Promise.allSettled(
         mesesHistorico.map((mesAno) => getVendasPorTipo(mesAno))
@@ -264,11 +267,19 @@ const VendasPorTipo = () => {
         setSituacaoPedidos(situacaoPedidosRes.value.data ?? []);
       else console.error(situacaoPedidosRes.reason);
 
-      setIsLoading(false);
-    }
+      if (!silent) setIsLoading(false);
+    },
+    [completeDate, codigoEmpresa]
+  );
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- busca os dados da API (fonte externa) quando mês/empresa mudam
     loadAll();
-  }, [completeDate, codigoEmpresa]);
+  }, [loadAll]);
+
+  // Mantém o dashboard atualizado sozinho (a cada 1min, pausado com a aba
+  // em background) — ver hooks/useAutoRefresh.ts.
+  useAutoRefresh(() => loadAll(true));
 
   const skeletonWidget = (
     <Skeleton
