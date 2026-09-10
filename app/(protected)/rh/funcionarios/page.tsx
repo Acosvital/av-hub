@@ -37,8 +37,8 @@ import {
   definirReportaA,
   deletarOrganogramaNode,
   getOrganogramaNode,
+  limparOverridesApontandoPara,
   NIVEL_MINIMO_HIERARQUIA,
-  recomputeSectorHierarchy,
 } from '@/services/rh/organogramaNodes';
 import { getUnidades } from '@/services/cadastros/auxiliares/unidades';
 import { getSetores } from '@/services/cadastros/auxiliares/setores';
@@ -110,7 +110,6 @@ export default function Funcionarios() {
   // formulário, e o que o organograma tinha registrado ao abrir a edição
   // (pra saber se o usuário realmente mudou a escolha manual ou não).
   const [candidatosReportaA, setCandidatosReportaA] = useState<FuncionarioProps[]>([]);
-  const [original, setOriginal] = useState<{ id_cargo: string; id_setor: string } | null>(null);
   const [reportaAOriginal, setReportaAOriginal] = useState('');
 
   const [nomeInput, setNomeInput] = useState('');
@@ -254,7 +253,6 @@ export default function Funcionarios() {
 
   const abrirCriacaoModal = () => {
     setEditingId(null);
-    setOriginal(null);
     setReportaAOriginal('');
     setForm(FORM_INICIAL);
     setFotoPreviewUrl(null);
@@ -263,15 +261,15 @@ export default function Funcionarios() {
 
   const abrirEdicaoModal = async (funcionario: FuncionarioProps) => {
     setEditingId(funcionario.id);
-    setOriginal({ id_cargo: funcionario.id_cargo, id_setor: funcionario.id_setor });
     setFotoPreviewUrl(funcionario.photo_signed_url ?? null);
 
-    // O nó só conta como "reporta a" manual quando aponta pra uma pessoa —
-    // se aponta pro próprio setor, é o resultado do cálculo automático.
+    // Qualquer nó existente é um override manual — o banco só calcula o
+    // padrão automático quando não existe nenhuma linha (ver
+    // services/rh/organogramaNodes.ts).
     let reportaAAtual = '';
     try {
       const node = await getOrganogramaNode(funcionario.id);
-      if (node?.parent_id && node.parent_id !== funcionario.id_setor) {
+      if (node?.parent_id) {
         reportaAAtual = node.parent_id;
       }
     } catch {
@@ -372,18 +370,18 @@ export default function Funcionarios() {
 
       // Mantém o organograma consistente — best-effort: uma falha aqui não
       // deve derrubar o cadastro do funcionário, que já foi salvo com sucesso.
+      // Cargo/setor sozinhos não precisam de nenhuma ação aqui: o banco
+      // recalcula o pai padrão automaticamente a partir deles (ver
+      // services/rh/organogramaNodes.ts). Só a escolha manual de "reporta a"
+      // precisa ser gravada (ou apagada, se o usuário voltou pro automático).
       if (novoId) {
-        const cargoMudou = !editingId || original?.id_cargo !== payload.id_cargo;
-        const setorMudou = !editingId || original?.id_setor !== payload.id_setor;
         const reportaAMudou = form.reporta_a_id !== reportaAOriginal;
-        if (cargoMudou || setorMudou || reportaAMudou) {
+        if (reportaAMudou) {
           try {
-            await recomputeSectorHierarchy(payload.id_setor);
-            if (editingId && setorMudou && original) {
-              await recomputeSectorHierarchy(original.id_setor);
-            }
             if (form.reporta_a_id) {
               await definirReportaA(novoId, form.reporta_a_id);
+            } else {
+              await deletarOrganogramaNode(novoId);
             }
           } catch (err) {
             console.error('Falha ao sincronizar hierarquia do organograma', err);
@@ -408,10 +406,13 @@ export default function Funcionarios() {
       await deletarFuncionario(editingId);
       notify.success('Funcionário excluído com sucesso');
 
-      // Best-effort — remove o nó dessa pessoa e redistribui quem reportava a ela.
+      // Best-effort — remove o nó dessa pessoa e limpa overrides de colegas
+      // que apontavam manualmente pra ela (senão ficam presos a um "reporta
+      // a" que não existe mais). Quem reportava a ela automaticamente já
+      // recalcula sozinho, sem ação nenhuma daqui.
       try {
         await deletarOrganogramaNode(editingId);
-        if (idSetorAntigo) await recomputeSectorHierarchy(idSetorAntigo);
+        if (idSetorAntigo) await limparOverridesApontandoPara(idSetorAntigo, editingId);
       } catch (err) {
         console.error('Falha ao atualizar organograma após exclusão', err);
       }
