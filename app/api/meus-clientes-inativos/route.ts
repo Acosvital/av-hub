@@ -55,10 +55,12 @@ export async function GET(request: NextRequest) {
       nomesUnidades(headers),
     ]);
 
+    // Do que acabou de completar 90 dias sem comprar (mais recente) pro que
+    // está inativo há mais tempo (mais longe) — não o contrário.
     const todos = listas
       .flat()
       .map((c) => ({ ...c, unidade: unidades.get(c.codigo_empresa) ?? c.codigo_empresa }))
-      .sort((a, b) => b.dias_sem_comprar - a.dias_sem_comprar);
+      .sort((a, b) => a.dias_sem_comprar - b.dias_sem_comprar);
 
     return NextResponse.json({ vinculado: true, data: todos });
   } catch (error) {

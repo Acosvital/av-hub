@@ -307,9 +307,11 @@ export async function clientesInativosEmpresa(
     { headers, cache: 'no-store' }
   ).catch(() => null);
 
+  // Do que acabou de completar 90 dias sem comprar (mais recente) pro que
+  // está inativo há mais tempo (mais longe) — não o contrário.
   return (resposta?.data ?? [])
     .map((c) => ({ ...c, unidade: unidades.get(c.codigo_empresa) ?? c.codigo_empresa }))
-    .sort((a, b) => b.dias_sem_comprar - a.dias_sem_comprar)
+    .sort((a, b) => a.dias_sem_comprar - b.dias_sem_comprar)
     .slice(0, limite);
 }
 
