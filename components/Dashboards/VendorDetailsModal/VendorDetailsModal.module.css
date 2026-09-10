@@ -201,18 +201,34 @@
 }
 
 @media screen and (max-width: 768px) {
+  .vendorModalCard {
+    /* 70dvh (valor pro layout lado a lado, cada painel com o próprio
+       scroll) sobrava pouco pra .allOrders quando .vendorDetails sozinho
+       (avatar, valores, tiles de tipo) já ocupava quase tudo — dá mais
+       espaço de tela real no celular. */
+    max-height: 90dvh;
+  }
+
   .modalContent {
     flex-direction: column;
     width: 100%;
+    /* Painel de cima e lista de pedidos viram UMA rolagem só (em vez de
+       duas caixas com scroll próprio empilhadas) — sem isso, .vendorDetails
+       (flex-shrink:0, sem limite de altura) tomava todo o espaço e
+       .allOrders ficava espremido a quase 0px, sem jeito de rolar até o
+       resto dos pedidos. */
+    overflow-y: auto;
   }
 
   .vendorDetails {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+    overflow-y: visible;
   }
 
   .allOrders {
     align-items: center;
+    overflow-y: visible;
   }
 }

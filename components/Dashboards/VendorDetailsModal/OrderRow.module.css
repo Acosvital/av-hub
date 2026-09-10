@@ -234,6 +234,18 @@
     max-width: 320px;
   }
 
+  /* Sem isso, os grid-column:2/3/4 de cada célula criam colunas implícitas
+     à direita da única coluna declarada acima (o grid só tem 1fr explícito)
+     — em vez de empilhar, as células ficam lado a lado espremidas em
+     colunas de largura quase zero, texto sobrepondo texto. */
+  .rowTop,
+  .client,
+  .noSla .client,
+  .slaCol,
+  .valueCol {
+    grid-column: 1;
+  }
+
   .tags {
     justify-content: flex-start;
   }
