@@ -99,7 +99,23 @@
   border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  /* background-color (não o shorthand "background") — o background-image de
+     brilho logo abaixo soma no mesmo elemento; o shorthand apagaria isso.
+     Mesmo brilho accent+blue do modal de Detalhe do Vendedor — só o hero
+     (card principal da tela) recebe, os tiles/listas abaixo ficam no vidro
+     simples pra não poluir a tela inteira de brilho. */
   background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  background-image:
+    radial-gradient(
+      420px 260px at 6% -25%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      380px 300px at 100% 30%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   padding: var(--space-6);
@@ -167,6 +183,7 @@
 .heroBody h2 {
   margin: 0 0 var(--space-1);
   font-size: var(--fs-xl);
+  color: var(--av-accent);
 }
 
 .heroBody .sub {
@@ -209,12 +226,57 @@
 
 /* ============ TILES (faturamento) ============ */
 .sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--fs-xs);
   font-weight: var(--w-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--foreground-secondary);
   margin: 0 0 var(--space-3);
+}
+
+/* Pontinho colorido antes do título — mesma identidade visual usada nos
+   cabeçalhos de card dos dashboards de Vendas/Faturamento (dash-vendas
+   .titleDot), só que aqui cada seção tem sua própria cor pra diferenciar
+   faturamento / vencimentos / classificação / clientes / produtos / alerta
+   à primeira vista, em vez de títulos todos com o mesmo peso visual. */
+.titleDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotGold {
+  background-color: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
+}
+
+.dotOrange {
+  background-color: var(--orange);
+  box-shadow: 0 0 6px var(--orange);
+}
+
+.dotBlue {
+  background-color: var(--blue);
+  box-shadow: 0 0 6px var(--blue);
+}
+
+.dotGreen {
+  background-color: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.dotPink {
+  background-color: var(--pink);
+  box-shadow: 0 0 6px var(--pink);
+}
+
+.dotRed {
+  background-color: var(--red);
+  box-shadow: 0 0 6px var(--red);
 }
 
 .tiles {
@@ -247,6 +309,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Métrica principal do tile (ex.: "Total faturado") — mesmo destaque em
+   laranja da marca usado no valor principal do hero e no modal de Detalhe
+   do Vendedor, pra puxar o olho antes das métricas secundárias ao lado. */
+.tileValueAccent {
+  color: var(--av-accent);
+}
+
 .tileSub {
   font-size: var(--fs-xs);
   color: var(--foreground-secondary);
@@ -255,7 +324,11 @@
 
 .tileAlerta {
   font-size: var(--fs-xs);
-  color: var(--graphite);
+  /* Era var(--graphite) — um cinza neutro, sem nenhuma leitura de alerta,
+     pra um aviso que pede ação ("classifique esses pedidos"). Laranja
+     (mesma cor de urgência usada nos vencimentos/SLA) deixa claro que isso
+     é um pendente, não só mais uma legenda. */
+  color: var(--orange);
   margin: var(--space-2) 0 0;
   font-weight: var(--w-semibold);
 }

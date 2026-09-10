@@ -18,7 +18,7 @@ import { TipoContrato } from '@/lib/api/meuDashboardDomain';
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
-import { trilhaMeta } from '@/utils/metaColor';
+import { trilhaMeta, corPorMetaBatida } from '@/utils/metaColor';
 import { calcularSlaPedido } from '@/utils/slaPedido';
 // Mesmo visual do Meu Dashboard (Portal do Vendedor) — reaproveita o CSS
 // module direto em vez de duplicar a folha de estilo inteira.
@@ -160,11 +160,16 @@ export default function DashboardEquipe() {
               </div>
             </div>
 
-            <p className={styles.sectionLabel}>Faturamento do mês</p>
+            <p className={styles.sectionLabel}>
+              <span className={`${styles.titleDot} ${styles.dotGold}`} />
+              Faturamento do mês
+            </p>
             <div className={styles.tiles}>
               <div className={styles.tile}>
                 <p className={styles.tileLabel}>Total faturado</p>
-                <p className={styles.tileValue}>{toBRL(faturamento.valor)}</p>
+                <p className={`${styles.tileValue} ${styles.tileValueAccent}`}>
+                  {toBRL(faturamento.valor)}
+                </p>
                 <p className={styles.tileSub}>
                   {faturamento.quantidade} nota{faturamento.quantidade === 1 ? '' : 's'} fiscal
                   {faturamento.quantidade === 1 ? '' : 'is'} emitida
@@ -186,7 +191,12 @@ export default function DashboardEquipe() {
               </div>
               <div className={styles.tile}>
                 <p className={styles.tileLabel}>% da meta batida</p>
-                <p className={styles.tileValue}>{faturamento.percAtingimento.toFixed(1)}%</p>
+                <p
+                  className={styles.tileValue}
+                  style={{ color: corPorMetaBatida(faturamento.percAtingimento) }}
+                >
+                  {faturamento.percAtingimento.toFixed(1)}%
+                </p>
                 <p className={styles.tileSub}>meta de faturamento: {toBRL(faturamento.meta)}</p>
               </div>
               <div className={styles.tile}>
@@ -198,7 +208,10 @@ export default function DashboardEquipe() {
 
             {resposta?.proximosVencimentos && resposta.proximosVencimentos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Próximos vencimentos</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotOrange}`} />
+                  Próximos vencimentos
+                </p>
                 <div className={styles.listaClientes}>
                   {resposta.proximosVencimentos.map((p) => {
                     const sla = calcularSlaPedido(p.data_previsao, false);
@@ -243,7 +256,10 @@ export default function DashboardEquipe() {
 
             {classificacaoPedidos && (
               <>
-                <p className={styles.sectionLabel}>Classificação dos pedidos</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotBlue}`} />
+                  Classificação dos pedidos
+                </p>
                 <div className={styles.tiles}>
                   {TIPOS.map((tipo) => {
                     const item = classificacaoPedidos[tipo];
@@ -271,7 +287,10 @@ export default function DashboardEquipe() {
 
             {resposta?.topClientes && resposta.topClientes.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Melhores clientes da empresa no mês</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotGreen}`} />
+                  Melhores clientes da empresa no mês
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosTopClientes
                     ? resposta.topClientes
@@ -317,7 +336,10 @@ export default function DashboardEquipe() {
 
             {resposta?.topProdutos && resposta.topProdutos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Produtos mais vendidos da empresa no mês</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotPink}`} />
+                  Produtos mais vendidos da empresa no mês
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosTopProdutos
                     ? resposta.topProdutos
@@ -347,7 +369,10 @@ export default function DashboardEquipe() {
 
             {clientesInativos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Clientes sem comprar há 90+ dias</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotRed}`} />
+                  Clientes sem comprar há 90+ dias
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosInativos
                     ? clientesInativos

@@ -17,7 +17,7 @@ import { ClienteInativoProps, MeuDashboardResponse, TipoContrato } from './types
 import toBRL from '@/utils/toBRL';
 import dateFormatter from '@/utils/dateFormatter';
 import TIPO_CONTRATO_COLORS from '@/utils/tipoContratoColors';
-import { trilhaMeta } from '@/utils/metaColor';
+import { trilhaMeta, corPorMetaBatida } from '@/utils/metaColor';
 import { calcularSlaPedido } from '@/utils/slaPedido';
 import styles from './styles.module.css';
 
@@ -173,11 +173,16 @@ export default function MeuDashboard() {
               </div>
             </div>
 
-            <p className={styles.sectionLabel}>Faturamento do mês</p>
+            <p className={styles.sectionLabel}>
+              <span className={`${styles.titleDot} ${styles.dotGold}`} />
+              Faturamento do mês
+            </p>
             <div className={styles.tiles}>
               <div className={styles.tile}>
                 <p className={styles.tileLabel}>Total faturado</p>
-                <p className={styles.tileValue}>{toBRL(faturamento.valor)}</p>
+                <p className={`${styles.tileValue} ${styles.tileValueAccent}`}>
+                  {toBRL(faturamento.valor)}
+                </p>
                 <p className={styles.tileSub}>
                   {faturamento.quantidade} nota{faturamento.quantidade === 1 ? '' : 's'} fiscal
                   {faturamento.quantidade === 1 ? '' : 'is'} emitida
@@ -203,7 +208,12 @@ export default function MeuDashboard() {
               </div>
               <div className={styles.tile}>
                 <p className={styles.tileLabel}>% da meta individual batida</p>
-                <p className={styles.tileValue}>{faturamento.perc_meta.toFixed(1)}%</p>
+                <p
+                  className={styles.tileValue}
+                  style={{ color: corPorMetaBatida(faturamento.perc_meta) }}
+                >
+                  {faturamento.perc_meta.toFixed(1)}%
+                </p>
                 <p className={styles.tileSub}>sem régua de cor por faixa neste indicador</p>
               </div>
               <div className={styles.tile}>
@@ -215,7 +225,10 @@ export default function MeuDashboard() {
 
             {resposta.proximosVencimentos && resposta.proximosVencimentos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Próximos vencimentos</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotOrange}`} />
+                  Próximos vencimentos
+                </p>
                 <div className={styles.listaClientes}>
                   {resposta.proximosVencimentos.map((p) => {
                     const sla = calcularSlaPedido(p.data_previsao, false);
@@ -257,7 +270,10 @@ export default function MeuDashboard() {
 
             {classificacaoPedidos && (
               <>
-                <p className={styles.sectionLabel}>Classificação dos meus pedidos</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotBlue}`} />
+                  Classificação dos meus pedidos
+                </p>
                 <div className={styles.tiles}>
                   {TIPOS.map((tipo) => {
                     const item = classificacaoPedidos[tipo];
@@ -294,7 +310,10 @@ export default function MeuDashboard() {
 
             {resposta.topClientes && resposta.topClientes.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Meus melhores clientes no mês</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotGreen}`} />
+                  Meus melhores clientes no mês
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosTopClientes
                     ? resposta.topClientes
@@ -340,7 +359,10 @@ export default function MeuDashboard() {
 
             {resposta.topProdutos && resposta.topProdutos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Meus produtos mais vendidos no mês</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotPink}`} />
+                  Meus produtos mais vendidos no mês
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosTopProdutos
                     ? resposta.topProdutos
@@ -372,7 +394,10 @@ export default function MeuDashboard() {
 
             {clientesInativos.length > 0 && (
               <>
-                <p className={styles.sectionLabel}>Clientes sem comprar há 90+ dias</p>
+                <p className={styles.sectionLabel}>
+                  <span className={`${styles.titleDot} ${styles.dotRed}`} />
+                  Clientes sem comprar há 90+ dias
+                </p>
                 <div className={styles.listaClientes}>
                   {(verTodosInativos
                     ? clientesInativos
