@@ -14,6 +14,7 @@ import {
   LuFileText,
   LuUsersRound,
   LuCalendarCheck,
+  LuBadgeDollarSign,
 } from 'react-icons/lu';
 
 const style = {
@@ -39,6 +40,7 @@ const iconMap = {
   'pedidos-equipe': <LuClipboardList style={style} />,
   'notas-equipe': <LuFileText style={style} />,
   fechamento: <LuCalendarCheck style={style} />,
+  comissoes: <LuBadgeDollarSign style={style} />,
 };
 
 export default iconMap;

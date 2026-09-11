@@ -1,0 +1,117 @@
+/* Mesmo "receita" visual dos outros cadastros (pageGlow/tableCard/loading —
+   ver cadastros/auxiliares/{setores,cargos,produtos,unidades}/styles.module.css).
+   Cada tela mantém sua própria cópia deste bloco em vez de importar de um
+   diretório irmão de outro grupo de menu (aqui seria estranho puxar de
+   cadastros/auxiliares/* para uma tela de comissoes/*). Classes de formulário
+   de modal (não usadas — esta tela é somente leitura) foram omitidas. */
+
+.pageGlow {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+}
+
+.pageGlow::before {
+  content: '';
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  bottom: 0;
+  left: -1rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 560px at 8% -15%,
+      color-mix(in srgb, var(--av-accent) var(--glow-accent-op), transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 650px at 100% 20%,
+      color-mix(in srgb, var(--blue) var(--glow-blue-op), transparent),
+      transparent 65%
+    );
+}
+
+@media screen and (max-width: 768px) {
+  .pageGlow::before {
+    top: calc(-1.5rem - var(--space-4) - 40px - var(--space-2));
+  }
+}
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
+}
+
+.pageHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background-color: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  overflow: hidden;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  flex: 1;
+}
+
+.loading span {
+  color: var(--foreground);
+  font-size: var(--fs-xl);
+  font-family: var(--font-sans);
+}
+
+.loading svg {
+  color: var(--av-accent);
+}
+
+/* Filtros de texto (Número do Pedido / Cliente / Vendedor) — o período em si
+   agora é o MesSeletor no pageHeaderRow, não mais um DatePicker aqui. */
+.filtersRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.filterField {
+  min-width: 180px;
+  flex: 1 1 180px;
+}
