@@ -1,0 +1,230 @@
+.inputContainers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+
+.field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.fieldSmall {
+  flex: 1;
+  min-width: 140px;
+}
+
+.itemsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.numericCell {
+  min-width: 110px;
+}
+
+.removeButtonCell {
+  width: 40px;
+}
+
+.itemCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.itemCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  background: var(--card-bg-secondary, rgba(128, 128, 128, 0.05));
+}
+
+.itemCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemCardIndex {
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.produtoAutocomplete {
+  width: 100%;
+}
+
+.optionSubtext {
+  font-size: var(--fs-sm);
+  opacity: 0.7;
+}
+
+.itemDescricao {
+  width: 100%;
+}
+
+.itemDescricao textarea {
+  font-size: var(--fs-md);
+}
+
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3, 12px);
+}
+
+.itemFornecedor {
+  width: 100%;
+}
+
+.itemFornecedor input {
+  cursor: pointer;
+}
+
+.modalBuscaFornecedor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 320px;
+}
+
+.listaFornecedores {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.fornecedorOpcao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-3, 12px);
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.fornecedorOpcao:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.fornecedorNome {
+  font-weight: var(--w-bold);
+}
+
+.calcularContainer {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-6) 0;
+}
+
+.resultado {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--card-bg-secondary, rgba(128, 128, 128, 0.08));
+}
+
+.kpiLabel {
+  font-size: var(--fs-sm);
+  color: var(--foreground-secondary, inherit);
+  opacity: 0.75;
+}
+
+.kpiValue {
+  font-size: var(--fs-xl);
+  font-weight: var(--w-bold);
+}
+
+.letraBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  font-size: var(--fs-xl);
+  font-weight: var(--w-bold);
+  color: #fff;
+}
+
+.letraA {
+  background: var(--green, #2e7d32);
+}
+.letraB {
+  background: #558b2f;
+}
+.letraC {
+  background: #f9a825;
+}
+.letraD {
+  background: #c62828;
+}
+
+.statusPrejuizo {
+  color: #c62828;
+  font-weight: var(--w-bold);
+}
+
+.statusOk {
+  color: var(--green, #2e7d32);
+  font-weight: var(--w-bold);
+}
+
+.itemStatus {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  white-space: nowrap;
+}
+
+.itemStatusOk {
+  background: rgba(46, 125, 50, 0.15);
+  color: #2e7d32;
+}
+.itemStatusNegociar {
+  background: rgba(249, 168, 37, 0.18);
+  color: #b8860b;
+}
+.itemStatusPrejuizo {
+  background: rgba(198, 40, 40, 0.15);
+  color: #c62828;
+}
+
+.aviso {
+  font-size: var(--fs-sm);
+  opacity: 0.75;
+  margin-top: var(--space-2);
+}

@@ -14,6 +14,7 @@ import {
   LuFileText,
   LuUsersRound,
   LuCalendarCheck,
+  LuFlaskConical,
   LuBadgeDollarSign,
 } from 'react-icons/lu';
 
@@ -32,6 +33,7 @@ const iconMap = {
   cadastros: <LuDatabase style={style} />,
   admin: <LuSettings style={style} />,
   pcp: <LuFactory style={style} />,
+  experimental: <LuFlaskConical style={style} />,
   rh: <LuUsers style={style} />,
   'meu-dashboard': <LuGauge style={style} />,
   'meus-pedidos': <LuClipboardList style={style} />,

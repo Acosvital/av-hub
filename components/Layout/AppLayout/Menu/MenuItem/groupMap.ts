@@ -11,6 +11,7 @@ const groupMap: Record<string, string> = {
   compras: 'Operações',
   orcamento: 'Operações',
   pcp: 'Operações',
+  experimental: 'Operações',
   rh: 'Gestão de Pessoas',
   cadastros: 'Gestão de Pessoas',
   admin: 'Configurações',
